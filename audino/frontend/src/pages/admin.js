@@ -149,10 +149,26 @@ class Admin extends React.Component {
       .then((response) => {
         const { annotations } = response.data;
         if (annotations) {
-          this._export_raw(
-            `${projectName}.json`,
-            JSON.stringify(annotations, null, 2)
-          );
+          var data = annotations;//JSON.stringify(annotations, null, 2)
+          console.log(data)
+          try {
+            var csvContent = '';
+            //console.log(type(data))
+            data.forEach(function(infoArray, index) {
+              var dataString = infoArray.join(',');
+              if (index + 1 == data.length) {
+                csvContent += dataString + '\n'
+                console.log(csvContent)
+              } else {
+                csvContent += dataString;
+                console.log(csvContent)
+              }  
+            });
+            this._export_raw(`${projectName}.csv`, data);
+          } catch(e) {
+            console.log(e)
+            //this._export_raw(`${projectName}.csv`, data);
+          }  
         } else {
           console.log("No annotations found");
         }
