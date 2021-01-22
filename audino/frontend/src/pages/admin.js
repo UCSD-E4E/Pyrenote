@@ -124,7 +124,7 @@ class Admin extends React.Component {
 
   _export_raw(name, data) {
     let urlObject = window.URL || window.webkitURL || window;
-    let export_blob = new Blob([data]);
+    let export_blob = new Blob(data);
 
     if ("msSaveBlob" in navigator) {
       navigator.msSaveBlob(export_blob, name);
@@ -152,17 +152,17 @@ class Admin extends React.Component {
           var data = annotations;//JSON.stringify(annotations, null, 2)
           console.log(data)
           try {
-            var csvContent = '';
+            var csvContent = "data:text/csv;charset=utf-8,";
             //console.log(type(data))
             data.forEach(function(infoArray, index) {
               var dataString = infoArray.join(',');
-              if (index + 1 == data.length) {
-                csvContent += dataString + '\n'
-                console.log(csvContent)
-              } else {
-                csvContent += dataString;
-                console.log(csvContent)
-              }  
+              console.log(infoArray)
+              console.log(dataString)
+              csvContent += dataString + '\n'
+              console.log(csvContent)
+              console.log("===========================================")
+              //https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+              //TODO: USE DOWNLOAD METHOD HERE
             });
             this._export_raw(`${projectName}.csv`, data);
           } catch(e) {
