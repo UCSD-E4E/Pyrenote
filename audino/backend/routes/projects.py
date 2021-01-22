@@ -11,6 +11,7 @@ from backend.models import Project, User, Label, Data, Segmentation, LabelValue
 from . import api
 from .data import generate_segmentation
 
+from backend.routes import JsonLabelsToCsv;
 
 def generate_api_key():
     return uuid.uuid4().hex
@@ -734,19 +735,24 @@ def get_project_annotations(project_id):
                 segmentation_dict["annotations"] = values
 
                 data_dict["segmentations"].append(segmentation_dict)
-
             annotations.append(data_dict)
-
     except Exception as e:
         message = "Error fetching annotations for project"
         app.logger.error(message)
         app.logger.error(e)
         return jsonify(message=message, type="FETCH_ANNOTATIONS_FAILED"), 500
-
+    try:
+        text =  JsonLabelsToCsv.JsonToText(annotations)
+        #json_return = {annotations: text}
+    except Exception as e:
+        message = "issue making csv text"
+        app.logger.error(message)
+        app.logger.error(e)
+        return jsonify(message=message, type="FETCH_ANNOTATIONS_FAILED"), 600
     return (
         jsonify(
             message="Annotations fetched successfully",
-            annotations=annotations,
+            annotations=text,
             type="FETCH_ANNOTATION_SUCCESS",
         ),
         200,
