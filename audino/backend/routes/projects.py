@@ -736,23 +736,20 @@ def get_project_annotations(project_id):
 
                 data_dict["segmentations"].append(segmentation_dict)
             annotations.append(data_dict)
+        text, csv =  JsonLabelsToCsv.JsonToText(annotations)
+        app.logger.info(f'{type(text)}, {text}')
+        json_return = {'annotations': str(text)}
+        app.logger.info("could do this, error isn't here")
     except Exception as e:
         message = "Error fetching annotations for project"
         app.logger.error(message)
         app.logger.error(e)
         return jsonify(message=message, type="FETCH_ANNOTATIONS_FAILED"), 500
-    try:
-        text =  JsonLabelsToCsv.JsonToText(annotations)
-        #json_return = {annotations: text}
-    except Exception as e:
-        message = "issue making csv text"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message, type="FETCH_ANNOTATIONS_FAILED"), 600
+
     return (
         jsonify(
             message="Annotations fetched successfully",
-            annotations=text,
+            annotations=csv,
             type="FETCH_ANNOTATION_SUCCESS",
         ),
         200,

@@ -24,9 +24,12 @@ def JsonToCsv(data, filename):
             #last_modified = audio['last_modified']
             segments = audio['segmentations']
             for region in segments:
+                if len(region['annotations']) == 0:
+                    label = "NO LABEL"
+                else:
+                    label = list(region['annotations'].values())[0]['values']['value']
                 print(region)
                 print(type(segments))
-                label = list(region['annotations'].values())[0]['values']['value']
                 print(label)
                 last_modified = region['last_modified']
                 end = region['end_time']
@@ -36,7 +39,9 @@ def JsonToCsv(data, filename):
 def JsonToText(data):
     #print(data)
     text = ""
+    csv = []
     text = write_row(text, ['filename', 'label', 'start', 'duration',  'created_at', 'last_modified', 'is_marked_for_review', 'assigned_users'])
+    csv.append(['filename', 'label', 'start', 'duration',  'created_at', 'last_modified', 'is_marked_for_review', 'assigned_users'])
     for audio in data:
         #print(audio)
         original_filename = audio['original_filename']
@@ -47,21 +52,28 @@ def JsonToText(data):
         #last_modified = audio['last_modified']
         segments = audio['segmentations']
         for region in segments:
+            if len(region['annotations']) == 0:
+                label = "NO LABEL"
+            else:
+                label = list(region['annotations'].values())[0]['values']['value']
             print(region)
             print(type(segments))
-            label = list(region['annotations'].values())[0]['values']['value']
+            #label = list(region['annotations'].values())[0]['values']['value']
             print(label)
             last_modified = region['last_modified']
             end = region['end_time']
             start = region['start_time']
             text = write_row(text, [original_filename, label, start, (end-start),  created_at, last_modified, is_marked_for_review, assigned_users])
-    return text
+            csv.append([original_filename, label, start, (end-start),  created_at, last_modified, is_marked_for_review, assigned_users])
+    return text, csv
 
 def write_row(text, row):
     print(row)
+    print(len(row))
     for i in range(len(row)):
+        print(i)
         text = text + str(row[i])
-        if (i == len(row)):
+        if (i == (len(row) - 1)):
             text = text + "\n"
         else:
             text = text + ","
