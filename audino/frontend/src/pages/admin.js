@@ -152,7 +152,13 @@ class Admin extends React.Component {
           var data = annotations;//JSON.stringify(annotations, null, 2)
           console.log(data)
           try {
-            var csvContent = "data:text/csv;charset=utf-8,";
+            var csvContent = '';
+            data.forEach(function(infoArray, index) {
+              var dataString = infoArray.join(',');
+              csvContent += index < data.length ? dataString + '\n' : dataString;
+            });
+
+            /*var csvContent = "data:text/csv;charset=utf-8,";
             //console.log(type(data))
             data.forEach(function(infoArray, index) {
               var dataString = infoArray.join(',');
@@ -164,7 +170,28 @@ class Admin extends React.Component {
               //https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
               //TODO: USE DOWNLOAD METHOD HERE
             });
-            this._export_raw(`${projectName}.csv`, data);
+            this._export_raw(`${projectName}.csv`, data);*/
+            var download = function(content, fileName, mimeType) {
+              var a = document.createElement('a');
+              mimeType = mimeType || 'application/octet-stream';
+            
+              if (navigator.msSaveBlob) { // IE10
+                navigator.msSaveBlob(new Blob([content], {
+                  type: mimeType
+                }), fileName);
+              } else if (URL && 'download' in a) { //html5 A[download]
+                a.href = URL.createObjectURL(new Blob([content], {
+                  type: mimeType
+                }));
+                a.setAttribute('download', fileName);
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              } else {
+                window.location.href = 'data:application/octet-stream,' + encodeURIComponent(content); // only this mime type is supported
+              }
+            }
+            download(csvContent, `${projectName}.csv`, 'text/csv;encoding:utf-8');
           } catch(e) {
             console.log(e)
             //this._export_raw(`${projectName}.csv`, data);
