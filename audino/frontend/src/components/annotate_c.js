@@ -56,7 +56,7 @@ class Annotate_C extends React.Component {
       errorMessage: null,
       errorUnsavedMessage: null,
       successMessage: null,
-      isRendering: false, //TODO: REMEMBER TO SET TO TRUE
+      isRendering: true, //TODO: REMEMBER TO SET TO TRUE
       data: []
     };
 
