@@ -74,23 +74,22 @@ Then, in browser, go to [http://0.0.0.0/](http://0.0.0.0/) to view the applicati
 $ docker-compose -f docker-compose.prod.yml down
 ```
 
-### For Development
+### For Development (Note this is the one we will test on and use)
 
 Similar to `production` setup, you need to use development [configuration](./docker-compose.dev.yml) for working on the project, fixing bugs and making contributions.
 **Note**: Before proceeding further, you might need to give docker `sudo` access or run the commands listed below as `sudo`.
 
-**To build the services, run:**
+**To build the services (do this when you frist start it), run:**
 
 ```sh
 $ docker-compose -f docker-compose.dev.yml build
 ```
 
 **To bring up the services, run:**
-
+**NOte** Remember to cd into audino before starting
 ```sh
 $ docker-compose -f docker-compose.dev.yml up
 ```
-
 Then, in browser, go to [http://localhost:3000/](http://localhost:3000/) to view the application.
 
 **To bring down the services, run:**
@@ -98,6 +97,37 @@ Then, in browser, go to [http://localhost:3000/](http://localhost:3000/) to view
 ```sh
 $ docker-compose -f docker-compose.dev.yml down
 ```
+## Troubleshooting for starting docker
+
+1) Docker containers do not even get a chance to start
+  - Make sure docker is set up properly
+  - Make sure docker itself has started. On windows check the system tray and hover over the icon to see the current status. Restart it if nessary
+2) Backend crashes
+  - For this error, check the top of the log. It should be complaining about /r charaters in the run-dev.sh files
+  - The backend will crash if the endline charaters are not set to LF rather than CRLF
+  - On VSCode, you can swap this locally via going into the file and chaning the CRLF icon in the bottom right to LF
+  - Do this for frontend/scripts/run-dev.sh and backend/scripts/run-dev.sh 
+3) Database migration issues
+  - If the backend complains about compiler issues while the database migration is occuring go into backend/scripts/run-dev.sh
+  - Check to make sure in line 25, the stamp command is pointing to the right migration for the database,
+      - Ask for help on this one
+
+## Getting Started
+
+At this point, the docker should have gotten everything set up. After going to [http://localhost:3000/](http://localhost:3000/) you should be able to log into the docker
+
+To access the site, sign in with the username of **admin** and password of **password**. On logging in navigate to the admin-portal to create your frist project (make sure to make a label group and some labels for the project!).
+
+After creating a project, get the api key by returning to the admin portal. You can use the api key to add data to a project. Create a new terminal (while docker is running the severs) and cd into audino/backend/scripts. Here use the fallowing command:
+
+```
+python upload_mass.py  --username admin.test  --is_marked_for_review True --audio_file C:\REPLACE\THIS\WITH\FOLDER\PATH\TO\AUDIO\DATA --host localhost 
+--port 5000 --api_key REPLACE_THIS_WITH_API_KEY
+```
+Make sure to have a folder with the audio data ready to be added. For testing purposes, get a folder with about 20 clips. 
+
+Once that runs you are ready to start testing!
+
 
 ## Tutorials
 
