@@ -23,7 +23,7 @@ def upgrade():
         "data",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("project_id", sa.Integer(), nullable=False),
-        sa.Column("assigned_user_id", sa.ARRAY(sa.Integer()), nullable=False),
+        #sa.Column("assigned_user_id", sa.ARRAY(sa.Integer()), nullable=False),
         sa.Column("filename", sa.String(length=100), nullable=False),
         sa.Column("original_filename", sa.String(length=100), nullable=False),
         sa.Column("reference_transcription", sa.Text(), nullable=True),
