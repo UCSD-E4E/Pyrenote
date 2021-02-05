@@ -103,6 +103,6 @@ def downgrade():
             mysql.TINYINT(display_width=1),
             autoincrement=False,
             nullable=False,
-        ),
+        )2,
     )
     # ### end Alembic commands ###
