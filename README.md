@@ -17,15 +17,18 @@ Please install the following dependencies to run `audino` on your system:
 ### Clone the repository
 
 ```sh
-$ git clone https://github.com/midas-research/audino.git
+$ git clone https://github.com/UCSD-E4E/Audio_Labeling_System_AID.git
 $ cd audino
 ```
 
 **Note for Windows users**: Please configure git to handle line endings correctly as services might throw an error and not come up. You can do this by cloning the project this way:
 
 ```sh
-$ git clone https://github.com/midas-research/audino.git --config core.autocrlf=input
+$ git clone https://github.com/UCSD-E4E/Audio_Labeling_System_AID.git --config core.autocrlf=input
 ```
+
+### NOTE BEFORE RUNNING THE DOCKER
+**Make sure you ask Sean for the Scripts.zip folder. Once you get it extract the files to audino/backend/venv/**
 
 ### For Production
 
