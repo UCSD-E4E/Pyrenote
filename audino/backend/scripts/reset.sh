@@ -21,7 +21,7 @@ pip3 install -r "${app}/requirements.txt"
 echo "Connecting to database"
 python3 "${app}/scripts/wait_for_database.py"
 
-echo "Starting Reset, hope you deleted the versions folder and brought down the docker compose with down -v"
+echo "Starting Reset, hope you brought down the docker compose with down -v"
 cd "${app}" && rm -rf migrations/versions/*
 cd "${app}" && flask db revision --autogenerate -m "baseline"
 

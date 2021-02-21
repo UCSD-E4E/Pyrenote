@@ -9,11 +9,11 @@ annotation_table = db.Table(
     db.Column(
         "segmentation_id",
         db.Integer(),
-        #db.ForeignKey("segmentation.id"),
+        db.ForeignKey("segmentation.id"),
         nullable=False,
     ),
     db.Column(
-        "label_value_id", db.Integer(),  nullable=False #db.ForeignKey("label_value.id"),
+        "label_value_id", db.Integer(), db.ForeignKey("label_value.id"), nullable=False
     ),
     db.Column("created_at", db.DateTime(), nullable=False, default=db.func.now()),
     db.Column(
@@ -29,8 +29,8 @@ user_project_table = db.Table(
     "user_project",
     db.metadata,
     db.Column("id", db.Integer(), primary_key=True),
-    db.Column("user_id", db.Integer(), nullable=False), #db.ForeignKey("user.id")
-    db.Column("project_id", db.Integer(), nullable=False), #db.ForeignKey("project.id"), 
+    db.Column("user_id", db.Integer(), db.ForeignKey("user.id"), nullable=False),
+    db.Column("project_id", db.Integer(), db.ForeignKey("project.id"), nullable=False),
     db.Column("created_at", db.DateTime(), nullable=False, default=db.func.now()),
     db.Column(
         "last_modified",
@@ -48,7 +48,7 @@ class Data(db.Model):
     id = db.Column("id", db.Integer(), primary_key=True)
 
     project_id = db.Column(
-        "project_id", db.Integer(), nullable=False #db.ForeignKey("project.id")
+        "project_id", db.Integer(), db.ForeignKey("project.id"), nullable=False
     )
 
     assigned_user_id = db.Column(
@@ -114,11 +114,11 @@ class Label(db.Model):
     name = db.Column("name", db.String(32), nullable=False)
 
     project_id = db.Column(
-        "project_id", db.Integer(), nullable=False #db.ForeignKey("project.id"), 
+        "project_id", db.Integer(), db.ForeignKey("project.id"), nullable=False
     )
 
     type_id = db.Column(
-        "type_id", db.Integer(),  nullable=False #db.ForeignKey("label_type.id"),
+        "type_id", db.Integer(), db.ForeignKey("label_type.id"), nullable=False
     )
 
     created_at = db.Column(
@@ -170,7 +170,7 @@ class LabelValue(db.Model):
     id = db.Column("id", db.Integer(), primary_key=True)
 
     label_id = db.Column(
-        "label_id", db.Integer(), nullable=False #db.ForeignKey("label.id")
+        "label_id", db.Integer(), db.ForeignKey("label.id"), nullable=False
     )
 
     value = db.Column("value", db.String(200), nullable=False)
@@ -208,7 +208,7 @@ class Project(db.Model):
     name = db.Column("name", db.String(32), nullable=False, unique=True)
 
     creator_user_id = db.Column(
-        "creator_user_id", db.Integer(), nullable=False #db.ForeignKey("user.id"), 
+        "creator_user_id", db.Integer(), db.ForeignKey("user.id"), nullable=False
     )
 
     api_key = db.Column("api_key", db.String(32), nullable=False, unique=True)
@@ -259,7 +259,7 @@ class Segmentation(db.Model):
     id = db.Column("id", db.Integer(), primary_key=True)
 
     data_id = db.Column(
-        "data_id", db.Integer(), nullable=False #db.ForeignKey("data.id"), 
+        "data_id", db.Integer(), db.ForeignKey("data.id"), nullable=False
     )
 
     start_time = db.Column("start_time", db.Float(), nullable=False)
@@ -315,7 +315,7 @@ class User(db.Model):
     password = db.Column("password", db.String(100), nullable=False)
 
     role_id = db.Column(
-        "role_id", db.Integer(),  nullable=False #db.ForeignKey("role.id"),
+        "role_id", db.Integer(), db.ForeignKey("role.id"), nullable=False
     )
 
     created_at = db.Column(
