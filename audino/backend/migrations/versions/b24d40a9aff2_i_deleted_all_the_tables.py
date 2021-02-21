@@ -1,8 +1,8 @@
-"""empty message
+"""I deleted all the tables
 
-Revision ID: 3e20e7bac34c
-Revises: d8bf64826522
-Create Date: 2020-12-01 10:56:19.146868
+Revision ID: b24d40a9aff2
+Revises: 3f86fe61ebf1
+Create Date: 2021-02-21 21:44:34.964841
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3e20e7bac34c'
-down_revision = 'd8bf64826522'
+revision = 'b24d40a9aff2'
+down_revision = '3f86fe61ebf1'
 branch_labels = None
 depends_on = None
 
