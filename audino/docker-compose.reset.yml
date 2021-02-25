@@ -2,7 +2,7 @@ version: "3.7"
 services:
   backend:
     image: python:3.7
-    command: ["bash", "/app/backend/scripts/run-dev.sh"] 
+    command: ["bash", "/app/backend/scripts/reset.sh"]  
     volumes:
       - ./backend:/app/backend
       - ./backend/venv:/app/backend/venv
