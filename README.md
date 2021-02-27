@@ -28,7 +28,7 @@ $ git clone https://github.com/UCSD-E4E/Audio_Labeling_System_AID.git --config c
 ```
 
 ### NOTE BEFORE RUNNING THE DOCKER
-**Make sure you ask Sean for the Scripts.zip folder. Once you get it extract the files to audino/backend/venv/**
+**Access [this link](https://drive.google.com/file/d/15y_j27Jn3aS2BKt17_3g8T2C07R5p3H5/view?usp=sharing) to get the Scripts.zip folder. Once you get it extract the files to audino/backend/venv/**
 
 ### For Production
 
