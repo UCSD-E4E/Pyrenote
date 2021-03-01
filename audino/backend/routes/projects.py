@@ -6,7 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.urls import url_parse
 
 from backend import app, db
-from backend.models import Project, User, Label, Data, Segmentation, LabelValue
+from backend.models import Project, User, Label, Data, Segmentation, LabelValue, LabelType
 
 from . import api
 from .data import generate_segmentation
@@ -281,14 +281,32 @@ def add_label_to_project(project_id):
         )
 
     try:
+        if (len(LabelType.query.all()) == 0):
+            app.logger.info("Creating labelTypes")
+            select = LabelType(id=1,type='Select')
+
+            mutliselect = LabelType(id=2,type='Multi-select')
+            db.session.add_all([select, mutliselect])   
+            db.session.commit()
+            #db.session.refresh(select)
+            #db.session.refresh(mutliselect)
+            app.logger.info("CREATED labelTypes")
+    except Exception as e:
+        app.logger.info("labelTypes ERROOOOOOOOOOOOOOOR")
+        app.logger.info(e)
+
+    app.logger.info("============================================================================")
+    try:
         project = Project.query.get(project_id)
-        label = Label(name=label_name, type_id=label_type_id)
+        app.logger.info(f"Label: {LabelType.query.all()} AT 0")
+        label = Label(name=label_name, type_id=label_type_id, id=len(Label.query.all()))
         project.labels.append(label)
         db.session.add(project)
         db.session.commit()
         db.session.refresh(label)
     except Exception as e:
         if type(e) == sa.exc.IntegrityError:
+            app.logger.info(e)
             app.logger.info(f"Label: {label_name} already exists!")
             return (
                 jsonify(
