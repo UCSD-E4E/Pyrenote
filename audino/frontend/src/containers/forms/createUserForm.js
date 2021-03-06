@@ -42,11 +42,10 @@ class CreateUserForm extends React.Component {
   }
 
   checkPassword(e) {
-    if(this.state.password !== "" 
-    && document.getElementById(
-      "confirm-password").value !== ""
-    && this.state.password !== document.getElementById(
-      "confirm-password").value ) {
+    let checker = document.getElementById("confirm-password").value;
+    if(this.state.password !== ""  
+    && checker !== "" 
+    && checker !== this.state.password) {
       this.setState({
         isSubmitting: false,
         errorMessage: "Passwords do not match!",
@@ -90,7 +89,7 @@ class CreateUserForm extends React.Component {
     }
 
     let checker = document.getElementById("confirm-password").value;
-    if (!checker || this.state.password !== checker || checker === "") {
+    if (!checker || checker === "" || password !== checker) {
       this.setState({
         isSubmitting: false,
         errorMessage: "Passwords must match!",
