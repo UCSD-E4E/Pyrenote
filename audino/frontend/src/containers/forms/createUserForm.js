@@ -34,10 +34,31 @@ class CreateUserForm extends React.Component {
 
   handlePasswordChange(e) {
     this.setState({ password: e.target.value });
+    this.checkPassword(e);
   }
 
   handleRoleChange(e) {
     this.setState({ role: e.target.value });
+  }
+
+  checkPassword(e) {
+    if(this.state.password !== "" 
+    && document.getElementById(
+      "confirm-password").value !== ""
+    && this.state.password !== document.getElementById(
+      "confirm-password").value ) {
+      this.setState({
+        isSubmitting: false,
+        errorMessage: "Passwords do not match!",
+        successMessage: "",
+      });
+    }
+    else{
+      this.setState({
+        errorMessage: "",
+        successMessage: "",
+      });
+    }
   }
 
   handleUserCreation(e) {
@@ -63,6 +84,16 @@ class CreateUserForm extends React.Component {
       this.setState({
         isSubmitting: false,
         errorMessage: "Please enter a valid password!",
+        successMessage: "",
+      });
+      return;
+    }
+
+    let checker = document.getElementById("confirm-password").value;
+    if (!checker || this.state.password !== checker || checker === "") {
+      this.setState({
+        isSubmitting: false,
+        errorMessage: "Passwords must match!",
         successMessage: "",
       });
       return;
@@ -230,6 +261,16 @@ class CreateUserForm extends React.Component {
                 placeholder="Password"
                 required={true}
                 onChange={(e) => this.handlePasswordChange(e)}
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="password"
+                className="form-control"
+                id="confirm-password"
+                placeholder="Confirm Password"
+                required={true}
+                onChange={(e) => this.checkPassword(e)}
               />
             </div>
             {authNeeded &&
