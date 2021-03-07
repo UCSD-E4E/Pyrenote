@@ -223,6 +223,55 @@ def update_user(user_id):
         200,
     )
 
+@api.route("/users/<int:user_id>", methods=["DELETE"])
+@jwt_required
+def delete_user(user_id):
+    identity = get_jwt_identity()
+    request_user = User.query.filter_by(username=identity["username"]).first()
+    is_admin = True if request_user.role.role == "admin" else False
+
+    if is_admin == False:
+        return jsonify(message="Unauthorized access!"), 401
+
+    if not request.is_json:
+        return jsonify(message="Missing JSON in request"), 400
+
+    role_id = request.json.get("role", None)
+
+    if not role_id:
+        return (jsonify(message="Please provide your role!", type="ROLE_MISSING"), 400)
+
+    role_id = int(role_id)
+    # TODO: Make sure these ids exist in database ie. fetch them from database and check
+    if role_id not in [1, 2]:
+        return (
+            jsonify(message="Please assign correct role!", type="ROLE_INCORRECT"),
+            400,
+        )
+
+    try:
+        users = db.session.query(User).filter_by(role_id=1).all()
+
+        if len(users) == 1 and users[0].id == user_id and role_id == 2:
+            return jsonify(message="Atleast one admin should exist"), 400
+
+        user = User.query.get(user_id)
+        if (request_user == user): 
+            return jsonify(message="CANNOT DELETE YOUR OWN USER"), 600
+        db.session.delete(user)
+        db.session.commit()
+    except Exception as e:
+        app.logger.error("No user found")
+        app.logger.error(e)
+        #return jsonify(message="No user found!"), 404
+
+    return (
+        jsonify(
+            message="User has been deleted!",
+        ),
+        200,
+    )
+
 
 @api.route("/users", methods=["GET"])
 @jwt_required

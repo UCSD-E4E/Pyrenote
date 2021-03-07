@@ -9,6 +9,7 @@ import {
   faUserPlus,
   faTags,
   faDownload,
+  faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import { IconButton } from "../components/button";
 import Loader from "../components/loader";
@@ -84,6 +85,13 @@ class Admin extends React.Component {
   handleEditUser(e, userId) {
     this.setModalShow(true);
     this.setState({ formType: "EDIT_USER", title: "Edit User", userId });
+  }
+
+  handleDeleteUser(e, userId) {
+    //TODO: CREATE MODAL TO CONFRIM BUT FOR NOW MAKE DEV BUTTON
+    console.log("DELETE USER", userId)
+    this.setModalShow(true);
+    this.setState({ formType: "DELETE_USER", title: "Delete User", userId });
   }
 
   handleAddLabelsToProject(e, projectId) {
@@ -371,6 +379,14 @@ class Admin extends React.Component {
                               title={"Edit user"}
                               onClick={(e) =>
                                 this.handleEditUser(e, user["user_id"])
+                              }
+                            />
+                            <IconButton
+                              icon={faTrash}
+                              size="sm"
+                              title={"Delete User"}
+                              onClick={(e) =>
+                                this.handleDeleteUser(e, user["user_id"])
                               }
                             />
                             {/* <IconButton
