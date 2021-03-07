@@ -54,10 +54,21 @@ class ManageUsersProjectForm extends React.Component {
   }
 
   handleUsersChange(e) {
+    const { selectedUsers, updateUsersProject } = this.state;
     const users = Array.from(e.target.selectedOptions, (option) =>
       Number(option.value)
     );
-    this.setState({ selectedUsers: users });
+    for (let i = 0; i < selectedUsers.length; i++) {
+      if (selectedUsers[i] == users[0]) {
+        selectedUsers.splice(i, 1);
+        this.setState({ selectedUsers: selectedUsers });
+        return;
+      }
+    }
+    let array = selectedUsers.concat(users);
+    console.log(array);
+    
+    this.setState({ selectedUsers: array });
   }
 
   handleManageUsersProject(e) {
