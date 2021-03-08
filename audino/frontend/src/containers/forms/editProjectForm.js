@@ -112,8 +112,8 @@ class EditProjectForm extends React.Component {
                 type="text"
                 className="form-control"
                 id="username"
-                placeholder="Username"
-                value={username}
+                placeholder=""
+                value={this.props.projectId}
                 autoFocus={true}
                 required={true}
                 disabled={true}
