@@ -140,6 +140,43 @@ def fetch_project(project_id):
         200,
     )
 
+@api.route("/projects/<int:project_id>", methods=["PATCH"])
+@jwt_required
+def edit_project(project_id):
+    identity = get_jwt_identity()
+    request_user = User.query.filter_by(username=identity["username"]).first()
+    is_admin = True if request_user.role.role == "admin" else False
+
+    if is_admin == False:
+        return jsonify(message="Unauthorized access!"), 401
+
+    try:
+        project = Project.query.get(project_id)
+        newUserName = request.json.get("name", None)
+        project.set_name(newUserName)
+        #user = User.query.get(user_id)
+        #user.set_role(role_id)
+        #user.set_username(newUserName)
+        db.session.commit()
+        
+    except Exception as e:
+        app.logger.error(f"No project exists with Project ID: {project_id}")
+        app.logger.error(e)
+        return (
+            jsonify(
+                message="No project exists with given project_id", project_id=project_id
+            ),
+            404,
+        )
+
+    return (
+        jsonify(
+            project_id=project.id,
+            name=project.name,
+        ),
+        200,
+    )
+
 
 @api.route("/projects/<int:project_id>/users", methods=["PATCH"])
 @jwt_required

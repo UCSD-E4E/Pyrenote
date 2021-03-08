@@ -10,7 +10,7 @@ import ManageUsersProjectForm from "./forms/manageUsersProjectForm";
 import CreateLabelValueForm from "./forms/createLabelValuelForm";
 import EditLabelValueForm from "./forms/editLabelValueForm";
 import DeleteUserForm from "./forms/deleteUser";
-
+import EditProjectForm from "./forms/editProjectForm"
 const FormModal = (props) => {
   return (
     <Modal
@@ -31,6 +31,9 @@ const FormModal = (props) => {
         {props.formType === "NEW_PROJECT" ? <CreateProjectForm /> : null}
         {props.formType === "EDIT_USER" ? (
           <EditUserForm userId={props.userId} />
+        ) : null}
+        {props.formType === "Edit_PROJECT" ? (
+          <EditProjectForm projectId={props.projectId} />
         ) : null}
         {props.formType === "DELETE_USER" ? (
           <DeleteUserForm userId={props.userId} onDelete={props.onExited}/>

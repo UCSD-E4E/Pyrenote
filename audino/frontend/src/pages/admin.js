@@ -77,6 +77,16 @@ class Admin extends React.Component {
     this.setState({ formType: "NEW_PROJECT", title: "Create New Project" });
   }
 
+  handleEditProject(e, projectId) {
+    this.setModalShow(true);
+    this.setState({ formType: "Edit_PROJECT", title: "Edit Project", projectId});
+  }
+
+  handleDeleteProject() {
+    this.setModalShow(true);
+    this.setState({ formType: "DELETE_PROJECT", title: "Delete Project" });
+  }
+
   handleNewUser() {
     this.setModalShow(true);
     this.setState({ formType: "NEW_USER", title: "Create New User" });
@@ -311,6 +321,23 @@ class Admin extends React.Component {
                                 )
                               }
                             />
+                            <IconButton
+                              icon={faEdit}
+                              size="sm"
+                              title={"Edit Annotations"}
+                              onClick={(e) =>
+                                this.handleEditProject(e, project["project_id"])
+                              }
+                            />
+                            <IconButton
+                              icon={faTrash}
+                              size="sm"
+                              title={"Delete Annotations"}
+                              onClick={(e) =>
+                                this.handleDeleteProject(e)
+                              }
+                            />
+                            <div></div>
                             <IconButton
                               icon={faDownload}
                               size="sm"

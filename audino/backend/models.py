@@ -231,6 +231,9 @@ class Project(db.Model):
     data = db.relationship("Data", backref="Project")
     labels = db.relationship("Label", backref="Project")
     creator_user = db.relationship("User")
+    
+    def set_name(self, newUsername):
+        self.name = newUsername
 
 
 class Role(db.Model):
@@ -337,6 +340,9 @@ class User(db.Model):
 
     def set_role(self, role_id):
         self.role_id = role_id
+
+    def set_username(self, newUsername):
+        self.username = newUsername
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
