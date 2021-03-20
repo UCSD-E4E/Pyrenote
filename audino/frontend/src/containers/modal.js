@@ -1,6 +1,6 @@
 import React from "react";
 import Modal from "react-bootstrap/Modal";
-
+import UploadDataForm from "./forms/uploadDataForm";
 import CreateUserForm from "./forms/createUserForm";
 import EditUserForm from "./forms/editUserForm";
 import CreateProjectForm from "./forms/createProjectForm";
@@ -51,6 +51,13 @@ const FormModal = (props) => {
           <EditLabelValueForm
             labelId={props.labelId}
             labelValueId={props.labelValueId}
+          />
+        ) : null}
+        {props.formType === "UPLOAD_DATA" ? (
+          <UploadDataForm
+            projectId={props.projectId}
+            projectName={props.projectName}
+            apiKey={props.api_key}
           />
         ) : null}
       </Modal.Body>

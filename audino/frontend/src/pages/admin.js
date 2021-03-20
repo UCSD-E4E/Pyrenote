@@ -9,7 +9,8 @@ import {
   faUserPlus,
   faTags,
   faDownload,
-  faTrash
+  faTrash,
+  faUpload
 } from "@fortawesome/free-solid-svg-icons";
 import { IconButton } from "../components/button";
 import Loader from "../components/loader";
@@ -105,6 +106,18 @@ class Admin extends React.Component {
       formType: "MANAGE_PROJECT_USERS",
       title: `Project ${projectName}: Manage User Access`,
       projectId,
+    });
+  }
+
+  handleUploadDataToProject(e, projectName, projectId, api_key) {
+    console.log(api_key, "hi")
+    this.setModalShow(true);
+    this.setState({
+      formType: "UPLOAD_DATA",
+      title: `Project ${projectName}: Upload Project Audio Files`,
+      projectId,
+      projectName,
+      api_key,
     });
   }
 
@@ -231,6 +244,8 @@ class Admin extends React.Component {
       formType,
       userId,
       projectId,
+      api_key,
+      projectName,
     } = this.state;
 
     return (
@@ -246,6 +261,8 @@ class Admin extends React.Component {
             show={modalShow}
             userId={userId}
             projectId={projectId}
+            projectName={projectName}
+            api_key={api_key}
             onHide={() => this.setModalShow(false)}
           />
           <div className="h-100 mt-5">
@@ -320,6 +337,19 @@ class Admin extends React.Component {
                                   e,
                                   project["name"],
                                   project["project_id"]
+                                )
+                              }
+                            />
+                            <IconButton
+                              icon={faUpload}
+                              size="sm"
+                              title={"Upload Data"}
+                              onClick={(e) =>
+                                this.handleUploadDataToProject(
+                                  e,
+                                  project["name"],
+                                  project["project_id"],
+                                  project["api_key"]
                                 )
                               }
                             />

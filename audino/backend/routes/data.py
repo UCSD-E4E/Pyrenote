@@ -198,3 +198,104 @@ def add_data():
         ),
         201,
     )
+
+@api.route("/data/admin_portal", methods=["POST"])
+def add_data_from_site():
+    #start_time = request.json.get("start", None)
+    app.logger.info(request)
+    app.logger.info(request.json)
+    app.logger.info(request.files)
+    app.logger.info(request.data)
+    app.logger.info(request.form)
+    app.logger.info(request.files["file"])
+    api_key = request.json.get("Authorization", None)
+    app.logger.info("also made it to asdfasdfasdfhere!")
+
+    if not api_key:
+        raise BadRequest(description="API Key missing from `Authorization` Header")
+
+    project = Project.query.filter_by(api_key=api_key).first()
+
+    if not project:
+        raise NotFound(description="No project exist with given API Key")
+
+    username = request.json.get("username", None)
+    username_id = {}
+    for name in username:
+        user = User.query.filter_by(username=name).first()
+
+        if not user:
+            raise NotFound(description="No user found with given username")
+
+        username_id[name] = user.id
+
+    #segmentations = request.form.get("segmentations", "[]")
+    reference_transcription = "" #request.form.get("reference_transcription", None)
+    is_marked_for_review = True #bool(request.form.get("is_marked_for_review", False))
+    app.logger.info("made it to here!")
+    audio_files = request.json.get("audio_file")
+    app.logger.info(audio_files)
+    app.logger.info("also made it to here!")
+    for file in audio_files:
+        app.logger.info(file)
+        original_filename = secure_filename(file.filename)
+
+        extension = Path(original_filename).suffix.lower()
+
+        if len(extension) > 1 and extension[1:] not in ALLOWED_EXTENSIONS:
+            raise BadRequest(description="File format is not supported")
+
+        filename = f"{str(uuid.uuid4().hex)}{extension}"
+
+        file_path = Path(app.config["UPLOAD_FOLDER"]).joinpath(filename)
+        file.save(file_path.as_posix())
+        try:
+            data = Data(
+                project_id=project.id,
+                filename=filename,
+                original_filename=original_filename,
+                reference_transcription=reference_transcription,
+                is_marked_for_review=is_marked_for_review,
+                assigned_user_id= username_id,
+            )
+            app.logger.info(filename)
+        except Exception as e:
+            #error = "username_id is bad " + username_id 
+            raise BadRequest(description="username_id is bad ")
+        print("HELLLO THERE ERROR MESSAGE") 
+        db.session.add(data)
+        db.session.flush()
+
+        #segmentations = json.loads(segmentations)
+    #
+        #new_segmentations = []
+    #
+        #for segment in segmentations:
+        #    validated = validate_segmentation(segment)
+    #
+        #    if not validated:
+        #        raise BadRequest(description=f"Segmentations have missing keys.")
+    #
+        #    new_segment = generate_segmentation(
+        #        data_id=data.id,
+        #        project_id=project.id,
+        #        end_time=segment["end_time"],
+        #        start_time=segment["start_time"],
+        #        annotations=segment.get("annotations", {}),
+        #        transcription=segment["transcription"],
+        #    )
+    #
+        #    new_segmentations.append(new_segment)
+    #
+        #data.set_segmentations(new_segmentations)
+    #
+        db.session.commit()
+        db.session.refresh(data)
+
+    return (
+        jsonify(
+            message=f"Data uploaded, created and assigned successfully for user",
+            type="DATA_CREATED",
+        ),
+        201,
+    )
