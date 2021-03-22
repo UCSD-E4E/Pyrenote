@@ -59,9 +59,15 @@ class UploadDataForm extends React.Component {
     console.log(apiKey);
     console.log("hello?")
     var formData = new FormData();
-    formData.append("file", files[0]);
+
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i]
+
+      formData.append(i, file)
+    }
     formData.append("apiKey", apiKey);
-    formData.append("username", ["admin"]);
+    formData.append("username", ["admin", "admin"]);
+    formData.append("file_length", files.length);
     /*
     var formData = new FormData();
     var imagefile = document.querySelector('#file');
@@ -73,7 +79,7 @@ class UploadDataForm extends React.Component {
     })
     */
     //console.log(file)
-    axios({
+    /*axios({
       method: "post",
       url: uploadUrl,
       form: formData,
@@ -93,7 +99,14 @@ class UploadDataForm extends React.Component {
           errorMessage: error.response.data.message,
           successMessage: "",
         });
-      });
+      });*/
+
+      fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+      }).then((response) => {
+        console.log(response)
+      })
   }
 
   onChangeHandler(e) {

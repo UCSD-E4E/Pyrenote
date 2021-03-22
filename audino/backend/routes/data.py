@@ -202,13 +202,9 @@ def add_data():
 @api.route("/data/admin_portal", methods=["POST"])
 def add_data_from_site():
     #start_time = request.json.get("start", None)
-    app.logger.info(request)
-    app.logger.info(request.json)
     app.logger.info(request.files)
-    app.logger.info(request.data)
     app.logger.info(request.form)
-    app.logger.info(request.files["file"])
-    api_key = request.json.get("Authorization", None)
+    api_key = request.form.get("apiKey", None)
     app.logger.info("also made it to asdfasdfasdfhere!")
 
     if not api_key:
@@ -219,21 +215,30 @@ def add_data_from_site():
     if not project:
         raise NotFound(description="No project exist with given API Key")
 
-    username = request.json.get("username", None)
+    app.logger.info("also made it to asdfasdfasdfhere!")
+    username_txt = request.form.get("username", None)
+    username = username_txt.split(",")
     username_id = {}
     for name in username:
+        app.logger.info(name)
         user = User.query.filter_by(username=name).first()
 
         if not user:
             raise NotFound(description="No user found with given username")
 
         username_id[name] = user.id
-
+    app.logger.info("also made it to asdfasdfasdfhere!")
     #segmentations = request.form.get("segmentations", "[]")
     reference_transcription = "" #request.form.get("reference_transcription", None)
     is_marked_for_review = True #bool(request.form.get("is_marked_for_review", False))
     app.logger.info("made it to here!")
-    audio_files = request.json.get("audio_file")
+    file_length = request.form.get("file_length", None)
+    audio_files = []
+    for n in range(int(file_length)):
+        audio_files.append(request.files.get(str(n)))
+        
+    
+    app.logger.info(audio_files)
     app.logger.info(audio_files)
     app.logger.info("also made it to here!")
     for file in audio_files:
