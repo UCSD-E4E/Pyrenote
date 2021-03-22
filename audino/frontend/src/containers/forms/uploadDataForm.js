@@ -100,13 +100,34 @@ class UploadDataForm extends React.Component {
           successMessage: "",
         });
       });*/
-
+      this.setState({ isLoading: true });
       fetch(uploadUrl, {
         method: 'POST',
         body: formData,
       }).then((response) => {
-        console.log(response)
-      })
+        let data = response.json()
+        console.log(data)
+        data.then(data => {
+          console.log(data)
+          if (data.code != 201 && data.type != "DATA_CREATED") {
+            this.setState({
+              isSubmitting: false,
+              errorMessage: data.message,
+              successMessage: null,
+              isLoading: false
+            });
+          } else {
+            this.setState({
+              isSubmitting: false,
+              successMessage: data.message,
+              errorMessage: null,
+              isLoading: false,
+              files: {}
+            });
+          }
+          
+        })
+      });
   }
 
   onChangeHandler(e) {
@@ -133,7 +154,25 @@ class UploadDataForm extends React.Component {
     } = this.state;
     return (
       <div className="container h-75 text-center">
+        <div>
+          {isLoading ? <Loader />: null}
+            {errorMessage ? (
+              <Alert
+                type="danger"
+                message={errorMessage}
+                onClose={(e) => this.handleAlertDismiss(e)}
+              />
+            ) : null}
+            {successMessage ? (
+              <Alert
+                type="success"
+                message={successMessage}
+                onClose={(e) => this.handleAlertDismiss(e)}
+              />
+            ) : null}
+          </div>
         <div className="row h-100 justify-content-center align-items-center">
+
          <input type="file" name="file" onChange={e => {this.onChangeHandler(e)}} multiple />
             <div className="form-row">
                 <div className="form-group col">
