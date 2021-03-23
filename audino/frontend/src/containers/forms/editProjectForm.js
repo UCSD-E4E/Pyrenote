@@ -56,7 +56,7 @@ class EditProjectForm extends React.Component {
 
     this.setState({ isSubmitting: true });
 
-    const { name } = this.state;
+    const { name, url } = this.state;
 
     if (!name || name === "") {
       this.setState({
@@ -68,8 +68,8 @@ class EditProjectForm extends React.Component {
     }
 
     axios({
-      method: "post",
-      url: "/api/projects",
+      method: "patch",
+      url: url,
       data: {
         name,
       },

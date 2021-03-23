@@ -143,6 +143,7 @@ def fetch_project(project_id):
 @api.route("/projects/<int:project_id>", methods=["PATCH"])
 @jwt_required
 def edit_project(project_id):
+    app.logger.info("hello")
     identity = get_jwt_identity()
     request_user = User.query.filter_by(username=identity["username"]).first()
     is_admin = True if request_user.role.role == "admin" else False
