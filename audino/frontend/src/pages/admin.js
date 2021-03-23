@@ -329,14 +329,14 @@ class Admin extends React.Component {
                                 this.handleEditProject(e, project["project_id"])
                               }
                             />
-                            <IconButton
+                            {/*<IconButton
                               icon={faTrash}
                               size="sm"
                               title={"Delete Annotations"}
                               onClick={(e) =>
                                 this.handleDeleteProject(e)
                               }
-                            />
+                            />*/}
                             <div></div>
                             <IconButton
                               icon={faDownload}
