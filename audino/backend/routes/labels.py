@@ -6,7 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.urls import url_parse
 
 from backend import app, db
-from backend.models import User, Label, LabelValue
+from backend.models import User, Label, LabelValue, Project
 
 from . import api
 
@@ -205,6 +205,46 @@ def update_value_for_label(label_id, label_value_id):
             value_id=label_value.id,
             value=label_value.value,
             created_on=label_value.created_at.strftime("%B %d, %Y"),
+        ),
+        200,
+    )
+
+@api.route("/labels/<int:label_id>/projectId/<int:project_id>", methods=["DELETE"])
+@jwt_required
+def delete_label(label_id, project_id):
+    
+    identity = get_jwt_identity()
+    request_user = User.query.filter_by(username=identity["username"]).first()
+    is_admin = True if request_user.role.role == "admin" else False
+
+    if is_admin == False:
+        return jsonify(message="Unauthorized access!"), 401
+
+    try:
+        LabelCat = Label.query.get(label_id)
+        project = Project.query.get(project_id)
+        LabelValues = LabelValue.query.filter_by(label_id=label_id).all()
+
+        project.labels.remove(LabelCat)
+        db.session.delete(LabelCat)
+        db.session.commit()
+
+        for value in LabelValues:
+            db.session.delete(value)
+            db.session.commit()
+            
+        
+    except Exception as e:
+        app.logger.error(e)
+        return (jsonify(message=f"No value found with value id: {LabelCat}"), 404)
+
+    return (
+        jsonify(
+            values={
+                "value_id": value.id,
+                "value": value.value,
+                "created_on": value.created_at.strftime("%B %d, %Y"),
+            }
         ),
         200,
     )

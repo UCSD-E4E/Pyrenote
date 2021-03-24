@@ -11,6 +11,7 @@ import CreateLabelValueForm from "./forms/createLabelValuelForm";
 import EditLabelValueForm from "./forms/editLabelValueForm";
 import DeleteLabelValueForm from "./forms/deleteLabelValueFrom";
 import DeleteUserForm from "./forms/deleteUser";
+import DeleteLabelForm from "./forms/deleteLabelFrom"
 
 const FormModal = (props) => {
   console.log("INSIDE FORMMODAL", props.formType)
@@ -61,7 +62,14 @@ const FormModal = (props) => {
             labelId={props.labelId}
             labelValueId={props.labelValueId}
           />
-        ) : console.log("hello")}
+        ) : null}
+        {props.formType === "DELETE_LABEL" ? (
+          
+          <DeleteLabelForm
+            labelId={props.labelId}
+            projectId={props.projectId}
+          />
+        ) : null}
       </Modal.Body>
     </Modal>
   );
