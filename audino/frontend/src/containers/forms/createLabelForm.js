@@ -6,13 +6,13 @@ import { withStore } from "@spyna/react-store";
 
 import Alert from "../../components/alert";
 import { Button } from "../../components/button";
+import LabelValues from "../../pages/labelValues"
 
 class CreateLabelForm extends React.Component {
   constructor(props) {
     super(props);
 
     const projectId = this.props.projectId;
-
     this.initialState = {
       projectId,
       name: null,
@@ -20,6 +20,7 @@ class CreateLabelForm extends React.Component {
       errorMessage: "",
       successMessage: "",
       isSubmitting: false,
+      previousLabelId: -1, 
       createLabelUrl: `/api/projects/${projectId}/labels`,
     };
 
@@ -75,9 +76,10 @@ class CreateLabelForm extends React.Component {
         if (response.status === 201) {
           this.resetState();
           this.form.reset();
-
+          console.log(response)
           this.setState({
             successMessage: response.data.message,
+            previousLabelId: response.data.label_id,
           });
         }
       })
@@ -99,64 +101,81 @@ class CreateLabelForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage } = this.state;
+    const { isSubmitting, errorMessage, successMessage, projectId, previousLabelId } = this.state;
+    console.log(previousLabelId)
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form
-            className="col-6"
-            name="new_user"
-            ref={(el) => (this.form = el)}
-          >
-            {errorMessage ? (
-              <Alert
-                type="danger"
-                message={errorMessage}
-                onClose={(e) => this.handleAlertDismiss(e)}
-              />
-            ) : null}
-            {successMessage ? (
-              <Alert
-                type="success"
-                message={successMessage}
-                onClose={(e) => this.handleAlertDismiss(e)}
-              />
-            ) : null}
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-control"
-                id="label_name"
-                placeholder="Label Name"
-                autoFocus={true}
-                required={true}
-                onChange={(e) => this.handleLabelNameChange(e)}
-              />
-            </div>
-            <div className="form-group">
-              <select
-                className="form-control"
-                name="label_type"
-                onChange={(e) => this.handleLabelTypeChange(e)}
-              >
-                <option value="-1">Choose Label Type</option>
-                <option value="1">Select</option>
-                <option value="2">Multi-Select</option>
-              </select>
-            </div>
-            <div className="form-row">
-              <div className="form-group col">
-                <Button
-                  size="lg"
-                  type="primary"
-                  disabled={isSubmitting ? true : false}
-                  onClick={(e) => this.handleLabelCreation(e)}
-                  isSubmitting={isSubmitting}
-                  text="Save"
+          {previousLabelId == -1 ? (
+            <form
+              //className="col-6"
+              name="new_user"
+              ref={(el) => (this.form = el)}
+            >
+              {errorMessage ? (
+                <Alert
+                  type="danger"
+                  message={errorMessage}
+                  onClose={(e) => this.handleAlertDismiss(e)}
                 />
+              ) : null}
+              {successMessage ? (
+                <Alert
+                  type="success"
+                  message={successMessage}
+                  onClose={(e) => this.handleAlertDismiss(e)}
+                />
+              ) : null}
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="label_name"
+                    placeholder="Label Name"
+                    autoFocus={true}
+                    required={true}
+                    onChange={(e) => this.handleLabelNameChange(e)}
+                  />
+                </div>
+                <div className="form-group">
+                  <select
+                    className="form-control"
+                    name="label_type"
+                    onChange={(e) => this.handleLabelTypeChange(e)}
+                  >
+                    <option value="-1">Choose Label Type</option>
+                    <option value="1">Select</option>
+                    <option value="2">Multi-Select</option>
+                  </select>
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-group col">
+                    <Button
+                      size="lg"
+                      type="primary"
+                      disabled={isSubmitting ? true : false}
+                      onClick={(e) => this.handleLabelCreation(e)}
+                      isSubmitting={isSubmitting}
+                      text="Save"
+                    />
+                  </div>
+                </div>
+              </form>
+            ): (
+              <div>
+                <LabelValues projectId={projectId} id={previousLabelId}/>
+                <Button
+                      size="lg"
+                      type="primary"
+                      disabled={isSubmitting ? true : false}
+                      onClick={(e) => this.setState({previousLabelId: -1})}
+                      isSubmitting={isSubmitting}
+                      text="Create a new Category"
+                    />
               </div>
-            </div>
-          </form>
+            )}
+          
         </div>
       </div>
     );

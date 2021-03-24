@@ -123,6 +123,36 @@ def fetch_label_value(label_id, label_value_id):
         200,
     )
 
+@api.route("/labels/<int:label_id>/values/<int:label_value_id>", methods=["DELETE"])
+@jwt_required
+def delete_label_value(label_id, label_value_id):
+    identity = get_jwt_identity()
+    request_user = User.query.filter_by(username=identity["username"]).first()
+    is_admin = True if request_user.role.role == "admin" else False
+
+    if is_admin == False:
+        return jsonify(message="Unauthorized access!"), 401
+
+    try:
+        value = LabelValue.query.get(label_value_id)
+        db.session.delete(value)
+        db.session.commit()
+    except Exception as e:
+        app.logger.error(f"No value found with value id: {label_value_id}")
+        app.logger.error(e)
+        return (jsonify(message=f"No value found with value id: {label_value_id}"), 404)
+
+    return (
+        jsonify(
+            values={
+                "value_id": value.id,
+                "value": value.value,
+                "created_on": value.created_at.strftime("%B %d, %Y"),
+            }
+        ),
+        200,
+    )
+
 
 @api.route("/labels/<int:label_id>/values/<int:label_value_id>", methods=["PATCH"])
 @jwt_required

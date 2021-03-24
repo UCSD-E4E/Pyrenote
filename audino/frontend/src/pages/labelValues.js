@@ -2,8 +2,8 @@ import axios from "axios";
 import React from "react";
 import { withRouter } from "react-router-dom";
 import { Helmet } from "react-helmet";
-
-import { faPlusSquare, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { withStore } from "@spyna/react-store";
+import { faPlusSquare, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import { IconButton } from "../components/button";
 import Loader from "../components/loader";
@@ -13,8 +13,8 @@ class LabelValues extends React.Component {
   constructor(props) {
     super(props);
 
-    const labelId = Number(this.props.match.params.id);
-
+    const labelId = Number(this.props.id);
+    const projectId = this.props.projectId;
     this.state = {
       labelId,
       labelValues: [],
@@ -22,6 +22,7 @@ class LabelValues extends React.Component {
       modalShow: false,
       isLabelValuesLoading: false,
       labelValuesUrl: `/labels/${labelId}/values`,
+      labelsUrl: `/projects/${projectId}/labels`,
       getLabelValuesUrl: `/api/labels/${labelId}/values`,
     };
   }
@@ -66,13 +67,24 @@ class LabelValues extends React.Component {
     });
   }
 
+  handleDeleteLabel(e, labelId, labelValueId) {
+    this.setModalShow(true);
+    this.setState({
+      formType: "DELETE_LABEL_VALUE",
+      title: "DELETE Label Value",
+      labelId,
+      labelValueId,
+    });
+  }
+
   refreshPage() {
-    const { history } = this.props;
-    const { labelValuesUrl } = this.state;
+    this.componentDidMount()
+    /*const { history } = this.props;
+    const { labelsUrl } = this.state;
     history.replace({ pathname: "/empty" });
     setTimeout(() => {
-      history.replace({ pathname: labelValuesUrl });
-    });
+      history.replace({ pathname: labelsUrl });
+    });*/
   }
 
   setModalShow(modalShow) {
@@ -89,11 +101,9 @@ class LabelValues extends React.Component {
       modalShow,
       isLabelValuesLoading,
     } = this.state;
+    console.log(formType)
     return (
       <div>
-        <Helmet>
-          <title>Manage Label Values</title>
-        </Helmet>
         <div className="container h-100">
           <FormModal
             onExited={() => this.refreshPage()}
@@ -107,7 +117,7 @@ class LabelValues extends React.Component {
           <div className="h-100 mt-5">
             <div className="row border-bottom my-3">
               <div className="col float-left">
-                <h1>Label Values</h1>
+                <h1>Add Label Values</h1>
               </div>
               <hr />
               <div className="col float-right">
@@ -160,6 +170,18 @@ class LabelValues extends React.Component {
                                 )
                               }
                             />
+                            <IconButton
+                              icon={faTrash}
+                              size="sm"
+                              title={"Delete Label"}
+                              onClick={(e) =>
+                                this.handleDeleteLabel( 
+                                  e,
+                                  labelId,
+                                  labelValue["value_id"]
+                                )
+                              }
+                            />
                           </td>
                         </tr>
                       );
@@ -181,4 +203,4 @@ class LabelValues extends React.Component {
   }
 }
 
-export default withRouter(LabelValues);
+export default withStore(withRouter(LabelValues));

@@ -9,9 +9,11 @@ import EditLabelForm from "./forms/editLabelForm";
 import ManageUsersProjectForm from "./forms/manageUsersProjectForm";
 import CreateLabelValueForm from "./forms/createLabelValuelForm";
 import EditLabelValueForm from "./forms/editLabelValueForm";
+import DeleteLabelValueForm from "./forms/deleteLabelValueFrom";
 import DeleteUserForm from "./forms/deleteUser";
 
 const FormModal = (props) => {
+  console.log("INSIDE FORMMODAL", props.formType)
   return (
     <Modal
       show={props.show}
@@ -53,6 +55,13 @@ const FormModal = (props) => {
             labelValueId={props.labelValueId}
           />
         ) : null}
+        {props.formType === "DELETE_LABEL_VALUE" ? (
+          
+          <DeleteLabelValueForm
+            labelId={props.labelId}
+            labelValueId={props.labelValueId}
+          />
+        ) : console.log("hello")}
       </Modal.Body>
     </Modal>
   );
