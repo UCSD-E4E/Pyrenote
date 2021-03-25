@@ -14,6 +14,7 @@ class EditUserForm extends React.Component {
     this.initialState = {
       userId: Number(this.props.userId),
       username: "",
+      newUserName: "",
       role: "-1",
       errorMessage: null,
       successMessage: null,
@@ -34,7 +35,7 @@ class EditUserForm extends React.Component {
       .then((response) => {
         if (response.status === 200) {
           const { username, role_id } = response.data;
-          this.setState({ username, role: String(role_id), isLoading: false });
+          this.setState({ username, role: String(role_id), isLoading: false, newUserName: username});
         }
       })
       .catch((error) => {
@@ -54,6 +55,10 @@ class EditUserForm extends React.Component {
     this.setState({ role: e.target.value });
   }
 
+  handleUserNameUpdation(e) {
+    this.setState({ newUserName: e.target.value });
+  }
+
   clearForm() {
     this.form.reset();
   }
@@ -63,7 +68,7 @@ class EditUserForm extends React.Component {
 
     this.setState({ isSubmitting: true });
 
-    const { url, role } = this.state;
+    const { url, role, newUserName } = this.state;
 
     // TODO: Get these values from api
     if (!role || !["1", "2"].includes(role)) {
@@ -80,6 +85,7 @@ class EditUserForm extends React.Component {
       url,
       data: {
         role,
+        newUserName
       },
     })
       .then((response) => {
@@ -157,6 +163,15 @@ class EditUserForm extends React.Component {
                     autoFocus={true}
                     required={true}
                     disabled={true}
+                  />
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="username"
+                    placeholder={username}
+                    autoFocus={true}
+                    required={true}
+                    onChange={(e) => this.handleUserNameUpdation(e)}
                   />
                 </div>
                 <div className="form-group">
