@@ -105,6 +105,8 @@ def fetch_data_for_project(project_id):
                     "reference_transcription": data_point.reference_transcription,
                     "is_marked_for_review": data_point.is_marked_for_review,
                     "number_of_segmentations": len(data_point.segmentations),
+                    "sampling_rate": data_point.sampling_rate,
+                    "clip_length": data_point.clip_length,
                 }
                 for data_point in paginated_data.items
             ]
@@ -196,6 +198,8 @@ def get_next_data(project_id, data_value):
                     "reference_transcription": data_point.reference_transcription,
                     "is_marked_for_review": data_point.is_marked_for_review,
                     "number_of_segmentations": len(data_point.segmentations),
+                    "sampling_rate": data_point.sampling_rate,
+                    "clip_length": data_point.clip_length,
                 }
                 for data_point in paginated_data.items
             ]
@@ -287,6 +291,8 @@ def get_next_data2(project_id, data_value, page_data):
                     "reference_transcription": data_point.reference_transcription,
                     "is_marked_for_review": data_point.is_marked_for_review,
                     "number_of_segmentations": len(data_point.segmentations),
+                    "sampling_rate": data_point.sampling_rate,
+                    "clip_length": data_point.clip_length,
                 }
                 for data_point in paginated_data.items
             ]
@@ -383,6 +389,8 @@ def get_next_data_unknown(project_id, data_value):
                                 "reference_transcription": data_point.reference_transcription,
                                 "is_marked_for_review": data_point.is_marked_for_review,
                                 "number_of_segmentations": len(data_point.segmentations),
+                                "sampling_rate": data_point.sampling_rate,
+                                "clip_length": data_point.clip_length,
                             }
                             for data_point in paginated_data.items
                         ]
@@ -492,6 +500,8 @@ def get_all():
                     "reference_transcription": data_point.reference_transcription,
                     "is_marked_for_review": data_point.is_marked_for_review,
                     "number_of_segmentations": len(data_point.segmentations),
+                    "sampling_rate": data_point.sampling_rate,
+                    "clip_length": data_point.clip_length,
                 }
             response.append(new_data)
         app.logger.info("made it this far")

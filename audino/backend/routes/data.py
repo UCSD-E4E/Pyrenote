@@ -138,6 +138,8 @@ def add_data():
     is_marked_for_review = bool(request.form.get("is_marked_for_review", False))
     audio_file = request.files["audio_file"]
     original_filename = secure_filename(audio_file.filename)
+    sampling_rate = request.form.get("sampling_rate", 0)
+    clip_length = request.form.get("clip_length", 0.0)
 
     extension = Path(original_filename).suffix.lower()
 
@@ -156,6 +158,8 @@ def add_data():
             reference_transcription=reference_transcription,
             is_marked_for_review=is_marked_for_review,
             assigned_user_id= username_id,
+            sampling_rate = sampling_rate,
+            clip_length = clip_length,
         )
     except Exception as e:
         #error = "username_id is bad " + username_id 

@@ -559,6 +559,8 @@ def get_segmentations_for_data(project_id, data_id):
             "reference_transcription": data.reference_transcription,
             "is_marked_for_review": data.is_marked_for_review,
             "segmentations": segmentations,
+            "sampling_rate": data.sampling_rate,
+            "clip_length": data.clip_length,
         }
 
     except Exception as e:
