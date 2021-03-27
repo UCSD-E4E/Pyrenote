@@ -71,6 +71,8 @@ const FormModal = (props) => {
           <DeleteLabelForm
             labelId={props.labelId}
             projectId={props.projectId}
+            />
+        ) : null}
         {props.formType === "UPLOAD_DATA" ? (
           <UploadDataForm
             projectId={props.projectId}
