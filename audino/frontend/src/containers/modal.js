@@ -1,6 +1,6 @@
 import React from "react";
 import Modal from "react-bootstrap/Modal";
-
+import UploadDataForm from "./forms/uploadDataForm";
 import CreateUserForm from "./forms/createUserForm";
 import EditUserForm from "./forms/editUserForm";
 import CreateProjectForm from "./forms/createProjectForm";
@@ -12,6 +12,7 @@ import EditLabelValueForm from "./forms/editLabelValueForm";
 import DeleteLabelValueForm from "./forms/deleteLabelValueFrom";
 import DeleteUserForm from "./forms/deleteUser";
 import DeleteLabelForm from "./forms/deleteLabelFrom"
+import EditProjectForm from "./forms/editProjectForm"
 
 const FormModal = (props) => {
   console.log("INSIDE FORMMODAL", props.formType)
@@ -34,6 +35,9 @@ const FormModal = (props) => {
         {props.formType === "NEW_PROJECT" ? <CreateProjectForm /> : null}
         {props.formType === "EDIT_USER" ? (
           <EditUserForm userId={props.userId} />
+        ) : null}
+        {props.formType === "Edit_PROJECT" ? (
+          <EditProjectForm projectId={props.projectId} />
         ) : null}
         {props.formType === "DELETE_USER" ? (
           <DeleteUserForm userId={props.userId} onDelete={props.onExited}/>
@@ -63,11 +67,15 @@ const FormModal = (props) => {
             labelValueId={props.labelValueId}
           />
         ) : null}
-        {props.formType === "DELETE_LABEL" ? (
-          
+        {props.formType === "DELETE_LABEL" ? (      
           <DeleteLabelForm
             labelId={props.labelId}
             projectId={props.projectId}
+        {props.formType === "UPLOAD_DATA" ? (
+          <UploadDataForm
+            projectId={props.projectId}
+            projectName={props.projectName}
+            apiKey={props.api_key}
           />
         ) : null}
       </Modal.Body>

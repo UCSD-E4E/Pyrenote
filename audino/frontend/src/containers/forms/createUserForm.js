@@ -258,7 +258,7 @@ class CreateUserForm extends React.Component {
                 className="form-control"
                 id="password"
                 placeholder="Password"
-                required={true}
+                required={false}
                 onChange={(e) => this.handlePasswordChange(e)}
               />
             </div>

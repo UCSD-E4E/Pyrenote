@@ -187,6 +187,8 @@ def update_user(user_id):
         return jsonify(message="Missing JSON in request"), 400
 
     role_id = request.json.get("role", None)
+    newUserName = request.json.get("newUserName", None)
+
 
     if not role_id:
         return (jsonify(message="Please provide your role!", type="ROLE_MISSING"), 400)
@@ -207,6 +209,7 @@ def update_user(user_id):
 
         user = User.query.get(user_id)
         user.set_role(role_id)
+        user.set_username(newUserName)
         db.session.commit()
     except Exception as e:
         app.logger.error("No user found")
