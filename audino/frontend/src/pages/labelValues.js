@@ -101,7 +101,7 @@ class LabelValues extends React.Component {
       modalShow,
       isLabelValuesLoading,
     } = this.state;
-    console.log(formType)
+    console.log(labelId)
     return (
       <div>
         <div className="container h-100">

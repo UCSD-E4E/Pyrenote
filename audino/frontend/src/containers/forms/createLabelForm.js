@@ -102,7 +102,7 @@ class CreateLabelForm extends React.Component {
 
   render() {
     const { isSubmitting, errorMessage, successMessage, projectId, previousLabelId } = this.state;
-    console.log(previousLabelId)
+    //console.log(previousLabelId)
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">

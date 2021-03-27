@@ -299,7 +299,8 @@ def add_label_to_project(project_id):
     try:
         project = Project.query.get(project_id)
         app.logger.info(f"Label: {LabelType.query.all()} AT 0")
-        label = Label(name=label_name, type_id=label_type_id, id=len(Label.query.all()))
+        app.logger.info(f"Label: {Label.query.all()} AT 0")
+        label = Label(name=label_name, type_id=label_type_id, id=(len(Label.query.all()))+1)
         project.labels.append(label)
         db.session.add(project)
         db.session.commit()
