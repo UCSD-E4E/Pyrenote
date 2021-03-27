@@ -9,9 +9,13 @@ import EditLabelForm from "./forms/editLabelForm";
 import ManageUsersProjectForm from "./forms/manageUsersProjectForm";
 import CreateLabelValueForm from "./forms/createLabelValuelForm";
 import EditLabelValueForm from "./forms/editLabelValueForm";
+import DeleteLabelValueForm from "./forms/deleteLabelValueFrom";
 import DeleteUserForm from "./forms/deleteUser";
+import DeleteLabelForm from "./forms/deleteLabelFrom"
 import EditProjectForm from "./forms/editProjectForm"
+
 const FormModal = (props) => {
+  console.log("INSIDE FORMMODAL", props.formType)
   return (
     <Modal
       show={props.show}
@@ -56,6 +60,17 @@ const FormModal = (props) => {
             labelValueId={props.labelValueId}
           />
         ) : null}
+        {props.formType === "DELETE_LABEL_VALUE" ? (
+          
+          <DeleteLabelValueForm
+            labelId={props.labelId}
+            labelValueId={props.labelValueId}
+          />
+        ) : null}
+        {props.formType === "DELETE_LABEL" ? (      
+          <DeleteLabelForm
+            labelId={props.labelId}
+            projectId={props.projectId}
         {props.formType === "UPLOAD_DATA" ? (
           <UploadDataForm
             projectId={props.projectId}

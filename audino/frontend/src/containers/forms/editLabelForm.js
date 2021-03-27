@@ -6,6 +6,7 @@ import { withStore } from "@spyna/react-store";
 import Alert from "../../components/alert";
 import { Button } from "../../components/button";
 import Loader from "../../components/loader";
+import LabelValues from "../../pages/labelValues"
 
 class EditLabelForm extends React.Component {
   constructor(props) {
@@ -128,13 +129,15 @@ class EditLabelForm extends React.Component {
       errorMessage,
       successMessage,
       isLoading,
+      projectId,
+      labelId
     } = this.state;
 
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
           <form
-            className="col-6"
+            //className="col-6"
             name="edit_label"
             ref={(el) => (this.form = el)}
           >
@@ -179,6 +182,7 @@ class EditLabelForm extends React.Component {
                     <option value="2">Multi-Select</option>
                   </select>
                 </div>
+                <LabelValues projectId={projectId} id={labelId}/>
                 <div className="form-row">
                   <div className="form-group col">
                     <Button
