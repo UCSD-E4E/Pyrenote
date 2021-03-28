@@ -24,6 +24,8 @@ import { text } from "@fortawesome/fontawesome-svg-core";
 //import Data from "./data";
 //import * as data from "./data.js";
 //import "./data";
+
+
 let colormap = require('colormap')
 
 class Annotate_C extends React.Component {
@@ -35,7 +37,7 @@ class Annotate_C extends React.Component {
     const params = new URLSearchParams(window.location.search);
     this.state = {
       active: params.get("active") || "unknown",
-      page: null,
+      page: 0,
       next_page: 1,
       next_data_url: "",
       next_data_id: -1,
@@ -113,6 +115,7 @@ class Annotate_C extends React.Component {
             count,
             active,
             page,
+            cuFrrPage,
             next_page,
             prev_page,
           } = response.data;
@@ -278,6 +281,7 @@ class Annotate_C extends React.Component {
           is_marked_for_review,
           segmentations,
           filename,
+          original_filename
         } = response[1].data;
 
         const regions = segmentations.map((segmentation) => {
@@ -297,6 +301,7 @@ class Annotate_C extends React.Component {
           referenceTranscription: reference_transcription,
           isMarkedForReview: is_marked_for_review,
           filename,
+          original_filename
         });
 
         wavesurfer.load(`/audios/${filename}`);
@@ -639,7 +644,8 @@ class Annotate_C extends React.Component {
       console.log(window.location.href);
       //TODO: FIX THIS LOGIC HERE TO ACTUALLY SET THE NEXT CLIP
       var newPageData = this.state.data[0];
-      console.log("entered loop")
+      console.log("entered loop")     
+      
       for (var key in this.state.data) {
         key = parseInt(key)
         console.log(key + 1)
@@ -715,6 +721,7 @@ class Annotate_C extends React.Component {
 
   render() {
     const {
+      data,
       zoom,
       isPlaying,
       labels,
@@ -767,6 +774,7 @@ class Annotate_C extends React.Component {
                 onClose={(e) => this.handleAlertDismiss(e)}
               />
             ) : null}
+            <div>{this.state.original_filename}</div>
             {this.state.isRendering &&
             <div className="row justify-content-md-center my-4"> 
               <text>Please wait while spectrogram renders</text>
@@ -935,6 +943,16 @@ class Annotate_C extends React.Component {
                     </label>
                   </div>
                 </div>
+                <div className="next">
+                  <Button
+                    size="lg"
+                    type="primary"
+                    disabled={isSegmentSaving}
+                    onClick={(e) => this.Previous(e)}
+                    isSubmitting={isSegmentSaving}
+                    text="Previous"
+                  />
+                  </div>
                 <div className="next">
                   <Button
                     size="lg"
