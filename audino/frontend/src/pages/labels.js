@@ -7,6 +7,7 @@ import {
   faPlusSquare,
   faEdit,
   faList,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { IconButton } from "../components/button";
@@ -56,7 +57,7 @@ class Labels extends React.Component {
     this.setModalShow(true);
     this.setState({
       formType: "NEW_LABEL",
-      title: "Create New Label",
+      title: "Create New Label Category",
     });
   }
 
@@ -64,14 +65,19 @@ class Labels extends React.Component {
     this.setModalShow(true);
     this.setState({
       formType: "EDIT_LABEL",
-      title: "Edit Label",
+      title: "Edit Label Category",
       labelId,
+      showRename: true
     });
   }
 
-  handleManageLabelValues(e, labelId) {
-    const { history } = this.props;
-    history.push(`/labels/${labelId}/values`);
+  handleDeleteCategory(e, labelId) {
+    this.setModalShow(true);
+    this.setState({
+      formType: "DELETE_LABEL",
+      title: "DELETE LABEL CATEGORY AND IT's LABEL VALUES",
+      labelId,
+    });
   }
 
   refreshPage() {
@@ -163,11 +169,11 @@ class Labels extends React.Component {
                               }
                             />
                             <IconButton
-                              icon={faList}
+                              icon={faTrash}
                               size="sm"
-                              title={"Manage label values"}
+                              title={"Delete label Category"}
                               onClick={(e) =>
-                                this.handleManageLabelValues(
+                                this.handleDeleteCategory(
                                   e,
                                   label["label_id"]
                                 )
