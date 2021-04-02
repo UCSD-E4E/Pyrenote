@@ -51,6 +51,7 @@ class Annotate_C extends React.Component {
       isDataLoading: false,
       wavesurfer: null,
       zoom: 100,
+      playbackRate: 100,
       referenceTranscription: null,
       isMarkedForReview: false,
       selectedSegment: null,
@@ -801,10 +802,16 @@ class Annotate_C extends React.Component {
     }
   }
 
+  changePlayback(e) {
+    console.log(e.target.value); 
+    this.state.wavesurfer.setPlaybackRate((e.target.value / 100))
+    this.setState({playbackRate: e.target.value, isPlaying: true})
+    console.log(this.state.isPlaying); 
+  }
+
   render() {
     const {
       data,
-      zoom,
       isPlaying,
       labels,
       isDataLoading,
@@ -817,6 +824,8 @@ class Annotate_C extends React.Component {
       errorUnsavedMessage,
       successMessage,
       isRendering,
+      wavesurfer,
+      playbackRate
     } = this.state;
     return (
       <div>
@@ -915,6 +924,13 @@ class Annotate_C extends React.Component {
                       }}
                     />
                   </div>
+                  <input
+                      type="range"
+                      min="1"
+                      max="200"
+                      value={playbackRate}
+                      onChange={(e) => this.changePlayback(e)}
+                    />
                 </div>
                 {selectedSegment ? (
                   <div>
