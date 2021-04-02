@@ -24,6 +24,8 @@ import { text } from "@fortawesome/fontawesome-svg-core";
 //import Data from "./data";
 //import * as data from "./data.js";
 //import "./data";
+
+
 let colormap = require('colormap')
 
 class Annotate_C extends React.Component {
@@ -35,7 +37,7 @@ class Annotate_C extends React.Component {
     const params = new URLSearchParams(window.location.search);
     this.state = {
       active: params.get("active") || "unknown",
-      page: null,
+      page: 0,
       next_page: 1,
       next_data_url: "",
       next_data_id: -1,
@@ -113,6 +115,7 @@ class Annotate_C extends React.Component {
             count,
             active,
             page,
+            cuFrrPage,
             next_page,
             prev_page,
           } = response.data;
@@ -278,6 +281,7 @@ class Annotate_C extends React.Component {
           is_marked_for_review,
           segmentations,
           filename,
+          original_filename
         } = response[1].data;
 
         const regions = segmentations.map((segmentation) => {
@@ -297,6 +301,7 @@ class Annotate_C extends React.Component {
           referenceTranscription: reference_transcription,
           isMarkedForReview: is_marked_for_review,
           filename,
+          original_filename
         });
 
         wavesurfer.load(`/audios/${filename}`);
@@ -614,6 +619,7 @@ class Annotate_C extends React.Component {
   }
 
 
+  // Go to the next audio recording
   handleNextClip(e, forceNext=false) {
       //all possible code saved, lets continue!
       this.handleAllSegmentSave(e)
@@ -639,7 +645,8 @@ class Annotate_C extends React.Component {
       console.log(window.location.href);
       //TODO: FIX THIS LOGIC HERE TO ACTUALLY SET THE NEXT CLIP
       var newPageData = this.state.data[0];
-      console.log("entered loop")
+      console.log("entered loop")     
+      
       for (var key in this.state.data) {
         key = parseInt(key)
         console.log(key + 1)
@@ -713,8 +720,90 @@ class Annotate_C extends React.Component {
     //window.location.href = "https://youtu.be/dQw4w9WgXcQ";
   }
 
+
+
+
+
+
+
+
+   // Go to previous audio recording
+   handlePreviousClip(e, forceNext=false) {
+    //all possible code saved, lets continue!
+    this.handleAllSegmentSave(e)
+    console.log("SAVE IS GOOD LETS KEEP GOING")
+    const { selectedSegment, segmentationUrl,wavesurfer } = this.state;
+    for (var segment_name in wavesurfer.regions.list) {
+        const segment =  wavesurfer.regions.list[segment_name]
+        console.log( segment_name, segment);
+        if (segment.saved == false && !forceNext) {
+          if (segment.data.annotations == null) {
+            this.setState({
+              errorUnsavedMessage: "There regions without a label! You can't leave yet! If you are sure, click \"force previous\""
+            });
+            return;
+          }
+          //TODO: Change this to a modal
+        }
+    }
+
+
+    console.log(this.state.page)
+    console.log(this.state.data)
+    console.log(window.location.href);
+    //TODO: FIX THIS LOGIC HERE TO ACTUALLY SET THE PREVIOUS CLIP
+    var newPageData = this.state.data[0];
+    console.log("entered loop")     
+    
+    for (var key in this.state.data) {
+      key = parseInt(key)
+      console.log(key - 1)
+      if (this.state.data[key]["data_id"] == this.state.dataId) {
+        console.log("exit loop")
+        try {
+          console.log(key - 1)
+          newPageData = this.state.data[key - 1];
+          console.log(newPageData);
+          console.log(newPageData["data_id"]);
+          var url = `/projects/${this.state.projectId}/data/${newPageData["data_id"]}/annotate`
+    
+          ///projects
+          console.log(window.location.href.indexOf("/projects"))
+          var index = window.location.href.indexOf("/projects")
+          var path =  window.location.href.substring(0, index);
+          console.log(path);
+          console.log(path+url);
+          window.location.href = path+url;
+        }
+        catch(e) {
+          try {
+            console.log("hello")
+            console.log(this.state.next_data_url)
+            if (this.state.data[0]["data_id"] != this.state.next_data_id) {
+              window.location.href = this.state.next_data_url
+            }
+            else {
+              throw "no data remains"
+            }
+            //
+          } catch(e) {
+            console.log("oppise " + e)
+            console.log("oppise " + e)
+            var index = window.location.href.indexOf("/projects")
+            var path =  window.location.href.substring(0, index);
+            window.location.href = path + `/projects/${this.state.projectId}/data`;
+            //TODO: Implement next page logic here
+          }
+        }
+        console.log(newPageData)
+        break;
+      }
+    }
+  }
+
   render() {
     const {
+      data,
       zoom,
       isPlaying,
       labels,
@@ -767,6 +856,7 @@ class Annotate_C extends React.Component {
                 onClose={(e) => this.handleAlertDismiss(e)}
               />
             ) : null}
+            <div>{this.state.original_filename}</div>
             {this.state.isRendering &&
             <div className="row justify-content-md-center my-4"> 
               <text>Please wait while spectrogram renders</text>
@@ -935,6 +1025,16 @@ class Annotate_C extends React.Component {
                     </label>
                   </div>
                 </div>
+                <div className="previous">
+                  <Button
+                    size="lg"
+                    type="primary"
+                    disabled={isSegmentSaving}
+                    onClick={(e) => this.handlePreviousClip(e)}
+                    isSubmitting={isSegmentSaving}
+                    text="Previous"
+                  />
+                  </div>
                 <div className="next">
                   <Button
                     size="lg"
