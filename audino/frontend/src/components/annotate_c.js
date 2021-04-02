@@ -214,15 +214,27 @@ class Annotate_C extends React.Component {
       wavesurfer.enableDragSelection({ color: "rgba(0, 102, 255, 0.3)" });
     });
     wavesurfer.on("region-updated", (region) => {
+      const {selectedSegment} = this.state;
       console.log("changed")
       this.handlePause();
-      region.style(region.element, {backgroundColor:  "rgba(0, 102, 255, 0.3)",});
+      if (selectedSegment == region) {
+        selectedSegment.style(region.element, {backgroundColor:  "rgba(0, 102, 0, 0.3)",});
+      } else {
+        selectedSegment.style(region.element, {backgroundColor:  "rgba(0, 102, 255, 0.3)",});
+      }
       region._onUnSave()
     });
     
     wavesurfer.on("region-created", (region) => {
       this.handlePause();
       console.log(region)
+      const {selectedSegment} = this.state;
+      if (selectedSegment != null && selectedSegment.saved == true) {
+        selectedSegment.style(selectedSegment.element, {backgroundColor:  "rgba(0, 0, 0, 0.7)",});
+      } else if (selectedSegment != null) {
+        selectedSegment.style(selectedSegment.element, {backgroundColor:  "rgba(0, 102, 255, 0.3)",});
+      }
+      region.style(region.element, {backgroundColor:  "rgba(0, 102, 0, 0.3)",});
       this.setState({
         selectedSegment: region,
       });
@@ -249,11 +261,17 @@ class Annotate_C extends React.Component {
 
     wavesurfer.on("region-click", (r, e) => {
       const {selectedSegment} = this.state;
-      /*if (selectedSegment.saved = true) {
-        region.style(region.element, {backgroundColor:  "rgba(0, 0, 0, 0.7)",});
-      } else {
-        region.style(region.element, {backgroundColor:  "rgba(0, 102, 255, 0.3)",});
-      }*/
+      if (r.saved == true && selectedSegment.end != r.end) {
+        r.style(r.element, {backgroundColor:  "rgba(0, 102, 0, 0.7)",});
+      } else if(selectedSegment.end != r.end) {
+        r.style(r.element, {backgroundColor:  "rgba(0, 102, 0, 0.3)",});
+      }
+
+      if (selectedSegment.saved == true && selectedSegment.end != r.end) {
+        selectedSegment.style(selectedSegment.element, {backgroundColor:  "rgba(0, 0, 0, 0.7)",});
+      } else if(selectedSegment.end != r.end){
+        selectedSegment.style(selectedSegment.element, {backgroundColor:  "rgba(0, 102, 255, 0.3)",});
+      }
       e.stopPropagation();
       this.setState({
         isPlaying: true,
@@ -538,7 +556,11 @@ class Annotate_C extends React.Component {
                 errorMessage: null,
               });
               //segment.update({color: 'rgba(40, 40, 40, 0.7)'})
+              
               segment.style(segment.element, {backgroundColor: "rgba(0, 0, 0, 0.7)",});
+              if (segment == selectedSegment) {
+                selectedSegment.style(selectedSegment.element, {backgroundColor:  "rgba(0, 102, 0, 0.7)",});
+              }
               segment._onSave()
             })
             .catch((error) => {
