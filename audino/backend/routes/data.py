@@ -247,13 +247,6 @@ def add_data_from_site():
     app.logger.info(audio_files)
     app.logger.info("also made it to here!")
     for file in audio_files:
-        wave_file = wave.open(file, 'rb')
-        frame_rate = wave_file.getframerate()
-        frames = wave_file.getnframes()
-        rate = wave_file.getframerate()
-        clip_duration = frames / float(rate)
-        wave_file.close()
-        
         app.logger.info(file)
         original_filename = secure_filename(file.filename)
 
@@ -266,6 +259,12 @@ def add_data_from_site():
 
         file_path = Path(app.config["UPLOAD_FOLDER"]).joinpath(filename)
         file.save(file_path.as_posix())
+        wave_file = wave.open(str(file_path), 'rb')
+        frame_rate = wave_file.getframerate()
+        frames = wave_file.getnframes()
+        rate = wave_file.getframerate()
+        clip_duration = frames / float(rate)
+        wave_file.close()
         try:
             data = Data(
                 project_id=project.id,
