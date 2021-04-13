@@ -337,7 +337,8 @@ def add_label_to_project(project_id):
     try:
         project = Project.query.get(project_id)
         app.logger.info(f"Label: {LabelType.query.all()} AT 0")
-        label = Label(name=label_name, type_id=label_type_id, id=len(Label.query.all()))
+        app.logger.info(f"Label: {Label.query.all()} AT 0")
+        label = Label(name=label_name, type_id=label_type_id, id=(len(Label.query.all()))+1)
         project.labels.append(label)
         db.session.add(project)
         db.session.commit()
@@ -559,6 +560,8 @@ def get_segmentations_for_data(project_id, data_id):
             "reference_transcription": data.reference_transcription,
             "is_marked_for_review": data.is_marked_for_review,
             "segmentations": segmentations,
+            "sampling_rate": data.sampling_rate,
+            "clip_length": data.clip_length,
         }
 
     except Exception as e:

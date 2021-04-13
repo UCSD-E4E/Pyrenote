@@ -8,7 +8,7 @@ import { Button } from "../../components/button";
 import Loader from "../../components/loader";
 import LabelValues from "../../pages/labelValues"
 
-class EditLabelValueForm extends React.Component {
+class DeleteLabelValueForm extends React.Component {
   constructor(props) {
     super(props);
 
@@ -18,7 +18,6 @@ class EditLabelValueForm extends React.Component {
     this.initialState = {
       labelValueId,
       labelId,
-      value: "",
       errorMessage: null,
       successMessage: null,
       isLoading: false,
@@ -29,29 +28,7 @@ class EditLabelValueForm extends React.Component {
   }
 
   componentDidMount() {
-    const { labelValueUrl } = this.state;
-    this.setState({ isLoading: true });
-    axios({
-      method: "get",
-      url: labelValueUrl,
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          const { value_id, value } = response.data;
-          this.setState({
-            value,
-            labelValueId: value_id,
-            isLoading: false,
-          });
-        }
-      })
-      .catch((error) => {
-        this.setState({
-          errorMessage: error.response.data.message,
-          successMessage: null,
-          isLoading: false,
-        });
-      });
+      console.log("DELETE LABEL FORM HAS RENDER TADA")
   }
 
   resetState() {
@@ -68,36 +45,18 @@ class EditLabelValueForm extends React.Component {
 
   handleLabelValueUpdation(e) {
     e.preventDefault();
-
+    
     this.setState({ isSubmitting: true });
-
-    const { labelValueUrl, value } = this.state;
-
-    if (!value || value === "") {
-      this.setState({
-        isSubmitting: false,
-        errorMessage: "Please enter a valid label value!",
-        successMessage: "",
-      });
-      return;
-    }
-
     axios({
-      method: "patch",
-      url: labelValueUrl,
-      data: {
-        value,
-      },
+      method: "delete",
+      url: this.state.labelValueUrl,
     })
       .then((response) => {
         if (response.status === 200) {
-          const { value_id, value } = response.data;
           this.setState({
-            value,
-            labelValueId: value_id,
             isLoading: false,
             isSubmitting: false,
-            successMessage: "Label value has been updated",
+            successMessage: "Label value has been DELETED",
             errorMessage: null,
           });
         }
@@ -154,26 +113,16 @@ class EditLabelValueForm extends React.Component {
             {!isLoading ? (
               <div>
                 <div className="form-group">
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="label_value"
-                    placeholder="Label value"
-                    value={value}
-                    autoFocus={true}
-                    required={true}
-                    onChange={(e) => this.handleLabelValueChange(e)}
-                  />
                 </div>
                 <div className="form-row">
                   <div className="form-group col">
                     <Button
                       size="lg"
-                      type="primary"
+                      type="danger"
                       disabled={isSubmitting ? true : false}
                       onClick={(e) => this.handleLabelValueUpdation(e)}
                       isSubmitting={isSubmitting}
-                      text="Update"
+                      text="DELETE LABEL VALUE"
                     />
                   </div>
                 </div>
@@ -186,4 +135,4 @@ class EditLabelValueForm extends React.Component {
   }
 }
 
-export default withStore(withRouter(EditLabelValueForm));
+export default withStore(withRouter(DeleteLabelValueForm));
