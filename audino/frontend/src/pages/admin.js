@@ -130,6 +130,17 @@ class Admin extends React.Component {
       api_key,
     });
   }
+  handleDownloadDataToProject(e, projectName, projectId, api_key) {
+    console.log(api_key, "hi")
+    this.setModalShow(true);
+    this.setState({
+      formType: "DOWNLOAD_DATA",
+      title: `Project ${projectName}: DOWNLOAD ANNOTATIONS`,
+      projectId,
+      projectName,
+      api_key,
+    });
+  }
 
   _fake_click(obj) {
     let ev = document.createEvent("MouseEvents");
@@ -373,6 +384,19 @@ class Admin extends React.Component {
                               title={"Upload Data"}
                               onClick={(e) =>
                                 this.handleUploadDataToProject(
+                                  e,
+                                  project["name"],
+                                  project["project_id"],
+                                  project["api_key"]
+                                )
+                              }
+                            />
+                            <IconButton
+                              icon={faUpload}
+                              size="sm"
+                              title={"Download Data"}
+                              onClick={(e) =>
+                                this.handleDownloadDataToProject(
                                   e,
                                   project["name"],
                                   project["project_id"],
