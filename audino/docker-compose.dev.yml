@@ -55,6 +55,7 @@ services:
 
   redis:
     build: ./redis
+    image: redis
     volumes:
       - redis_data:/data
     environment:

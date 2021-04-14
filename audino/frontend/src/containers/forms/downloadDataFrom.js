@@ -41,28 +41,17 @@ class DownloadDataForm extends React.Component {
   }
 
   componentDidMount() {
-    /*const { uploadUrl } = this.state;
-
-    this.setState({ isLoading: true });
-
-    axios
-      .all([axios.get(projectUrl), axios.get(getUsersUrl)])
-      .then((response) => {
-        const selectedUsers = response[0].data.users.map((user) =>
-          Number(user["user_id"])
-        );
-        this.setState({
-          selectedUsers,
-          users: response[1].data.users,
-          isLoading: false,
-        });
-      });*/
   }
+
+
 
   handleDownloadAnnotationsCSV(e, projectName, projectId) {
     axios({
       method: "get",
       url: `/api/projects/${projectId}/annotations`,
+      headers: {
+        csv: "true",
+      },
     })
       .then((response) => {
         const { annotations } = response.data;
@@ -75,20 +64,6 @@ class DownloadDataForm extends React.Component {
               var dataString = infoArray.join(',');
               csvContent += index < data.length ? dataString + '\n' : dataString;
             });
-
-            /*var csvContent = "data:text/csv;charset=utf-8,";
-            //console.log(type(data))
-            data.forEach(function(infoArray, index) {
-              var dataString = infoArray.join(',');
-              console.log(infoArray)
-              console.log(dataString)
-              csvContent += dataString + '\n'
-              console.log(csvContent)
-              console.log("===========================================")
-              //https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
-              //TODO: USE DOWNLOAD METHOD HERE
-            });
-            this._export_raw(`${projectName}.csv`, data);*/
             var download = function(content, fileName, mimeType) {
               var a = document.createElement('a');
               mimeType = mimeType || 'application/octet-stream';
@@ -125,6 +100,82 @@ class DownloadDataForm extends React.Component {
         });
       });
   }
+  _fake_click(obj) {
+    let ev = document.createEvent("MouseEvents");
+    ev.initMouseEvent(
+      "click",
+      true,
+      false,
+      window,
+      0,
+      0,
+      0,
+      0,
+      0,
+      false,
+      false,
+      false,
+      false,
+      0,
+      null
+    );
+    obj.dispatchEvent(ev);
+  }
+  _export_raw(name, data) {
+    
+    let urlObject = window.URL || window.webkitURL || window;
+    console.log(data)
+    let export_blob = new Blob([data], {type : 'application/json'});
+    console.log("ISSUE IS HERE")
+    if ("msSaveBlob" in navigator) {
+      navigator.msSaveBlob(export_blob, name);
+    } else if ("download" in HTMLAnchorElement.prototype) {
+      let save_link = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "a"
+      );
+      save_link.href = urlObject.createObjectURL(export_blob);
+      save_link.download = name;
+      this._fake_click(save_link);
+    } else {
+      throw new Error("Neither a[download] nor msSaveBlob is available");
+    }
+  }
+
+  handleDownloadAnnotationsJSON(e, projectName, projectId) {
+    axios({
+      method: "get",
+      url: `/api/projects/${projectId}/annotations`,
+      headers: {
+        csv: "false",
+      },
+    })
+      .then((response) => {
+        console.log(response)
+        console.log("response is good")
+        console.log(response.data)
+        console.log("response data is good")
+        console.log(response.data.annotations)
+        console.log("response data 2 is good")
+        let annotations = response.data.annotations;
+        if (annotations) {
+          this._export_raw(
+            `${projectName}.json`,
+            JSON.stringify(annotations, null, 2)
+          );
+        } else {
+          console.log("No annotations found");
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+        this.setState({
+          errorMessage: error.response.data.message,
+          isUserLoading: false,
+        });
+      });
+  }
+
 
   resetState() {
     this.setState(this.initialState);
@@ -158,6 +209,7 @@ class DownloadDataForm extends React.Component {
     } = this.state;
     return (
       <div className="container h-75 text-center">
+         <form>
         <div>
           {isLoading ? <Loader />: null}
             {errorMessage ? (
@@ -175,28 +227,28 @@ class DownloadDataForm extends React.Component {
               />
             ) : null}
           </div>
-        <div className="row h-100 justify-content-center align-items-center">
+        <div class="col-1">
           <div className="row h-100 justify-content-center align-items-center">
-            <text>DOWNLOAD CSV</text>
             <IconButton
               icon={faDownload}
-              size="sm"
-              title={"Download Annotations"}
+              size="lg"
+              title={"Download Annotations - JSON"}
               onClick={(e) =>
-                this.handleDownloadAnnotationsCSV(
+                this.handleDownloadAnnotationsJSON(
                   e,
                   this.state.projectName,
                   this.state.projectId
                 )
               }
             />
+            <text>THIS IS A TEST</text>
           </div>
-          <div className="row h-100 justify-content-center align-items-center">
-            <text>DOWNLOAD JSON</text>
+          <div className="row h-500000 justify-content-center align-items-center"></div>
+          <div class="col-2">
             <IconButton
               icon={faDownload}
-              size="sm"
-              title={"Download Annotations"}
+              size="lg"
+              title={"Download Annotations - CSV"}
               onClick={(e) =>
                 this.handleDownloadAnnotationsCSV(
                   e,
@@ -207,6 +259,7 @@ class DownloadDataForm extends React.Component {
             />
           </div>
         </div>
+        </form>
       </div>
     );
   }

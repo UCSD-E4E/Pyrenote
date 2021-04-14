@@ -55,13 +55,13 @@ class NavBar extends React.Component {
                     </Link>
                 </li>
                  )}
-                {isAdmin && (
+                {/*isAdmin && (
                   <li className={`nav-item`}>
                     <Link className="nav-link" to="/database">
                       Database
                     </Link>
                 </li>
-                )}
+                )*/}
               </ul>
               <ul className="navbar-nav">
                 <li className="nav-item">
