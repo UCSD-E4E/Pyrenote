@@ -1,8 +1,8 @@
-"""baseline
+"""I deleted all the tables
 
-Revision ID: 94f0084ea564
+Revision ID: a45ada0698a8
 Revises: 
-Create Date: 2021-03-24 03:56:18.607191
+Create Date: 2021-04-08 08:37:37.608146
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '94f0084ea564'
+revision = 'a45ada0698a8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -67,6 +67,8 @@ def upgrade():
     sa.Column('is_marked_for_review', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('last_modified', sa.DateTime(), nullable=False),
+    sa.Column('sampling_rate', sa.Integer(), nullable=False),
+    sa.Column('clip_length', sa.Float(), nullable=False),
     sa.ForeignKeyConstraint(['project_id'], ['project.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('filename')

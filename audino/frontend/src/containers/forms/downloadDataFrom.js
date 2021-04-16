@@ -209,7 +209,6 @@ class DownloadDataForm extends React.Component {
     } = this.state;
     return (
       <div className="container h-75 text-center">
-         <form>
         <div>
           {isLoading ? <Loader />: null}
             {errorMessage ? (
@@ -226,25 +225,32 @@ class DownloadDataForm extends React.Component {
                 onClose={(e) => this.handleAlertDismiss(e)}
               />
             ) : null}
+          </div> 
+        <div className="row h-50 justify-content-center align-items-center">
+          <div style={{  
+                    "float": "left",
+                    "width": "50%"
+              }}>
+            <text>DOWNLOAD JSON</text>
+              <IconButton
+                icon={faDownload}
+                size="lg"
+                title={"Download Annotations - JSON"}
+                onClick={(e) =>
+                  this.handleDownloadAnnotationsJSON(
+                    e,
+                    this.state.projectName,
+                    this.state.projectId
+                  )
+                }
+              />
+              
           </div>
-        <div class="col-1">
-          <div className="row h-100 justify-content-center align-items-center">
-            <IconButton
-              icon={faDownload}
-              size="lg"
-              title={"Download Annotations - JSON"}
-              onClick={(e) =>
-                this.handleDownloadAnnotationsJSON(
-                  e,
-                  this.state.projectName,
-                  this.state.projectId
-                )
-              }
-            />
-            <text>THIS IS A TEST</text>
-          </div>
-          <div className="row h-500000 justify-content-center align-items-center"></div>
-          <div class="col-2">
+          <div style={{  
+                    "float": "left",
+                    "width": "50%"
+              }}>
+            <text>DOWNLOAD CSV  </text>
             <IconButton
               icon={faDownload}
               size="lg"
@@ -259,7 +265,6 @@ class DownloadDataForm extends React.Component {
             />
           </div>
         </div>
-        </form>
       </div>
     );
   }
