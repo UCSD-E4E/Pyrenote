@@ -102,6 +102,8 @@ class Data extends React.Component {
   }
 
   render() {
+    localStorage.setItem("previous_links", JSON.stringify([]));
+    localStorage.setItem("count", JSON.stringify(0));
     const {
       projectId,
       isDataLoading,

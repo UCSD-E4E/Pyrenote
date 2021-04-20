@@ -59,7 +59,9 @@ class Annotate_C extends React.Component {
       errorUnsavedMessage: null,
       successMessage: null,
       isRendering: true, //TODO: REMEMBER TO SET TO TRUE
-      data: []
+      data: [],
+      previous_pages: [],
+      num_of_prev: 0
     };
 
     this.labelRef = {};
@@ -67,6 +69,19 @@ class Annotate_C extends React.Component {
   }
 
   componentDidMount() {
+    var linksArray = [];
+    var count = 0;
+    var links = localStorage.getItem("previous_links");
+    if (!links) {
+      localStorage.setItem("previous_links", JSON.stringify(linksArray));
+      localStorage.setItem("count", JSON.stringify(this.state.num_of_prev));
+    } else {
+      linksArray = JSON.parse(localStorage.getItem("previous_links"));
+      console.log(JSON.parse(localStorage.getItem("previous_links")), "LOOOKIE HERE")
+      count = JSON.parse(localStorage.getItem("count"));
+    } 
+    this.setState({previous_pages: linksArray, num_of_prev: count})
+
     console.log(new Date().toLocaleString())
     let {page, active } = this.state;
 
@@ -624,7 +639,7 @@ class Annotate_C extends React.Component {
       //all possible code saved, lets continue!
       this.handleAllSegmentSave(e)
       console.log("SAVE IS GOOD LETS KEEP GOING")
-      const { selectedSegment, segmentationUrl,wavesurfer } = this.state;
+      const { selectedSegment, segmentationUrl,wavesurfer, previous_pages, num_of_prev} = this.state;
       for (var segment_name in wavesurfer.regions.list) {
           const segment =  wavesurfer.regions.list[segment_name]
           console.log( segment_name, segment);
@@ -639,7 +654,19 @@ class Annotate_C extends React.Component {
           }
       }
 
+      var currPage = num_of_prev;
+      
 
+      if (num_of_prev < previous_pages.length) {
+        
+        window.location.href = previous_pages[num_of_prev]
+        return;
+
+      }
+      previous_pages[num_of_prev] = window.location.href
+      var next_page_num = num_of_prev + 1;
+      localStorage.setItem("previous_links", JSON.stringify(previous_pages));
+      localStorage.setItem("count", JSON.stringify(next_page_num));
       console.log(this.state.page)
       console.log(this.state.data)
       console.log(window.location.href);
@@ -691,39 +718,7 @@ class Annotate_C extends React.Component {
           break;
         }
       }
-    //add this back TODO:
-    //window.location.href = path+url;
-        //href = `/projects/${this.state.projectId}/data/${newPageData["data_id"]}/annotate`
-      //});
-    /**try{ //TODO DELETE THIS COMMENT
-          console.log(newPageData["data_id"]);
-        } catch(e) {
-          try {
-            //attempt to use the next page
-            window.location.href = this.state.next_data_url
-          } catch(e) {
-             //general catch here to ensure the data never crashes the app
-            console.log(e)
-            console.log("no more data?")
-            var index = window.location.href.indexOf("/projects")
-            var path =  window.location.href.substring(0, index);
-            window.location.href = path;
-          }
-        } */
-    //console.log(data.Data.state);
-    //`/projects/${projectId}/data/${data["data_id"]}/annotate`
-    //get data that doesn't need to be reviewed, or data that is reivewed
-    //start with doesn't need to be reviewed so you can learn
-
-    //step two: pull the id thing that the site is using to create URLS
-    //step three: make url string and set window.location.href to that
-    //window.location.href = "https://youtu.be/dQw4w9WgXcQ";
   }
-
-
-
-
-
 
 
 
@@ -732,7 +727,7 @@ class Annotate_C extends React.Component {
     //all possible code saved, lets continue!
     this.handleAllSegmentSave(e)
     console.log("SAVE IS GOOD LETS KEEP GOING")
-    const { selectedSegment, segmentationUrl,wavesurfer } = this.state;
+    const { selectedSegment, segmentationUrl,wavesurfer, previous_pages, num_of_prev} = this.state;
     for (var segment_name in wavesurfer.regions.list) {
         const segment =  wavesurfer.regions.list[segment_name]
         console.log( segment_name, segment);
@@ -746,6 +741,29 @@ class Annotate_C extends React.Component {
           //TODO: Change this to a modal
         }
     }
+
+    console.log(page_num)
+    if (num_of_prev > 0) {
+      var page_num = num_of_prev - 1
+      console.log(page_num)
+      console.log(previous_pages)
+      var previous = previous_pages[page_num]
+      console.log(previous)
+      //num_of_prev--;
+      localStorage.setItem("previous_links", JSON.stringify(previous_pages));
+      localStorage.setItem("count", JSON.stringify(page_num - 1));
+      window.location.href = previous
+      return;
+
+    } else {
+      var index = window.location.href.indexOf("/projects")
+      var path =  window.location.href.substring(0, index);
+      window.location.href = path + `/projects/${this.state.projectId}/data`;
+    }
+    /*previous_pages[num_of_prev] = window.location.href
+    num_of_prev++;
+    localStorage.setItem("previous_links", JSON.stringify(previous_pages));
+    localStorage.setItem("count", JSON.stringify(num_of_prev));
 
 
     console.log(this.state.page)
@@ -798,7 +816,7 @@ class Annotate_C extends React.Component {
         console.log(newPageData)
         break;
       }
-    }
+    }*/
   }
 
   render() {
