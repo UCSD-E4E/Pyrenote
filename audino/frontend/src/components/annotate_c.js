@@ -81,7 +81,7 @@ class Annotate_C extends React.Component {
       count = JSON.parse(localStorage.getItem("count"));
     } 
     this.setState({previous_pages: linksArray, num_of_prev: count})
-
+    console.log(linksArray, count, "MAIN DATA")
     console.log(new Date().toLocaleString())
     let {page, active } = this.state;
 
@@ -656,10 +656,12 @@ class Annotate_C extends React.Component {
 
       var currPage = num_of_prev;
       
-
-      if (num_of_prev < previous_pages.length) {
-        
-        window.location.href = previous_pages[num_of_prev]
+      console.log(num_of_prev, previous_pages.length)
+      console.log(previous_pages)
+      if (num_of_prev < previous_pages.length - 1) {
+        console.log(num_of_prev, previous_pages.length)
+        localStorage.setItem("count", JSON.stringify(num_of_prev + 1));
+        window.location.href = previous_pages[num_of_prev + 1]
         return;
 
       }
@@ -748,17 +750,19 @@ class Annotate_C extends React.Component {
       console.log(page_num)
       console.log(previous_pages)
       var previous = previous_pages[page_num]
+      previous_pages[num_of_prev] = window.location.href
       console.log(previous)
       //num_of_prev--;
       localStorage.setItem("previous_links", JSON.stringify(previous_pages));
-      localStorage.setItem("count", JSON.stringify(page_num - 1));
+      localStorage.setItem("count", JSON.stringify(page_num));
       window.location.href = previous
       return;
 
     } else {
       var index = window.location.href.indexOf("/projects")
       var path =  window.location.href.substring(0, index);
-      window.location.href = path + `/projects/${this.state.projectId}/data`;
+      console.log("You have hit the end of the clips you have last seen")
+      //window.location.href = path + `/projects/${this.state.projectId}/data`;
     }
     /*previous_pages[num_of_prev] = window.location.href
     num_of_prev++;
