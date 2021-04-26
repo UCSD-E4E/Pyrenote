@@ -1,10 +1,16 @@
 import sqlalchemy as sa
 
 from flask import jsonify, flash, redirect, url_for, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    jwt_required,
+    create_access_token,
+    get_jwt_identity,
+    get_jti,
+    get_raw_jwt,
+)
 from werkzeug.urls import url_parse
 
-from backend import app, db
+from backend import app, db, redis_client
 from backend.models import User
 
 from . import api
@@ -211,6 +217,38 @@ def update_user(user_id):
         user.set_role(role_id)
         user.set_username(newUserName)
         db.session.commit()
+        if (request_user.id == user_id):
+            app.logger.info(request_user, user)
+            is_admin = True if user.role.role == "admin" else False
+            app.logger.info(user.id)
+            data = {"username": newUserName, "is_admin": is_admin, "user_id": user.id}#json.loads({"username": "hello", "is_admin": is_admin, "user_id": user.id})
+            app.logger.info(data)
+            try: 
+                access_token = create_access_token(
+                    identity=data,
+                    fresh=True,
+                    expires_delta=app.config["JWT_ACCESS_TOKEN_EXPIRES"],
+                )
+            except Exception as e:
+                message = "probelm with access Token"
+                app.logger.error(message)
+                app.logger.error(e)
+                app.logger.error(e.with_traceback)
+                return jsonify(message=message), 450
+            app.logger.info("here")
+            access_jti = get_jti(encoded_token=access_token)
+
+            redis_client.set(access_jti, "false", app.config["JWT_ACCESS_TOKEN_EXPIRES"] * 1.2)
+            return (
+                jsonify(
+                    username=user.username,
+                    access_token=access_token,
+                    role=user.role.role,
+                    role_id=user.role.id,
+                    message="User has been updated!",
+                ),
+                200,
+            )
     except Exception as e:
         app.logger.error("No user found")
         app.logger.error(e)
