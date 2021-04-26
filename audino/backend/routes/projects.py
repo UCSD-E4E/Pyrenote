@@ -759,9 +759,11 @@ def get_project_annotations(project_id):
     try:
         request_user = User.query.filter_by(username=identity["username"]).first()
         project = Project.query.get(project_id)
-
-        if request_user not in project.users:
+        is_admin = True if request_user.role.role == "admin" else False
+        if is_admin == False:
             return jsonify(message="Unauthorized access!"), 401
+        #if request_user not in project.users:
+        #    return jsonify(message="Unauthorized access!"), 401
 
         annotations = []
 
