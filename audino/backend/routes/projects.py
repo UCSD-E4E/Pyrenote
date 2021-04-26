@@ -754,7 +754,8 @@ def delete_segmentations(project_id, data_id, segmentation_id):
 @jwt_required
 def get_project_annotations(project_id):
     identity = get_jwt_identity()
-
+    app.logger.info(request.headers["Csv"])
+    download_csv = request.headers["Csv"]
     try:
         request_user = User.query.filter_by(username=identity["username"]).first()
         project = Project.query.get(project_id)
@@ -804,11 +805,16 @@ def get_project_annotations(project_id):
         app.logger.error(message)
         app.logger.error(e)
         return jsonify(message=message, type="FETCH_ANNOTATIONS_FAILED"), 500
-
+    if ((download_csv) == "true"):
+        annotations_to_download = csv
+        app.logger.info("here: ", annotations_to_download)
+    else:
+        annotations_to_download = annotations
+        app.logger.info("here: ", annotations_to_download)
     return (
         jsonify(
             message="Annotations fetched successfully",
-            annotations=csv,
+            annotations=annotations_to_download,
             type="FETCH_ANNOTATION_SUCCESS",
         ),
         200,

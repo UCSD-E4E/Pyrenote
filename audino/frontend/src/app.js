@@ -168,7 +168,6 @@ class App extends React.Component {
             <Route path="/empty" component={null} key="empty" />
             <PrivateRoute exact path="/admin" component={Admin} />
             <PrivateRoute exact path="/dashboard" component={Dashboard} />
-            <PrivateRoute exact path="/database" component={Database}/>
             <PrivateRoute
               exact
               path="/projects/:id/labels"
