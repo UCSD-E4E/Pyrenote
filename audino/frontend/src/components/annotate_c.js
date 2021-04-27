@@ -867,6 +867,7 @@ class Annotate_C extends React.Component {
                 <Alert
                   type="danger"
                   message={errorUnsavedMessage}
+                  overlay={true}
                   onClose={(e) => this.handleAlertDismiss(e)}
                 />
                 <Button
@@ -882,12 +883,14 @@ class Annotate_C extends React.Component {
               <Alert
                 type="danger"
                 message={errorMessage}
+                overlay={true}
                 onClose={(e) => this.handleAlertDismiss(e)}
               />
             ) : successMessage ? (
               <Alert
                 type="success"
                 message={successMessage}
+                overlay={true}
                 onClose={(e) => this.handleAlertDismiss(e)}
               />
             ) : null}
