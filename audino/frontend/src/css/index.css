@@ -19,20 +19,29 @@ body,
 #waveform {
   width: 100%;
   position: relative;
-  float:left; 
+  float: left;
 }
 #wavegraph {
   width: 200%;
   position: relative;
-  float:left; 
+  float: left;
 }
 
 #waveform-labels {
   width: 100%;
   position: relative;
-  float:left; 
+  float: left;
 }
 
 #timeline {
   width: 100%;
+}
+
+.overlay {
+  position: fixed;
+  z-index: 1;
+}
+
+.hidden {
+  visibility: hidden;
 }

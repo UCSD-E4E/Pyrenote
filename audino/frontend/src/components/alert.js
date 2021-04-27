@@ -4,7 +4,9 @@ import PropTypes from "prop-types";
 const Alert = ({ type, message, onClose = () => {} }) => {
   return (
     <div
-      className={`alert alert-${type} alert-dismissible fade show`}
+      className={`alert alert-${type} alert-dismissible fade show overlay`}
+      style={{ cursor: "pointer", top: 0, left: 0, right: 0 }}
+      onClick={onClose}
       role="alert"
     >
       {message}
@@ -13,7 +15,6 @@ const Alert = ({ type, message, onClose = () => {} }) => {
         className="close"
         data-dismiss="alert"
         aria-label="Close"
-        onClick={onClose}
       >
         <span aria-hidden="true">&times;</span>
       </button>
