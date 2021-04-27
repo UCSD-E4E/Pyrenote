@@ -560,6 +560,8 @@ def get_segmentations_for_data(project_id, data_id):
             "reference_transcription": data.reference_transcription,
             "is_marked_for_review": data.is_marked_for_review,
             "segmentations": segmentations,
+            "sampling_rate": data.sampling_rate,
+            "clip_length": data.clip_length,
         }
 
     except Exception as e:
@@ -752,13 +754,16 @@ def delete_segmentations(project_id, data_id, segmentation_id):
 @jwt_required
 def get_project_annotations(project_id):
     identity = get_jwt_identity()
-
+    app.logger.info(request.headers["Csv"])
+    download_csv = request.headers["Csv"]
     try:
         request_user = User.query.filter_by(username=identity["username"]).first()
         project = Project.query.get(project_id)
-
-        if request_user not in project.users:
+        is_admin = True if request_user.role.role == "admin" else False
+        if is_admin == False:
             return jsonify(message="Unauthorized access!"), 401
+        #if request_user not in project.users:
+        #    return jsonify(message="Unauthorized access!"), 401
 
         annotations = []
 
@@ -802,11 +807,16 @@ def get_project_annotations(project_id):
         app.logger.error(message)
         app.logger.error(e)
         return jsonify(message=message, type="FETCH_ANNOTATIONS_FAILED"), 500
-
+    if ((download_csv) == "true"):
+        annotations_to_download = csv
+        app.logger.info("here: ", annotations_to_download)
+    else:
+        annotations_to_download = annotations
+        app.logger.info("here: ", annotations_to_download)
     return (
         jsonify(
             message="Annotations fetched successfully",
-            annotations=csv,
+            annotations=annotations_to_download,
             type="FETCH_ANNOTATION_SUCCESS",
         ),
         200,

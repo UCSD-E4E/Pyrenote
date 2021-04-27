@@ -79,6 +79,9 @@ class Data(db.Model):
         onupdate=db.func.utc_timestamp(),
     )
 
+    sampling_rate = db.Column("sampling_rate", db.Integer(), nullable=False)
+    clip_length = db.Column("clip_length", db.Float(), nullable=False)
+
     project = db.relationship("Project")
     #assigned_user = db.relationship("User")
     segmentations = db.relationship("Segmentation", backref="Data")
@@ -99,6 +102,8 @@ class Data(db.Model):
             "created_at": self.created_at,
             "last_modified": self.last_modified,
             "assigned_users": self.assigned_user_id,
+            "sampling_rate": self.sampling_rate,
+            "clip_length": self.clip_length,
             #{    "id": self.assigned_user_id,
                 #"username": self.assigned_user.username,
                 #"role": self.assigned_user.role.role,

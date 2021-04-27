@@ -3,6 +3,7 @@ import os
 import sys
 import requests
 import json
+import wave
 
 from pathlib import Path
 
@@ -60,6 +61,12 @@ for filename in os.listdir(directory):
         print("Audio file does not exist")
         continue
 
+    with wave.open(str(audio_path), "rb") as wave_file:
+        frame_rate = wave_file.getframerate()
+        frames = wave_file.getnframes()
+        rate = wave_file.getframerate()
+        clip_duration = frames / float(rate)
+
     reference_transcription = args.reference_transcription
     username = args.username.split('.')
     print(username)
@@ -74,6 +81,8 @@ for filename in os.listdir(directory):
         "username": username,
         "segmentations": segmentations,
         "is_marked_for_review": is_marked_for_review,
+        "sampling_rate": frame_rate,
+        "clip_length": clip_duration,
     }
 
     print("Creating datapoint")

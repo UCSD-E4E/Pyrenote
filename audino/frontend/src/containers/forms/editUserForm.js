@@ -6,7 +6,7 @@ import { withStore } from "@spyna/react-store";
 import Alert from "../../components/alert";
 import { Button } from "../../components/button";
 import Loader from "../../components/loader";
-
+import { setAuthorizationToken } from "../../utils";
 class EditUserForm extends React.Component {
   constructor(props) {
     super(props);
@@ -90,7 +90,13 @@ class EditUserForm extends React.Component {
     })
       .then((response) => {
         if (response.status === 200) {
-          const { username, role_id } = response.data;
+          const { username, role_id, access_token } = response.data;
+          if (access_token) {
+            localStorage.setItem("access_token", access_token);
+
+            setAuthorizationToken(access_token);
+          }
+          
           this.setState({
             username,
             role: String(role_id),
