@@ -35,46 +35,43 @@ class NavBar extends React.Component {
     const isAdmin = this.props.store.get("isAdmin");
 
     return (
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+      <nav class="navbar navbar-expand-md bg-dark navbar-dark">
         <Link to="/" className="navbar-brand">
           audino
         </Link>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#collapsibleNavbar"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
         {isUserLoggedIn && (
-          <div>
-            <div className="collapse navbar-collapse">
-              <ul className="navbar-nav mr-auto">
-                <li className={`nav-item`}>
-                  <Link className="nav-link" to="/dashboard">
-                    Dashboard
-                  </Link>
-                </li>
-                {isAdmin && (
-                  <li className={`nav-item`}>
-                    <Link className="nav-link" to="/admin">
-                      Admin Panel
-                    </Link>
-                </li>
-                 )}
-                {/*isAdmin && (
-                  <li className={`nav-item`}>
-                    <Link className="nav-link" to="/database">
-                      Database
-                    </Link>
-                </li>
-                )*/}
-              </ul>
-              <ul className="navbar-nav">
-                <li className="nav-item">
-                  <button
-                    type="button"
-                    className="nav-link btn btn-link text-decoration-none"
-                    onClick={(e) => this.handleLogout(e)}
-                  >
-                    Logout
-                  </button>
-                </li>
-              </ul>
-            </div>
+          <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <Link className="nav-link" to="/dashboard">
+                  Dashboard
+                </Link>
+              </li>
+              <li class="nav-item">
+                <Link className="nav-link" to="/admin">
+                  Admin Panel
+                </Link>
+              </li>
+              <li class="nav-item">
+                <button
+                  type="button"
+                  className="nav-link btn btn-link"
+                  onClick={(e) => this.handleLogout(e)}
+                >
+                  Logout
+                </button>
+              </li>
+            </ul>
           </div>
         )}
       </nav>
