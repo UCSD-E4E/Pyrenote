@@ -273,8 +273,8 @@ def give_users_examples():
     
     return (
         jsonify(
-            project_id=project.id,
-            message=f"Users assigned to project: {project.name}",
+            project_id=-1,
+            message=f"Users assigned to project: examples",
             type="USERS_ASSIGNED_TO_PROJECT",
         ),
         200,
