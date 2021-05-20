@@ -8,13 +8,13 @@ services:
       - ./backend/venv:/app/backend/venv
       - backend_data:/root/uploads
     environment:
-      ADMIN_USERNAME: "admin"
-      ADMIN_PASSWORD: "password"
+      ADMIN_USERNAME: "${ADMIN_USERNAME}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
       DATABASE_URL: "mysql+pymysql://audino:audino@mysql/audino?charset=utf8mb4"
       FLASK_APP: "app.py"
       FLASK_DEBUG: 1
       FLASK_ENV: "development"
-      JWT_SECRET_KEY: "secretkey"
+      JWT_SECRET_KEY: "${JWT_SECRET_KEY}"
       JWT_REDIS_STORE_URL: "redis://:audino@redis:6379/0"
     ports:
       - 5000:5000
@@ -33,6 +33,7 @@ services:
       - ./frontend/node_modules:/app/frontend/node_modules
     stdin_open: true
     ports:
+      - 443:443
       - 3000:3000
     depends_on:
       - backend
