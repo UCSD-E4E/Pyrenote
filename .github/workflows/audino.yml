@@ -17,8 +17,3 @@ jobs:
         port: 22
         script: |
           cd ../sperry/Audio_Labeling_System_AID/audino
-          docker-compose -f docker-compose.prod.yml down
-          git pull origin master
-          git status
-          docker-compose -f docker-compose.prod.yml build
-          docker-compose -f docker-compose.prod.yml up
