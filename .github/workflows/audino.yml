@@ -5,20 +5,22 @@ on:
 
 jobs: 
   job_one: 
-    name: Deploy
+    name: Deploy to SDCC Instance
     runs-on: ubuntu-latest
     steps: 
-    - name: testing SDCC server ssh connection
+    - name: Testing SDCC server ssh connection
       uses: appleboy/ssh-action@master
       with: 
         host: 132.249.242.207
         username: nbalaji
         key: ${{ secrets.AUDINO_SECRET }}
         port: 22
-        script: |
-          cd ../sperry/Audio_Labeling_System_AID/audino
-          docker compose -f docker-compose.prod.yml down
-          git pull origin master
-          git status
-          docker compose -f docker-compose.prod.yml build
-          docker compose -f docker-compose.prod.yml up
+        script: whoami
+        
+#         |
+#           cd ../sperry/Audio_Labeling_System_AID/audino
+#           docker-compose -f docker-compose.prod.yml down
+#           git pull origin master
+#           git status
+#           docker-compose -f docker-compose.prod.yml build
+#           docker-compose -f docker-compose.prod.yml up
