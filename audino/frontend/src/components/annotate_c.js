@@ -963,14 +963,13 @@ class Annotate_C extends React.Component {
                 </div>
                 {selectedSegment ? (
                   <div>
-                    <div className="row justify-content-center my-4">
+                    <div className="row justify-content-around my-4">
                       <div className="form-group">
                         <label className="font-weight-bold">
                           Segment Transcription
                         </label>
                       </div>
-                    </div>
-                    <div className="row justify-content-center my-4">
+
                       {Object.entries(labels).map(([key, value], index) => {
                         if (!value["values"].length) {
                           return null;
