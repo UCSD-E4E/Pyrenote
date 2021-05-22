@@ -2,12 +2,11 @@
 
 This project creates moment to moment or hard labels for audio data. If you are starting use the fallowing to get started!
 
-**NOTE** Before making any changes to the code, make sure to create a branch to safetly make changes. Never commit directly to main.
-**Read github_procedures.md for more detailed information before contributing to the repo** 
+**NOTE** Before making any changes to the code, make sure to create a branch to safetly make changes. Never commit directly to main. 
 
 ## Usage
 
-*Note: Before getting the project set up, message project leads for env file. This file should be put in /audino **make sure the file is never pushed to the github***
+*Note: Please see [getting started](docs/getting-started.md) guide for configurations and concrete usage.*
 
 Please install the following dependencies to run `audino` on your system:
 
