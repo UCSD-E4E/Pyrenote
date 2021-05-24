@@ -64,6 +64,24 @@ services:
       - 6379:6379
     networks:
       - backend-network
+      
+  rclone:
+    image: rclone/rclone:latest
+    user: ${CURRENT_UID}
+    volumes:
+      - './rclone/config/rclone:/config/rclone'
+      - './rclone/data:/mnt/data:shared'
+      - '/etc/passwd:/etc/passwd:ro'
+      - '/etc/group:/etc/group:ro'
+    cap_add:
+      - MKNOD
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    privileged: true
+    devices:
+      - /dev/fuse
+    command: 'mount e4e:Data/Backup /mnt/data'
 
 volumes:
   mysql_data:
