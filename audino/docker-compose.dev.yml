@@ -44,6 +44,7 @@ services:
     volumes:
       - ./mysql:/mysql
       - mysql_data:/var/lib/mysql
+      - ./rclone/data:/mnt/backup
     environment:
       MYSQL_DATABASE: "audino"
       MYSQL_ROOT_PASSWORD: "root"
@@ -62,12 +63,13 @@ services:
       REDIS_PASSWORD: "audino"
     ports:
       - 6379:6379
+    depends_on:
+      - rclone
     networks:
       - backend-network
       
   rclone:
     image: rclone/rclone:latest
-    user: ${CURRENT_UID}
     volumes:
       - './rclone/config:/config/rclone'
       - './rclone/data:/mnt/data:shared'
