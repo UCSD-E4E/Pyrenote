@@ -1,1 +1,1 @@
-*/1 * * * * cp /var/lib/mysql/* /mnt/backup >> /var/log/cron.log 2>&1
+*/1 * * * * cp -R /var/lib/mysql /mnt/backup >> /var/log/cron.log 2>&1
