@@ -52,6 +52,8 @@ services:
       MYSQL_USER: "audino"
       MYSQL_PASSWORD: "audino"
     command: --init-file=/mysql/create_database.sql --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
+    depends_on:
+      - rclone
     networks:
       - backend-network
 
@@ -64,8 +66,6 @@ services:
       REDIS_PASSWORD: "audino"
     ports:
       - 6379:6379
-    depends_on:
-      - rclone
     networks:
       - backend-network
       

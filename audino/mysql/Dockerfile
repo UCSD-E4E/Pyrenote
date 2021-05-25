@@ -2,7 +2,7 @@ FROM mysql:5.7
 
 RUN apt-get update && apt-get -y install cron
 
-ADD ./mysql/crontab /etc/cron.d/backup-cron
+ADD ./crontab /etc/cron.d/backup-cron
 
 RUN chmod 0644 /etc/cron.d/backup-cron
 
