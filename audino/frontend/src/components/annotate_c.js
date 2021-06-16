@@ -902,7 +902,7 @@ class Annotate_C extends React.Component {
               </div>
             )}
             <div
-              className="row justify-content-md-center my-4"
+              className="row justify-content-md-center my-4 mx-3"
               style={{ display: this.state.isRendering ? "none" : "" }}
             >
               <div ref={(el) => (this.segmentTranscription = el)}></div>
@@ -913,8 +913,8 @@ class Annotate_C extends React.Component {
             </div>
 
             <div className={isDataLoading ? "hidden" : ""}>
-              <div className="row justify-content-md-center my-4">
-                <div className="col-1">
+              <div className="row justify-content-center my-4">
+                <div className="col-md-1 col-2">
                   <IconButton
                     icon={faBackward}
                     size="2x"
@@ -924,7 +924,7 @@ class Annotate_C extends React.Component {
                     }}
                   />
                 </div>
-                <div className="col-1">
+                <div className="col-md-1 col-2">
                   {!isPlaying ? (
                     <IconButton
                       icon={faPlayCircle}
@@ -946,7 +946,7 @@ class Annotate_C extends React.Component {
                     />
                   ) : null}
                 </div>
-                <div className="col-1">
+                <div className="col-md-1 col-2">
                   <IconButton
                     icon={faForward}
                     size="2x"
