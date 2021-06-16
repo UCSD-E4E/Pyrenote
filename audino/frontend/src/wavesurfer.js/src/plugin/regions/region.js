@@ -9,84 +9,86 @@
  *
  * @extends {Observer}
  */
-class Region {
-  constructor(params, regionsUtils, ws) {
-    this.wavesurfer = ws;
-    this.wrapper = ws.drawer.wrapper;
-    this.util = ws.util;
-    this.style = this.util.style;
-    this.regionsUtil = regionsUtils;
-    this.vertical = ws.drawer.params.vertical;
+export class Region {
+    constructor(params, regionsUtils, ws) {
+        this.wavesurfer = ws;
+        this.wrapper = ws.drawer.wrapper;
+        this.util = ws.util;
+        this.style = this.util.style;
+        this.regionsUtil = regionsUtils;
 
-    this.id = params.id == null ? ws.util.getId() : params.id;
-    this.start = Number(params.start) || 0;
-    this.end =
-      params.end == null
-        ? // small marker-like region
-          this.start + (4 / this.wrapper.scrollWidth) * this.wavesurfer.getDuration()
-        : Number(params.end);
-    this.resize = params.resize === undefined ? true : Boolean(params.resize);
-    this.drag = params.drag === undefined ? true : Boolean(params.drag);
-    // reflect resize and drag state of region for region-updated listener
-    this.isResizing = false;
-    this.isDragging = false;
-    this.loop = Boolean(params.loop);
-    this.color = params.color || 'rgba(160, 40, 160, 0.4)';
-    // The left and right handleStyle properties can be set to 'none' for
-    // no styling or can be assigned an object containing CSS properties.
-    this.handleStyle = params.handleStyle || {
-      left: {},
-      right: {}
-    };
-    this.handleLeftEl = null;
-    this.handleRightEl = null;
-    this.data = params.data || {};
-    this.attributes = params.attributes || {};
-    this.showTooltip = params.showTooltip ?? true;
+        this.id = params.id == null ? ws.util.getId() : params.id;
+        this.start = Number(params.start) || 0;
+        this.end =
+            params.end == null
+                ? // small marker-like region
+                this.start +
+                (4 / this.wrapper.scrollWidth) * this.wavesurfer.getDuration()
+                : Number(params.end);
+        this.resize =
+            params.resize === undefined ? true : Boolean(params.resize);
+        this.drag = params.drag === undefined ? true : Boolean(params.drag);
+        // reflect resize and drag state of region for region-updated listener
+        this.isResizing = false;
+        this.isDragging = false;
+        this.loop = Boolean(params.loop);
+        this.color = params.color || 'rgba(160, 40, 160, 0.4)';
+        // The left and right handleStyle properties can be set to 'none' for
+        // no styling or can be assigned an object containing CSS properties.
+        this.handleStyle = params.handleStyle || {
+            left: {},
+            right: {}
+        };
+        this.handleLeftEl = null;
+        this.handleRightEl = null;
+        this.handleTopE1 = null;
+        this.handleBotE1 = null;
+        this.data = params.data || {};
+        this.attributes = params.attributes || {};
 
-    this.maxLength = params.maxLength;
-    // It assumes the minLength parameter value, or the regionsMinLength parameter value, if the first one not provided
-    this.minLength = params.minLength;
-    this._onRedraw = () => this.updateRender();
+        this.maxLength = params.maxLength;
+        // It assumes the minLength parameter value, or the regionsMinLength parameter value, if the first one not provided
+        this.minLength = params.minLength;
+        this._onRedraw = () => this.updateRender();
 
-    this.scroll = params.scroll !== false && ws.params.scrollParent;
-    this.scrollSpeed = params.scrollSpeed || 1;
-    this.scrollThreshold = params.scrollThreshold || 10;
-    // Determines whether the context menu is prevented from being opened.
-    this.preventContextMenu =
-      params.preventContextMenu === undefined ? false : Boolean(params.preventContextMenu);
+        this.scroll = params.scroll !== false && ws.params.scrollParent;
+        this.scrollSpeed = params.scrollSpeed || 1;
+        this.scrollThreshold = params.scrollThreshold || 10;
+        // Determines whether the context menu is prevented from being opened.
+        this.preventContextMenu =
+            params.preventContextMenu === undefined
+                ? false
+                : Boolean(params.preventContextMenu);
 
-    // select channel ID to set region
-    const channelIdx = params.channelIdx == null ? -1 : parseInt(params.channelIdx, 10);
-    this.regionHeight = '100%';
-    this.marginTop = '0px';
+        // select channel ID to set region
+        let channelIdx =
+            params.channelIdx == null ? -1 : parseInt(params.channelIdx);
+        this.regionHeight = '100%';
+        this.marginTop = '0px';
 
-    if (channelIdx !== -1) {
-      const channelCount =
-        this.wavesurfer.backend.buffer != null
-          ? this.wavesurfer.backend.buffer.numberOfChannels
-          : -1;
-      if (channelCount >= 0 && channelIdx < channelCount) {
-        this.regionHeight = `${Math.floor((1 / channelCount) * 100)}%`;
-        this.marginTop = `${this.wavesurfer.getHeight() * channelIdx}px`;
-      }
+        if (channelIdx !== -1) {
+            let channelCount =
+                this.wavesurfer.backend.buffer != null
+                    ? this.wavesurfer.backend.buffer.numberOfChannels
+                    : -1;
+            if (channelCount >= 0 && channelIdx < channelCount) {
+                this.regionHeight = Math.floor((1 / channelCount) * 100) + '%';
+                this.marginTop =
+                    this.wavesurfer.getHeight() * channelIdx + 'px';
+            }
+        }
+
+        this.formatTimeCallback = params.formatTimeCallback;
+        this.edgeScrollWidth = params.edgeScrollWidth;
+        this.bindInOut();
+        this.render();
+        this.wavesurfer.on('zoom', this._onRedraw);
+        this.wavesurfer.on('redraw', this._onRedraw);
+        this.wavesurfer.fireEvent('region-created', this);
+        this.saved = false;
+        this._onSave = () => this.save();
+        this._onUnSave = () => this.unsave();
     }
-
-    this.formatTimeCallback = params.formatTimeCallback;
-    this.edgeScrollWidth = params.edgeScrollWidth;
-    this.bindInOut();
-    this.render();
-    this.wavesurfer.on('zoom', this._onRedraw);
-    this.wavesurfer.on('redraw', this._onRedraw);
-    this.wavesurfer.fireEvent('region-created', this);
-    this.saved = Boolean(params.saved) || false;
-    this._onSave = () => this.save();
-    this._onUnSave = () => this.unsave();
-    this.lastTime = 0;
-    this.setLastTime = time => {
-      this.lastTime = time;
-    };
-  }
 
   /* Update region params. */
   update(params) {
@@ -318,389 +320,308 @@ class Region {
     }
   }
 
-  /* Bind audio events. */
-  bindInOut() {
-    this.firedIn = false;
-    this.firedOut = false;
+    bindDragEvents() {
+        const container = this.wavesurfer.drawer.container;
+        const scrollSpeed = this.scrollSpeed;
+        const scrollThreshold = this.scrollThreshold;
+        let startTime;
+        let touchId;
+        let drag;
+        let maxScroll;
+        let resize;
+        let updated = false;
+        let scrollDirection;
+        let wrapperRect;
+        let regionLeftHalfTime;
+        let regionRightHalfTime;
 
-    const onProcess = time => {
-      const start = Math.round(this.start * 10) / 10;
-      const end = Math.round(this.end * 10) / 10;
-      time = Math.round(time * 10) / 10;
+        // Scroll when the user is dragging within the threshold
+        const edgeScroll = (e) => {
+            //this.wavesurfer.fireEvent('region-change', this)
+            const duration = this.wavesurfer.getDuration();
+            if (!scrollDirection || (!drag && !resize)) {
+                return;
+            }
 
-      if (!this.firedOut && this.firedIn && (start > time || end <= time)) {
-        this.firedOut = true;
-        this.firedIn = false;
-        this.fireEvent('out');
-        this.wavesurfer.fireEvent('region-out', this);
-      }
-      if (!this.firedIn && start <= time && end > time) {
-        this.firedIn = true;
-        this.firedOut = false;
-        this.fireEvent('in');
-        this.wavesurfer.fireEvent('region-in', this);
-      }
-    };
+            const x = e.clientX;
+            let distanceBetweenCursorAndWrapperEdge = 0;
+            let regionHalfTimeWidth = 0;
+            let adjustment = 0;
 
-    this.wavesurfer.backend.on('audioprocess', onProcess);
+            // Get the currently selected time according to the mouse position
+            let time = this.regionsUtil.getRegionSnapToGridValue(
+                this.wavesurfer.drawer.handleEvent(e) * duration
+            );
 
-    this.on('remove', () => {
-      this.wavesurfer.backend.un('audioprocess', onProcess);
-    });
+            if (drag) {
+                // Considering the point of contact with the region while edgescrolling
+                if (scrollDirection === -1) {
+                    regionHalfTimeWidth = regionLeftHalfTime * this.wavesurfer.params.minPxPerSec;
+                    distanceBetweenCursorAndWrapperEdge = x - wrapperRect.left;
+                } else {
+                    regionHalfTimeWidth = regionRightHalfTime * this.wavesurfer.params.minPxPerSec;
+                    distanceBetweenCursorAndWrapperEdge = wrapperRect.right - x;
+                }
+            } else {
+                // Considering minLength while edgescroll
+                let minLength = this.minLength;
+                if (!minLength) {
+                    minLength = 0;
+                }
 
-    /* Loop playback. */
-    this.on('out', () => {
-      if (this.loop) {
-        const realTime = this.wavesurfer.getCurrentTime();
-        if (realTime >= this.start && realTime <= this.end) {
-          this.wavesurfer.play(this.start);
-        }
-      }
-    });
-  }
+                if (resize === 'start') {
+                    if (time > this.end - minLength) {
+                        time = this.end - minLength;
+                        adjustment = scrollSpeed * scrollDirection;
+                    }
 
-  /* Bind DOM events. */
-  bindEvents() {
-    const { preventContextMenu } = this;
+                    if (time < 0) {
+                        time = 0;
+                    }
+                } else if (resize === 'end') {
+                    if (time < this.start + minLength) {
+                        time = this.start + minLength;
+                        adjustment = scrollSpeed * scrollDirection;
+                    }
 
-    this.element.addEventListener('mouseenter', e => {
-      this.fireEvent('mouseenter', e);
-      this.wavesurfer.fireEvent('region-mouseenter', this, e);
-    });
+                    if (time > duration) {
+                        time = duration;
+                    }
+                }
+            }
 
-    this.element.addEventListener('mouseleave', e => {
-      this.fireEvent('mouseleave', e);
-      this.wavesurfer.fireEvent('region-mouseleave', this, e);
-    });
+            // Don't edgescroll if region has reached min or max limit
+            if (scrollDirection === -1) {
+                if (Math.round(this.wrapper.scrollLeft) === 0) {
+                    return;
+                }
 
-    this.element.addEventListener('click', e => {
-      e.preventDefault();
-      this.fireEvent('click', e);
-      this.wavesurfer.fireEvent('region-click', this, e);
-    });
+                if (Math.round(this.wrapper.scrollLeft - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge) <= 0) {
+                    return;
+                }
+            } else {
+                if (Math.round(this.wrapper.scrollLeft) === maxScroll) {
+                    return;
+                }
 
-    this.element.addEventListener('dblclick', e => {
-      e.stopPropagation();
-      e.preventDefault();
-      this.fireEvent('dblclick', e);
-      this.wavesurfer.fireEvent('region-dblclick', this, e);
-    });
+                if (Math.round(this.wrapper.scrollLeft + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge) >= maxScroll) {
+                    return;
+                }
+            }
 
-    this.element.addEventListener('contextmenu', e => {
-      if (preventContextMenu) {
-        e.preventDefault();
-      }
-      this.fireEvent('contextmenu', e);
-      this.wavesurfer.fireEvent('region-contextmenu', this, e);
-    });
+            // Update scroll position
+            let scrollLeft = this.wrapper.scrollLeft - adjustment + scrollSpeed * scrollDirection;
 
-    /* Drag or resize on mousemove. */
-    if (this.drag || this.resize) {
-      this.bindDragEvents();
+            if (scrollDirection === -1) {
+                const calculatedLeft = Math.max(0 + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge, scrollLeft);
+                this.wrapper.scrollLeft = scrollLeft = calculatedLeft;
+            } else {
+                const calculatedRight = Math.min(maxScroll - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge, scrollLeft);
+                this.wrapper.scrollLeft = scrollLeft = calculatedRight;
+            }
+
+            const delta = time - startTime;
+            startTime = time;
+
+            // Continue dragging or resizing
+            drag ? this.onDrag(delta) : this.onResize(delta, resize);
+
+            // Repeat
+            window.requestAnimationFrame(() => {
+                edgeScroll(e);
+            });
+        };
+
+        const onDown = (e) => {
+            //this.wavesurfer.fireEvent('region-change', this)
+            const duration = this.wavesurfer.getDuration();
+            if (e.touches && e.touches.length > 1) {
+                return;
+            }
+            touchId = e.targetTouches ? e.targetTouches[0].identifier : null;
+
+            // stop the event propagation, if this region is resizable or draggable
+            // and the event is therefore handled here.
+            if (this.drag || this.resize) {
+                e.stopPropagation();
+            }
+
+            // Store the selected startTime we begun dragging or resizing
+            startTime = this.regionsUtil.getRegionSnapToGridValue(
+                this.wavesurfer.drawer.handleEvent(e, true) * duration
+            );
+
+            // Store the selected point of contact when we begin dragging
+            regionLeftHalfTime = startTime - this.start;
+            regionRightHalfTime = this.end - startTime;
+
+            // Store for scroll calculations
+            maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
+            wrapperRect = this.wrapper.getBoundingClientRect();
+
+            this.isResizing = false;
+            this.isDragging = false;
+            if (e.target.tagName.toLowerCase() === 'handle') {
+                this.isResizing = true;
+                resize = e.target.classList.contains('wavesurfer-handle-start')
+                    ? 'start'
+                    : 'end' ? 'top' : 'bot';
+            } else {
+                this.isDragging = true;
+                drag = true;
+                resize = false;
+            }
+        };
+        const onUp = (e) => {
+            //this.wavesurfer.fireEvent('region-change', this)
+            if (e.touches && e.touches.length > 1) {
+                return;
+            }
+
+            if (drag || resize) {
+                this.isDragging = false;
+                this.isResizing = false;
+                drag = false;
+                scrollDirection = null;
+                resize = false;
+            }
+
+            if (updated) {
+                updated = false;
+                this.util.preventClick();
+                this.fireEvent('update-end', e);
+                this.wavesurfer.fireEvent('region-update-end', this, e);
+            }
+        };
+        const onMove = (e) => {
+            //this.wavesurfer.fireEvent('region-change', this)
+            const duration = this.wavesurfer.getDuration();
+
+            if (e.touches && e.touches.length > 1) {
+                return;
+            }
+            if (e.targetTouches && e.targetTouches[0].identifier != touchId) {
+                return;
+            }
+            if (!drag && !resize) {
+                return;
+            }
+
+            const oldTime = startTime;
+            let time = this.regionsUtil.getRegionSnapToGridValue(
+                this.wavesurfer.drawer.handleEvent(e) * duration
+            );
+
+            if (drag) {
+                // To maintain relative cursor start point while dragging
+                const maxEnd = this.wavesurfer.getDuration();
+                if (time > maxEnd - regionRightHalfTime) {
+                    time = maxEnd - regionRightHalfTime;
+                }
+
+                if (time - regionLeftHalfTime < 0) {
+                    time = regionLeftHalfTime;
+                }
+            }
+
+            if (resize) {
+                // To maintain relative cursor start point while resizing
+                // we have to handle for minLength
+                let minLength = this.minLength;
+                if (!minLength) {
+                    minLength = 0;
+                }
+
+                if (resize === 'start') {
+                    if (time > this.end - minLength) {
+                        time = this.end - minLength;
+                    }
+
+                    if (time < 0) {
+                        time = 0;
+                    }
+                } else if (resize === 'end') {
+                    if (time < this.start + minLength) {
+                        time = this.start + minLength;
+                    }
+
+                    if (time > duration) {
+                        time = duration;
+                    }
+                }
+            }
+
+            let delta = time - startTime;
+            startTime = time;
+
+            // Drag
+            if (this.drag && drag) {
+                updated = updated || !!delta;
+                this.onDrag(delta);
+            }
+
+            // Resize
+            if (this.resize && resize) {
+                updated = updated || !!delta;
+                this.onResize(delta, resize);
+            }
+
+            if (
+                this.scroll &&
+                container.clientWidth < this.wrapper.scrollWidth
+            ) {
+                // Triggering edgescroll from within edgeScrollWidth
+                if (drag) {
+                    let x = e.clientX;
+
+                    // Check direction
+                    if (x < wrapperRect.left + this.edgeScrollWidth) {
+                        scrollDirection = -1;
+                    } else if (x > wrapperRect.right - this.edgeScrollWidth) {
+                        scrollDirection = 1;
+                    } else {
+                        scrollDirection = null;
+                    }
+                } else {
+                    let x = e.clientX;
+
+                    // Check direction
+                    if (x < wrapperRect.left + this.edgeScrollWidth) {
+                        scrollDirection = -1;
+                    } else if (x > wrapperRect.right - this.edgeScrollWidth) {
+                        scrollDirection = 1;
+                    } else {
+                        scrollDirection = null;
+                    }
+                }
+
+                if (scrollDirection) {
+                    edgeScroll(e);
+                }
+            }
+        };
+
+        this.element.addEventListener('mousedown', onDown);
+        this.element.addEventListener('touchstart', onDown);
+
+        document.body.addEventListener('mousemove', onMove);
+        document.body.addEventListener('touchmove', onMove);
+
+        document.body.addEventListener('mouseup', onUp);
+        document.body.addEventListener('touchend', onUp);
+
+        this.on('remove', () => {
+            document.body.removeEventListener('mouseup', onUp);
+            document.body.removeEventListener('touchend', onUp);
+            document.body.removeEventListener('mousemove', onMove);
+            document.body.removeEventListener('touchmove', onMove);
+        });
+
+        this.wavesurfer.on('destroy', () => {
+            document.body.removeEventListener('mouseup', onUp);
+            document.body.removeEventListener('touchend', onUp);
+        });
     }
-  }
-
-  bindDragEvents() {
-    const { container } = this.wavesurfer.drawer;
-    const { scrollSpeed } = this;
-    // const { scrollThreshold } = this;
-    let startTime;
-    let touchId;
-    let drag;
-    let maxScroll;
-    let resize;
-    let updated = false;
-    let scrollDirection;
-    let wrapperRect;
-    let regionLeftHalfTime;
-    let regionRightHalfTime;
-
-    // Scroll when the user is dragging within the threshold
-    const edgeScroll = event => {
-      const orientedEvent = this.util.withOrientation(event, this.vertical);
-      const duration = this.wavesurfer.getDuration();
-      if (!scrollDirection || (!drag && !resize)) {
-        return;
-      }
-
-      const x = orientedEvent.clientX;
-      let distanceBetweenCursorAndWrapperEdge = 0;
-      let regionHalfTimeWidth = 0;
-      let adjustment = 0;
-
-      // Get the currently selected time according to the mouse position
-      let time = this.regionsUtil.getRegionSnapToGridValue(
-        this.wavesurfer.drawer.handleEvent(event) * duration
-      );
-
-      if (drag) {
-        // Considering the point of contact with the region while edgescrolling
-        if (scrollDirection === -1) {
-          regionHalfTimeWidth = regionLeftHalfTime * this.wavesurfer.params.minPxPerSec;
-          distanceBetweenCursorAndWrapperEdge = x - wrapperRect.left;
-        } else {
-          regionHalfTimeWidth = regionRightHalfTime * this.wavesurfer.params.minPxPerSec;
-          distanceBetweenCursorAndWrapperEdge = wrapperRect.right - x;
-        }
-      } else {
-        // Considering minLength while edgescroll
-        let { minLength } = this;
-        if (!minLength) {
-          minLength = 0;
-        }
-
-        if (resize === 'start') {
-          if (time > this.end - minLength) {
-            time = this.end - minLength;
-            adjustment = scrollSpeed * scrollDirection;
-          }
-
-          if (time < 0) {
-            time = 0;
-          }
-        } else if (resize === 'end') {
-          if (time < this.start + minLength) {
-            time = this.start + minLength;
-            adjustment = scrollSpeed * scrollDirection;
-          }
-
-          if (time > duration) {
-            time = duration;
-          }
-        }
-      }
-
-      // Don't edgescroll if region has reached min or max limit
-      const wrapperScrollLeft = this.wrapper.scrollLeft;
-
-      if (scrollDirection === -1) {
-        if (Math.round(wrapperScrollLeft) === 0) {
-          return;
-        }
-
-        if (
-          Math.round(
-            wrapperScrollLeft - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge
-          ) <= 0
-        ) {
-          return;
-        }
-      } else {
-        if (Math.round(wrapperScrollLeft) === maxScroll) {
-          return;
-        }
-
-        if (
-          Math.round(
-            wrapperScrollLeft + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge
-          ) >= maxScroll
-        ) {
-          return;
-        }
-      }
-
-      // Update scroll position
-      let scrollLeft = wrapperScrollLeft - adjustment + scrollSpeed * scrollDirection;
-
-      if (scrollDirection === -1) {
-        const calculatedLeft = Math.max(
-          0 + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge,
-          scrollLeft
-        );
-        scrollLeft = calculatedLeft;
-        this.wrapper.scrollLeft = calculatedLeft;
-      } else {
-        const calculatedRight = Math.min(
-          maxScroll - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge,
-          scrollLeft
-        );
-        scrollLeft = calculatedRight;
-        this.wrapper.scrollLeft = scrollLeft;
-      }
-
-      const delta = time - startTime;
-      startTime = time;
-
-      // Continue dragging or resizing
-      drag ? this.onDrag(delta) : this.onResize(delta, resize);
-
-      // Repeat
-      window.requestAnimationFrame(() => {
-        edgeScroll(event);
-      });
-    };
-
-    const onDown = event => {
-      const duration = this.wavesurfer.getDuration();
-      if (event.touches && event.touches.length > 1) {
-        return;
-      }
-      touchId = event.targetTouches ? event.targetTouches[0].identifier : null;
-
-      // stop the event propagation, if this region is resizable or draggable
-      // and the event is therefore handled here.
-      if (this.drag || this.resize) {
-        event.stopPropagation();
-      }
-
-      // Store the selected startTime we begun dragging or resizing
-      startTime = this.regionsUtil.getRegionSnapToGridValue(
-        this.wavesurfer.drawer.handleEvent(event, true) * duration
-      );
-
-      // Store the selected point of contact when we begin dragging
-      regionLeftHalfTime = startTime - this.start;
-      regionRightHalfTime = this.end - startTime;
-
-      // Store for scroll calculations
-      maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
-
-      wrapperRect = this.util.withOrientation(this.wrapper.getBoundingClientRect(), this.vertical);
-
-      this.isResizing = false;
-      this.isDragging = false;
-      if (event.target.tagName.toLowerCase() === 'handle') {
-        this.isResizing = true;
-        resize = event.target.classList.contains('wavesurfer-handle-start') ? 'start' : 'end';
-      } else {
-        this.isDragging = true;
-        drag = true;
-        resize = false;
-      }
-    };
-    const onUp = event => {
-      if (event.touches && event.touches.length > 1) {
-        return;
-      }
-
-      if (drag || resize) {
-        this.isDragging = false;
-        this.isResizing = false;
-        drag = false;
-        scrollDirection = null;
-        resize = false;
-      }
-
-      if (updated) {
-        updated = false;
-        this.util.preventClick();
-        this.fireEvent('update-end', event);
-        this.wavesurfer.fireEvent('region-update-end', this, event);
-      }
-    };
-    const onMove = event => {
-      const duration = this.wavesurfer.getDuration();
-      const orientedEvent = this.util.withOrientation(event, this.vertical);
-
-      if (event.touches && event.touches.length > 1) {
-        return;
-      }
-      if (event.targetTouches && event.targetTouches[0].identifier !== touchId) {
-        return;
-      }
-      if (!drag && !resize) {
-        return;
-      }
-
-      // const oldTime = startTime;
-      let time = this.regionsUtil.getRegionSnapToGridValue(
-        this.wavesurfer.drawer.handleEvent(event) * duration
-      );
-
-      if (drag) {
-        // To maintain relative cursor start point while dragging
-        const maxEnd = this.wavesurfer.getDuration();
-        if (time > maxEnd - regionRightHalfTime) {
-          time = maxEnd - regionRightHalfTime;
-        }
-
-        if (time - regionLeftHalfTime < 0) {
-          time = regionLeftHalfTime;
-        }
-      }
-
-      if (resize) {
-        // To maintain relative cursor start point while resizing
-        // we have to handle for minLength
-        let { minLength } = this;
-        if (!minLength) {
-          minLength = 0;
-        }
-
-        if (resize === 'start') {
-          if (time > this.end - minLength) {
-            time = this.end - minLength;
-          }
-
-          if (time < 0) {
-            time = 0;
-          }
-        } else if (resize === 'end') {
-          if (time < this.start + minLength) {
-            time = this.start + minLength;
-          }
-
-          if (time > duration) {
-            time = duration;
-          }
-        }
-      }
-
-      const delta = time - startTime;
-      startTime = time;
-
-      // Drag
-      if (this.drag && drag) {
-        updated = updated || !!delta;
-        this.onDrag(delta);
-      }
-
-      // Resize
-      if (this.resize && resize) {
-        updated = updated || !!delta;
-        this.onResize(delta, resize);
-      }
-
-      if (this.scroll && container.clientWidth < this.wrapper.scrollWidth) {
-        // Triggering edgescroll from within edgeScrollWidth
-        const x = orientedEvent.clientX;
-
-        // Check direction
-        if (x < wrapperRect.left + this.edgeScrollWidth) {
-          scrollDirection = -1;
-        } else if (x > wrapperRect.right - this.edgeScrollWidth) {
-          scrollDirection = 1;
-        } else {
-          scrollDirection = null;
-        }
-
-        if (scrollDirection) {
-          edgeScroll(event);
-        }
-      }
-    };
-
-    this.element.addEventListener('mousedown', onDown);
-    this.element.addEventListener('touchstart', onDown);
-
-    document.body.addEventListener('mousemove', onMove);
-    document.body.addEventListener('touchmove', onMove, { passive: false });
-
-    document.addEventListener('mouseup', onUp);
-    document.body.addEventListener('touchend', onUp);
-
-    this.on('remove', () => {
-      document.removeEventListener('mouseup', onUp);
-      document.body.removeEventListener('touchend', onUp);
-      document.body.removeEventListener('mousemove', onMove);
-      document.body.removeEventListener('touchmove', onMove);
-    });
-
-    this.wavesurfer.on('destroy', () => {
-      document.removeEventListener('mouseup', onUp);
-      document.body.removeEventListener('touchend', onUp);
-    });
-  }
 
   onDrag(delta) {
     const maxEnd = this.wavesurfer.getDuration();
@@ -768,10 +689,15 @@ class Region {
     } else {
       cursorStyle = 'auto';
     }
-
-    this.handleLeftEl && this.style(this.handleLeftEl, { cursor: cursorStyle });
-    this.handleRightEl && this.style(this.handleRightEl, { cursor: cursorStyle });
-  }
 }
 
-export default Region;
+    updateHandlesResize(resize) {
+        const cursorStyle = resize ? 'col-resize' : 'auto';
+        const cursorStyle_row = resize ? 'row-resize' : 'auto';
+
+        this.handleLeftEl && this.style(this.handleLeftEl, { cursor: cursorStyle });
+        this.handleRightEl && this.style(this.handleRightEl, { cursor: cursorStyle });
+        this.handleBotE1 && this.style(this.handleBotE1, { cursor: cursorStyle_row });
+        this.handleTopE1 && this.style(this.handleTopE1, { cursor: cursorStyle_row });
+    }
+}
