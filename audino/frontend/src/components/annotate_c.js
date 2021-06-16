@@ -976,7 +976,6 @@ class Annotate_C extends React.Component {
                           <label htmlFor={key} className="font-weight-bold">
                             {key}
                           </label>
-
                           <select
                             className="form-control"
                             name={key}
