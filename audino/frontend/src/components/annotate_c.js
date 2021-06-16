@@ -867,6 +867,7 @@ class Annotate_C extends React.Component {
                 <Alert
                   type="danger"
                   message={errorUnsavedMessage}
+                  overlay={true}
                   onClose={(e) => this.handleAlertDismiss(e)}
                 />
                 <Button
@@ -882,12 +883,14 @@ class Annotate_C extends React.Component {
               <Alert
                 type="danger"
                 message={errorMessage}
+                overlay={true}
                 onClose={(e) => this.handleAlertDismiss(e)}
               />
             ) : successMessage ? (
               <Alert
                 type="success"
                 message={successMessage}
+                overlay={true}
                 onClose={(e) => this.handleAlertDismiss(e)}
               />
             ) : null}
@@ -899,7 +902,7 @@ class Annotate_C extends React.Component {
               </div>
             )}
             <div
-              className="row justify-content-md-center my-4 mx-3"
+              className="row justify-content-md-center my-4"
               style={{ display: this.state.isRendering ? "none" : "" }}
             >
               <div ref={(el) => (this.segmentTranscription = el)}></div>
@@ -908,120 +911,119 @@ class Annotate_C extends React.Component {
               <div id="waveform" style={{ float: "left" }}></div>
               <div id="timeline"></div>
             </div>
-            {!isDataLoading ? (
-              <div>
-                <div className="row justify-content-center my-4">
-                  <div className="col-md-1 col-2">
-                    <IconButton
-                      icon={faBackward}
-                      size="2x"
-                      title="Skip Backward"
-                      onClick={() => {
-                        this.handleBackward();
-                      }}
-                    />
-                  </div>
-                  <div className="col-md-1 col-2">
-                    {!isPlaying ? (
-                      <IconButton
-                        icon={faPlayCircle}
-                        size="2x"
-                        title="Play"
-                        onClick={() => {
-                          this.handlePlay();
-                        }}
-                      />
-                    ) : null}
-                    {isPlaying ? (
-                      <IconButton
-                        icon={faPauseCircle}
-                        size="2x"
-                        title="Pause"
-                        onClick={() => {
-                          this.handlePause();
-                        }}
-                      />
-                    ) : null}
-                  </div>
-                  <div className="col-md-1 col-2">
-                    <IconButton
-                      icon={faForward}
-                      size="2x"
-                      title="Skip Forward"
-                      onClick={() => {
-                        this.handleForward();
-                      }}
-                    />
-                  </div>
-                </div>
-                {selectedSegment ? (
-                  <div>
-                    <div className="row justify-content-center my-4">
-                      <div className="form-group">
-                        <label className="font-weight-bold">
-                          Segment Transcription
-                        </label>
-                      </div>
-                    </div>
-                    <div className="row justify-content-center my-4">
-                      {Object.entries(labels).map(([key, value], index) => {
-                        if (!value["values"].length) {
-                          return null;
-                        }
-                        return (
-                          <div className="col-3 text-left" key={index}>
-                            <label htmlFor={key} className="font-weight-bold">
-                              {key}
-                            </label>
 
-                            <select
-                              className="form-control"
-                              name={key}
-                              multiple={
-                                value["type"] === "multiselect" ? true : false
-                              }
-                              value={
-                                (selectedSegment &&
-                                  selectedSegment.data.annotations &&
-                                  selectedSegment.data.annotations[key] &&
-                                  selectedSegment.data.annotations[key][
-                                    "values"
-                                  ]) ||
-                                (value["type"] === "multiselect" ? [] : "")
-                              }
-                              onChange={(e) => this.handleLabelChange(key, e)}
-                              ref={(el) => (this.labelRef[key] = el)}
-                            >
-                              {value["type"] !== "multiselect" ? (
-                                <option value="-1">Choose Label Type</option>
-                              ) : null}
-                              {value["values"].map((val) => {
-                                return (
-                                  <option
-                                    key={val["value_id"]}
-                                    value={`${val["value_id"]}`}
-                                  >
-                                    {val["value"]}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          </div>
-                        );
-                      })}
+            <div className={isDataLoading ? "hidden" : ""}>
+              <div className="row justify-content-md-center my-4">
+                <div className="col-1">
+                  <IconButton
+                    icon={faBackward}
+                    size="2x"
+                    title="Skip Backward"
+                    onClick={() => {
+                      this.handleBackward();
+                    }}
+                  />
+                </div>
+                <div className="col-1">
+                  {!isPlaying ? (
+                    <IconButton
+                      icon={faPlayCircle}
+                      size="2x"
+                      title="Play"
+                      onClick={() => {
+                        this.handlePlay();
+                      }}
+                    />
+                  ) : null}
+                  {isPlaying ? (
+                    <IconButton
+                      icon={faPauseCircle}
+                      size="2x"
+                      title="Pause"
+                      onClick={() => {
+                        this.handlePause();
+                      }}
+                    />
+                  ) : null}
+                </div>
+                <div className="col-1">
+                  <IconButton
+                    icon={faForward}
+                    size="2x"
+                    title="Skip Forward"
+                    onClick={() => {
+                      this.handleForward();
+                    }}
+                  />
+                </div>
+              </div>
+              {selectedSegment ? (
+                <div>
+                  <div className="row justify-content-center my-4">
+                    <div className="form-group">
+                      <label className="font-weight-bold">
+                        Segment Transcription
+                      </label>
                     </div>
-                    <div className="row justify-content-center my-4">
-                      <div className="col-2">
-                        <Button
-                          size="lg"
-                          type="danger"
-                          disabled={isSegmentDeleting}
-                          isSubmitting={isSegmentDeleting}
-                          onClick={(e) => this.handleSegmentDelete(e)}
-                          text="Delete"
-                        />
-                      </div>
-                      {/*<div className="col-2">
+                  </div>
+                  <div className="row justify-content-center my-4">
+                    {Object.entries(labels).map(([key, value], index) => {
+                      if (!value["values"].length) {
+                        return null;
+                      }
+                      return (
+                        <div className="col-3 text-left" key={index}>
+                          <label htmlFor={key} className="font-weight-bold">
+                            {key}
+                          </label>
+                          <select
+                            className="form-control"
+                            name={key}
+                            multiple={
+                              value["type"] === "multiselect" ? true : false
+                            }
+                            value={
+                              (selectedSegment &&
+                                selectedSegment.data.annotations &&
+                                selectedSegment.data.annotations[key] &&
+                                selectedSegment.data.annotations[key][
+                                  "values"
+                                ]) ||
+                              (value["type"] === "multiselect" ? [] : "")
+                            }
+                            onChange={(e) => this.handleLabelChange(key, e)}
+                            ref={(el) => (this.labelRef[key] = el)}
+                          >
+                            {value["type"] !== "multiselect" ? (
+                              <option value="-1">Choose Label Type</option>
+                            ) : null}
+                            {value["values"].map((val) => {
+                              return (
+                                <option
+                                  key={val["value_id"]}
+                                  value={`${val["value_id"]}`}
+                                >
+                                  {val["value"]}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="row justify-content-center my-4">
+                    <div className="col-2">
+                      <Button
+                        size="lg"
+                        type="danger"
+                        disabled={isSegmentDeleting}
+                        isSubmitting={isSegmentDeleting}
+                        onClick={(e) => this.handleSegmentDelete(e)}
+                        text="Delete"
+                      />
+                    </div>
+                    {/*<div className="col-2">
                         <Button
                           size="lg"
                           type="primary"
@@ -1031,59 +1033,58 @@ class Annotate_C extends React.Component {
                           text="Save Current Segment"
                         />
                     </div>*/}
-                      <div className="col-2">
-                        <Button
-                          size="lg"
-                          type="primary"
-                          //disabled={isSegmentSaving}
-                          onClick={(e) => this.handleAllSegmentSave(e)}
-                          //sSubmitting={isSegmentSaving}
-                          text="Save All"
-                        />
-                      </div>
+                    <div className="col-2">
+                      <Button
+                        size="lg"
+                        type="primary"
+                        //disabled={isSegmentSaving}
+                        onClick={(e) => this.handleAllSegmentSave(e)}
+                        //sSubmitting={isSegmentSaving}
+                        text="Save All"
+                      />
                     </div>
                   </div>
-                ) : null}
-                <div className="row justify-content-center my-4">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="isMarkedForReview"
-                      value={true}
-                      checked={isMarkedForReview}
-                      onChange={(e) => this.handleIsMarkedForReview(e)}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="isMarkedForReview"
-                    >
-                      Mark for review
-                    </label>
-                  </div>
                 </div>
-                <div className="previous">
-                  <Button
-                    size="lg"
-                    type="primary"
-                    disabled={isSegmentSaving}
-                    onClick={(e) => this.handlePreviousClip(e)}
-                    isSubmitting={isSegmentSaving}
-                    text="Previous"
+              ) : null}
+              <div className="row justify-content-center my-4">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="isMarkedForReview"
+                    value={true}
+                    checked={isMarkedForReview}
+                    onChange={(e) => this.handleIsMarkedForReview(e)}
                   />
-                </div>
-                <div className="next">
-                  <Button
-                    size="lg"
-                    type="primary"
-                    disabled={isSegmentSaving}
-                    onClick={(e) => this.handleNextClip(e)}
-                    isSubmitting={isSegmentSaving}
-                    text="Next"
-                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor="isMarkedForReview"
+                  >
+                    Mark for review
+                  </label>
                 </div>
               </div>
-            ) : null}
+              <div className="previous">
+                <Button
+                  size="lg"
+                  type="primary"
+                  disabled={isSegmentSaving}
+                  onClick={(e) => this.handlePreviousClip(e)}
+                  isSubmitting={isSegmentSaving}
+                  text="Previous"
+                />
+              </div>
+              <div className="next">
+                <Button
+                  size="lg"
+                  type="primary"
+                  disabled={isSegmentSaving}
+                  onClick={(e) => this.handleNextClip(e)}
+                  isSubmitting={isSegmentSaving}
+                  text="Next"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
