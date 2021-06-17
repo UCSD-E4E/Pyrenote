@@ -209,7 +209,7 @@ class Annotate extends React.Component {
     Object.values(wavesurfer.regions.list).forEach(segment => {
       if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
         try {
-          const { start, end } = segment;
+          const { start, end, regionTopFrequency, regionBotFrequency } = selectedSegment;
           const { annotations = '', segmentation_id = null } = segment.data;
           annotate.setState({ isSegmentSaving: true });
           const now = Date.now();
@@ -227,6 +227,8 @@ class Annotate extends React.Component {
               data: {
                 start,
                 end,
+                regionTopFrequency,
+                regionBotFrequency,
                 annotations,
                 time_spent
               }
@@ -257,6 +259,8 @@ class Annotate extends React.Component {
               data: {
                 start,
                 end,
+                regionTopFrequency,
+                regionBotFrequency,
                 annotations,
                 time_spent
               }
