@@ -165,49 +165,178 @@ export default class RegionsPlugin {
       this.wavesurfer.once('ready', this._onReady);
       this.wavesurfer.once('backend-created', this._onBackendCreated);
     }
-  }
+}
 
-  destroy() {
-    this.wavesurfer.un('ready', this._onReady);
-    this.wavesurfer.un('backend-created', this._onBackendCreated);
-    this.disableDragSelection();
-    this.clear();
-  }
+    enableDragSelection(params) {
+        this.disableDragSelection();
+        const max_Height = 254
+        const slop = params.slop || 2;
+        const container = this.wavesurfer.drawer.container;
+        const scroll =
+            params.scroll !== false && this.wavesurfer.params.scrollParent;
+        const scrollSpeed = params.scrollSpeed || 1;
+        const scrollThreshold = params.scrollThreshold || 10;
+        let drag;
+        let duration = this.wavesurfer.getDuration();
+        let maxScroll;
+        let start;
+        let top;
+        let region;
+        let touchId;
+        let pxMove = 0;
+        let scrollDirection;
+        let wrapperRect;
 
-  /**
-   * check to see if adding a new region would exceed maxRegions
-   * @return {boolean} whether we should proceed and create a region
-   * @private
-   */
-  wouldExceedMaxRegions() {
-    return this.maxRegions && Object.keys(this.list).length >= this.maxRegions;
-  }
+        // Scroll when the user is dragging within the threshold
+        const edgeScroll = e => {
+            if (!region || !scrollDirection) {
+                return;
+            }
 
-  /**
-   * Add a region
-   *
-   * @param {object} params Region parameters
-   * @return {Region} The created region
-   */
-  add(params) {
-    if (this.wouldExceedMaxRegions()) {
-      return null;
+            // Update scroll position
+            let scrollLeft =
+                this.wrapper.scrollLeft + scrollSpeed * scrollDirection;
+            this.wrapper.scrollLeft = scrollLeft = Math.min(
+                maxScroll,
+                Math.max(0, scrollLeft)
+            );
+
+            // Update range
+            const end = this.wavesurfer.drawer.handleEvent(e);
+            console.log("secondary")
+            region.update({
+                start: Math.min(end * duration, start * duration),
+                end: Math.max(end * duration, start * duration)
+            });
+
+            // Check that there is more to scroll and repeat
+            if (scrollLeft < maxScroll && scrollLeft > 0) {
+                window.requestAnimationFrame(() => {
+                    edgeScroll(e);
+                });
+            }
+        };
+
+        const eventDown = e => {
+            if (e.touches && e.touches.length > 1) {
+                return;
+            }
+            duration = this.wavesurfer.getDuration();
+            touchId = e.targetTouches ? e.targetTouches[0].identifier : null;
+
+            // Store for scroll calculations
+            maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
+            wrapperRect = this.wrapper.getBoundingClientRect();
+
+            drag = true;
+            start = this.wavesurfer.drawer.handleEvent(e, true);
+            top = this.wavesurfer.drawer.handleEventVertical(e, false, max_Height)
+            region = null;
+            scrollDirection = null;
+        };
+        this.wrapper.addEventListener('mousedown', eventDown);
+        this.wrapper.addEventListener('touchstart', eventDown);
+        this.on('disable-drag-selection', () => {
+            this.wrapper.removeEventListener('touchstart', eventDown);
+            this.wrapper.removeEventListener('mousedown', eventDown);
+        });
+
+        const eventUp = e => {
+            if (e.touches && e.touches.length > 1) {
+                return;
+            }
+
+            drag = false;
+            pxMove = 0;
+            scrollDirection = null;
+
+            if (region) {
+                this.util.preventClick();
+                region.fireEvent('update-end', e);
+                this.wavesurfer.fireEvent('region-update-end', region, e);
+            }
+
+            region = null;
+        };
+        this.wrapper.addEventListener('mouseup', eventUp);
+        this.wrapper.addEventListener('touchend', eventUp);
+
+        document.body.addEventListener('mouseup', eventUp);
+        document.body.addEventListener('touchend', eventUp);
+        this.on('disable-drag-selection', () => {
+            document.body.removeEventListener('mouseup', eventUp);
+            document.body.removeEventListener('touchend', eventUp);
+            this.wrapper.removeEventListener('touchend', eventUp);
+            this.wrapper.removeEventListener('mouseup', eventUp);
+        });
+
+        const eventMove = e => {
+            if (!drag) {
+                return;
+            }
+            if (++pxMove <= slop) {
+                return;
+            }
+
+            if (e.touches && e.touches.length > 1) {
+                return;
+            }
+            if (e.targetTouches && e.targetTouches[0].identifier != touchId) {
+                return;
+            }
+
+            // auto-create a region during mouse drag, unless region-count would exceed "maxRegions"
+            if (!region) {
+                region = this.add(params || {});
+                if (!region) return;
+            }
+
+            const end = this.wavesurfer.drawer.handleEvent(e);
+            const startUpdate = this.wavesurfer.regions.util.getRegionSnapToGridValue(
+                start * duration
+            );
+            const endUpdate = this.wavesurfer.regions.util.getRegionSnapToGridValue(
+                end * duration
+            );
+             //remember to change just in case
+            let topUpdate = this.wavesurfer.regions.util.getRegionSnapToGridValue( this.wavesurfer.drawer.handleEventVertical(e, false, max_Height) * max_Height);
+            let bottomUpdate = this.wavesurfer.regions.util.getRegionSnapToGridValue( top  * max_Height);
+            console.log("init pos")
+            region.update({
+                start: Math.min(endUpdate, startUpdate),
+                end: Math.max(endUpdate, startUpdate),
+                top: Math.min(topUpdate, bottomUpdate),
+                bot: max_Height - Math.max(topUpdate, bottomUpdate),
+            });
+
+            // If scrolling is enabled
+            if (scroll && container.clientWidth < this.wrapper.scrollWidth) {
+                // Check threshold based on mouse
+                const x = e.clientX - wrapperRect.left;
+                if (x <= scrollThreshold) {
+                    scrollDirection = -1;
+                } else if (x >= wrapperRect.right - scrollThreshold) {
+                    scrollDirection = 1;
+                } else {
+                    scrollDirection = null;
+                }
+                scrollDirection && edgeScroll(e);
+            }
+        };
+        this.wrapper.addEventListener('mousemove', eventMove);
+        this.wrapper.addEventListener('touchmove', eventMove);
+        this.on('disable-drag-selection', () => {
+            this.wrapper.removeEventListener('touchmove', eventMove);
+            this.wrapper.removeEventListener('mousemove', eventMove);
+        });
+
+        this.wavesurfer.on('region-created', region => {
+            if (this.regionsMinLength) {
+                region.minLength = this.regionsMinLength;
+            }
+        });
     }
 
-    if (!params.minLength && this.regionsMinLength) {
-      params = { ...params, minLength: this.regionsMinLength };
-    }
-
-    const region = new this.wavesurfer.Region(params, this.util, this.wavesurfer);
-
-    this.list[region.id] = region;
-
-    region.on('remove', () => {
-      delete this.list[region.id];
-    });
-
-    return region;
-  }
 
   /**
    * Remove all regions

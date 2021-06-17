@@ -98,6 +98,7 @@ export class Region {
 
     /* Update region params. */
     update(params) {
+        console.log(params)
         if (params.start != null) {
             this.start = Number(params.start);
         }
@@ -145,6 +146,175 @@ export class Region {
         }
         this.fireEvent('update');
         this.wavesurfer.fireEvent('region-updated', this);
+    }
+
+    /* set region as saved */
+    save() {
+        this.saved = true;
+    }
+
+    /* set region as unsaved */
+    unsave() {
+        this.saved = false;
+    }
+
+    /* Remove a single region. */
+    remove() {
+        if (this.element) {
+            this.wrapper.removeChild(this.element);
+            this.element = null;
+            this.fireEvent('remove');
+            this.wavesurfer.un('zoom', this._onRedraw);
+            this.wavesurfer.un('redraw', this._onRedraw);
+            this.wavesurfer.fireEvent('region-removed', this);
+        }
+    }
+
+    /**
+     * Play the audio region.
+     * @param {number} start Optional offset to start playing at
+     */
+    play(start) {
+        const s = start || this.start;
+        this.wavesurfer.play(s, this.end);
+        this.fireEvent('play');
+        this.wavesurfer.fireEvent('region-play', this);
+    }
+
+    /**
+     * Play the audio region in a loop.
+     * @param {number} start Optional offset to start playing at
+     * */
+    playLoop(start) {
+        this.loop = true;
+        this.play(start);
+    }
+
+    /**
+     * Set looping on/off.
+     * @param {boolean} loop True if should play in loop
+     */
+    setLoop(loop) {
+        this.loop = loop;
+    }
+
+    /* Render a region as a DOM element. */
+    render(e) {
+        const regionEl = document.createElement('region');
+
+        regionEl.className = 'wavesurfer-region';
+        regionEl.title = this.formatTime(this.start, this.end);
+        regionEl.setAttribute('data-id', this.id);
+
+        for (const attrname in this.attributes) {
+            regionEl.setAttribute(
+                'data-region-' + attrname,
+                this.attributes[attrname]
+            );
+        }
+
+        this.style(regionEl, {
+            position: 'absolute',
+            zIndex: 2,
+            height: '20px',
+            top: '0px'
+        });
+
+        /* Resize handles */
+        if (this.resize) {
+            this.handleLeftEl = regionEl.appendChild(
+                document.createElement('handle')
+            );
+            this.handleRightEl = regionEl.appendChild(
+                document.createElement('handle')
+            );
+            this.handleTopE1 = regionEl.appendChild(
+                document.createElement('handle')
+            );
+            this.handleBotE1 = regionEl.appendChild(
+                document.createElement('handle')
+            );
+
+            this.handleLeftEl.className = 'wavesurfer-handle wavesurfer-handle-start';
+            this.handleRightEl.className = 'wavesurfer-handle wavesurfer-handle-end';
+            this.handleTopE1.className = 'wavesurfer-handle wavesurfer-handle-top';
+            this.handleBotE1.className = 'wavesurfer-handle wavesurfer-handle-bottom';
+
+            // Default CSS properties for both handles.
+            const css = {
+                cursor: 'col-resize',
+                position: 'absolute',
+                top: '0px',
+                width: '2px',
+                height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 1)'
+            };
+
+            const row_css = {
+                cursor: 'row-resize',
+                position: 'absolute',
+                width: '100%',
+                left: '0px',
+                height: '2px',
+                backgroundColor: 'rgba(0, 0, 0, 1)'
+            };
+
+
+            // Merge CSS properties per handle.
+            const handleLeftCss =
+                this.handleStyle.left !== 'none'
+                    ? Object.assign({ left: '0px' }, css, this.handleStyle.left)
+                    : null;
+            const handleRightCss =
+                this.handleStyle.right !== 'none'
+                    ? Object.assign({ right: '0px' }, css, this.handleStyle.right)
+                    : null;
+            const handleTopCss =
+                this.handleStyle.top !== 'none'
+                    ? Object.assign({ top: '0px' }, row_css, this.handleStyle.top)
+                    : null;
+            const handleBotCss =
+                this.handleStyle.bot !== 'none'
+                    ? Object.assign({ bottom: '0px'}, row_css, this.handleStyle.bot)
+                    : null;
+
+
+            if (handleLeftCss) {
+                this.style(this.handleLeftEl, handleLeftCss);
+            }
+
+            if (handleRightCss) {
+                this.style(this.handleRightEl, handleRightCss);
+            }
+            if (handleTopCss) {
+                this.style(this.handleTopE1, handleTopCss);
+            }
+            if (handleBotCss) {
+                this.style(this.handleBotE1, handleBotCss);
+            }
+        }
+
+        this.element = this.wrapper.appendChild(regionEl);
+        this.updateRender();
+        this.bindEvents(regionEl);
+    }
+
+    formatTime(start, end) {
+        if (this.formatTimeCallback) {
+            return this.formatTimeCallback(start, end);
+        }
+        return (start == end ? [start] : [start, end])
+            .map((time) =>
+                [
+                    Math.floor((time % 3600) / 60), // minutes
+                    ('00' + Math.floor(time % 60)).slice(-2) // seconds
+                ].join(':')
+            )
+            .join('-');
+    }
+
+    getWidth() {
+        return this.wavesurfer.drawer.width / this.wavesurfer.params.pixelRatio;
     }
 
     getHeight() {
@@ -526,7 +696,7 @@ export class Region {
             currTop = range;
             const deltaY = time - startTime;
             startTime = time;
-            //console.log("LOOK HERE")
+            console.log("LOOK HERE")
             if (resize === 'top' || resize === 'bottom') {
                 drag ? this.onDrag(deltaX, deltaY) : this.onResize(deltaY, resize);
             } else {
@@ -703,7 +873,7 @@ export class Region {
             // Resize
             if (this.resize && resize) {
                 updated = updated || !!deltaX || !! deltaY;
-                //console.log("hello there, code should be here: " + resize)
+                console.log("hello there, code should be here: " + resize)
                 console.log(resize)
                 if (resize === 'top' || resize === 'bottom') {
                     //console.log("Top_delta: " + (frequencyTop - currTop))
@@ -821,6 +991,7 @@ export class Region {
         const max_Height = this.maxHeight;
 
         if (direction === 'start') {
+            console.log("called start")
             // Check if changing the start by the given delta would result in the region being smaller than minLength
             // Ignore cases where we are making the region wider rather than shrinking it
             if (delta > 0 && this.end - (this.start + delta) < this.minLength) {
@@ -830,13 +1001,13 @@ export class Region {
             if (delta < 0 && (this.start + delta) < 0) {
                 delta = this.start * -1;
             }
-
             this.update({
                 start: Math.min(this.start + delta, this.end),
                 end: Math.max(this.start + delta, this.end)
             });
         }
         else if (direction === 'end') {
+            console.log("called end")
             // Check if changing the end by the given delta would result in the region being smaller than minLength
             // Ignore cases where we are making the region wider rather than shrinking it
             if (delta < 0 && this.end + delta - this.start < this.minLength) {
@@ -846,7 +1017,7 @@ export class Region {
             if (delta > 0 && (this.end + delta) > duration) {
                 delta = duration - this.end;
             }
-
+            console.log("hello 5 ")
             this.update({
                 start: Math.min(this.end + delta, this.start),
                 end: Math.max(this.end + delta, this.start)
