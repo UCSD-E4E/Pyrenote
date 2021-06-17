@@ -184,7 +184,7 @@ export class Region {
             const left = Math.round((startLimited / dur) * width);
             const regionWidth = Math.round((endLimited / dur) * width) - left;
             const top = this.top;
-            const bot = 0;
+            const bot = this.bot;
             const regionHeight =  max_Height;//this.wrapper.style.height - this.top - this.bt
             this.style(this.element, {
                 left: left + 'px',
@@ -479,6 +479,17 @@ export class Region {
                         range = 0;
                     }
                 }
+
+                else if (resize === 'end') {
+                    if (range < this.top + minLength) {
+                        range = this.top + minLength;
+                        //adjustment = scrollSpeed * scrollDirection;
+                    }
+
+                    if (range > max_Height) {
+                        range = max_Height;
+                    }
+                }
             }
 
             // Don't edgescroll if region has reached min or max limit
@@ -512,7 +523,7 @@ export class Region {
             }
 
             //console.log("LOOK HERE")
-            if (resize === 'top') {
+            if (resize === 'top' || resize === 'bottom') {
                 const delta = range - currTop
                 currTop = range;
 
@@ -647,12 +658,12 @@ export class Region {
                 }
 
                 if (resize === 'start') {
-                    if (frequencyTop > this.bot - minLength) {
-                        frequencyTop = this.bot - minLength;
+                    if (time > this.end - minLength) {
+                        time = this.end - minLength;
                     }
 
-                    if (frequencyTop < 0) {
-                        frequencyTop = 0;
+                    if (time < 0) {
+                        time = 0;
                     }
                 } else if (resize === 'top') {
                     if (range > max_Height - minLength) {
@@ -670,6 +681,14 @@ export class Region {
                     if (time > duration) {
                         time = duration;
                     }
+                } else if (resize === 'bottom') {
+                    if (range < this.top + minLength) {
+                        range = this.top + minLength;
+                    }
+
+                    if (range > max_Height) {
+                        range = max_Height;
+                    }
                 }
             }
 
@@ -686,7 +705,8 @@ export class Region {
             if (this.resize && resize) {
                 updated = updated || !!delta;
                 //console.log("hello there, code should be here: " + resize)
-                if (resize === 'top') {
+                console.log(resize)
+                if (resize === 'top' || resize === 'bottom') {
                     //console.log("Top_delta: " + (frequencyTop - currTop))
                     delta = range - currTop
                     currTop = range
@@ -753,11 +773,16 @@ export class Region {
         });
     }
 
-  onDrag(delta) {
-    const maxEnd = this.wavesurfer.getDuration();
-    if (this.end + delta > maxEnd) {
-      delta = maxEnd - this.end;
-    }
+    //TODO: Add drag feature here
+    onDrag(delta) {
+        const maxEnd = this.wavesurfer.getDuration();
+        if (this.end + delta > maxEnd) {
+            delta = maxEnd - this.end;
+        }
+
+        if (this.start + delta < 0) {
+            delta = this.start * -1;
+        }
 
     if (this.start + delta < 0) {
       delta = this.start * -1;
@@ -844,6 +869,25 @@ export class Region {
                 bot: max_Height - Math.max(this.top + delta, bottom)
             });
             //console.log("new top: " + this.top)
+        }
+
+        else if (direction === 'bottom') {
+            delta /= 2;
+            const bottom = max_Height - this.bot;
+            // Check if changing the end by the given delta would result in the region being smaller than minLength
+            // Ignore cases where we are making the region wider rather than shrinking it
+            if (delta < 0 && bottom + delta - this.top < this.minLength) {
+                delta = this.top + this.minLength - bottom;
+            }
+
+            if (delta > 0 && (bottom + delta) > max_Height) {
+                delta = max_Height - bottom;
+            }
+
+            this.update({
+                top: Math.min(bottom + delta, this.top),
+                bot: max_Height - Math.max(bottom + delta, this.top)
+            });
         }
     }
 
