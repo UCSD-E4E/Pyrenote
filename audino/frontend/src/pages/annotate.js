@@ -120,6 +120,8 @@ class Annotate extends React.Component {
           return {
             start: segmentation.start_time,
             end: segmentation.end_time,
+            top: segmentation.max_freq,
+            bot: segmentation.min_freq,
             saved: true,
             color: 'rgba(0, 0, 0, 0.7)',
             data: {
