@@ -16,8 +16,9 @@ def JsonToCsv(data, filename):
         spamwriter = csv.writer(csvfile, delimiter=',', quotechar='"',
                                 quoting=csv.QUOTE_MINIMAL)
         spamwriter.writerow(['filename', 'label', 'start', 'duration',
-                             'created_at', 'last_modified',
-                             'is_marked_for_review', 'assigned_users'])
+                             'max_freq', 'min_freq' 'created_at',
+                             'last_modified', 'is_marked_for_review',
+                             'assigned_users'])
         for audio in data:
             # print(audio)
             original_filename = audio['original_filename']
@@ -36,18 +37,21 @@ def JsonToCsv(data, filename):
                 last_modified = region['last_modified']
                 end = region['end_time']
                 start = region['start_time']
+                max_freq = region['max_freq']
+                min_freq = region['min_freq']
                 spamwriter.writerow([original_filename, label, start,
-                                    (end-start),  created_at, last_modified,
-                                    is_marked_for_review, assigned_users])
+                                     (end-start), max_freq, min_freq,
+                                     created_at, last_modified,
+                                     is_marked_for_review, assigned_users])
 
 
 def JsonToText(data):
     text = ""
     csv = []
     text = write_row(text, ['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION',
-                     'SAMPLING RATE', 'MANUAL ID', 'TIME SPENT'])
-    csv.append(['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION',
-                'SAMPLING RATE', 'MANUAL ID', 'TIME SPENT'])
+                            'MAX FREQ', 'MIN FREQ', 'SAMPLING RATE', 'LABEL'])
+    csv.append(['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION', 'MAX FREQ',
+                'MIN FREQ', 'SAMPLING RATE', 'LABEL'])
     for audio in data:
         sampling_rate = audio['sampling_rate']
         clip_length = audio['clip_length']
@@ -57,6 +61,8 @@ def JsonToText(data):
         for region in segments:
             end = region['end_time']
             start = region['start_time']
+            max_freq = region['max_freq']
+            min_freq = region['min_freq']
             time_spent = region['time_spent']
             if len(region['annotations']) == 0:
                 label = "NO LABEL"
@@ -86,11 +92,11 @@ def JsonToText(data):
                         label = values['value']
                         text = write_row(text, [original_filename, clip_length,
                                                 start, round((end-start), 4),
-                                                sampling_rate, label,
-                                                time_spent])
+                                                max_freq, min_freq,
+                                                sampling_rate, label])
                         csv.append([original_filename, clip_length, start,
-                                    round((end-start), 4),  sampling_rate,
-                                    label, time_spent])
+                                    round((end-start), 4), max_freq, min_freq,
+                                    sampling_rate, label])
     return text, csv
 
 
