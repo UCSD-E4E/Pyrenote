@@ -40,7 +40,7 @@ services:
       - frontend-network
 
   mysql:
-    build: mysql:5.7
+    image: mysql:5.7
     volumes:
       - ./mysql:/mysql
       - mysql_data:/var/lib/mysql
