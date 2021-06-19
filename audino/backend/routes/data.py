@@ -226,8 +226,9 @@ def add_data_from_site():
     username_id = {}
     for name in username:
         app.logger.info(name)
-        user = User.query.filter_by(username=name).first()
-
+        user = User.query.first()
+        #TODO: replace with actual user assign code in the futur
+        app.logger.info(user)
         if not user:
             raise NotFound(description="No user found with given username")
 

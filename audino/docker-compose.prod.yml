@@ -6,10 +6,10 @@ services:
     volumes:
       - backend_data:/root/uploads
     environment:
-      ADMIN_USERNAME: "admin"
-      ADMIN_PASSWORD: "password"
+      ADMIN_USERNAME: "${ADMIN_USERNAME}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
       DATABASE_URL: "mysql+pymysql://audino:audino@mysql/audino?charset=utf8mb4"
-      JWT_SECRET_KEY: "secretkey"
+      JWT_SECRET_KEY: "${JWT_SECRET_KEY}"
       JWT_REDIS_STORE_URL: "redis://:audino@redis:6379/0"
     depends_on:
       - mysql
@@ -27,7 +27,10 @@ services:
     build: ./nginx
     volumes:
       - www:/var/www/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt/:/etc/letsencrypt/
     ports:
+      - 443:443
       - 80:80
     depends_on:
       - backend
@@ -35,16 +38,18 @@ services:
       - frontend-network
 
   mysql:
-    image: mysql:5.7
+    build: ./mysql
     volumes:
       - ./mysql:/mysql
       - mysql_prod_data:/var/lib/mysql
+      - ./rclone/data:/mnt/backup:shared
     environment:
       MYSQL_DATABASE: "audino"
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_USER: "audino"
       MYSQL_PASSWORD: "audino"
-    command: --init-file=/mysql/create_database.sql --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
+    depends_on:
+      - rclone
     networks:
       - backend-network
 
@@ -56,6 +61,23 @@ services:
       REDIS_PASSWORD: "audino"
     networks:
       - backend-network
+      
+  rclone:
+    image: rclone/rclone:latest
+    volumes:
+      - './rclone/config:/config/rclone'
+      - './rclone/data:/mnt/data:shared'
+      - '/etc/passwd:/etc/passwd:ro'
+      - '/etc/group:/etc/group:ro'
+    cap_add:
+      - MKNOD
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    privileged: true
+    devices:
+      - /dev/fuse
+    command: 'mount --allow-non-empty e4e:Backup /mnt/data --vfs-cache-mode writes'
 
 volumes:
   mysql_prod_data:

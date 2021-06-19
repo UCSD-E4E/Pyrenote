@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 import WaveSurfer from "/app/frontend/src/wavesurfer.js/src/wavesurfer.js";
-import RegionsPlugin from "/app/frontend/src/wavesurfer.js/src/plugin/regions/index.js"//"wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"; //frontend\src\wavesurfer.js
+import RegionsPlugin from "/app/frontend/src/wavesurfer.js/src/plugin/regions/index.js"; //"wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"; //frontend\src\wavesurfer.js
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 import SpectrogramPlugin from "/app/frontend/src/wavesurfer.js/src/plugin/spectrogram/index.js";
 import { Helmet } from "react-helmet";
@@ -25,8 +25,7 @@ import { text } from "@fortawesome/fontawesome-svg-core";
 //import * as data from "./data.js";
 //import "./data";
 
-
-let colormap = require('colormap')
+let colormap = require("colormap");
 
 class Annotate_C extends React.Component {
   constructor(props) {
@@ -61,7 +60,7 @@ class Annotate_C extends React.Component {
       isRendering: true, //TODO: REMEMBER TO SET TO TRUE
       data: [],
       previous_pages: [],
-      num_of_prev: 0
+      num_of_prev: 0,
     };
 
     this.labelRef = {};
@@ -77,107 +76,104 @@ class Annotate_C extends React.Component {
       localStorage.setItem("count", JSON.stringify(this.state.num_of_prev));
     } else {
       linksArray = JSON.parse(localStorage.getItem("previous_links"));
-      console.log(JSON.parse(localStorage.getItem("previous_links")), "LOOOKIE HERE")
+      console.log(
+        JSON.parse(localStorage.getItem("previous_links")),
+        "LOOOKIE HERE"
+      );
       count = JSON.parse(localStorage.getItem("count"));
-    } 
-    this.setState({previous_pages: linksArray, num_of_prev: count})
-    console.log(linksArray, count, "MAIN DATA")
-    console.log(new Date().toLocaleString())
-    let {page, active } = this.state;
+    }
+    this.setState({ previous_pages: linksArray, num_of_prev: count });
+    console.log(linksArray, count, "MAIN DATA");
+    console.log(new Date().toLocaleString());
+    let { page, active } = this.state;
 
-    var apiUrl = `/api/current_user/unknown/projects/${this.state.projectId}/data/${this.state.dataId}`///page/${page}`
+    var apiUrl = `/api/current_user/unknown/projects/${this.state.projectId}/data/${this.state.dataId}`; ///page/${page}`
     //`/api/current_user/projects/${this.state.projectId}/data/${this.state.dataId}`///page/${page}`
-    console.log(this.state.dataId)
-    console.log(page)
-    console.log(this.state.page)
+    console.log(this.state.dataId);
+    console.log(page);
+    console.log(this.state.page);
     //TODO: figure out how to update page number here
-    console.log("page number is " + page)
+    console.log("page number is " + page);
 
     axios({
       method: "get",
       url: apiUrl,
     })
       .then((response) => {
-        const {
-          data,
-          active,
-          page,
-          next_page,
-          prev_page,
-        } = response.data;
+        const { data, active, page, next_page, prev_page } = response.data;
         this.setState({
           data,
           active,
           page,
           next_page,
         });
-        console.log(this.state.data)
-        console.log(next_page)
+        console.log(this.state.data);
+        console.log(next_page);
 
-      let {next_data_url, projectId } = this.state;
-      var apiUrl2 = `/api/current_user/projects/${projectId}/data`
-      console.log(next_page)
-      console.log(active)
-      apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
+        let { next_data_url, projectId } = this.state;
+        var apiUrl2 = `/api/current_user/projects/${projectId}/data`;
+        console.log(next_page);
+        console.log(active);
+        apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
 
-      axios({
-        method: "get",
-        url: apiUrl2,
-      })
-        .then((response) => {
-          const {
-            data,
-            count,
-            active,
-            page,
-            cuFrrPage,
-            next_page,
-            prev_page,
-          } = response.data;
-            console.log(data)
-            next_data_url = `/projects/${projectId}/data/${data[0]["data_id"]}/annotate`
-            var index = window.location.href.indexOf("/projects")
-            var path =  window.location.href.substring(0, index);
+        axios({
+          method: "get",
+          url: apiUrl2,
+        })
+          .then((response) => {
+            const {
+              data,
+              count,
+              active,
+              page,
+              cuFrrPage,
+              next_page,
+              prev_page,
+            } = response.data;
+            console.log(data);
+            next_data_url = `/projects/${projectId}/data/${data[0]["data_id"]}/annotate`;
+            var index = window.location.href.indexOf("/projects");
+            var path = window.location.href.substring(0, index);
             console.log(path);
-            console.log(path+next_data_url);
+            console.log(path + next_data_url);
             this.setState({
-              next_data_url: path+next_data_url,
-              next_data_id: data[0]["data_id"]
+              next_data_url: path + next_data_url,
+              next_data_id: data[0]["data_id"],
             });
             console.log("here comes the test");
-            console.log(this.state.next_data_url)
-        })
-        .catch((error) => {
-          this.setState({
-            errorMessage: error.response.data.message,
+            console.log(this.state.next_data_url);
+          })
+          .catch((error) => {
+            this.setState({
+              errorMessage: error.response.data.message,
+            });
           });
+      })
+      .catch((error) => {
+        this.setState({
+          errorMessage: error.response.data.message,
+          isDataLoading: false,
         });
-    })
-    .catch((error) => {
-      this.setState({
-        errorMessage: error.response.data.message,
-        isDataLoading: false,
       });
-    });
-      
+
     var spectrogramColorMap = colormap({
       /*colormap: 'jet',
       nshades: 10, //256
       format: 'hex',
       alpha: 1*/
-      colormap: 'hot',
+      colormap: "hot",
       nshades: 256,
-      format: 'float'
+      format: "float",
     });
-    var json = JSON.stringify(spectrogramColorMap, 2)
+    var json = JSON.stringify(spectrogramColorMap, 2);
     const { labelsUrl, dataUrl } = this.state;
     this.setState({ isDataLoading: true });
-    let fftSamples = 512
+    let fftSamples = 512;
     const wavesurfer = WaveSurfer.create({
       container: "#waveform",
       barWidth: 0,
       barHeight: 0,
-      height: fftSamples/2,
+      height: fftSamples / 2,
       width: "100%",
       barGap: null,
       mediaControls: false,
@@ -189,7 +185,7 @@ class Annotate_C extends React.Component {
       plugins: [
         SpectrogramPlugin.create({
           //wavesurfer: wavesurfer,
-          fftSamples: fftSamples, 
+          fftSamples: fftSamples,
           position: "relative",
           container: "#wavegraph",
           labelContainer: "#waveform-labels",
@@ -197,8 +193,7 @@ class Annotate_C extends React.Component {
           scrollParent: true,
           colorMap: spectrogramColorMap,
           //pixelRatio: 1,
-
-      }),
+        }),
         RegionsPlugin.create(),
         //TimelinePlugin.create({ container: "#timeline" }),
       ],
@@ -208,20 +203,23 @@ class Annotate_C extends React.Component {
       wavesurfer.stop();
     });
     wavesurfer.on("ready", () => {
-      console.log("Wavesurfer is ready")
-      console.log("zoom checks")
-      console.log(wavesurfer.drawer.getWidth())
-      console.log(wavesurfer.getDuration() * wavesurfer.params.minPxPerSec)
-      let screenSize = window.screen.width;//window.innerWidth;
-      if (screenSize > wavesurfer.getDuration() * wavesurfer.params.minPxPerSec) {
-        wavesurfer.zoom(screenSize / wavesurfer.getDuration())
-        console.log(wavesurfer.spectrogram)
-        wavesurfer.spectrogram._onUpdate(screenSize)
+      console.log("Wavesurfer is ready");
+      console.log("zoom checks");
+      console.log(wavesurfer.drawer.getWidth());
+      console.log(wavesurfer.getDuration() * wavesurfer.params.minPxPerSec);
+      let screenSize = window.screen.width; //window.innerWidth;
+      if (
+        screenSize >
+        wavesurfer.getDuration() * wavesurfer.params.minPxPerSec
+      ) {
+        wavesurfer.zoom(screenSize / wavesurfer.getDuration());
+        console.log(wavesurfer.spectrogram);
+        wavesurfer.spectrogram._onUpdate(screenSize);
       }
-      console.log("zoom checks")
+      console.log("zoom checks");
       this.state.isRendering = false;
-      this.setState({isRendering: false})
-      console.log(new Date().toLocaleString())
+      this.setState({ isRendering: false });
+      console.log(new Date().toLocaleString());
       //wavesurfer.drawer.canvases[0].position = 'relative';
       //document.getElementById("myBtn").style.left = "100px";
       //wavesurfer.spectrogram.wrapper =  <canvas width="1170" height="256" style="position: relative; z-index: 4; width: 1170px;"></canvas>;
@@ -229,15 +227,17 @@ class Annotate_C extends React.Component {
       wavesurfer.enableDragSelection({ color: "rgba(0, 102, 255, 0.3)" });
     });
     wavesurfer.on("region-updated", (region) => {
-      console.log("changed")
+      console.log("changed");
       this.handlePause();
-      region.style(region.element, {backgroundColor:  "rgba(0, 102, 255, 0.3)",});
-      region._onUnSave()
+      region.style(region.element, {
+        backgroundColor: "rgba(0, 102, 255, 0.3)",
+      });
+      region._onUnSave();
     });
-    
+
     wavesurfer.on("region-created", (region) => {
       this.handlePause();
-      console.log(region)
+      console.log(region);
       this.setState({
         selectedSegment: region,
       });
@@ -252,18 +252,18 @@ class Annotate_C extends React.Component {
       try {
         console.log(wavesurfer.spectrogram.canvas);
       } catch {
-        console.log("doesn't exists")
+        console.log("doesn't exists");
       }
-      
+
       r.once("out", () => {
         //wavesurfer.play(r.start);
-        console.log("pausing on out")
+        console.log("pausing on out");
         //wavesurfer.pause();
       });
     });
 
     wavesurfer.on("region-click", (r, e) => {
-      const {selectedSegment} = this.state;
+      const { selectedSegment } = this.state;
       /*if (selectedSegment.saved = true) {
         region.style(region.element, {backgroundColor:  "rgba(0, 0, 0, 0.7)",});
       } else {
@@ -276,7 +276,7 @@ class Annotate_C extends React.Component {
       });
       r.play();
 
-      console.log(r.saved)
+      console.log(r.saved);
     });
     wavesurfer.on("pause", (r, e) => {
       this.setState({ isPlaying: false });
@@ -296,7 +296,7 @@ class Annotate_C extends React.Component {
           is_marked_for_review,
           segmentations,
           filename,
-          original_filename
+          original_filename,
         } = response[1].data;
 
         const regions = segmentations.map((segmentation) => {
@@ -316,7 +316,7 @@ class Annotate_C extends React.Component {
           referenceTranscription: reference_transcription,
           isMarkedForReview: is_marked_for_review,
           filename,
-          original_filename
+          original_filename,
         });
 
         wavesurfer.load(`/audios/${filename}`);
@@ -468,8 +468,10 @@ class Annotate_C extends React.Component {
             successMessage: "Segment saved",
             errorMessage: null,
           });
-          selectedSegment.style(selectedSegment.element, {backgroundColor:  "rgba(0, 0, 0, 0.7)",});
-          selectedSegment._onSave()
+          selectedSegment.style(selectedSegment.element, {
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+          });
+          selectedSegment._onSave();
         })
         .catch((error) => {
           console.log(error);
@@ -496,8 +498,10 @@ class Annotate_C extends React.Component {
             successMessage: "Segment saved",
             errorMessage: null,
           });
-          selectedSegment.style(selectedSegment.element, {backgroundColor:  "rgba(0, 0, 0, 0.7)",});
-          selectedSegment._onSave()
+          selectedSegment.style(selectedSegment.element, {
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+          });
+          selectedSegment._onSave();
         })
         .catch((error) => {
           console.log(error);
@@ -511,23 +515,23 @@ class Annotate_C extends React.Component {
   }
 
   handleAllSegmentSave(e) {
-    const { selectedSegment, segmentationUrl,wavesurfer } = this.state;
-    console.log( wavesurfer.regions.list)
+    const { selectedSegment, segmentationUrl, wavesurfer } = this.state;
+    console.log(wavesurfer.regions.list);
     for (var segment_name in wavesurfer.regions.list) {
-      console.log("still running save")
+      console.log("still running save");
       try {
-        const segment =  wavesurfer.regions.list[segment_name]
-        console.log( segment_name, segment);
+        const segment = wavesurfer.regions.list[segment_name];
+        console.log(segment_name, segment);
         const { start, end } = segment;
         const {
           transcription = "",
           annotations = "",
           segmentation_id = null,
         } = segment.data;
-        console.log (transcription)
-        console.log(annotations)
+        console.log(transcription);
+        console.log(annotations);
         if (annotations === "") {
-          console.log("No data, no save")
+          console.log("No data, no save");
           continue;
         }
         this.setState({ isSegmentSaving: true });
@@ -553,8 +557,10 @@ class Annotate_C extends React.Component {
                 errorMessage: null,
               });
               //segment.update({color: 'rgba(40, 40, 40, 0.7)'})
-              segment.style(segment.element, {backgroundColor: "rgba(0, 0, 0, 0.7)",});
-              segment._onSave()
+              segment.style(segment.element, {
+                backgroundColor: "rgba(0, 0, 0, 0.7)",
+              });
+              segment._onSave();
             })
             .catch((error) => {
               console.log(error);
@@ -577,25 +583,26 @@ class Annotate_C extends React.Component {
           })
             .then((response) => {
               this.setState({
-              isSegmentSaving: false,
-              successMessage: "Segment saved",
-              errorMessage: null,
+                isSegmentSaving: false,
+                successMessage: "Segment saved",
+                errorMessage: null,
+              });
+              segment.style(segment.element, {
+                backgroundColor: "rgba(0, 0, 0, 0.7)",
+              });
+              segment._onSave();
+            })
+            .catch((error) => {
+              console.log(error);
+              this.setState({
+                isSegmentSaving: false,
+                errorMessage: "Error saving segment",
+                successMessage: null,
+              });
             });
-            segment.style(segment.element, {backgroundColor:  "rgba(0, 0, 0, 0.7)",});
-            segment._onSave()
-          })
-          .catch((error) => {
-            console.log(error);
-            this.setState({
-              isSegmentSaving: false,
-              errorMessage: "Error saving segment",
-              successMessage: null,
-            });
-          });
         }
-      }
-      catch(err) {
-        console.log(err)
+      } catch (err) {
+        console.log(err);
         continue;
       }
     }
@@ -633,135 +640,143 @@ class Annotate_C extends React.Component {
     });
   }
 
-
   // Go to the next audio recording
-  handleNextClip(e, forceNext=false) {
-      //all possible code saved, lets continue!
-      this.handleAllSegmentSave(e)
-      console.log("SAVE IS GOOD LETS KEEP GOING")
-      const { selectedSegment, segmentationUrl,wavesurfer, previous_pages, num_of_prev} = this.state;
-      for (var segment_name in wavesurfer.regions.list) {
-          const segment =  wavesurfer.regions.list[segment_name]
-          console.log( segment_name, segment);
-          if (segment.saved == false && !forceNext) {
-            if (segment.data.annotations == null) {
-              this.setState({
-                errorUnsavedMessage: "There regions without a label! You can't leave yet! If you are sure, click \"force next\""
-              });
-              return;
-            }
-            //TODO: Change this to a modal
-          }
-      }
-
-      var currPage = num_of_prev;
-      
-      console.log(num_of_prev, previous_pages.length)
-      console.log(previous_pages)
-      if (num_of_prev < previous_pages.length - 1) {
-        console.log(num_of_prev, previous_pages.length)
-        localStorage.setItem("count", JSON.stringify(num_of_prev + 1));
-        window.location.href = previous_pages[num_of_prev + 1]
-        return;
-
-      }
-      previous_pages[num_of_prev] = window.location.href
-      var next_page_num = num_of_prev + 1;
-      localStorage.setItem("previous_links", JSON.stringify(previous_pages));
-      localStorage.setItem("count", JSON.stringify(next_page_num));
-      console.log(this.state.page)
-      console.log(this.state.data)
-      console.log(window.location.href);
-      //TODO: FIX THIS LOGIC HERE TO ACTUALLY SET THE NEXT CLIP
-      var newPageData = this.state.data[0];
-      console.log("entered loop")     
-      
-      for (var key in this.state.data) {
-        key = parseInt(key)
-        console.log(key + 1)
-        if (this.state.data[key]["data_id"] == this.state.dataId) {
-          console.log("exit loop")
-          try {
-            console.log(key + 1)
-            newPageData = this.state.data[key + 1];
-            console.log(newPageData);
-            console.log(newPageData["data_id"]);
-            var url = `/projects/${this.state.projectId}/data/${newPageData["data_id"]}/annotate`
-      
-            ///projects
-            console.log(window.location.href.indexOf("/projects"))
-            var index = window.location.href.indexOf("/projects")
-            var path =  window.location.href.substring(0, index);
-            console.log(path);
-            console.log(path+url);
-            window.location.href = path+url;
-          }
-          catch(e) {
-            try {
-              console.log("hello")
-              console.log(this.state.next_data_url)
-              if (this.state.data[0]["data_id"] != this.state.next_data_id) {
-                window.location.href = this.state.next_data_url
-              }
-              else {
-                throw "no data remains"
-              }
-              //
-            } catch(e) {
-              console.log("oppise " + e)
-              console.log("oppise " + e)
-              var index = window.location.href.indexOf("/projects")
-              var path =  window.location.href.substring(0, index);
-              window.location.href = path + `/projects/${this.state.projectId}/data`;
-              //TODO: Implement next page logic here
-            }
-          }
-          console.log(newPageData)
-          break;
-        }
-      }
-  }
-
-
-
-   // Go to previous audio recording
-   handlePreviousClip(e, forceNext=false) {
+  handleNextClip(e, forceNext = false) {
     //all possible code saved, lets continue!
-    this.handleAllSegmentSave(e)
-    console.log("SAVE IS GOOD LETS KEEP GOING")
-    const { selectedSegment, segmentationUrl,wavesurfer, previous_pages, num_of_prev} = this.state;
+    this.handleAllSegmentSave(e);
+    console.log("SAVE IS GOOD LETS KEEP GOING");
+    const {
+      selectedSegment,
+      segmentationUrl,
+      wavesurfer,
+      previous_pages,
+      num_of_prev,
+    } = this.state;
     for (var segment_name in wavesurfer.regions.list) {
-        const segment =  wavesurfer.regions.list[segment_name]
-        console.log( segment_name, segment);
-        if (segment.saved == false && !forceNext) {
-          if (segment.data.annotations == null) {
-            this.setState({
-              errorUnsavedMessage: "There regions without a label! You can't leave yet! If you are sure, click \"force previous\""
-            });
-            return;
-          }
-          //TODO: Change this to a modal
+      const segment = wavesurfer.regions.list[segment_name];
+      console.log(segment_name, segment);
+      if (segment.saved == false && !forceNext) {
+        if (segment.data.annotations == null) {
+          this.setState({
+            errorUnsavedMessage:
+              'There regions without a label! You can\'t leave yet! If you are sure, click "force next"',
+          });
+          return;
         }
+        //TODO: Change this to a modal
+      }
     }
 
-    console.log(page_num)
+    var currPage = num_of_prev;
+
+    console.log(num_of_prev, previous_pages.length);
+    console.log(previous_pages);
+    if (num_of_prev < previous_pages.length - 1) {
+      console.log(num_of_prev, previous_pages.length);
+      localStorage.setItem("count", JSON.stringify(num_of_prev + 1));
+      window.location.href = previous_pages[num_of_prev + 1];
+      return;
+    }
+    previous_pages[num_of_prev] = window.location.href;
+    var next_page_num = num_of_prev + 1;
+    localStorage.setItem("previous_links", JSON.stringify(previous_pages));
+    localStorage.setItem("count", JSON.stringify(next_page_num));
+    console.log(this.state.page);
+    console.log(this.state.data);
+    console.log(window.location.href);
+    //TODO: FIX THIS LOGIC HERE TO ACTUALLY SET THE NEXT CLIP
+    var newPageData = this.state.data[0];
+    console.log("entered loop");
+
+    for (var key in this.state.data) {
+      key = parseInt(key);
+      console.log(key + 1);
+      if (this.state.data[key]["data_id"] == this.state.dataId) {
+        console.log("exit loop");
+        try {
+          console.log(key + 1);
+          newPageData = this.state.data[key + 1];
+          console.log(newPageData);
+          console.log(newPageData["data_id"]);
+          var url = `/projects/${this.state.projectId}/data/${newPageData["data_id"]}/annotate`;
+
+          ///projects
+          console.log(window.location.href.indexOf("/projects"));
+          var index = window.location.href.indexOf("/projects");
+          var path = window.location.href.substring(0, index);
+          console.log(path);
+          console.log(path + url);
+          window.location.href = path + url;
+        } catch (e) {
+          try {
+            console.log("hello");
+            console.log(this.state.next_data_url);
+            if (this.state.data[0]["data_id"] != this.state.next_data_id) {
+              window.location.href = this.state.next_data_url;
+            } else {
+              throw "no data remains";
+            }
+            //
+          } catch (e) {
+            console.log("oppise " + e);
+            console.log("oppise " + e);
+            var index = window.location.href.indexOf("/projects");
+            var path = window.location.href.substring(0, index);
+            window.location.href =
+              path + `/projects/${this.state.projectId}/data`;
+            //TODO: Implement next page logic here
+          }
+        }
+        console.log(newPageData);
+        break;
+      }
+    }
+  }
+
+  // Go to previous audio recording
+  handlePreviousClip(e, forceNext = false) {
+    //all possible code saved, lets continue!
+    this.handleAllSegmentSave(e);
+    console.log("SAVE IS GOOD LETS KEEP GOING");
+    const {
+      selectedSegment,
+      segmentationUrl,
+      wavesurfer,
+      previous_pages,
+      num_of_prev,
+    } = this.state;
+    for (var segment_name in wavesurfer.regions.list) {
+      const segment = wavesurfer.regions.list[segment_name];
+      console.log(segment_name, segment);
+      if (segment.saved == false && !forceNext) {
+        if (segment.data.annotations == null) {
+          this.setState({
+            errorUnsavedMessage:
+              'There regions without a label! You can\'t leave yet! If you are sure, click "force previous"',
+          });
+          return;
+        }
+        //TODO: Change this to a modal
+      }
+    }
+
+    console.log(page_num);
     if (num_of_prev > 0) {
-      var page_num = num_of_prev - 1
-      console.log(page_num)
-      console.log(previous_pages)
-      var previous = previous_pages[page_num]
-      previous_pages[num_of_prev] = window.location.href
-      console.log(previous)
+      var page_num = num_of_prev - 1;
+      console.log(page_num);
+      console.log(previous_pages);
+      var previous = previous_pages[page_num];
+      previous_pages[num_of_prev] = window.location.href;
+      console.log(previous);
       //num_of_prev--;
       localStorage.setItem("previous_links", JSON.stringify(previous_pages));
       localStorage.setItem("count", JSON.stringify(page_num));
-      window.location.href = previous
+      window.location.href = previous;
       return;
-
     } else {
-      var index = window.location.href.indexOf("/projects")
-      var path =  window.location.href.substring(0, index);
-      console.log("You have hit the end of the clips you have last seen")
+      var index = window.location.href.indexOf("/projects");
+      var path = window.location.href.substring(0, index);
+      console.log("You have hit the end of the clips you have last seen");
       //window.location.href = path + `/projects/${this.state.projectId}/data`;
     }
     /*previous_pages[num_of_prev] = window.location.href
@@ -847,166 +862,168 @@ class Annotate_C extends React.Component {
         </Helmet>
         <div className="container h-100">
           <div className="h-100 mt-5 text-center">
-          {errorUnsavedMessage ? (
-            <div>
-              <Alert
-                type="danger"
-                message={errorUnsavedMessage}
-                onClose={(e) => this.handleAlertDismiss(e)}
-              />
-              <Button
-                size="large"
-                type="danger"
-                disabled={isSegmentSaving}
-                onClick={(e) => this.handleNextClip(e, true)}
-                isSubmitting={isSegmentSaving}
-                text="Force Next"
-              />
-            </div>
-            ) :
-            errorMessage ? (
+            {errorUnsavedMessage ? (
+              <div>
+                <Alert
+                  type="danger"
+                  message={errorUnsavedMessage}
+                  overlay={true}
+                  onClose={(e) => this.handleAlertDismiss(e)}
+                />
+                <Button
+                  size="large"
+                  type="danger"
+                  disabled={isSegmentSaving}
+                  onClick={(e) => this.handleNextClip(e, true)}
+                  isSubmitting={isSegmentSaving}
+                  text="Force Next"
+                />
+              </div>
+            ) : errorMessage ? (
               <Alert
                 type="danger"
                 message={errorMessage}
+                overlay={true}
                 onClose={(e) => this.handleAlertDismiss(e)}
               />
-            ) :
-            successMessage ? (
+            ) : successMessage ? (
               <Alert
                 type="success"
                 message={successMessage}
+                overlay={true}
                 onClose={(e) => this.handleAlertDismiss(e)}
               />
             ) : null}
             <div>{this.state.original_filename}</div>
-            {this.state.isRendering &&
-            <div className="row justify-content-md-center my-4"> 
-              <text>Please wait while spectrogram renders</text>
-              <Loader/>
-            </div>
-            }
-            <div className="row justify-content-md-center my-4" style={{display:this.state.isRendering ? "none":"" }}>
+            {this.state.isRendering && (
+              <div className="row justify-content-md-center my-4">
+                <text>Please wait while spectrogram renders</text>
+                <Loader />
+              </div>
+            )}
+            <div
+              className="row justify-content-md-center my-4 mx-3"
+              style={{ display: this.state.isRendering ? "none" : "" }}
+            >
               <div ref={(el) => (this.segmentTranscription = el)}></div>
-              <div id ="waveform-labels" style={{float:"left"}}></div>
-              <div id ="wavegraph" style={{float:"left"}}></div>
-              <div id="waveform" style={{float:"left"}}></div>
-              <div id="timeline"></div> 
+              <div id="waveform-labels" style={{ float: "left" }}></div>
+              <div id="wavegraph" style={{ float: "left" }}></div>
+              <div id="waveform" style={{ float: "left" }}></div>
+              <div id="timeline"></div>
             </div>
-            {!isDataLoading ? (
-              <div>
-                <div className="row justify-content-md-center my-4">
-                  <div className="col-1">
-                    <IconButton
-                      icon={faBackward}
-                      size="2x"
-                      title="Skip Backward"
-                      onClick={() => {
-                        this.handleBackward();
-                      }}
-                    />
-                  </div>
-                  <div className="col-1">
-                    {!isPlaying ? (
-                      <IconButton
-                        icon={faPlayCircle}
-                        size="2x"
-                        title="Play"
-                        onClick={() => {
-                          this.handlePlay();
-                        }}
-                      />
-                    ) : null}
-                    {isPlaying ? (
-                      <IconButton
-                        icon={faPauseCircle}
-                        size="2x"
-                        title="Pause"
-                        onClick={() => {
-                          this.handlePause();
-                        }}
-                      />
-                    ) : null}
-                  </div>
-                  <div className="col-1">
-                    <IconButton
-                      icon={faForward}
-                      size="2x"
-                      title="Skip Forward"
-                      onClick={() => {
-                        this.handleForward();
-                      }}
-                    />
-                  </div>
-                </div>
-                {selectedSegment ? (
-                  <div>
-                    <div className="row justify-content-center my-4">
-                      <div className="form-group">
-                        <label className="font-weight-bold">
-                          Segment Transcription
-                        </label>
-                        
-                      </div>
-                    </div>
-                    <div className="row justify-content-center my-4">
-                      {Object.entries(labels).map(([key, value], index) => {
-                        if (!value["values"].length) {
-                          return null;
-                        }
-                        return (
-                          <div className="col-3 text-left" key={index}>
-                            <label htmlFor={key} className="font-weight-bold">
-                              {key}
-                            </label>
 
-                            <select
-                              className="form-control"
-                              name={key}
-                              multiple={
-                                value["type"] === "multiselect" ? true : false
-                              }
-                              value={
-                                (selectedSegment &&
-                                  selectedSegment.data.annotations &&
-                                  selectedSegment.data.annotations[key] &&
-                                  selectedSegment.data.annotations[key][
-                                  "values"
-                                  ]) ||
-                                (value["type"] === "multiselect" ? [] : "")
-                              }
-                              onChange={(e) => this.handleLabelChange(key, e)}
-                              ref={(el) => (this.labelRef[key] = el)}
-                            >
-                              {value["type"] !== "multiselect" ? (
-                                <option value="-1">Choose Label Type</option>
-                              ) : null}
-                              {value["values"].map((val) => {
-                                return (
-                                  <option
-                                    key={val["value_id"]}
-                                    value={`${val["value_id"]}`}
-                                  >
-                                    {val["value"]}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          </div>
-                        );
-                      })}
+            <div className={isDataLoading ? "hidden" : ""}>
+              <div className="row justify-content-center my-4">
+                <div className="col-md-1 col-2">
+                  <IconButton
+                    icon={faBackward}
+                    size="2x"
+                    title="Skip Backward"
+                    onClick={() => {
+                      this.handleBackward();
+                    }}
+                  />
+                </div>
+                <div className="col-md-1 col-2">
+                  {!isPlaying ? (
+                    <IconButton
+                      icon={faPlayCircle}
+                      size="2x"
+                      title="Play"
+                      onClick={() => {
+                        this.handlePlay();
+                      }}
+                    />
+                  ) : null}
+                  {isPlaying ? (
+                    <IconButton
+                      icon={faPauseCircle}
+                      size="2x"
+                      title="Pause"
+                      onClick={() => {
+                        this.handlePause();
+                      }}
+                    />
+                  ) : null}
+                </div>
+                <div className="col-md-1 col-2">
+                  <IconButton
+                    icon={faForward}
+                    size="2x"
+                    title="Skip Forward"
+                    onClick={() => {
+                      this.handleForward();
+                    }}
+                  />
+                </div>
+              </div>
+              {selectedSegment ? (
+                <div>
+                  <div className="row justify-content-center my-4">
+                    <div className="form-group">
+                      <label className="font-weight-bold">
+                        Segment Transcription
+                      </label>
                     </div>
-                    <div className="row justify-content-center my-4">
-                      <div className="col-2">
-                        <Button
-                          size="lg"
-                          type="danger"
-                          disabled={isSegmentDeleting}
-                          isSubmitting={isSegmentDeleting}
-                          onClick={(e) => this.handleSegmentDelete(e)}
-                          text="Delete"
-                        />
-                      </div>
-                      {/*<div className="col-2">
+                  </div>
+                  <div className="row justify-content-center my-4">
+                    {Object.entries(labels).map(([key, value], index) => {
+                      if (!value["values"].length) {
+                        return null;
+                      }
+                      return (
+                        <div className="col-3 text-left" key={index}>
+                          <label htmlFor={key} className="font-weight-bold">
+                            {key}
+                          </label>
+                          <select
+                            className="form-control"
+                            name={key}
+                            multiple={
+                              value["type"] === "multiselect" ? true : false
+                            }
+                            value={
+                              (selectedSegment &&
+                                selectedSegment.data.annotations &&
+                                selectedSegment.data.annotations[key] &&
+                                selectedSegment.data.annotations[key][
+                                  "values"
+                                ]) ||
+                              (value["type"] === "multiselect" ? [] : "")
+                            }
+                            onChange={(e) => this.handleLabelChange(key, e)}
+                            ref={(el) => (this.labelRef[key] = el)}
+                          >
+                            {value["type"] !== "multiselect" ? (
+                              <option value="-1">Choose Label Type</option>
+                            ) : null}
+                            {value["values"].map((val) => {
+                              return (
+                                <option
+                                  key={val["value_id"]}
+                                  value={`${val["value_id"]}`}
+                                >
+                                  {val["value"]}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="row justify-content-center my-4">
+                    <div className="col-2">
+                      <Button
+                        size="lg"
+                        type="danger"
+                        disabled={isSegmentDeleting}
+                        isSubmitting={isSegmentDeleting}
+                        onClick={(e) => this.handleSegmentDelete(e)}
+                        text="Delete"
+                      />
+                    </div>
+                    {/*<div className="col-2">
                         <Button
                           size="lg"
                           type="primary"
@@ -1016,59 +1033,58 @@ class Annotate_C extends React.Component {
                           text="Save Current Segment"
                         />
                     </div>*/}
-                      <div className="col-2">
-                        <Button
-                          size="lg"
-                          type="primary"
-                          //disabled={isSegmentSaving}
-                          onClick={(e) => this.handleAllSegmentSave(e)}
-                          //sSubmitting={isSegmentSaving}
-                          text="Save All"
-                        />
-                      </div>
+                    <div className="col-2">
+                      <Button
+                        size="lg"
+                        type="primary"
+                        //disabled={isSegmentSaving}
+                        onClick={(e) => this.handleAllSegmentSave(e)}
+                        //sSubmitting={isSegmentSaving}
+                        text="Save All"
+                      />
                     </div>
                   </div>
-                ) : null}
-                <div className="row justify-content-center my-4">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="isMarkedForReview"
-                      value={true}
-                      checked={isMarkedForReview}
-                      onChange={(e) => this.handleIsMarkedForReview(e)}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="isMarkedForReview"
-                    >
-                      Mark for review
-                    </label>
-                  </div>
                 </div>
-                <div className="previous">
-                  <Button
-                    size="lg"
-                    type="primary"
-                    disabled={isSegmentSaving}
-                    onClick={(e) => this.handlePreviousClip(e)}
-                    isSubmitting={isSegmentSaving}
-                    text="Previous"
+              ) : null}
+              <div className="row justify-content-center my-4">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="isMarkedForReview"
+                    value={true}
+                    checked={isMarkedForReview}
+                    onChange={(e) => this.handleIsMarkedForReview(e)}
                   />
-                  </div>
-                <div className="next">
-                  <Button
-                    size="lg"
-                    type="primary"
-                    disabled={isSegmentSaving}
-                    onClick={(e) => this.handleNextClip(e)}
-                    isSubmitting={isSegmentSaving}
-                    text="Next"
-                  />
-                  </div>
+                  <label
+                    className="form-check-label"
+                    htmlFor="isMarkedForReview"
+                  >
+                    Mark for review
+                  </label>
+                </div>
               </div>
-            ) : null}
+              <div className="previous">
+                <Button
+                  size="lg"
+                  type="primary"
+                  disabled={isSegmentSaving}
+                  onClick={(e) => this.handlePreviousClip(e)}
+                  isSubmitting={isSegmentSaving}
+                  text="Previous"
+                />
+              </div>
+              <div className="next">
+                <Button
+                  size="lg"
+                  type="primary"
+                  disabled={isSegmentSaving}
+                  onClick={(e) => this.handleNextClip(e)}
+                  isSubmitting={isSegmentSaving}
+                  text="Next"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

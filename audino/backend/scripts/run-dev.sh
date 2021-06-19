@@ -13,7 +13,11 @@ if [[ ! -f "${venv}/bin/python" ]]; then
 fi
 
 echo "Activating environment"
-source "${venv}/Scripts/activate"
+if [[ -f "${venv}/Scripts/activate" ]]; then
+  source "${venv}/Scripts/activate"
+else
+  source "${venv}/bin/activate"
+fi
 
 echo "Installing dependencies"
 pip3 install -r "${app}/requirements.txt"
