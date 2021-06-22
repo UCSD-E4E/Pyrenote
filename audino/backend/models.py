@@ -1,6 +1,8 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from backend import app, db
+from datetime import datetime
+
 
 annotation_table = db.Table(
     "annotation",
@@ -278,6 +280,22 @@ class Segmentation(db.Model):
         "created_at", db.DateTime(), nullable=False, default=db.func.now()
     )
 
+    created_by = db.Column(
+        "created_by", db.String(128), nullable=False,
+    )
+
+    clip_frist_opened_at = db.Column(
+        "clip_frist_opened_at", db.DateTime(), nullable=False,
+    )
+
+    last_modified_by = db.Column(
+        "last_modified_by", db.JSON(), nullable=False,
+    )
+
+    time_spent = db.Column(
+        "time_spent", db.Integer(), nullable=True
+    )
+
     last_modified = db.Column(
         "last_modified",
         db.DateTime(),
@@ -309,13 +327,19 @@ class Segmentation(db.Model):
         app.logger.info(time_spent)
         self.time_spent = time_spent
 
+    def append_modifers(self, newUser):
+        self.last_modified_by[newUser] = datetime.now()
+
     def to_dict(self):
         return {
             "start_time": self.start_time,
             "end_time": self.end_time,
             "created_at": self.created_at,
+            "created_by": self.created_by,
             "last_modified": self.last_modified,
-            "time_spent": self.time_spent
+            "last_modified_by": self.last_modified_by,
+            "clip_frist_opened_at": self.clip_frist_opened_at,
+            "time_spent": self.time_spent,
         }
 
 

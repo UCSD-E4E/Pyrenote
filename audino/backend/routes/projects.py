@@ -1,3 +1,4 @@
+from datetime import datetime
 import sqlalchemy as sa
 import uuid
 
@@ -685,7 +686,7 @@ def add_segmentations(project_id, data_id, seg_id=None):
     app.logger.info(time_spent)
     start_time = round(start_time, 4)
     end_time = round(end_time, 4)
-
+    username = identity["username"]
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
@@ -706,9 +707,7 @@ def add_segmentations(project_id, data_id, seg_id=None):
             annotations=annotations,
             time_spent=time_spent,
             segmentation_id=segmentation_id,
-
         )
-
         db.session.add(segmentation)
         db.session.commit()
         db.session.refresh(segmentation)
