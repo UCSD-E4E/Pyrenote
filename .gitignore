@@ -1,2 +1,3 @@
 
 audino/.env
+audino/backend/migrations/versions*

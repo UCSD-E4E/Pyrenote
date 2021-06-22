@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from backend import db
+from backend import app, db
 
 annotation_table = db.Table(
     "annotation",
@@ -288,6 +288,10 @@ class Segmentation(db.Model):
         onupdate=db.func.utc_timestamp(),
     )
 
+    time_spent = db.Column(
+        "time_spent", db.Float(), nullable=False, default=0.0
+    )
+
     values = db.relationship(
         "LabelValue", secondary=annotation_table, back_populates="segmentations",
     )
@@ -301,6 +305,13 @@ class Segmentation(db.Model):
     def set_transcription(self, transcription):
         self.transcription = transcription
 
+    def set_time_spent(self, time):
+        app.logger.info(time)
+        time_spent = self.time_spent + time
+        app.logger.info(self.time_spent)
+        app.logger.info(time_spent)
+        self.time_spent = time_spent
+
     def to_dict(self):
         return {
             "start_time": self.start_time,
@@ -308,6 +319,7 @@ class Segmentation(db.Model):
             "transcription": self.transcription,
             "created_at": self.created_at,
             "last_modified": self.last_modified,
+            "time_spent": self.time_spent
         }
 
 

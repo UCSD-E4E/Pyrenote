@@ -43,16 +43,19 @@ def generate_segmentation(
     start_time,
     end_time,
     data_id,
+    time_spent,
     segmentation_id=None,
 ):
     """Generate a Segmentation from the required segment information
     """
+    app.logger.info(time_spent)
     if segmentation_id is None:
         segmentation = Segmentation(
             data_id=data_id,
             start_time=start_time,
             end_time=end_time,
             transcription=transcription,
+            time_spent=time_spent,
         )
     else:
         # segmentation updated for existing data
@@ -62,6 +65,7 @@ def generate_segmentation(
         segmentation.set_start_time(start_time)
         segmentation.set_end_time(end_time)
         segmentation.set_transcription(transcription)
+        segmentation.set_time_spent(time_spent)
 
     db.session.add(segmentation)
     db.session.flush()

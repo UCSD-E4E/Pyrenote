@@ -30,7 +30,6 @@ let colormap = require("colormap");
 class Annotate_C extends React.Component {
   constructor(props) {
     super(props);
-
     const projectId = Number(this.props.match.params.projectid);
     const dataId = Number(this.props.match.params.dataid);
     const params = new URLSearchParams(window.location.search);
@@ -62,12 +61,13 @@ class Annotate_C extends React.Component {
       previous_pages: [],
       num_of_prev: 0,
     };
-
+    this.lastTime = 0;
     this.labelRef = {};
     this.transcription = null;
   }
 
   componentDidMount() {
+    this.lastTime = Date.now()
     var linksArray = [];
     var count = 0;
     var links = localStorage.getItem("previous_links");
@@ -303,6 +303,8 @@ class Annotate_C extends React.Component {
           return {
             start: segmentation.start_time,
             end: segmentation.end_time,
+            saved: true,
+            color: "rgba(0, 0, 0, 0.7)",
             data: {
               segmentation_id: segmentation.segmentation_id,
               transcription: segmentation.transcription,
@@ -521,6 +523,8 @@ class Annotate_C extends React.Component {
       console.log("still running save");
       try {
         const segment = wavesurfer.regions.list[segment_name];
+        if (segment.saved) {continue;}
+        
         console.log(segment_name, segment);
         const { start, end } = segment;
         const {
@@ -534,8 +538,16 @@ class Annotate_C extends React.Component {
           console.log("No data, no save");
           continue;
         }
-        this.setState({ isSegmentSaving: true });
-
+        this.setState({ isSegmentSaving: true});
+        let now = Date.now()
+        let time_spent = 0;
+        if (segment.lastTime == 0) {
+          time_spent = now - this.lastTime
+        } else {
+          time_spent = now - segment.lastTime
+        }
+        console.log(time_spent)
+        segment.setLastTime(now)
         if (segmentation_id === null) {
           axios({
             method: "post",
@@ -545,6 +557,7 @@ class Annotate_C extends React.Component {
               end,
               transcription,
               annotations,
+              time_spent
             },
           })
             .then((response) => {
@@ -579,6 +592,7 @@ class Annotate_C extends React.Component {
               end,
               transcription,
               annotations,
+              time_spent,
             },
           })
             .then((response) => {
