@@ -309,6 +309,13 @@ class Segmentation(db.Model):
         app.logger.info(time_spent)
         self.time_spent = time_spent
 
+    def set_time_spent(self, time):
+        app.logger.info(time)
+        time_spent = self.time_spent + time
+        app.logger.info(self.time_spent)
+        app.logger.info(time_spent)
+        self.time_spent = time_spent
+
     def to_dict(self):
         return {
             "start_time": self.start_time,
