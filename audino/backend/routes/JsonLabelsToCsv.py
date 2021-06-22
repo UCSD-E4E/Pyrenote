@@ -40,8 +40,8 @@ def JsonToText(data):
     #print(data)
     text = ""
     csv = []
-    text = write_row(text, ['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION', 'SAMPLING RATE', 'LABEL'])
-    csv.append(['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION', 'SAMPLING RATE', 'LABEL'])
+    text = write_row(text, ['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION', 'SAMPLING RATE', 'LABEL', 'TIME SPENT'])
+    csv.append(['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION', 'SAMPLING RATE', 'LABEL', 'TIME SPENT'])
     for audio in data:
         sampling_rate = audio['sampling_rate']
         clip_length = audio['clip_length']
@@ -54,8 +54,9 @@ def JsonToText(data):
                 label = list(region['annotations'].values())[0]['values']['value']
             end = region['end_time']
             start = region['start_time']
-            text = write_row(text, [original_filename, clip_length, start, round((end-start), 4),  sampling_rate, label])
-            csv.append([original_filename, clip_length, start, round((end-start), 4),  sampling_rate, label])
+            time_spent = region['time_spent']
+            text = write_row(text, [original_filename, clip_length, start, round((end-start), 4),  sampling_rate, label, time_spent])
+            csv.append([original_filename, clip_length, start, round((end-start), 4),  sampling_rate, label, time_spent])
     return text, csv
 
 def write_row(text, row):
