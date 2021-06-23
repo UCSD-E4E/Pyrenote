@@ -107,9 +107,13 @@ RUN { \
 
 VOLUME /var/lib/mysql
 
+ADD ./docker-entrypoint.sh /
+
+RUN chmod +x /docker-entrypoint.sh
+
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 3306 33060
 
