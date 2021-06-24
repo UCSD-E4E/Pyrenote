@@ -52,7 +52,6 @@ services:
       - rclone
     networks:
       - backend-network
-    command: --user=root --init-file=/mysql/create_database.sql --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
 
   redis:
     build: ./redis
