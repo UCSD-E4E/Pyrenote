@@ -27,8 +27,8 @@ services:
     build: ./nginx
     volumes:
       - www:/var/www/html:ro
-      - ./nginx/nginx_local.conf:/etc/nginx/nginx.conf:ro
-    #  - /etc/letsencrypt/:/etc/letsencrypt/
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt/:/etc/letsencrypt/
     ports:
       - 443:443
       - 80:80
@@ -42,14 +42,14 @@ services:
     volumes:
       - ./mysql:/mysql
       - mysql_prod_data:/var/lib/mysql
-    #  - ./rclone/data:/mnt/backup:shared
+      - ./rclone/data:/mnt/backup:shared
     environment:
       MYSQL_DATABASE: "audino"
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_USER: "audino"
       MYSQL_PASSWORD: "audino"
-    #depends_on:
-    #  - rclone
+    depends_on:
+      - rclone
     networks:
       - backend-network
     command: --user=root --init-file=/mysql/create_database.sql --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
@@ -63,22 +63,22 @@ services:
     networks:
       - backend-network
       
-  #rclone:
-  #  image: rclone/rclone:latest
-  #  volumes:
-  #    - './rclone/config:/config/rclone'
-  #    - './rclone/data:/mnt/data:shared'
-  #    - '/etc/passwd:/etc/passwd:ro'
-  #    - '/etc/group:/etc/group:ro'
-  #  cap_add:
-  #    - MKNOD
-  #    - SYS_ADMIN
-  #  security_opt:
-  #    - apparmor:unconfined
-  #  privileged: true
-  #  devices:
-  #    - /dev/fuse
-  #  command: 'mount --allow-non-empty e4e:Backup /mnt/data --vfs-cache-mode writes'
+  rclone:
+    image: rclone/rclone:latest
+    volumes:
+      - './rclone/config:/config/rclone'
+      - './rclone/data:/mnt/data:shared'
+      - '/etc/passwd:/etc/passwd:ro'
+      - '/etc/group:/etc/group:ro'
+    cap_add:
+      - MKNOD
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    privileged: true
+    devices:
+      - /dev/fuse
+    command: 'mount --allow-non-empty e4e:Backup /mnt/data --vfs-cache-mode writes'
 
 volumes:
   mysql_prod_data:
