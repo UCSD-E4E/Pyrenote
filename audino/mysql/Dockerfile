@@ -1,19 +1,3 @@
-FROM mysql:5.7
-
-RUN apt-get update && apt-get -y install cron
-
-ADD ./crontab /etc/cron.d/backup-cron
-
-ADD ./start.sh /
-
-RUN chmod +x /start.sh
-
-RUN chmod 0644 /etc/cron.d/backup-cron
-
-RUN crontab /etc/cron.d/backup-cron
-
-RUN touch /var/log/cron.log
-
 #
 # NOTE: THIS DOCKERFILE IS GENERATED VIA "apply-templates.sh"
 #
@@ -25,7 +9,14 @@ FROM debian:buster-slim
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mysql && useradd -r -g mysql mysql
 
-RUN apt-get update && apt-get install -y --no-install-recommends gnupg dirmngr && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends gnupg dirmngr && apt-get install -y cron && rm -rf /var/lib/apt/lists/*
+
+ADD ./start.sh /
+RUN chmod +x /start.sh
+ADD ./crontab /etc/cron.d/backup-cron
+RUN chmod 0644 /etc/cron.d/backup-cron
+RUN crontab /etc/cron.d/backup-cron
+RUN touch /var/log/cron.log
 
 # add gosu for easy step-down from root
 # https://github.com/tianon/gosu/releases
@@ -117,6 +108,6 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 3306 33060
 
-CMD ["mysqld"]
+#CMD ["mysqld"]
 
-#CMD ["/start.sh"]
+CMD ["/start.sh"]
