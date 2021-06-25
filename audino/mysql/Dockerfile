@@ -107,7 +107,7 @@ RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 3306 33060
+USER root
+CMD ["mysqld"]
 
-#CMD ["mysqld"]
-
-CMD ["/start.sh"]
+#CMD ["/start.sh"]

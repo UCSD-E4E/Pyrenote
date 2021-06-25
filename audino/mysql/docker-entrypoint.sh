@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+echo "You are login as: `whoami`"
+source "/start.sh"
+process_id=$!
+echo "PID: $process_id"
+wait $process_id
 set -eo pipefail
 shopt -s nullglob
 echo "running docker-entrypoint"
@@ -51,7 +56,7 @@ _is_sourced() {
 		&& [ "${FUNCNAME[1]}" = 'source' ]
 }
 
-# usage: docker_process_init_files [file [file [...]]]
+#u usage: docker_process_init_files [file [file [...]]]
 #    ie: docker_process_init_files /always-initdb.d/*
 # process initializer files, based on file extensions
 docker_process_init_files() {
@@ -190,6 +195,7 @@ docker_create_db_directories() {
 
 # initializes the database directory
 docker_init_database_dir() {
+	echo "init"
 	mysql_note "Initializing database files"
 	if [ "$MYSQL_MAJOR" = '5.6' ]; then
 		mysql_install_db --datadir="$DATADIR" --rpm --keep-my-cnf "${@:2}" --default-time-zone=SYSTEM
@@ -362,11 +368,11 @@ _main() {
 	if [ "${1:0:1}" = '-' ]; then
 		set -- mysqld "$@"
 	fi
-
+	echo "passed 2nd statement"
 	# skip setup if they aren't running mysqld or want an option that stops mysqld
 	if [ "$1" = 'mysqld' ] && ! _mysql_want_help "$@"; then
 		mysql_note "Entrypoint script for MySQL Server ${MYSQL_VERSION} started."
-
+		echo "entrypoting running"
 		mysql_check_config "$@"
 		# Load various environment variables
 		docker_setup_env "$@"
@@ -377,11 +383,11 @@ _main() {
 			mysql_note "Switching to dedicated user 'mysql'"
 			exec gosu mysql "$BASH_SOURCE" "$@"
 		fi
-
+		echo "got to here"
 		# there's no database, so it needs to be initialized
 		if [ -z "$DATABASE_ALREADY_EXISTS" ]; then
 			docker_verify_minimum_env
-
+			echo "initalizing docker"
 			# check dir permissions to reduce likelihood of half-initialized database
 			ls /docker-entrypoint-initdb.d/ > /dev/null
 
@@ -405,10 +411,13 @@ _main() {
 			echo
 		fi
 	fi
+	echo "passed 3rd statment"
+	echo "$@"
 	exec "$@"
 }
-
-# If we are sourced from elsewhere, don't perform any further actions
+echo "still okay" # If we are sourced from elsewhere, don't perform any further actions
 if ! _is_sourced; then
+	echo "in frist statment"
 	_main "$@"
 fi
+echo "finshed entrypoint commands"
