@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 echo "You are login as: `whoami`"
-source "/start.sh"
+cron;
 process_id=$!
 echo "PID: $process_id"
 wait $process_id
