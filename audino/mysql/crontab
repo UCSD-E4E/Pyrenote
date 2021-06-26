@@ -1,2 +1,2 @@
-0 0 * * * mkdir -p /mnt/backup/`date +'%Y%m%d'`;cp -R /var/lib/mysql /mnt/backup/`date +'%Y%m%d'` >> /var/log/cron.log 2>&1
+* * * * * mkdir -p /mnt/backup/`date +\%Y\%m\%d` && cp -R /var/lib/mysql /mnt/backup/`date +\%Y\%m\%d` >> /var/log/cron.log 2>&1
 #emptyline required for cron to run properly
