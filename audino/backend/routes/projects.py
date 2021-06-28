@@ -648,7 +648,8 @@ def add_segmentations(project_id, data_id, segmentation_id=None):
 
     transcription = request.json.get("transcription", None)
     annotations = request.json.get("annotations", dict())
-
+    time_spent = request.json.get("time_spent", 0)/1000 #miliseconds to seconds
+    app.logger.info(time_spent)
     start_time = round(start_time, 4)
     end_time = round(end_time, 4)
 
@@ -671,7 +672,9 @@ def add_segmentations(project_id, data_id, segmentation_id=None):
             start_time=start_time,
             annotations=annotations,
             transcription=transcription,
+            time_spent=time_spent,
             segmentation_id=segmentation_id,
+
         )
 
         db.session.add(segmentation)
