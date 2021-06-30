@@ -1,5 +1,4 @@
 ## High Level Overview of the Code
-
 The labeling system implements [Audino](https://github.com/midas-research/audino) as well as [Wavesufer.js](https://github.com/katspaugh/wavesurfer.js) to render and manage the site. A large degree of these libaraies have been modified to get the project to work. 
 
 **NOTE** If you ever have a bug or trying to fix something. A good place to double check is with these repos incase they have updated to make the code you are working with better. 
@@ -28,4 +27,3 @@ The spectrogram plugin starts rendering when the wavesurfer object is created. W
 ## Admin Portal
 The admin portal allows admins (currently) to create new users, projects, and labels. From here you can download the current labels of a project (recommended to do freqently to ensure that the code does not in any circumstances ruin the position of the labels). 
 
-**NOTE** the admin portal is terrible and needs to be reworked in the future.

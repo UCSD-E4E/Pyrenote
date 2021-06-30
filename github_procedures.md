@@ -1,6 +1,6 @@
 ## Github Procedures
 Before commiting any changes to the repo
-- create a branch of of staging
+- create a branch of staging
 - when the changes are finshed being made to the branch, create a pr request to merge your work branch into staging, not main.
 - Never merge to main directly
 - request reviewers before merging into staging unless given permission by leads
@@ -19,5 +19,5 @@ If there is a unrelated bug to your work, create an issue post on the github to 
 
 **Security Notes**
 Don't post passwords, usernames, or url on the repo as this is a security risk
-Also don't push the file /audino/.env to the repo. 
+Also don't push the file /audino/.env or rclone config files to the repo. 
 If this happens, no worries. Lets the leads know so we can change the password.

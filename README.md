@@ -6,8 +6,7 @@ This project creates moment to moment or hard labels for audio data. If you are 
 **Read github_procedures.md for more detailed information before contributing to the repo** 
 
 ## Usage
-
-*Note: Before getting the project set up, message project leads for env file. This file should be put in /audino **make sure the file is never pushed to the github***
+***Note**: Before getting the project set up, message project leads for .env file. This file should be put in /audino **make sure the file is never pushed to the github***
 
 Please install the following dependencies to run `audino` on your system:
 
@@ -28,38 +27,9 @@ $ cd audino
 $ git clone https://github.com/UCSD-E4E/Audio_Labeling_System_AID.git --config core.autocrlf=input
 ```
 
-### NOTE BEFORE RUNNING THE DOCKER
-**Access [this link](https://drive.google.com/file/d/15y_j27Jn3aS2BKt17_3g8T2C07R5p3H5/view?usp=sharing) to get the Scripts.zip folder. Once you get it extract the files to audino/backend/venv/**
-
-### For Production
-
-You can either run the project on [default configuration](./docker-compose.prod.yml) or modify them to your need.
-**Note**: Before proceeding further, you might need to give docker `sudo` access or run the commands listed below as `sudo`.
-
-**To build the services, run:**
-
-```sh
-$ docker-compose -f docker-compose.prod.yml build
-```
-
-**To bring up the services, run:**
-
-```sh
-$ docker-compose -f docker-compose.prod.yml up
-```
-
-Then, in browser, go to [http://0.0.0.0/](http://0.0.0.0/) to view the application.
-
-**To bring down the services, run:**
-
-```sh
-$ docker-compose -f docker-compose.prod.yml down
-```
-
 ### For Development (Note this is the one we will test on and use)
 
-Similar to `production` setup, you need to use development [configuration](./docker-compose.dev.yml) for working on the project, fixing bugs and making contributions.
-**Note**: Before proceeding further, you might need to give docker `sudo` access or run the commands listed below as `sudo`.
+**Note**: when running dev sever, hot reloading is enabled allowing you to simply save a file to make changes to the local sever. No need to bring down services!
 
 **To build the services (do this when you frist start it), run:**
 
@@ -92,14 +62,15 @@ $ docker-compose -f docker-compose.dev.yml down
 3) Database migration issues
   - If the backend complains about compiler issues while the database migration is occuring go into backend/scripts/run-dev.sh
   - Check to make sure in line 25, the stamp command is pointing to the right migration for the database,
-      - Ask for help on this one
+      - Ask for help on this one, it may require a bit of manual work to get fixed
 
 ## Getting Started
 
 At this point, the docker should have gotten everything set up. After going to [http://localhost:3000/](http://localhost:3000/) you should be able to log into the docker
 
-To access the site, sign in with the username of **admin** and password of **password**. On logging in navigate to the admin-portal to create your frist project (make sure to make a label group and some labels for the project!).
+To access the site, sign in with the username of **admin** and password of **password**. On logging in navigate to the admin-portal to create your frist project (make sure to make a label group and some labels for the project!). 
 
+***Note*** Skip next step is you are able to upload via the admin portal upload button
 After creating a project, get the api key by returning to the admin portal. You can use the api key to add data to a project. Create a new terminal (while docker is running the severs) and cd into audino/backend/scripts. Here use the fallowing command:
 
 ```
@@ -108,3 +79,38 @@ python upload_mass.py --username admin.test --is_marked_for_review True --audio_
 Make sure to have a folder with the audio data ready to be added. For testing purposes, get a folder with about 20 clips. 
 
 Once that runs you are ready to start testing!
+
+
+### For Production
+
+You can either run the project on [default configuration](./docker-compose.prod.yml) or modify them to your need.
+**Note**: Before proceeding further, you might need to give docker `sudo` access or run the commands listed below as `sudo`.
+
+Ask Team Leads for nessary config files to run this and help setting up production sever on a local machine. 
+Production will not work on windows. 
+
+**To build the services, run:**
+
+```sh
+$ docker-compose -f docker-compose.prod.yml build
+```
+
+or alternatively you can also run this to rebuild everything fully
+
+```sh 
+$ docker-compose -f docker-compose.prod.yml up --build --remove-orphans --force-recreate
+```
+**To bring up the services, run:**
+
+```sh
+$ docker-compose -f docker-compose.prod.yml up
+```
+
+Then, in browser, go to [http://0.0.0.0/](http://0.0.0.0/) to view the application.
+
+**To bring down the services, run:**
+
+```sh
+$ docker-compose -f docker-compose.prod.yml down
+```
+
