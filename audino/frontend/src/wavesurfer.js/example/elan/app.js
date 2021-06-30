@@ -1,11 +1,9 @@
-'use strict';
-
 // Create an instance
-var wavesurfer;
+let wavesurfer;
 
 // Init & load
 document.addEventListener('DOMContentLoaded', function() {
-    var options = {
+    const options = {
         container: '#waveform',
         waveColor: 'violet',
         progressColor: 'purple',
@@ -41,11 +39,11 @@ document.addEventListener('DOMContentLoaded', function() {
     /* Progress bar */
     (function() {
         var progressDiv = document.querySelector('#progress-bar');
-        var progressBar = progressDiv.querySelector('.progress-bar');
+        let progressBar = progressDiv.querySelector('.progress-bar');
 
         var showProgress = function(percent) {
             progressDiv.style.display = 'block';
-            progressBar.style.width = percent + '%';
+            progressBar.style.width = `${percent}%`;
         };
 
         var hideProgress = function() {
@@ -59,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })();
 
     wavesurfer.elan.on('ready', function(data) {
-        wavesurfer.load('transcripts/' + data.media.url);
+        wavesurfer.load(`transcripts/${data.media.url}`);
     });
 
     wavesurfer.elan.on('select', function(start, end) {
@@ -67,16 +65,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     wavesurfer.elan.on('ready', function() {
-        var classList = wavesurfer.elan.container.querySelector('table')
-            .classList;
+        var { classList } = wavesurfer.elan.container.querySelector('table');
         ['table', 'table-striped', 'table-hover'].forEach(function(cl) {
             classList.add(cl);
         });
     });
 
-    var prevAnnotation, prevRow, region;
+    var prevAnnotation;
+    let prevRow;
+    let region;
     var onProgress = function(time) {
-        var annotation = wavesurfer.elan.getRenderedAnnotation(time);
+        const annotation = wavesurfer.elan.getRenderedAnnotation(time);
 
         if (prevAnnotation != annotation) {
             prevAnnotation = annotation;
@@ -86,11 +85,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (annotation) {
                 // Highlight annotation table row
-                var row = wavesurfer.elan.getAnnotationNode(annotation);
+                let row = wavesurfer.elan.getAnnotationNode(annotation);
                 prevRow && prevRow.classList.remove('success');
                 prevRow = row;
                 row.classList.add('success');
-                var before = row.previousSibling;
+                let before = row.previousSibling;
                 if (before) {
                     wavesurfer.elan.container.scrollTop = before.offsetTop;
                 }

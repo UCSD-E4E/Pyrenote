@@ -1,12 +1,10 @@
-'use strict';
-
 import CursorCustomPlugin from './custom-plugin/CursorCustomPlugin.js';
 
-var wavesurfer;
+let wavesurfer;
 
 // Init & load
 document.addEventListener('DOMContentLoaded', function() {
-    var pluginOptions = {
+    const pluginOptions = {
         minimap: {
             waveColor: '#777',
             progressColor: '#222',
@@ -66,48 +64,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // Init wavesurfer
     wavesurfer = WaveSurfer.create(options);
 
-    [].forEach.call(
-        document.querySelectorAll('[data-activate-plugin]'),
-        function(el) {
-            var activePlugins = wavesurfer.initialisedPluginList;
-            Object.keys(activePlugins).forEach(function(name) {
-                if (el.dataset.activatePlugin === name) {
-                    el.checked = true;
-                }
-            });
-        }
-    );
+    [].forEach.call(document.querySelectorAll('[data-activate-plugin]'), function(el) {
+        var activePlugins = wavesurfer.initialisedPluginList;
+        Object.keys(activePlugins).forEach(function(name) {
+            if (el.dataset.activatePlugin === name) {
+                el.checked = true;
+            }
+        });
+    });
 
-    [].forEach.call(
-        document.querySelectorAll('[data-activate-plugin]'),
-        function(el) {
-            el.addEventListener('change', function(e) {
-                var pluginName = e.currentTarget.dataset.activatePlugin;
-                var activate = e.target.checked;
-                var options = pluginOptions[pluginName] || {};
-                var plugin;
-                if (pluginName === 'cursorCustom') {
-                    plugin = CursorCustomPlugin.create(options);
-                } else {
-                    plugin = WaveSurfer[pluginName].create(options);
-                }
-                if (activate) {
-                    wavesurfer.addPlugin(plugin).initPlugin(pluginName);
-                } else {
-                    wavesurfer.destroyPlugin(pluginName);
-                }
-            });
-        }
-    );
+    [].forEach.call(document.querySelectorAll('[data-activate-plugin]'), function(el) {
+        el.addEventListener('change', function(e) {
+            const pluginName = e.currentTarget.dataset.activatePlugin;
+            var activate = e.target.checked;
+            const options = pluginOptions[pluginName] || {};
+            let plugin;
+            if (pluginName === 'cursorCustom') {
+                plugin = CursorCustomPlugin.create(options);
+            } else {
+                plugin = WaveSurfer[pluginName].create(options);
+            }
+            if (activate) {
+                wavesurfer.addPlugin(plugin).initPlugin(pluginName);
+            } else {
+                wavesurfer.destroyPlugin(pluginName);
+            }
+        });
+    });
 
     /* Progress bar */
     (function() {
         var progressDiv = document.querySelector('#progress-bar');
-        var progressBar = progressDiv.querySelector('.progress-bar');
+        const progressBar = progressDiv.querySelector('.progress-bar');
 
         var showProgress = function(percent) {
             progressDiv.style.display = 'block';
-            progressBar.style.width = percent + '%';
+            progressBar.style.width = `${percent}%`;
         };
 
         var hideProgress = function() {

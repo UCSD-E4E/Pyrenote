@@ -1,7 +1,5 @@
-'use strict';
-
 // Create an instance
-var wavesurfer;
+let wavesurfer;
 
 // Init & load audio file
 document.addEventListener('DOMContentLoaded', function() {
@@ -15,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     wavesurfer.once('ready', function() {
-        console.log('Using wavesurfer.js ' + WaveSurfer.VERSION);
+        console.log(`Using wavesurfer.js ${WaveSurfer.VERSION}`);
     });
 
     wavesurfer.on('error', function(e) {
@@ -31,29 +29,25 @@ document.addEventListener('DOMContentLoaded', function() {
         .addEventListener('click', wavesurfer.playPause.bind(wavesurfer));
 
     // peaks button
-    document
-        .querySelector('[data-action="peaks"]')
-        .addEventListener('click', function() {
-            // load peaks from JSON file. See https://wavesurfer-js.org/faq/
-            // for instructions on how to generate peaks
-            fetch('../media/demo-peaks.json')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('HTTP error ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(peaks => {
-                    console.log(
-                        'loaded peaks! sample_rate: ' + peaks.sample_rate
-                    );
+    document.querySelector('[data-action="peaks"]').addEventListener('click', function() {
+    // load peaks from JSON file. See https://wavesurfer-js.org/faq/
+    // for instructions on how to generate peaks
+        fetch('../media/demo-peaks.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(peaks => {
+                console.log(`loaded peaks! sample_rate: ${peaks.sample_rate}`);
 
-                    // load peaks into wavesurfer.js
-                    wavesurfer.load('../media/demo.wav', peaks.data);
-                    document.body.scrollTop = 0;
-                })
-                .catch(e => {
-                    console.error('error', e);
-                });
-        });
+                // load peaks into wavesurfer.js
+                wavesurfer.load('../media/demo.wav', peaks.data);
+                document.body.scrollTop = 0;
+            })
+            .catch(e => {
+                console.error('error', e);
+            });
+    });
 });

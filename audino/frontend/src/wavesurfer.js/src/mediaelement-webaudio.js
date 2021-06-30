@@ -11,10 +11,10 @@ import MediaElement from './mediaelement';
  */
 export default class MediaElementWebAudio extends MediaElement {
     /**
-     * Construct the backend
-     *
-     * @param {WavesurferParams} params Wavesurfer parameters
-     */
+   * Construct the backend
+   *
+   * @param {WavesurferParams} params Wavesurfer parameters
+   */
     constructor(params) {
         super(params);
         /** @private */
@@ -24,8 +24,8 @@ export default class MediaElementWebAudio extends MediaElement {
     }
 
     /**
-     * Initialise the backend, called in `wavesurfer.createBackend()`
-     */
+   * Initialise the backend, called in `wavesurfer.createBackend()`
+   */
     init() {
         this.setPlaybackRate(this.params.audioRate);
         this.createTimer();
@@ -33,30 +33,29 @@ export default class MediaElementWebAudio extends MediaElement {
         this.createScriptNode();
         this.createAnalyserNode();
     }
+
     /**
-     * Private method called by both `load` (from url)
-     * and `loadElt` (existing media element) methods.
-     *
-     * @param {HTMLMediaElement} media HTML5 Audio or Video element
-     * @param {number[]|Number.<Array[]>} peaks Array of peak data
-     * @param {string} preload HTML 5 preload attribute value
-     * @private
-     */
+   * Private method called by both `load` (from url)
+   * and `loadElt` (existing media element) methods.
+   *
+   * @param {HTMLMediaElement} media HTML5 Audio or Video element
+   * @param {number[]|Number.<Array[]>} peaks Array of peak data
+   * @param {string} preload HTML 5 preload attribute value
+   * @private
+   */
     _load(media, peaks, preload) {
         super._load(media, peaks, preload);
         this.createMediaElementSource(media);
     }
 
     /**
-     * Create MediaElementSource node
-     *
-     * @since 3.2.0
-     * @param {HTMLMediaElement} mediaElement HTML5 Audio to load
-     */
+   * Create MediaElementSource node
+   *
+   * @since 3.2.0
+   * @param {HTMLMediaElement} mediaElement HTML5 Audio to load
+   */
     createMediaElementSource(mediaElement) {
-        this.sourceMediaElement = this.ac.createMediaElementSource(
-            mediaElement
-        );
+        this.sourceMediaElement = this.ac.createMediaElementSource(mediaElement);
         this.sourceMediaElement.connect(this.analyser);
     }
 
@@ -66,9 +65,9 @@ export default class MediaElementWebAudio extends MediaElement {
     }
 
     /**
-     * This is called when wavesurfer is destroyed
-     *
-     */
+   * This is called when wavesurfer is destroyed
+   *
+   */
     destroy() {
         super.destroy();
 

@@ -32,8 +32,7 @@ function findInDirectory(plugin, directory) {
                 PLUGINS.push(relativePluginPath);
             }
         });
-    }
-    else {
+    } else {
         relativePluginPath = path.relative(pluginSrcDir, pluginPath);
         PLUGINS.push(relativePluginPath);
     }
@@ -49,18 +48,13 @@ function findInDirectory(plugin, directory) {
  */
 function buildPluginEntry(plugins) {
     const result = {};
-    plugins.forEach(
-        plugin => {
-            let basename = path.basename(plugin, '.js');
-            if (basename === 'index') {
-                basename = path.basename(path.dirname(plugin));
-            }
-            return (result[path.basename(basename, '.js')] = path.join(
-                pluginSrcDir,
-                plugin
-            ));
+    plugins.forEach(plugin => {
+        let basename = path.basename(plugin, '.js');
+        if (basename === 'index') {
+            basename = path.basename(path.dirname(plugin));
         }
-    );
+        return (result[path.basename(basename, '.js')] = path.join(pluginSrcDir, plugin));
+    });
     return result;
 }
 

@@ -8,6 +8,7 @@ process.traceDeprecation = true;
 
 require('@babel/register');
 const webpackConfig = require('./build-config/webpack.prod.main.js');
+
 const ci = process.env.TRAVIS || process.env.APPVEYOR;
 
 // Chrome CLI options
@@ -36,7 +37,7 @@ const firefoxFlags = {
 };
 
 module.exports = function(config) {
-    var configuration = {
+    const configuration = {
         basePath: '',
         frameworks: ['jasmine', 'jasmine-matchers'],
         hostname: 'localhost',
@@ -67,7 +68,7 @@ module.exports = function(config) {
             {
                 match: 'demo.wav',
                 name: 'Content-Length',
-                value: fs.statSync('./spec/support/demo.wav')['size']
+                value: fs.statSync('./spec/support/demo.wav').size
             }
         ],
         preprocessors: {

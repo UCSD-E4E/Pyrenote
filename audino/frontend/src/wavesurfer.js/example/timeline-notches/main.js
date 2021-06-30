@@ -1,7 +1,5 @@
-'use strict';
-
 // Create an instance
-var wavesurfer;
+let wavesurfer;
 
 /**
  * Use formatTimeCallback to style the notch labels as you wish, such
@@ -19,7 +17,7 @@ var wavesurfer;
  */
 function formatTimeCallback(seconds, pxPerSec) {
     seconds = Number(seconds);
-    var minutes = Math.floor(seconds / 60);
+    const minutes = Math.floor(seconds / 60);
     seconds = seconds % 60;
 
     // fill up seconds with zeroes
@@ -32,7 +30,7 @@ function formatTimeCallback(seconds, pxPerSec) {
 
     if (minutes > 0) {
         if (seconds < 10) {
-            secondsStr = '0' + secondsStr;
+            secondsStr = `0${secondsStr}`;
         }
         return `${minutes}:${secondsStr}`;
     }
@@ -149,9 +147,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }),
             WaveSurfer.timeline.create({
                 container: '#timeline',
-                formatTimeCallback: formatTimeCallback,
+                formatTimeCallback,
                 timeInterval: timeInterval,
-                primaryLabelInterval: primaryLabelInterval,
+                primaryLabelInterval,
                 secondaryLabelInterval: secondaryLabelInterval,
                 primaryColor: 'blue',
                 secondaryColor: 'red',
@@ -179,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Play button
-    var button = document.querySelector('[data-action="play"]');
+    const button = document.querySelector('[data-action="play"]');
 
     button.addEventListener('click', wavesurfer.playPause.bind(wavesurfer));
 });

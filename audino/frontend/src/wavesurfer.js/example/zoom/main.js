@@ -1,7 +1,5 @@
-'use strict';
-
 // Create an instance
-var wavesurfer;
+let wavesurfer;
 
 // Init & load audio file
 document.addEventListener('DOMContentLoaded', function() {
@@ -56,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     wavesurfer.zoom(slider.value);
 
     // Play button
-    var button = document.querySelector('[data-action="play"]');
+    const button = document.querySelector('[data-action="play"]');
 
     button.addEventListener('click', wavesurfer.playPause.bind(wavesurfer));
 });

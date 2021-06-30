@@ -27,7 +27,7 @@ const TestHelpers = {
         if (type == undefined) {
             type = 'div';
         }
-        let element = document.createElement(type);
+        const element = document.createElement(type);
         element.id = id;
         document.getElementsByTagName('body')[0].appendChild(element);
 
@@ -39,10 +39,10 @@ const TestHelpers = {
     },
 
     /**
-     * Handle creating wavesurfer UI requirements
-     *
-     * @param  {Object} options
-     */
+   * Handle creating wavesurfer UI requirements
+   *
+   * @param  {Object} options
+   */
     createWaveform(options) {
         let element;
         if (options === undefined) {
@@ -61,23 +61,20 @@ const TestHelpers = {
     },
 
     /**
-     * Normalize audio peaks
-     *
-     * @param  {String} jsonFilePath
-     * @param  {function} successHandler
-     */
+   * Normalize audio peaks
+   *
+   * @param  {String} jsonFilePath
+   * @param  {function} successHandler
+   */
     getPeaks(jsonFilePath, successHandler) {
         fetchFile({
             url: jsonFilePath,
             responseType: 'json'
-        }).on(
-            'success',
-            peaks => {
-                const max = peaks.data.reduce((max, el) => (el > max ? el : max));
-                const normalizedPeaks = peaks.data.map(el => el / max);
-                return successHandler(normalizedPeaks);
-            }
-        );
+        }).on('success', peaks => {
+            const max = peaks.data.reduce((max, el) => (el > max ? el : max));
+            const normalizedPeaks = peaks.data.map(el => el / max);
+            return successHandler(normalizedPeaks);
+        });
     }
 };
 

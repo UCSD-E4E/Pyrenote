@@ -1,5 +1,5 @@
 // Create an instance
-var wavesurfer;
+let wavesurfer;
 
 // Init & load audio file
 document.addEventListener('DOMContentLoaded', function() {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Load audio from existing media element
-    var mediaElt = document.querySelector('video');
+    let mediaElt = document.querySelector('video');
 
     wavesurfer.on('error', function(e) {
         console.warn(e);
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     /* Toggle play/pause buttons. */
-    var playButton = document.querySelector('#play');
+    const playButton = document.querySelector('#play');
     var pauseButton = document.querySelector('#pause');
     wavesurfer.on('play', function() {
         playButton.style.display = 'none';
@@ -115,11 +115,11 @@ function loadRegions(regions) {
  */
 function extractRegions(peaks, duration) {
     // Silence params
-    var minValue = 0.0015;
-    var minSeconds = 0.25;
+    const minValue = 0.0015;
+    let minSeconds = 0.25;
 
-    var length = peaks.length;
-    var coef = duration / length;
+    const { length } = peaks;
+    let coef = duration / length;
     var minLen = minSeconds / coef;
 
     // Gather silence indeces
@@ -131,7 +131,7 @@ function extractRegions(peaks, duration) {
     });
 
     // Cluster silence values
-    var clusters = [];
+    let clusters = [];
     silences.forEach(function(val, index) {
         if (clusters.length && val == silences[index - 1] + 1) {
             clusters[clusters.length - 1].push(val);
@@ -181,16 +181,12 @@ function extractRegions(peaks, duration) {
  * Random RGBA color.
  */
 function randomColor(alpha) {
-    return (
-        'rgba(' +
-        [
-            ~~(Math.random() * 255),
-            ~~(Math.random() * 255),
-            ~~(Math.random() * 255),
-            alpha || 1
-        ] +
-        ')'
-    );
+    return `rgba(${[
+    ~~(Math.random() * 255),
+    ~~(Math.random() * 255),
+    ~~(Math.random() * 255),
+    alpha || 1
+  ]})`;
 }
 
 /**
@@ -245,17 +241,14 @@ function hideNote(region) {
  * Bind controls.
  */
 window.GLOBAL_ACTIONS['delete-region'] = function() {
-    var form = document.forms.edit;
-    var regionId = form.dataset.region;
+    const form = document.forms.edit;
+    const regionId = form.dataset.region;
     if (regionId) {
         wavesurfer.regions.list[regionId].remove();
         form.reset();
     }
 };
 
-window.GLOBAL_ACTIONS['export'] = function() {
-    window.open(
-        'data:application/json;charset=utf-8,' +
-            encodeURIComponent(localStorage.regions)
-    );
+window.GLOBAL_ACTIONS.export = function() {
+    window.open(`data:application/json;charset=utf-8,${encodeURIComponent(localStorage.regions)}`);
 };

@@ -1,19 +1,19 @@
-import React from "react";
-import axios from "axios";
-import { withRouter } from "react-router";
-import { withStore } from "@spyna/react-store";
+import React from 'react';
+import axios from 'axios';
+import { withRouter } from 'react-router';
+import { withStore } from '@spyna/react-store';
 
-import Alert from "../../components/alert";
-import { Button } from "../../components/button";
-import Loader from "../../components/loader";
-import LabelValues from "../../pages/labelValues"
+import Alert from '../../components/alert';
+import { Button } from '../../components/button';
+import Loader from '../../components/loader';
+import LabelValues from '../../pages/labelValues';
 
 class DeleteLabelValueForm extends React.Component {
   constructor(props) {
     super(props);
 
-    const labelValueId = this.props.labelValueId;
-    const labelId = this.props.labelId;
+    const { labelValueId } = this.props;
+    const { labelId } = this.props;
 
     this.initialState = {
       labelValueId,
@@ -21,14 +21,14 @@ class DeleteLabelValueForm extends React.Component {
       errorMessage: null,
       successMessage: null,
       isLoading: false,
-      labelValueUrl: `/api/labels/${labelId}/values/${labelValueId}`,
+      labelValueUrl: `/api/labels/${labelId}/values/${labelValueId}`
     };
 
-    this.state = Object.assign({}, this.initialState);
+    this.state = { ...this.initialState };
   }
 
   componentDidMount() {
-      console.log("DELETE LABEL FORM HAS RENDER TADA")
+    console.log('DELETE LABEL FORM HAS RENDER TADA');
   }
 
   resetState() {
@@ -45,27 +45,27 @@ class DeleteLabelValueForm extends React.Component {
 
   handleLabelValueUpdation(e) {
     e.preventDefault();
-    
+
     this.setState({ isSubmitting: true });
     axios({
-      method: "delete",
-      url: this.state.labelValueUrl,
+      method: 'delete',
+      url: this.state.labelValueUrl
     })
-      .then((response) => {
+      .then(response => {
         if (response.status === 200) {
           this.setState({
             isLoading: false,
             isSubmitting: false,
-            successMessage: "Label value has been DELETED",
-            errorMessage: null,
+            successMessage: 'Label value has been DELETED',
+            errorMessage: null
           });
         }
       })
-      .catch((error) => {
+      .catch(error => {
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: null,
-          isSubmitting: false,
+          isSubmitting: false
         });
       });
   }
@@ -73,54 +73,43 @@ class DeleteLabelValueForm extends React.Component {
   handleAlertDismiss(e) {
     e.preventDefault();
     this.setState({
-      successMessage: "",
-      errorMessage: "",
+      successMessage: '',
+      errorMessage: ''
     });
   }
 
   render() {
-    const {
-      value,
-      isSubmitting,
-      errorMessage,
-      successMessage,
-      isLoading,
-    } = this.state;
+    const { value, isSubmitting, errorMessage, successMessage, isLoading } = this.state;
 
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form
-            className="col-6"
-            name="edit_label_value"
-            ref={(el) => (this.form = el)}
-          >
+          <form className="col-6" name="edit_label_value" ref={el => (this.form = el)}>
             {isLoading ? <Loader /> : null}
             {errorMessage ? (
               <Alert
                 type="danger"
                 message={errorMessage}
-                onClose={(e) => this.handleAlertDismiss(e)}
+                onClose={e => this.handleAlertDismiss(e)}
               />
             ) : null}
             {successMessage ? (
               <Alert
                 type="success"
                 message={successMessage}
-                onClose={(e) => this.handleAlertDismiss(e)}
+                onClose={e => this.handleAlertDismiss(e)}
               />
             ) : null}
             {!isLoading ? (
               <div>
-                <div className="form-group">
-                </div>
+                <div className="form-group" />
                 <div className="form-row">
                   <div className="form-group col">
                     <Button
                       size="lg"
                       type="danger"
-                      disabled={isSubmitting ? true : false}
-                      onClick={(e) => this.handleLabelValueUpdation(e)}
+                      disabled={!!isSubmitting}
+                      onClick={e => this.handleLabelValueUpdation(e)}
                       isSubmitting={isSubmitting}
                       text="DELETE LABEL VALUE"
                     />

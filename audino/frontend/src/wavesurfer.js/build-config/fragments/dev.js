@@ -13,14 +13,7 @@ module.exports = {
         publicPath: 'localhost:8080/dist/',
         watchContentBase: true,
         watchOptions: {
-            ignored: [
-                /.chrome/,
-                /node_modules/,
-                /bower_components/,
-                /coverage/,
-                /docs/,
-                /spec/
-            ]
+            ignored: [/.chrome/, /node_modules/, /bower_components/, /coverage/, /docs/, /spec/]
         }
     }
 };

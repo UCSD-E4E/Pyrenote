@@ -25,16 +25,16 @@ export function sharedTests(backend) {
         TestHelpers.removeElement(element);
     });
     /**
-     * @test {WaveSurfer#isReady}
-     */
+   * @test {WaveSurfer#isReady}
+   */
     it('should be ready', function(done) {
         wavesurfer.once('ready', done);
         loadElement();
     });
 
     /**
-     * @test {WaveSurfer#waveform-ready} When the waveform is drawn, the 'waveform-ready' event is triggered
-     */
+   * @test {WaveSurfer#waveform-ready} When the waveform is drawn, the 'waveform-ready' event is triggered
+   */
     it('should fire waveform-ready event when the waveform is drawn', function(done) {
         const waveformReadySpy = jasmine.createSpy('waveform-ready-spy');
 
@@ -50,9 +50,9 @@ export function sharedTests(backend) {
     });
 
     /**
-     * @test {WaveSurfer#play}
-     * @test {WaveSurfer#isPlaying}
-     */
+   * @test {WaveSurfer#play}
+   * @test {WaveSurfer#isPlaying}
+   */
     it('should play', function(done) {
         wavesurfer.once('ready', function() {
             wavesurfer.play();
@@ -65,10 +65,10 @@ export function sharedTests(backend) {
     });
 
     /**
-     * @test {WaveSurfer#play}
-     * @test {WaveSurfer#isPlaying}
-     * @test {WaveSurfer#pause}
-     */
+   * @test {WaveSurfer#play}
+   * @test {WaveSurfer#isPlaying}
+   * @test {WaveSurfer#pause}
+   */
     it('should pause', function(done) {
         wavesurfer.once('ready', function() {
             wavesurfer.play();
@@ -83,9 +83,9 @@ export function sharedTests(backend) {
     });
 
     /**
-     * @test {WaveSurfer#playPause}
-     * @test {WaveSurfer#isPlaying}
-     */
+   * @test {WaveSurfer#playPause}
+   * @test {WaveSurfer#isPlaying}
+   */
     it('should play or pause', function(done) {
         wavesurfer.once('ready', function() {
             wavesurfer.playPause();
@@ -102,7 +102,7 @@ export function sharedTests(backend) {
     /** @test {WaveSurfer#getDuration}  */
     it('should get duration', function(done) {
         wavesurfer.once('ready', function() {
-            let duration = parseInt(wavesurfer.getDuration(), 10);
+            const duration = parseInt(wavesurfer.getDuration(), 10);
             expect(duration).toEqual(TestHelpers.EXAMPLE_FILE_DURATION);
 
             done();
@@ -298,8 +298,8 @@ export function sharedErrorTests(backend) {
     });
 
     /**
-     * @test {WaveSurfer}
-     */
+   * @test {WaveSurfer}
+   */
     it('throw when load is called with invalid HTMLMediaElement', function() {
         var wave = TestHelpers.createWaveform({
             container: '#test',
@@ -318,9 +318,9 @@ function loadElement() {
     wavesurfer.load(audioElement);
 }
 
-/** Retrieve normalized waveform peaks, then load an audio resource giving peaks and setting preload attribute to 'none' **/
+/** Retrieve normalized waveform peaks, then load an audio resource giving peaks and setting preload attribute to 'none' * */
 function loadAudioPeaks() {
-    TestHelpers.getPeaks(TestHelpers.EXAMPLE_STEREO_FILE_JSON_PATH, (peaks) => {
+    TestHelpers.getPeaks(TestHelpers.EXAMPLE_STEREO_FILE_JSON_PATH, peaks => {
         const src = TestHelpers.EXAMPLE_STEREO_FILE_PATH;
 
         wavesurfer.load(src, peaks, 'none', TestHelpers.EXAMPLE_STEREO_FILE_DURATION);

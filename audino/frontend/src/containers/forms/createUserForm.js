@@ -1,27 +1,27 @@
-import React from "react";
-import axios from "axios";
-import { withRouter } from "react-router";
-import { withStore } from "@spyna/react-store";
-import { setAuthorizationToken } from "../../utils";
-import Alert from "../../components/alert";
-import { Button } from "../../components/button";
+import React from 'react';
+import axios from 'axios';
+import { withRouter } from 'react-router';
+import { withStore } from '@spyna/react-store';
+import { setAuthorizationToken } from '../../utils';
+import Alert from '../../components/alert';
+import { Button } from '../../components/button';
 
 class CreateUserForm extends React.Component {
   constructor(props) {
     super(props);
-    console.log(this.props.authNeeded)
+    console.log(this.props.authNeeded);
     const authNeeded = this.props.authNeeded === 'true';
     this.initialState = {
       authNeeded,
-      username: "",
-      password: "",
-      role: "user",
-      errorMessage: "",
-      successMessage: "",
-      isSubmitting: false,
+      username: '',
+      password: '',
+      role: 'user',
+      errorMessage: '',
+      successMessage: '',
+      isSubmitting: false
     };
 
-    this.state = Object.assign({}, this.initialState);
+    this.state = { ...this.initialState };
   }
 
   resetState() {
@@ -42,20 +42,17 @@ class CreateUserForm extends React.Component {
   }
 
   checkPassword(e) {
-    let checker = document.getElementById("confirm-password").value;
-    if(this.state.password !== ""  
-    && checker !== "" 
-    && checker !== this.state.password) {
+    const checker = document.getElementById('confirm-password').value;
+    if (this.state.password !== '' && checker !== '' && checker !== this.state.password) {
       this.setState({
         isSubmitting: false,
-        errorMessage: "Passwords do not match!",
-        successMessage: "",
+        errorMessage: 'Passwords do not match!',
+        successMessage: ''
       });
-    }
-    else{
+    } else {
       this.setState({
-        errorMessage: "",
-        successMessage: "",
+        errorMessage: '',
+        successMessage: ''
       });
     }
   }
@@ -64,93 +61,93 @@ class CreateUserForm extends React.Component {
     e.preventDefault();
 
     this.setState({ isSubmitting: true });
-    //var authNeeded = this.authNeeded;
-    //console.log(authNeeded)
+    // var authNeeded = this.authNeeded;
+    // console.log(authNeeded)
     const { username, password, role, authNeeded } = this.state;
-    console.log(authNeeded)
+    console.log(authNeeded);
     const { history } = this.props;
 
-    if (!username || username === "") {
+    if (!username || username === '') {
       this.setState({
         isSubmitting: false,
-        errorMessage: "Please enter a valid username!",
-        successMessage: "",
+        errorMessage: 'Please enter a valid username!',
+        successMessage: ''
       });
       return;
     }
 
-    if (!password || password === "") {
+    if (!password || password === '') {
       this.setState({
         isSubmitting: false,
-        errorMessage: "Please enter a valid password!",
-        successMessage: "",
+        errorMessage: 'Please enter a valid password!',
+        successMessage: ''
       });
       return;
     }
 
-    let checker = document.getElementById("confirm-password").value;
-    if (!checker || checker === "" || password !== checker) {
+    const checker = document.getElementById('confirm-password').value;
+    if (!checker || checker === '' || password !== checker) {
       this.setState({
         isSubmitting: false,
-        errorMessage: "Passwords must match!",
-        successMessage: "",
+        errorMessage: 'Passwords must match!',
+        successMessage: ''
       });
       return;
     }
 
-    if (authNeeded && (!role || !["1", "2"].includes(role))) {
+    if (authNeeded && (!role || !['1', '2'].includes(role))) {
       this.setState({
         isSubmitting: false,
-        errorMessage: "Please select a valid role!",
-        successMessage: "",
+        errorMessage: 'Please select a valid role!',
+        successMessage: ''
       });
       return;
     }
 
-    var apiurl = ""
+    let apiurl = '';
 
     if (authNeeded) {
-      apiurl = "api/users";
+      apiurl = 'api/users';
     } else {
-      apiurl = "api/users/no_auth"
+      apiurl = 'api/users/no_auth';
     }
-    console.log(apiurl)
+    console.log(apiurl);
     axios({
-      method: "post",
+      method: 'post',
       url: apiurl,
       data: {
         username,
         password,
         role,
-        authNeeded,
-      },
+        authNeeded
+      }
     })
-      .then((response) => {
+      .then(response => {
         if (response.status === 201) {
           if (!authNeeded) {
-            //var index = window.location.href.indexOf("/newUser")
-            //var path =  window.location.href.substring(0, index);
-            //window.location.href = path
-            apiurl = "api/projects/example"
+            // var index = window.location.href.indexOf("/newUser")
+            // var path =  window.location.href.substring(0, index);
+            // window.location.href = path
+            apiurl = 'api/projects/example';
             axios({
-              method: "patch",
+              method: 'patch',
               url: apiurl,
               data: {
-                users: username,
-              },
+                users: username
+              }
             })
-              .then((response) => {
+              .then(response => {
                 if (response.status === 200) {
-                  this.handleLoggingIn(e)
+                  this.handleLoggingIn(e);
                 }
               })
-            .catch((error)=> {
-              this.setState({
-                errorMessage: error.response.data.message,
-                successMessage: "",
-                isSubmitting: false,
+              .catch(error => {
+                this.setState({
+                  errorMessage: error.response.data.message,
+                  successMessage: '',
+                  isSubmitting: false
+                });
               });
-            });
           } else {
             this.resetState();
             this.form.reset();
@@ -158,11 +155,11 @@ class CreateUserForm extends React.Component {
           }
         }
       })
-      .catch((error) => {
+      .catch(error => {
         this.setState({
           errorMessage: error.response.data.message,
-          successMessage: "",
-          isSubmitting: false,
+          successMessage: '',
+          isSubmitting: false
         });
       });
   }
@@ -175,36 +172,36 @@ class CreateUserForm extends React.Component {
     const { history } = this.props;
 
     axios({
-      method: "post",
-      url: "/auth/login",
+      method: 'post',
+      url: '/auth/login',
       data: {
         username,
-        password,
-      },
+        password
+      }
     })
-      .then((response) => {
+      .then(response => {
         this.resetState();
         this.setState({
-          successMessage: "Logging you in...",
+          successMessage: 'Logging you in...'
         });
 
         const { access_token, username, is_admin } = response.data;
 
-        localStorage.setItem("access_token", access_token);
+        localStorage.setItem('access_token', access_token);
 
         setAuthorizationToken(access_token);
 
-        this.props.store.set("username", username);
-        this.props.store.set("isAdmin", is_admin);
-        this.props.store.set("isUserLoggedIn", true);
+        this.props.store.set('username', username);
+        this.props.store.set('isAdmin', is_admin);
+        this.props.store.set('isUserLoggedIn', true);
 
-        history.push("/dashboard");
+        history.push('/dashboard');
       })
-      .catch((error) => {
+      .catch(error => {
         this.setState({
           isSigningIn: false,
-          successMessage: "",
-          errorMessage: error.response.data.message,
+          successMessage: '',
+          errorMessage: error.response.data.message
         });
       });
   }
@@ -212,8 +209,8 @@ class CreateUserForm extends React.Component {
   handleAlertDismiss(e) {
     e.preventDefault();
     this.setState({
-      successMessage: "",
-      errorMessage: "",
+      successMessage: '',
+      errorMessage: ''
     });
   }
 
@@ -222,23 +219,19 @@ class CreateUserForm extends React.Component {
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form
-            className="col-6"
-            name="new_user"
-            ref={(el) => (this.form = el)}
-          >
+          <form className="col-6" name="new_user" ref={el => (this.form = el)}>
             {errorMessage ? (
               <Alert
                 type="danger"
                 message={errorMessage}
-                onClose={(e) => this.handleAlertDismiss(e)}
+                onClose={e => this.handleAlertDismiss(e)}
               />
             ) : null}
             {successMessage ? (
               <Alert
                 type="success"
                 message={successMessage}
-                onClose={(e) => this.handleAlertDismiss(e)}
+                onClose={e => this.handleAlertDismiss(e)}
               />
             ) : null}
             <div className="form-group">
@@ -247,9 +240,9 @@ class CreateUserForm extends React.Component {
                 className="form-control"
                 id="username"
                 placeholder="Username"
-                autoFocus={true}
-                required={true}
-                onChange={(e) => this.handleUsernameChange(e)}
+                autoFocus
+                required
+                onChange={e => this.handleUsernameChange(e)}
               />
             </div>
             <div className="form-group">
@@ -259,7 +252,7 @@ class CreateUserForm extends React.Component {
                 id="password"
                 placeholder="Password"
                 required={false}
-                onChange={(e) => this.handlePasswordChange(e)}
+                onChange={e => this.handlePasswordChange(e)}
               />
             </div>
             <div className="form-group">
@@ -268,30 +261,30 @@ class CreateUserForm extends React.Component {
                 className="form-control"
                 id="confirm-password"
                 placeholder="Confirm Password"
-                required={true}
-                onChange={(e) => this.checkPassword(e)}
+                required
+                onChange={e => this.checkPassword(e)}
               />
             </div>
-            {authNeeded &&
+            {authNeeded && (
               <div className="form-group">
                 <select
                   className="form-control"
                   name="role"
-                  onChange={(e) => this.handleRoleChange(e)}
+                  onChange={e => this.handleRoleChange(e)}
                 >
                   <option value="-1">Choose role</option>
                   <option value="1">Admin</option>
                   <option value="2">User</option>
                 </select>
-              </div> 
-            }
+              </div>
+            )}
             <div className="form-row">
               <div className="form-group col">
                 <Button
                   size="lg"
                   type="primary"
-                  disabled={isSubmitting ? true : false}
-                  onClick={(e) => this.handleUserCreation(e)}
+                  disabled={!!isSubmitting}
+                  onClick={e => this.handleUserCreation(e)}
                   isSubmitting={isSubmitting}
                   text="Save"
                 />

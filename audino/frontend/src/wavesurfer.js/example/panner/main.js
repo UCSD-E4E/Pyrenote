@@ -1,7 +1,5 @@
-'use strict';
-
 // Create an instance
-var wavesurfer;
+let wavesurfer;
 
 // Init & load audio file
 document.addEventListener('DOMContentLoaded', function() {
@@ -19,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Panner
     (function() {
-        // Add panner
+    // Add panner
         wavesurfer.panner = wavesurfer.backend.ac.createPanner();
         wavesurfer.backend.setFilter(wavesurfer.panner);
 
@@ -27,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // @see http://stackoverflow.com/a/14412601/352796
         var onChange = function() {
             var xDeg = parseInt(slider.value);
-            var x = Math.sin(xDeg * (Math.PI / 180));
+            const x = Math.sin(xDeg * (Math.PI / 180));
             wavesurfer.panner.setPosition(x, 0, 0);
         };
         var slider = document.querySelector('[data-action="pan"]');
@@ -48,12 +46,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Progress bar
     (function() {
-        var progressDiv = document.querySelector('#progress-bar');
+        const progressDiv = document.querySelector('#progress-bar');
         var progressBar = progressDiv.querySelector('.progress-bar');
 
         var showProgress = function(percent) {
             progressDiv.style.display = 'block';
-            progressBar.style.width = percent + '%';
+            progressBar.style.width = `${percent}%`;
         };
 
         var hideProgress = function() {

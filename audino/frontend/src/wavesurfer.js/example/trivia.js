@@ -1,6 +1,6 @@
-var wavesurfer = window.wavesurfer;
+const { wavesurfer } = window;
 
-var GLOBAL_ACTIONS = {
+const GLOBAL_ACTIONS = {
     play: function() {
         wavesurfer.playPause();
     },
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
             37: 'back', // left
             39: 'forth' // right
         };
-        var action = map[e.keyCode];
+        let action = map[e.keyCode];
         if (action in GLOBAL_ACTIONS) {
             if (document == e.target || document.body == e.target) {
                 e.preventDefault();
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     [].forEach.call(document.querySelectorAll('[data-action]'), function(el) {
         el.addEventListener('click', function(e) {
-            var action = e.currentTarget.dataset.action;
+            var { action } = e.currentTarget.dataset;
             if (action in GLOBAL_ACTIONS) {
                 e.preventDefault();
                 GLOBAL_ACTIONS[action](e);
@@ -57,12 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Navbar links
-    var ul = document.querySelector('.nav-pills');
-    var pills = ul.querySelectorAll('li');
+    const ul = document.querySelector('.nav-pills');
+    let pills = ul.querySelectorAll('li');
     var active = pills[0];
     if (location.search) {
         var first = location.search.split('&')[0];
-        var link = ul.querySelector('a[href="' + first + '"]');
+        var link = ul.querySelector(`a[href="${first}"]`);
         if (link) {
             active = link.parentNode;
         }

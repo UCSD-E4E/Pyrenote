@@ -30,9 +30,11 @@ describe('WaveSurfer/plugin API:', () => {
                 // instead
                 this.isInitialised = false;
             }
+
             init() {
                 this.isInitialised = true;
             }
+
             destroy() {}
         }
         return {
@@ -68,13 +70,9 @@ describe('WaveSurfer/plugin API:', () => {
         __createWaveform();
         wavesurfer.addPlugin(dummyPlugin);
 
-        expect(wavesurfer.dummyStatic).toEqual(
-            dummyPlugin.staticProps.dummyStatic
-        );
+        expect(wavesurfer.dummyStatic).toEqual(dummyPlugin.staticProps.dummyStatic);
         expect(wavesurfer.dummy.ws).toEqual(wavesurfer);
-        expect(typeof Object.getPrototypeOf(wavesurfer.dummy).on).toEqual(
-            'function'
-        );
+        expect(typeof Object.getPrototypeOf(wavesurfer.dummy).on).toEqual('function');
 
         dummyPlugin = {};
         expect(function() {
@@ -117,11 +115,7 @@ describe('WaveSurfer/plugin API:', () => {
 
         expect(function() {
             wavesurfer.destroyPlugin('foo');
-        }).toThrow(
-            new Error(
-                'Plugin foo has not been added yet and cannot be destroyed!'
-            )
-        );
+        }).toThrow(new Error('Plugin foo has not been added yet and cannot be destroyed!'));
     });
 
     // auto-adding and initialising of plugins (registerPlugins)
@@ -131,9 +125,7 @@ describe('WaveSurfer/plugin API:', () => {
         __createWaveform({
             plugins: [dummyPlugin]
         });
-        expect(wavesurfer.dummyStatic).toEqual(
-            dummyPlugin.staticProps.dummyStatic
-        );
+        expect(wavesurfer.dummyStatic).toEqual(dummyPlugin.staticProps.dummyStatic);
         expect(wavesurfer.dummy.ws).toEqual(wavesurfer);
         expect(wavesurfer.dummy.isInitialised).toBeFalse();
     });
@@ -144,9 +136,7 @@ describe('WaveSurfer/plugin API:', () => {
         __createWaveform({
             plugins: [dummyPlugin]
         });
-        expect(wavesurfer.dummyStatic).toEqual(
-            dummyPlugin.staticProps.dummyStatic
-        );
+        expect(wavesurfer.dummyStatic).toEqual(dummyPlugin.staticProps.dummyStatic);
         expect(wavesurfer.dummy.ws).toEqual(wavesurfer);
         expect(wavesurfer.dummy.isInitialised).toBeTrue();
     });
@@ -160,8 +150,6 @@ describe('WaveSurfer/plugin API:', () => {
         expect(wavesurfer.getActivePlugins()).toEqual({
             dummy: true
         });
-        expect(wavesurfer.getActivePlugins()).toEqual(
-            wavesurfer.initialisedPluginList
-        );
+        expect(wavesurfer.getActivePlugins()).toEqual(wavesurfer.initialisedPluginList);
     });
 });

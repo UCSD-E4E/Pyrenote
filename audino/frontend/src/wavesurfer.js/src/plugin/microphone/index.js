@@ -41,14 +41,14 @@
  */
 export default class MicrophonePlugin {
     /**
-     * Microphone plugin definition factory
-     *
-     * This function must be used to create a plugin definition which can be
-     * used by wavesurfer to correctly instantiate the plugin.
-     *
-     * @param  {MicrophonePluginParams} params parameters use to initialise the plugin
-     * @return {PluginDefinition} an object representing the plugin
-     */
+   * Microphone plugin definition factory
+   *
+   * This function must be used to create a plugin definition which can be
+   * used by wavesurfer to correctly instantiate the plugin.
+   *
+   * @param  {MicrophonePluginParams} params parameters use to initialise the plugin
+   * @return {PluginDefinition} an object representing the plugin
+   */
     static create(params) {
         return {
             name: 'microphone',
@@ -68,33 +68,22 @@ export default class MicrophonePlugin {
         this.reloadBufferFunction = e => this.reloadBuffer(e);
 
         // cross-browser getUserMedia
-        const promisifiedOldGUM = (
-            constraints,
-            successCallback,
-            errorCallback
-        ) => {
+        const promisifiedOldGUM = (constraints, successCallback, errorCallback) => {
             // get a hold of getUserMedia, if present
             const getUserMedia =
-                navigator.getUserMedia ||
-                navigator.webkitGetUserMedia ||
-                navigator.mozGetUserMedia ||
-                navigator.msGetUserMedia;
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia;
             // Some browsers just don't implement it - return a rejected
             // promise with an error to keep a consistent interface
             if (!getUserMedia) {
-                return Promise.reject(
-                    new Error('getUserMedia is not implemented in this browser')
-                );
+                return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
             }
             // otherwise, wrap the call to the old navigator.getUserMedia with
             // a Promise
             return new Promise((successCallback, errorCallback) => {
-                getUserMedia.call(
-                    navigator,
-                    constraints,
-                    successCallback,
-                    errorCallback
-                );
+                getUserMedia.call(navigator, constraints, successCallback, errorCallback);
             });
         };
         // Older browsers might not implement mediaDevices at all, so we set an
@@ -131,11 +120,11 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Destroy the microphone plugin.
-     */
+   * Destroy the microphone plugin.
+   */
     destroy() {
-        // make sure the buffer is not redrawn during
-        // cleanup and demolition of this plugin.
+    // make sure the buffer is not redrawn during
+    // cleanup and demolition of this plugin.
         this.paused = true;
 
         this.wavesurfer.un('backend-created', this._onBackendCreated);
@@ -143,9 +132,9 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Allow user to select audio input device, e.g. microphone, and
-     * start the visualization.
-     */
+   * Allow user to select audio input device, e.g. microphone, and
+   * start the visualization.
+   */
     start() {
         navigator.mediaDevices
             .getUserMedia(this.constraints)
@@ -154,8 +143,8 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Pause/resume visualization.
-     */
+   * Pause/resume visualization.
+   */
     togglePlay() {
         if (!this.active) {
             // start it first
@@ -173,8 +162,8 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Play visualization.
-     */
+   * Play visualization.
+   */
     play() {
         this.paused = false;
 
@@ -182,8 +171,8 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Pause visualization.
-     */
+   * Pause visualization.
+   */
     pause() {
         this.paused = true;
 
@@ -193,9 +182,9 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Stop the device stream and remove any remaining waveform drawing from
-     * the wavesurfer canvas.
-     */
+   * Stop the device stream and remove any remaining waveform drawing from
+   * the wavesurfer canvas.
+   */
     stop() {
         if (this.active) {
             // stop visualization and device
@@ -207,8 +196,8 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Stop the device and the visualization.
-     */
+   * Stop the device and the visualization.
+   */
     stopDevice() {
         this.active = false;
 
@@ -221,12 +210,10 @@ export default class MicrophonePlugin {
             // - Firefox 44 (https://www.fxsitecompat.com/en-US/docs/2015/mediastream-stop-has-been-deprecated/)
             // - Chrome 45 (https://developers.google.com/web/updates/2015/07/mediastream-deprecations)
             if (
-                (this.browser.browser === 'chrome' &&
-                    this.browser.version >= 45) ||
-                (this.browser.browser === 'firefox' &&
-                    this.browser.version >= 44) ||
-                this.browser.browser === 'edge' ||
-                this.browser.browser === 'safari'
+                (this.browser.browser === 'chrome' && this.browser.version >= 45) ||
+        (this.browser.browser === 'firefox' && this.browser.version >= 44) ||
+        this.browser.browser === 'edge' ||
+        this.browser.browser === 'safari'
             ) {
                 if (this.stream.getTracks) {
                     // note that this should not be a call
@@ -240,8 +227,8 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Connect the media sources that feed the visualization.
-     */
+   * Connect the media sources that feed the visualization.
+   */
     connect() {
         if (this.stream !== undefined) {
             // Create a local buffer for data to be copied to the Wavesurfer buffer for Edge
@@ -254,9 +241,7 @@ export default class MicrophonePlugin {
             }
 
             // Create an AudioNode from the stream.
-            this.mediaStreamSource = this.micContext.createMediaStreamSource(
-                this.stream
-            );
+            this.mediaStreamSource = this.micContext.createMediaStreamSource(this.stream);
 
             this.levelChecker = this.micContext.createScriptProcessor(
                 this.bufferSize,
@@ -271,8 +256,8 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Disconnect the media sources that feed the visualization.
-     */
+   * Disconnect the media sources that feed the visualization.
+   */
     disconnect() {
         if (this.mediaStreamSource !== undefined) {
             this.mediaStreamSource.disconnect();
@@ -289,10 +274,10 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Redraw the waveform.
-     *
-     * @param {object} event Audioprocess event
-     */
+   * Redraw the waveform.
+   *
+   * @param {object} event Audioprocess event
+   */
     reloadBuffer(event) {
         if (!this.paused) {
             this.wavesurfer.empty();
@@ -300,7 +285,8 @@ export default class MicrophonePlugin {
             if (this.browser.browser === 'edge') {
                 // copy audio data to a local audio buffer,
                 // from https://github.com/audiojs/audio-buffer-utils
-                let channel, l;
+                let channel;
+                let l;
                 for (
                     channel = 0,
                     l = Math.min(
@@ -323,10 +309,10 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Audio input device is ready.
-     *
-     * @param {MediaStream} stream The microphone's media stream.
-     */
+   * Audio input device is ready.
+   *
+   * @param {MediaStream} stream The microphone's media stream.
+   */
     gotStream(stream) {
         this.stream = stream;
         this.active = true;
@@ -339,95 +325,76 @@ export default class MicrophonePlugin {
     }
 
     /**
-     * Device error callback.
-     *
-     * @param {string} code Error message
-     */
+   * Device error callback.
+   *
+   * @param {string} code Error message
+   */
     deviceError(code) {
-        // notify listeners
+    // notify listeners
         this.fireEvent('deviceError', code);
     }
 
     /**
-     * Extract browser version out of the provided user agent string.
-     * @param {!string} uastring userAgent string.
-     * @param {!string} expr Regular expression used as match criteria.
-     * @param {!number} pos position in the version string to be returned.
-     * @return {!number} browser version.
-     */
+   * Extract browser version out of the provided user agent string.
+   * @param {!string} uastring userAgent string.
+   * @param {!string} expr Regular expression used as match criteria.
+   * @param {!number} pos position in the version string to be returned.
+   * @return {!number} browser version.
+   */
     extractVersion(uastring, expr, pos) {
         const match = uastring.match(expr);
         return match && match.length >= pos && parseInt(match[pos], 10);
     }
 
     /**
-     * Browser detector.
-     * @return {object} result containing browser, version and minVersion
-     *     properties.
-     */
+   * Browser detector.
+   * @return {object} result containing browser, version and minVersion
+   *     properties.
+   */
     detectBrowser() {
-        // Returned result object.
-        const result = {};
-        result.browser = null;
-        result.version = null;
-        result.minVersion = null;
+    // Returned result object.
+    const result = {};
+    result.browser = null;
+    result.version = null;
+    result.minVersion = null;
 
-        // Non supported browser.
-        if (typeof window === 'undefined' || !window.navigator) {
-            result.browser = 'Not a supported browser.';
-            return result;
-        }
-
-        if (navigator.mozGetUserMedia) {
-            // Firefox
-            result.browser = 'firefox';
-            result.version = this.extractVersion(
-                navigator.userAgent,
-                /Firefox\/(\d+)\./,
-                1
-            );
-            result.minVersion = 31;
-            return result;
-        } else if (navigator.webkitGetUserMedia) {
-            // Chrome/Chromium/Webview/Opera
-            result.browser = 'chrome';
-            result.version = this.extractVersion(
-                navigator.userAgent,
-                /Chrom(e|ium)\/(\d+)\./,
-                2
-            );
-            result.minVersion = 38;
-            return result;
-        } else if (
-            navigator.mediaDevices &&
-            navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)
-        ) {
-            // Edge
-            result.browser = 'edge';
-            result.version = this.extractVersion(
-                navigator.userAgent,
-                /Edge\/(\d+).(\d+)$/,
-                2
-            );
-            result.minVersion = 10547;
-            return result;
-        } else if (
-            window.RTCPeerConnection &&
-            navigator.userAgent.match(/AppleWebKit\/(\d+)\./)
-        ) {
-            // Safari
-            result.browser = 'safari';
-            result.minVersion = 11;
-            result.version = this.extractVersion(
-                navigator.userAgent,
-                /AppleWebKit\/(\d+)\./,
-                1
-            );
-            return result;
-        }
-
-        // Non supported browser default.
-        result.browser = 'Not a supported browser.';
-        return result;
+    // Non supported browser.
+    if (typeof window === 'undefined' || !window.navigator) {
+      result.browser = 'Not a supported browser.';
+      return result;
     }
+
+    if (navigator.mozGetUserMedia) {
+      // Firefox
+      result.browser = 'firefox';
+      result.version = this.extractVersion(navigator.userAgent, /Firefox\/(\d+)\./, 1);
+      result.minVersion = 31;
+      return result;
+    }
+        if (navigator.webkitGetUserMedia) {
+      // Chrome/Chromium/Webview/Opera
+      result.browser = 'chrome';
+      result.version = this.extractVersion(navigator.userAgent, /Chrom(e|ium)\/(\d+)\./, 2);
+      result.minVersion = 38;
+      return result;
+    }
+        if (navigator.mediaDevices && navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)) {
+      // Edge
+      result.browser = 'edge';
+      result.version = this.extractVersion(navigator.userAgent, /Edge\/(\d+).(\d+)$/, 2);
+      result.minVersion = 10547;
+      return result;
+    }
+        if (window.RTCPeerConnection && navigator.userAgent.match(/AppleWebKit\/(\d+)\./)) {
+      // Safari
+      result.browser = 'safari';
+      result.minVersion = 11;
+      result.version = this.extractVersion(navigator.userAgent, /AppleWebKit\/(\d+)\./, 1);
+      return result;
+    }
+
+    // Non supported browser default.
+    result.browser = 'Not a supported browser.';
+    return result;
+  }
 }

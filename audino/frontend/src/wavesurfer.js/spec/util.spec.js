@@ -16,9 +16,7 @@ describe('util.fetchFile:', function() {
         const instance = WaveSurfer.util.fetchFile(options);
         instance.once('success', data => {
             expect(instance.response.status).toEqual(200);
-            expect(instance.response.headers.get('content-type')).toEqual(
-                'audio/wav'
-            );
+            expect(instance.response.headers.get('content-type')).toEqual('audio/wav');
 
             // options
             expect(instance.fetchRequest.url).toEndWith(options.url);
@@ -41,9 +39,7 @@ describe('util.fetchFile:', function() {
         const instance = WaveSurfer.util.fetchFile(options);
         instance.once('success', data => {
             expect(instance.response.status).toEqual(200);
-            expect(instance.response.headers.get('content-type')).toEqual(
-                'audio/wav'
-            );
+            expect(instance.response.headers.get('content-type')).toEqual('audio/wav');
 
             // returned data is a Blob
             expect(data).toEqual(jasmine.any(Blob));
@@ -60,9 +56,7 @@ describe('util.fetchFile:', function() {
         const instance = WaveSurfer.util.fetchFile(options);
         instance.once('success', data => {
             expect(instance.response.status).toEqual(200);
-            expect(instance.response.headers.get('content-type')).toEqual(
-                'application/json'
-            );
+            expect(instance.response.headers.get('content-type')).toEqual('application/json');
 
             // returned data is an array
             expect(data).toEqual([[0, 1, 2, 3]]);
@@ -79,9 +73,7 @@ describe('util.fetchFile:', function() {
         const instance = WaveSurfer.util.fetchFile(options);
         instance.once('success', data => {
             expect(instance.response.status).toEqual(200);
-            expect(instance.response.headers.get('content-type')).toEqual(
-                'text/plain'
-            );
+            expect(instance.response.headers.get('content-type')).toEqual('text/plain');
 
             // returned data is a string
             expect(data).toEqual('hello world');
@@ -97,9 +89,7 @@ describe('util.fetchFile:', function() {
         };
         const instance = WaveSurfer.util.fetchFile(options);
         instance.once('error', error => {
-            expect(error).toEqual(
-                new Error('Unknown responseType: ' + options.responseType)
-            );
+            expect(error).toEqual(new Error(`Unknown responseType: ${options.responseType}`));
 
             done();
         });
@@ -159,9 +149,7 @@ describe('util.fetchFile:', function() {
         const instance = WaveSurfer.util.fetchFile(options);
         instance.once('success', data => {
             expect(instance.response.headers.has('Content-Type')).toBeTrue();
-            expect(instance.response.headers.get('Content-Type')).toEqual(
-                'text/plain'
-            );
+            expect(instance.response.headers.get('Content-Type')).toEqual('text/plain');
 
             done();
         });

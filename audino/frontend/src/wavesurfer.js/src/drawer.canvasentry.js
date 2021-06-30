@@ -14,103 +14,100 @@ import getId from './util/get-id';
  */
 export default class CanvasEntry {
     constructor() {
-        /**
-         * The wave node
-         *
-         * @type {HTMLCanvasElement}
-         */
+    /**
+     * The wave node
+     *
+     * @type {HTMLCanvasElement}
+     */
         this.wave = null;
         /**
-         * The wave canvas rendering context
-         *
-         * @type {CanvasRenderingContext2D}
-         */
+     * The wave canvas rendering context
+     *
+     * @type {CanvasRenderingContext2D}
+     */
         this.waveCtx = null;
         /**
-         * The (optional) progress wave node
-         *
-         * @type {HTMLCanvasElement}
-         */
+     * The (optional) progress wave node
+     *
+     * @type {HTMLCanvasElement}
+     */
         this.progress = null;
         /**
-         * The (optional) progress wave canvas rendering context
-         *
-         * @type {CanvasRenderingContext2D}
-         */
+     * The (optional) progress wave canvas rendering context
+     *
+     * @type {CanvasRenderingContext2D}
+     */
         this.progressCtx = null;
         /**
-         * Start of the area the canvas should render, between 0 and 1
-         *
-         * @type {number}
-         */
+     * Start of the area the canvas should render, between 0 and 1
+     *
+     * @type {number}
+     */
         this.start = 0;
         /**
-         * End of the area the canvas should render, between 0 and 1
-         *
-         * @type {number}
-         */
+     * End of the area the canvas should render, between 0 and 1
+     *
+     * @type {number}
+     */
         this.end = 1;
         /**
-         * Unique identifier for this entry
-         *
-         * @type {string}
-         */
+     * Unique identifier for this entry
+     *
+     * @type {string}
+     */
         this.id = getId(
             typeof this.constructor.name !== 'undefined'
-                ? this.constructor.name.toLowerCase() + '_'
+                ? `${this.constructor.name.toLowerCase()}_`
                 : 'canvasentry_'
         );
         /**
-         * Canvas 2d context attributes
-         *
-         * @type {object}
-         */
+     * Canvas 2d context attributes
+     *
+     * @type {object}
+     */
         this.canvasContextAttributes = {};
     }
 
     /**
-     * Store the wave canvas element and create the 2D rendering context
-     *
-     * @param {HTMLCanvasElement} element The wave `canvas` element.
-     */
+   * Store the wave canvas element and create the 2D rendering context
+   *
+   * @param {HTMLCanvasElement} element The wave `canvas` element.
+   */
     initWave(element) {
         this.wave = element;
         this.waveCtx = this.wave.getContext('2d', this.canvasContextAttributes);
     }
 
     /**
-     * Store the progress wave canvas element and create the 2D rendering
-     * context
-     *
-     * @param {HTMLCanvasElement} element The progress wave `canvas` element.
-     */
+   * Store the progress wave canvas element and create the 2D rendering
+   * context
+   *
+   * @param {HTMLCanvasElement} element The progress wave `canvas` element.
+   */
     initProgress(element) {
         this.progress = element;
-        this.progressCtx = this.progress.getContext(
-            '2d',
-            this.canvasContextAttributes
-        );
+        this.progressCtx = this.progress.getContext('2d', this.canvasContextAttributes);
     }
 
     /**
-     * Update the dimensions
-     *
-     * @param {number} elementWidth Width of the entry
-     * @param {number} totalWidth Total width of the multi canvas renderer
-     * @param {number} width The new width of the element
-     * @param {number} height The new height of the element
-     */
+   * Update the dimensions
+   *
+   * @param {number} elementWidth Width of the entry
+   * @param {number} totalWidth Total width of the multi canvas renderer
+   * @param {number} width The new width of the element
+   * @param {number} height The new height of the element
+   */
     updateDimensions(elementWidth, totalWidth, width, height) {
-        // where the canvas starts and ends in the waveform, represented as a
-        // decimal between 0 and 1
+    // where the canvas starts and ends in the waveform, represented as a
+    // decimal between 0 and 1
         this.start = this.wave.offsetLeft / totalWidth || 0;
         this.end = this.start + elementWidth / totalWidth;
 
         // set wave canvas dimensions
         this.wave.width = width;
         this.wave.height = height;
-        console.log("WAve height" + height) //CHECK THIS
-        let elementSize = { width: elementWidth + 'px' };
+        console.log(`WAve height${height}`); // CHECK THIS
+        let elementSize = { width: `${elementWidth}px` };
         style(this.wave, elementSize);
 
         if (this.hasProgressCanvas) {
@@ -122,16 +119,11 @@ export default class CanvasEntry {
     }
 
     /**
-     * Clear the wave and progress rendering contexts
-     */
+   * Clear the wave and progress rendering contexts
+   */
     clearWave() {
-        // wave
-        this.waveCtx.clearRect(
-            0,
-            0,
-            this.waveCtx.canvas.width,
-            this.waveCtx.canvas.height
-        );
+    // wave
+        this.waveCtx.clearRect(0, 0, this.waveCtx.canvas.width, this.waveCtx.canvas.height);
 
         // progress
         if (this.hasProgressCanvas) {
@@ -145,11 +137,11 @@ export default class CanvasEntry {
     }
 
     /**
-     * Set the fill styles for wave and progress
-     *
-     * @param {string} waveColor Fill color for the wave canvas
-     * @param {?string} progressColor Fill color for the progress canvas
-     */
+   * Set the fill styles for wave and progress
+   *
+   * @param {string} waveColor Fill color for the wave canvas
+   * @param {?string} progressColor Fill color for the progress canvas
+   */
     setFillStyles(waveColor, progressColor) {
         this.waveCtx.fillStyle = waveColor;
 
@@ -159,39 +151,32 @@ export default class CanvasEntry {
     }
 
     /**
-     * Draw a rectangle for wave and progress
-     *
-     * @param {number} x X start position
-     * @param {number} y Y start position
-     * @param {number} width Width of the rectangle
-     * @param {number} height Height of the rectangle
-     * @param {number} radius Radius of the rectangle
-     */
+   * Draw a rectangle for wave and progress
+   *
+   * @param {number} x X start position
+   * @param {number} y Y start position
+   * @param {number} width Width of the rectangle
+   * @param {number} height Height of the rectangle
+   * @param {number} radius Radius of the rectangle
+   */
     fillRects(x, y, width, height, radius) {
         this.fillRectToContext(this.waveCtx, x, y, width, height, radius);
 
         if (this.hasProgressCanvas) {
-            this.fillRectToContext(
-                this.progressCtx,
-                x,
-                y,
-                width,
-                height,
-                radius
-            );
+            this.fillRectToContext(this.progressCtx, x, y, width, height, radius);
         }
     }
 
     /**
-     * Draw the actual rectangle on a `canvas` element
-     *
-     * @param {CanvasRenderingContext2D} ctx Rendering context of target canvas
-     * @param {number} x X start position
-     * @param {number} y Y start position
-     * @param {number} width Width of the rectangle
-     * @param {number} height Height of the rectangle
-     * @param {number} radius Radius of the rectangle
-     */
+   * Draw the actual rectangle on a `canvas` element
+   *
+   * @param {CanvasRenderingContext2D} ctx Rendering context of target canvas
+   * @param {number} x X start position
+   * @param {number} y Y start position
+   * @param {number} width Width of the rectangle
+   * @param {number} height Height of the rectangle
+   * @param {number} radius Radius of the rectangle
+   */
     fillRectToContext(ctx, x, y, width, height, radius) {
         if (!ctx) {
             return;
@@ -205,18 +190,18 @@ export default class CanvasEntry {
     }
 
     /**
-     * Draw a rounded rectangle on Canvas
-     *
-     * @param {CanvasRenderingContext2D} ctx Canvas context
-     * @param {number} x X-position of the rectangle
-     * @param {number} y Y-position of the rectangle
-     * @param {number} width Width of the rectangle
-     * @param {number} height Height of the rectangle
-     * @param {number} radius Radius of the rectangle
-     *
-     * @return {void}
-     * @example drawRoundedRect(ctx, 50, 50, 5, 10, 3)
-     */
+   * Draw a rounded rectangle on Canvas
+   *
+   * @param {CanvasRenderingContext2D} ctx Canvas context
+   * @param {number} x X-position of the rectangle
+   * @param {number} y Y-position of the rectangle
+   * @param {number} width Width of the rectangle
+   * @param {number} height Height of the rectangle
+   * @param {number} radius Radius of the rectangle
+   *
+   * @return {void}
+   * @example drawRoundedRect(ctx, 50, 50, 5, 10, 3)
+   */
     drawRoundedRect(ctx, x, y, width, height, radius) {
         if (height === 0) {
             return;
@@ -232,12 +217,7 @@ export default class CanvasEntry {
         ctx.lineTo(x + width - radius, y);
         ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
         ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(
-            x + width,
-            y + height,
-            x + width - radius,
-            y + height
-        );
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
         ctx.lineTo(x + radius, y + height);
         ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
         ctx.lineTo(x, y + radius);
@@ -247,54 +227,38 @@ export default class CanvasEntry {
     }
 
     /**
-     * Render the actual wave and progress lines
-     *
-     * @param {number[]} peaks Array with peaks data
-     * @param {number} absmax Maximum peak value (absolute)
-     * @param {number} halfH Half the height of the waveform
-     * @param {number} offsetY Offset to the top
-     * @param {number} start The x-offset of the beginning of the area that
-     * should be rendered
-     * @param {number} end The x-offset of the end of the area that
-     * should be rendered
-     */
+   * Render the actual wave and progress lines
+   *
+   * @param {number[]} peaks Array with peaks data
+   * @param {number} absmax Maximum peak value (absolute)
+   * @param {number} halfH Half the height of the waveform
+   * @param {number} offsetY Offset to the top
+   * @param {number} start The x-offset of the beginning of the area that
+   * should be rendered
+   * @param {number} end The x-offset of the end of the area that
+   * should be rendered
+   */
     drawLines(peaks, absmax, halfH, offsetY, start, end) {
-        this.drawLineToContext(
-            this.waveCtx,
-            peaks,
-            absmax,
-            halfH,
-            offsetY,
-            start,
-            end
-        );
+        this.drawLineToContext(this.waveCtx, peaks, absmax, halfH, offsetY, start, end);
 
         if (this.hasProgressCanvas) {
-            this.drawLineToContext(
-                this.progressCtx,
-                peaks,
-                absmax,
-                halfH,
-                offsetY,
-                start,
-                end
-            );
+            this.drawLineToContext(this.progressCtx, peaks, absmax, halfH, offsetY, start, end);
         }
     }
 
     /**
-     * Render the actual waveform line on a `canvas` element
-     *
-     * @param {CanvasRenderingContext2D} ctx Rendering context of target canvas
-     * @param {number[]} peaks Array with peaks data
-     * @param {number} absmax Maximum peak value (absolute)
-     * @param {number} halfH Half the height of the waveform
-     * @param {number} offsetY Offset to the top
-     * @param {number} start The x-offset of the beginning of the area that
-     * should be rendered
-     * @param {number} end The x-offset of the end of the area that
-     * should be rendered
-     */
+   * Render the actual waveform line on a `canvas` element
+   *
+   * @param {CanvasRenderingContext2D} ctx Rendering context of target canvas
+   * @param {number[]} peaks Array with peaks data
+   * @param {number} absmax Maximum peak value (absolute)
+   * @param {number} halfH Half the height of the waveform
+   * @param {number} offsetY Offset to the top
+   * @param {number} start The x-offset of the beginning of the area that
+   * should be rendered
+   * @param {number} end The x-offset of the end of the area that
+   * should be rendered
+   */
     drawLineToContext(ctx, peaks, absmax, halfH, offsetY, start, end) {
         if (!ctx) {
             return;
@@ -323,7 +287,9 @@ export default class CanvasEntry {
             halfOffset - Math.round((peaks[2 * canvasStart] || 0) / absmaxHalf)
         );
 
-        let i, peak, h;
+        let i;
+        let peak;
+        let h;
         for (i = canvasStart; i < canvasEnd; i++) {
             peak = peaks[2 * i] || 0;
             h = Math.round(peak / absmaxHalf);
@@ -341,8 +307,7 @@ export default class CanvasEntry {
 
         ctx.lineTo(
             (canvasStart - first) * scale,
-            halfOffset -
-                Math.round((peaks[2 * canvasStart + 1] || 0) / absmaxHalf)
+            halfOffset - Math.round((peaks[2 * canvasStart + 1] || 0) / absmaxHalf)
         );
 
         ctx.closePath();
@@ -350,8 +315,8 @@ export default class CanvasEntry {
     }
 
     /**
-     * Destroys this entry
-     */
+   * Destroys this entry
+   */
     destroy() {
         this.waveCtx = null;
         this.wave = null;
@@ -361,25 +326,26 @@ export default class CanvasEntry {
     }
 
     /**
-     * Return image data of the wave `canvas` element
-     *
-     * When using a `type` of `'blob'`, this will return a `Promise` that
-     * resolves with a `Blob` instance.
-     *
-     * @param {string} format='image/png' An optional value of a format type.
-     * @param {number} quality=0.92 An optional value between 0 and 1.
-     * @param {string} type='dataURL' Either 'dataURL' or 'blob'.
-     * @return {string|Promise} When using the default `'dataURL'` `type` this
-     * returns a data URL. When using the `'blob'` `type` this returns a
-     * `Promise` that resolves with a `Blob` instance.
-     */
+   * Return image data of the wave `canvas` element
+   *
+   * When using a `type` of `'blob'`, this will return a `Promise` that
+   * resolves with a `Blob` instance.
+   *
+   * @param {string} format='image/png' An optional value of a format type.
+   * @param {number} quality=0.92 An optional value between 0 and 1.
+   * @param {string} type='dataURL' Either 'dataURL' or 'blob'.
+   * @return {string|Promise} When using the default `'dataURL'` `type` this
+   * returns a data URL. When using the `'blob'` `type` this returns a
+   * `Promise` that resolves with a `Blob` instance.
+   */
     getImage(format, quality, type) {
-        if (type === 'blob') {
-            return new Promise(resolve => {
-                this.wave.toBlob(resolve, format, quality);
-            });
-        } else if (type === 'dataURL') {
-            return this.wave.toDataURL(format, quality);
-        }
+    if (type === 'blob') {
+      return new Promise(resolve => {
+        this.wave.toBlob(resolve, format, quality);
+      });
     }
+        if (type === 'dataURL') {
+      return this.wave.toDataURL(format, quality);
+    }
+  }
 }

@@ -1,10 +1,8 @@
-'use strict';
-
-var wavesurfer;
+let wavesurfer;
 
 function init() {
     // configure
-    var options = {
+    const options = {
         container: '#waveform',
         waveColor: 'violet',
         progressColor: 'purple',

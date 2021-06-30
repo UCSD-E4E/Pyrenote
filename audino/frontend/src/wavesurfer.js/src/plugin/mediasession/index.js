@@ -1,4 +1,4 @@
-/*global MediaMetadata*/
+/* global MediaMetadata */
 
 /**
  * @typedef {Object} MediaSessionPluginParams
@@ -36,14 +36,14 @@
  */
 export default class MediaSessionPlugin {
     /**
-     * MediaSession plugin definition factory
-     *
-     * This function must be used to create a plugin definition which can be
-     * used by wavesurfer to correctly instantiate the plugin.
-     *
-     * @param  {MediaSessionPluginParams} params parameters use to initialise the plugin
-     * @return {PluginDefinition} an object representing the plugin
-     */
+   * MediaSession plugin definition factory
+   *
+   * This function must be used to create a plugin definition which can be
+   * used by wavesurfer to correctly instantiate the plugin.
+   *
+   * @param  {MediaSessionPluginParams} params parameters use to initialise the plugin
+   * @return {PluginDefinition} an object representing the plugin
+   */
     static create(params) {
         return {
             name: 'mediasession',

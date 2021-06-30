@@ -1,10 +1,8 @@
-'use strict';
-
-var wavesurfer;
+let wavesurfer;
 
 // Init & load
 document.addEventListener('DOMContentLoaded', function() {
-    var options = {
+    const options = {
         container: '#waveform',
         waveColor: 'violet',
         progressColor: 'purple',
@@ -36,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var showProgress = function(percent) {
             progressDiv.style.display = 'block';
-            progressBar.style.width = percent + '%';
+            progressBar.style.width = `${percent}%`;
         };
 
         var hideProgress = function() {

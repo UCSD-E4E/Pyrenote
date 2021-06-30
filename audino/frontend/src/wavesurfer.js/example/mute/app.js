@@ -1,14 +1,12 @@
-'use strict';
-
 // Create an instance
-var wavesurfer;
+let wavesurfer;
 
 // Init & load
 document.addEventListener('DOMContentLoaded', function() {
-    var playButton = document.querySelector('#playBtn'),
-        toggleMuteButton = document.querySelector('#toggleMuteBtn'),
-        setMuteOnButton = document.querySelector('#setMuteOnBtn'),
-        setMuteOffButton = document.querySelector('#setMuteOffBtn');
+    const playButton = document.querySelector('#playBtn');
+    const toggleMuteButton = document.querySelector('#toggleMuteBtn');
+    const setMuteOnButton = document.querySelector('#setMuteOnBtn');
+    var setMuteOffButton = document.querySelector('#setMuteOffBtn');
 
     // Init wavesurfer
     wavesurfer = WaveSurfer.create({

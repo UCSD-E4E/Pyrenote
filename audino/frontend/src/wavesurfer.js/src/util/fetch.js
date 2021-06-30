@@ -6,12 +6,12 @@ import Observer from './observer';
 
 class ProgressHandler {
     /**
-     * Instantiate ProgressHandler
-     *
-     * @param {Observer} instance The `fetchFile` observer instance.
-     * @param {Number} contentLength Content length.
-     * @param {Response} response Response object.
-     */
+   * Instantiate ProgressHandler
+   *
+   * @param {Observer} instance The `fetchFile` observer instance.
+   * @param {Number} contentLength Content length.
+   * @param {Response} response Response object.
+   */
     constructor(instance, contentLength, response) {
         this.instance = instance;
         this.instance._reader = response.body.getReader();
@@ -21,12 +21,12 @@ class ProgressHandler {
     }
 
     /**
-     * A method that is called once, immediately after the `ReadableStream``
-     * is constructed.
-     *
-     * @param {ReadableStreamDefaultController} controller Controller instance
-     *     used to control the stream.
-     */
+   * A method that is called once, immediately after the `ReadableStream``
+   * is constructed.
+   *
+   * @param {ReadableStreamDefaultController} controller Controller instance
+   *     used to control the stream.
+   */
     start(controller) {
         const read = () => {
             // instance._reader.read() returns a promise that resolves
@@ -126,7 +126,7 @@ export default function fetchFile(options) {
 
     // check if headers have to be added
     if (options && options.requestHeaders) {
-        // add custom request headers
+    // add custom request headers
         options.requestHeaders.forEach(header => {
             fetchHeaders.append(header.key, header.value);
         });
@@ -177,9 +177,7 @@ export default function fetchFile(options) {
             };
 
             return new Response(
-                new ReadableStream(
-                    new ProgressHandler(instance, contentLength, response)
-                ),
+                new ReadableStream(new ProgressHandler(instance, contentLength, response)),
                 fetchOptions
             );
         })
@@ -200,12 +198,12 @@ export default function fetchFile(options) {
                         return response.text();
 
                     default:
-                        errMsg = 'Unknown responseType: ' + responseType;
+                        errMsg = `Unknown responseType: ${responseType}`;
                         break;
                 }
             }
             if (!errMsg) {
-                errMsg = 'HTTP error status: ' + response.status;
+                errMsg = `HTTP error status: ${response.status}`;
             }
             throw new Error(errMsg);
         })

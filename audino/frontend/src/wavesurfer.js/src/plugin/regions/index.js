@@ -32,7 +32,7 @@
  * @property {?boolean} preventContextMenu=false Determines whether the context menu is prevented from being opened.
  */
 
-import {Region} from "./region.js";
+import { Region } from './region.js';
 
 /**
  * Regions are visual overlays on waveform that can be used to play and loop
@@ -66,14 +66,14 @@ import {Region} from "./region.js";
  */
 export default class RegionsPlugin {
     /**
-     * Regions plugin definition factory
-     *
-     * This function must be used to create a plugin definition which can be
-     * used by wavesurfer to correctly instantiate the plugin.
-     *
-     * @param {RegionsPluginParams} params parameters use to initialise the plugin
-     * @return {PluginDefinition} an object representing the plugin
-     */
+   * Regions plugin definition factory
+   *
+   * This function must be used to create a plugin definition which can be
+   * used by wavesurfer to correctly instantiate the plugin.
+   *
+   * @param {RegionsPluginParams} params parameters use to initialise the plugin
+   * @return {PluginDefinition} an object representing the plugin
+   */
     static create(params) {
         return {
             name: 'regions',
@@ -119,9 +119,7 @@ export default class RegionsPlugin {
         this.regionsMinLength = params.regionsMinLength || null;
 
         // turn the plugin instance into an observer
-        const observerPrototypeKeys = Object.getOwnPropertyNames(
-            this.util.Observer.prototype
-        );
+        const observerPrototypeKeys = Object.getOwnPropertyNames(this.util.Observer.prototype);
         observerPrototypeKeys.forEach(key => {
             Region.prototype[key] = this.util.Observer.prototype[key];
         });
@@ -151,7 +149,7 @@ export default class RegionsPlugin {
     }
 
     init() {
-        // Check if ws is ready
+    // Check if ws is ready
         if (this.wavesurfer.isReady) {
             this._onBackendCreated();
             this._onReady();
@@ -169,27 +167,25 @@ export default class RegionsPlugin {
     }
 
     /**
-     * check to see if adding a new region would exceed maxRegions
-     * @return {boolean} whether we should proceed and create a region
-     * @private
-     */
+   * check to see if adding a new region would exceed maxRegions
+   * @return {boolean} whether we should proceed and create a region
+   * @private
+   */
     wouldExceedMaxRegions() {
-        return (
-            this.maxRegions && Object.keys(this.list).length >= this.maxRegions
-        );
+        return this.maxRegions && Object.keys(this.list).length >= this.maxRegions;
     }
 
     /**
-     * Add a region
-     *
-     * @param {object} params Region parameters
-     * @return {Region} The created region
-     */
+   * Add a region
+   *
+   * @param {object} params Region parameters
+   * @return {Region} The created region
+   */
     add(params) {
         if (this.wouldExceedMaxRegions()) return null;
 
         if (!params.minLength && this.regionsMinLength) {
-            params = {...params, minLength: this.regionsMinLength};
+            params = { ...params, minLength: this.regionsMinLength };
         }
 
         const region = new this.wavesurfer.Region(params, this.util, this.wavesurfer);
@@ -204,8 +200,8 @@ export default class RegionsPlugin {
     }
 
     /**
-     * Remove all regions
-     */
+   * Remove all regions
+   */
     clear() {
         Object.keys(this.list).forEach(id => {
             this.list[id].remove();
@@ -216,9 +212,8 @@ export default class RegionsPlugin {
         this.disableDragSelection();
 
         const slop = params.slop || 2;
-        const container = this.wavesurfer.drawer.container;
-        const scroll =
-            params.scroll !== false && this.wavesurfer.params.scrollParent;
+        const { container } = this.wavesurfer.drawer;
+        const scroll = params.scroll !== false && this.wavesurfer.params.scrollParent;
         const scrollSpeed = params.scrollSpeed || 1;
         const scrollThreshold = params.scrollThreshold || 10;
         let drag;
@@ -238,12 +233,8 @@ export default class RegionsPlugin {
             }
 
             // Update scroll position
-            let scrollLeft =
-                this.wrapper.scrollLeft + scrollSpeed * scrollDirection;
-            this.wrapper.scrollLeft = scrollLeft = Math.min(
-                maxScroll,
-                Math.max(0, scrollLeft)
-            );
+            let scrollLeft = this.wrapper.scrollLeft + scrollSpeed * scrollDirection;
+            this.wrapper.scrollLeft = scrollLeft = Math.min(maxScroll, Math.max(0, scrollLeft));
 
             // Update range
             const end = this.wavesurfer.drawer.handleEvent(e);
@@ -334,12 +325,8 @@ export default class RegionsPlugin {
             }
 
             const end = this.wavesurfer.drawer.handleEvent(e);
-            const startUpdate = this.wavesurfer.regions.util.getRegionSnapToGridValue(
-                start * duration
-            );
-            const endUpdate = this.wavesurfer.regions.util.getRegionSnapToGridValue(
-                end * duration
-            );
+            const startUpdate = this.wavesurfer.regions.util.getRegionSnapToGridValue(start * duration);
+            const endUpdate = this.wavesurfer.regions.util.getRegionSnapToGridValue(end * duration);
             region.update({
                 start: Math.min(endUpdate, startUpdate),
                 end: Math.max(endUpdate, startUpdate)
@@ -378,13 +365,13 @@ export default class RegionsPlugin {
     }
 
     /**
-     * Get current region
-     *
-     * The smallest region that contains the current time. If several such
-     * regions exist, take the first. Return `null` if none exist.
-     *
-     * @returns {Region} The current region
-     */
+   * Get current region
+   *
+   * The smallest region that contains the current time. If several such
+   * regions exist, take the first. Return `null` if none exist.
+   *
+   * @returns {Region} The current region
+   */
     getCurrentRegion() {
         const time = this.wavesurfer.getCurrentTime();
         let min = null;
@@ -401,24 +388,23 @@ export default class RegionsPlugin {
     }
 
     /**
-     * Match the value to the grid, if required
-     *
-     * If the regions plugin params have a snapToGridInterval set, return the
-     * value matching the nearest grid interval. If no snapToGridInterval is set,
-     * the passed value will be returned without modification.
-     *
-     * @param {number} value the value to snap to the grid, if needed
-     * @param {Object} params the regions plugin params
-     * @returns {number} value
-     */
+   * Match the value to the grid, if required
+   *
+   * If the regions plugin params have a snapToGridInterval set, return the
+   * value matching the nearest grid interval. If no snapToGridInterval is set,
+   * the passed value will be returned without modification.
+   *
+   * @param {number} value the value to snap to the grid, if needed
+   * @param {Object} params the regions plugin params
+   * @returns {number} value
+   */
     getRegionSnapToGridValue(value, params) {
         if (params.snapToGridInterval) {
             // the regions should snap to a grid
             const offset = params.snapToGridOffset || 0;
             return (
-                Math.round((value - offset) / params.snapToGridInterval) *
-                    params.snapToGridInterval +
-                offset
+                Math.round((value - offset) / params.snapToGridInterval) * params.snapToGridInterval +
+        offset
             );
         }
 

@@ -1,7 +1,5 @@
-'use strict';
-
 // Create an instance
-var wavesurfer = {};
+let wavesurfer = {};
 
 // Init & load audio file
 document.addEventListener('DOMContentLoaded', function() {
@@ -45,12 +43,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // StereoPanner Node
     wavesurfer.panner = wavesurfer.backend.ac.createStereoPanner();
 
-    let sliderPanner = document.querySelector('[data-action="pan"]');
+    const sliderPanner = document.querySelector('[data-action="pan"]');
     sliderPanner.addEventListener('input', () => {
         wavesurfer.panner.pan.value = Number(sliderPanner.value);
     });
 
-    //Control volume of both channels
+    // Control volume of both channels
     const channelSplitterNode = wavesurfer.backend.ac.createChannelSplitter(2);
     const channelMergerNode = wavesurfer.backend.ac.createChannelMerger(2);
     const leftGainNode = wavesurfer.backend.ac.createGain();
@@ -71,14 +69,12 @@ document.addEventListener('DOMContentLoaded', function() {
         wavesurfer.panner
     ]);
 
-    let sliderLeftVolume = document.querySelector('[data-action="leftVolume"]');
+    const sliderLeftVolume = document.querySelector('[data-action="leftVolume"]');
     sliderLeftVolume.addEventListener('input', () => {
         leftGainNode.gain.value = Number(sliderLeftVolume.value);
     });
 
-    let sliderRightVolume = document.querySelector(
-        '[data-action="rightVolume"]'
-    );
+    let sliderRightVolume = document.querySelector('[data-action="rightVolume"]');
     sliderRightVolume.addEventListener('input', () => {
         rightGainNode.gain.value = Number(sliderRightVolume.value);
     });

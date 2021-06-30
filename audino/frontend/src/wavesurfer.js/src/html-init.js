@@ -50,93 +50,82 @@ import loadScript from 'load-script';
  */
 class Init {
     /**
-     * Instantiate Init class and initialize elements
-     *
-     * This is done automatically if `window` is defined and
-     * `window.WS_StopAutoInit` is not set to true
-     *
-     * @param {WaveSurfer} WaveSurfer The WaveSurfer library object
-     * @param {InitParams} params initialisation options
-     */
+   * Instantiate Init class and initialize elements
+   *
+   * This is done automatically if `window` is defined and
+   * `window.WS_StopAutoInit` is not set to true
+   *
+   * @param {WaveSurfer} WaveSurfer The WaveSurfer library object
+   * @param {InitParams} params initialisation options
+   */
     constructor(WaveSurfer, params = {}) {
         if (!WaveSurfer) {
             throw new Error('WaveSurfer is not available!');
         }
 
         /**
-         * cache WaveSurfer
-         * @private
-         */
+     * cache WaveSurfer
+     * @private
+     */
         this.WaveSurfer = WaveSurfer;
 
         /**
-         * build parameters, cache them in _params so minified builds are smaller
-         * @private
-         */
-        const _params = (this.params = Object.assign(
-            {},
-            {
-                // wavesurfer parameter defaults so by default the audio player is
-                // usable with native media element controls
-                defaults: {
-                    backend: 'MediaElement',
-                    mediaControls: true
-                },
-                // containers to instantiate on, can be selector string or NodeList
-                containers: 'wavesurfer',
-                // @TODO insert plugin CDN URIs
-                pluginCdnTemplate:
-                    '//localhost:8080/dist/plugin/wavesurfer.[name].js',
-                // loadPlugin function can be overridden to inject plugin definition
-                // objects, this default function uses load-script to load a plugin
-                // and pass it to a callback
-                loadPlugin(name, cb) {
-                    const src = _params.pluginCdnTemplate.replace(
-                        '[name]',
-                        name
-                    );
-                    loadScript(src, { async: false }, (err, plugin) => {
-                        if (err) {
-                            // eslint-disable-next-line no-console
-                            return console.error(
-                                `WaveSurfer plugin ${name} not found at ${src}`
-                            );
-                        }
-                        cb(window.WaveSurfer[name]);
-                    });
-                }
+     * build parameters, cache them in _params so minified builds are smaller
+     * @private
+     */
+        const _params = (this.params = {
+      // wavesurfer parameter defaults so by default the audio player is
+            // usable with native media element controls
+      defaults: {
+                backend: 'MediaElement',
+                mediaControls: true
+      },
+            // containers to instantiate on, can be selector string or NodeList
+      containers: 'wavesurfer',
+            // @TODO insert plugin CDN URIs
+      pluginCdnTemplate: '//localhost:8080/dist/plugin/wavesurfer.[name].js',
+      // loadPlugin function can be overridden to inject plugin definition
+            // objects, this default function uses load-script to load a plugin
+      // and pass it to a callback
+            loadPlugin(name, cb) {
+        const src = _params.pluginCdnTemplate.replace('[name]', name);
+        loadScript(src, { async: false }, (err, plugin) => {
+                    if (err) {
+                        // eslint-disable-next-line no-console
+                        return console.error(`WaveSurfer plugin ${name} not found at ${src}`);
+          }
+                    cb(window.WaveSurfer[name]);
+        });
             },
-            params
-        ));
+      ...params
+    });
         /**
-         * The nodes that should have instances attached to them
-         * @type {NodeList}
-         */
+     * The nodes that should have instances attached to them
+     * @type {NodeList}
+     */
         this.containers =
-            typeof _params.containers == 'string'
-                ? document.querySelectorAll(_params.containers)
-                : _params.containers;
+      typeof _params.containers == 'string'
+          ? document.querySelectorAll(_params.containers)
+          : _params.containers;
         /** @private */
         this.pluginCache = {};
         /**
-         * An array of wavesurfer instances
-         * @type {Object[]}
-         */
+     * An array of wavesurfer instances
+     * @type {Object[]}
+     */
         this.instances = [];
 
         this.initAllEls();
     }
 
     /**
-     * Initialize all container elements
-     */
+   * Initialize all container elements
+   */
     initAllEls() {
-        // iterate over all the container elements
+    // iterate over all the container elements
         Array.prototype.forEach.call(this.containers, el => {
             // load the plugins as an array of plugin names
-            const plugins = el.dataset.plugins
-                ? el.dataset.plugins.split(',')
-                : [];
+            const plugins = el.dataset.plugins ? el.dataset.plugins.split(',') : [];
 
             // no plugins to be loaded, just render
             if (!plugins.length) {
@@ -162,19 +151,19 @@ class Init {
     }
 
     /**
-     * Initialize a single container element and add to `this.instances`
-     *
-     * @param  {HTMLElement} el The container to instantiate wavesurfer to
-     * @param  {PluginDefinition[]} plugins An Array of plugin names to initialize with
-     * @return {Object} Wavesurfer instance
-     */
+   * Initialize a single container element and add to `this.instances`
+   *
+   * @param  {HTMLElement} el The container to instantiate wavesurfer to
+   * @param  {PluginDefinition[]} plugins An Array of plugin names to initialize with
+   * @return {Object} Wavesurfer instance
+   */
     initEl(el, plugins = []) {
         const jsonRegex = /^[[|{]/;
         // initialize plugins with the correct options
         const initialisedPlugins = plugins.map(plugin => {
             const options = {};
             // the regex to find this plugin attributes
-            const attrNameRegex = new RegExp('^' + plugin);
+            const attrNameRegex = new RegExp(`^${plugin}`);
             let attrName;
             // iterate over all the data attributes and find ones for this
             // plugin
@@ -188,21 +177,20 @@ class Init {
                     // of the resulting string to lower case to follow the naming
                     // convention of ws params
                     const unprefixedOptionName =
-                        attrName
-                            .slice(plugin.length, plugin.length + 1)
-                            .toLowerCase() + attrName.slice(plugin.length + 1);
+            attrName.slice(plugin.length, plugin.length + 1).toLowerCase() +
+            attrName.slice(plugin.length + 1);
                     options[unprefixedOptionName] = prop;
                 }
             }
             return this.pluginCache[plugin].create(options);
         });
         // build parameter object for this container
-        const params = Object.assign(
-            { container: el },
-            this.params.defaults,
-            el.dataset,
-            { plugins: initialisedPlugins }
-        );
+        const params = {
+            container: el,
+            ...this.params.defaults,
+            ...el.dataset,
+            plugins: initialisedPlugins
+        };
 
         // @TODO make nicer
         el.style.display = 'block';
@@ -223,16 +211,10 @@ if (typeof window === 'object' && !window.WS_StopAutoInit) {
     // call init when document is ready, apply any custom default settings
     // in window.WS_InitOptions
     if (document.readyState === 'complete') {
-        window.WaveSurferInit = new Init(
-            window.WaveSurfer,
-            window.WS_InitOptions
-        );
+        window.WaveSurferInit = new Init(window.WaveSurfer, window.WS_InitOptions);
     } else {
         window.addEventListener('load', () => {
-            window.WaveSurferInit = new Init(
-                window.WaveSurfer,
-                window.WS_InitOptions
-            );
+            window.WaveSurferInit = new Init(window.WaveSurfer, window.WS_InitOptions);
         });
     }
 }

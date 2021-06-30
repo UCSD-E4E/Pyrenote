@@ -1,7 +1,7 @@
-import axios from "axios";
-import React from "react";
-import { withRouter } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import axios from 'axios';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 import {
   faPlusSquare,
@@ -11,10 +11,10 @@ import {
   faDownload,
   faTrash,
   faUpload
-} from "@fortawesome/free-solid-svg-icons";
-import { IconButton } from "../components/button";
-import Loader from "../components/loader";
-import FormModal from "../containers/modal";
+} from '@fortawesome/free-solid-svg-icons';
+import { IconButton } from '../components/button';
+import Loader from '../components/loader';
+import FormModal from '../containers/modal';
 
 class Admin extends React.Component {
   constructor(props) {
@@ -25,7 +25,7 @@ class Admin extends React.Component {
       formType: null,
       modalShow: false,
       isUserLoading: false,
-      isProjectLoading: false,
+      isProjectLoading: false
     };
   }
 
@@ -34,75 +34,75 @@ class Admin extends React.Component {
 
     // TODO: Combine these two api calls
     axios({
-      method: "get",
-      url: "/api/projects",
+      method: 'get',
+      url: '/api/projects'
     })
-      .then((response) => {
+      .then(response => {
         this.setState({
           projects: response.data.projects,
-          isProjectLoading: false,
+          isProjectLoading: false
         });
       })
-      .catch((error) => {
+      .catch(error => {
         this.setState({
           errorMessage: error.response.data.message,
-          isProjectLoading: false,
+          isProjectLoading: false
         });
       });
 
     axios({
-      method: "get",
-      url: "/api/users",
+      method: 'get',
+      url: '/api/users'
     })
-      .then((response) => {
+      .then(response => {
         this.setState({ users: response.data.users, isUserLoading: false });
       })
-      .catch((error) => {
+      .catch(error => {
         this.setState({
           errorMessage: error.response.data.message,
-          isUserLoading: false,
+          isUserLoading: false
         });
       });
   }
 
   refreshPage() {
     const { history } = this.props;
-    history.replace({ pathname: "/empty" });
+    history.replace({ pathname: '/empty' });
     setTimeout(() => {
-      history.replace({ pathname: "/admin" });
+      history.replace({ pathname: '/admin' });
     });
   }
 
   handleNewProject() {
     this.setModalShow(true);
-    this.setState({ formType: "NEW_PROJECT", title: "Create New Project" });
+    this.setState({ formType: 'NEW_PROJECT', title: 'Create New Project' });
   }
 
   handleEditProject(e, projectId) {
     this.setModalShow(true);
-    this.setState({ formType: "Edit_PROJECT", title: "Edit Project", projectId});
+    this.setState({ formType: 'Edit_PROJECT', title: 'Edit Project', projectId });
   }
 
   handleDeleteProject() {
     this.setModalShow(true);
-    this.setState({ formType: "DELETE_PROJECT", title: "Delete Project" });
+    this.setState({ formType: 'DELETE_PROJECT', title: 'Delete Project' });
   }
 
   handleNewUser() {
     this.setModalShow(true);
-    this.setState({ formType: "NEW_USER", title: "Create New User" });
+    this.setState({ formType: 'NEW_USER', title: 'Create New User' });
   }
 
   handleEditUser(e, userId) {
     this.setModalShow(true);
-    this.setState({ formType: "EDIT_USER", title: "Edit User", userId });
+    this.setState({ formType: 'EDIT_USER', title: 'Edit User', userId });
   }
 
   handleDeleteUser(e, userId) {
-    //TODO: CREATE MODAL TO CONFRIM BUT FOR NOW MAKE DEV BUTTON
-    console.log("DELETE USER", userId)
+    // TODO: CREATE MODAL TO CONFRIM BUT FOR NOW MAKE DEV BUTTON
+    console.log('DELETE USER', userId);
     this.setModalShow(true);
-    this.setState({ formType: "DELETE_USER", title: "Delete User", userId });
+    this.setState({ formType: 'DELETE_USER', title: 'Delete User', userId });
   }
 
   handleAddLabelsToProject(e, projectId) {
@@ -113,39 +113,40 @@ class Admin extends React.Component {
   handleAddUsersToProject(e, projectId, projectName) {
     this.setModalShow(true);
     this.setState({
-      formType: "MANAGE_PROJECT_USERS",
+      formType: 'MANAGE_PROJECT_USERS',
       title: `Project ${projectName}: Manage User Access`,
-      projectId,
+      projectId
     });
   }
 
   handleUploadDataToProject(e, projectName, projectId, api_key) {
-    console.log(api_key, "hi")
+    console.log(api_key, 'hi');
     this.setModalShow(true);
     this.setState({
-      formType: "UPLOAD_DATA",
+      formType: 'UPLOAD_DATA',
       title: `Project ${projectName}: Upload Project Audio Files`,
       projectId,
       projectName,
-      api_key,
+      api_key
     });
   }
+
   handleDownloadDataToProject(e, projectName, projectId, api_key) {
-    console.log(api_key, "hi")
+    console.log(api_key, 'hi');
     this.setModalShow(true);
     this.setState({
-      formType: "DOWNLOAD_DATA",
+      formType: 'DOWNLOAD_DATA',
       title: `Project ${projectName}: DOWNLOAD ANNOTATIONS`,
       projectId,
       projectName,
-      api_key,
+      api_key
     });
   }
 
   _fake_click(obj) {
-    let ev = document.createEvent("MouseEvents");
+    const ev = document.createEvent('MouseEvents');
     ev.initMouseEvent(
-      "click",
+      'click',
       true,
       false,
       window,
@@ -165,21 +166,18 @@ class Admin extends React.Component {
   }
 
   _export_raw(name, data) {
-    let urlObject = window.URL || window.webkitURL || window;
-    let export_blob = new Blob(data);
+    const urlObject = window.URL || window.webkitURL || window;
+    const export_blob = new Blob(data);
 
-    if ("msSaveBlob" in navigator) {
+    if ('msSaveBlob' in navigator) {
       navigator.msSaveBlob(export_blob, name);
-    } else if ("download" in HTMLAnchorElement.prototype) {
-      let save_link = document.createElementNS(
-        "http://www.w3.org/1999/xhtml",
-        "a"
-      );
+    } else if ('download' in HTMLAnchorElement.prototype) {
+      const save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
       save_link.href = urlObject.createObjectURL(export_blob);
       save_link.download = name;
       this._fake_click(save_link);
     } else {
-      throw new Error("Neither a[download] nor msSaveBlob is available");
+      throw new Error('Neither a[download] nor msSaveBlob is available');
     }
   }
 
@@ -199,7 +197,7 @@ class Admin extends React.Component {
       userId,
       projectId,
       api_key,
-      projectName,
+      projectName
     } = this.state;
 
     return (
@@ -231,7 +229,7 @@ class Admin extends React.Component {
                     icon={faPlusSquare}
                     size="lg"
                     title="Create new project"
-                    onClick={(e) => this.handleNewProject(e)}
+                    onClick={e => this.handleNewProject(e)}
                   />
                 </h1>
               </div>
@@ -253,77 +251,61 @@ class Admin extends React.Component {
                           <th scope="row" className="align-middle">
                             {index + 1}
                           </th>
-                          <td className="align-middle">{project["name"]}</td>
-                          <td className="align-middle">
-                            {project["created_by"]}
-                          </td>
-                          <td className="align-middle">{project["api_key"]}</td>
+                          <td className="align-middle">{project.name}</td>
+                          <td className="align-middle">{project.created_by}</td>
+                          <td className="align-middle">{project.api_key}</td>
                           <td className="align-middle">
                             <IconButton
                               icon={faUserPlus}
                               size="sm"
-                              title={"Manage users"}
-                              onClick={(e) =>
-                                this.handleAddUsersToProject(
-                                  e,
-                                  project["project_id"],
-                                  project["name"]
-                                )
-                              }
+                              title="Manage users"
+                              onClick={e =>
+                                this.handleAddUsersToProject(e, project.project_id, project.name)}
                             />
                             <IconButton
                               icon={faTags}
                               size="sm"
-                              title={"Manage labels"}
-                              onClick={(e) =>
-                                this.handleAddLabelsToProject(
-                                  e,
-                                  project["project_id"]
-                                )
-                              }
+                              title="Manage labels"
+                              onClick={e => this.handleAddLabelsToProject(e, project.project_id)}
                             />
                             <IconButton
                               icon={faEdit}
                               size="sm"
-                              title={"Edit Annotations"}
-                              onClick={(e) =>
-                                this.handleEditProject(e, project["project_id"])
-                              }
+                              title="Edit Annotations"
+                              onClick={e => this.handleEditProject(e, project.project_id)}
                             />
-                            {/*<IconButton
+                            {/* <IconButton
                               icon={faTrash}
                               size="sm"
                               title={"Delete Annotations"}
                               onClick={(e) =>
                                 this.handleDeleteProject(e)
                               }
-                            />*/}
-                            <div></div>
+                            /> */}
+                            <div />
                             <IconButton
                               icon={faUpload}
                               size="sm"
-                              title={"Upload Data"}
-                              onClick={(e) =>
+                              title="Upload Data"
+                              onClick={e =>
                                 this.handleUploadDataToProject(
                                   e,
-                                  project["name"],
-                                  project["project_id"],
-                                  project["api_key"]
-                                )
-                              }
+                                  project.name,
+                                  project.project_id,
+                                  project.api_key
+                                )}
                             />
                             <IconButton
                               icon={faDownload}
                               size="sm"
-                              title={"Download Data"}
-                              onClick={(e) =>
+                              title="Download Data"
+                              onClick={e =>
                                 this.handleDownloadDataToProject(
                                   e,
-                                  project["name"],
-                                  project["project_id"],
-                                  project["api_key"]
-                                )
-                              }
+                                  project.name,
+                                  project.project_id,
+                                  project.api_key
+                                )}
                             />
                           </td>
                         </tr>
@@ -348,8 +330,8 @@ class Admin extends React.Component {
                   <IconButton
                     icon={faPlusSquare}
                     size="lg"
-                    title={"Create new user"}
-                    onClick={(e) => this.handleNewUser(e)}
+                    title="Create new user"
+                    onClick={e => this.handleNewUser(e)}
                   />
                 </h1>
               </div>
@@ -371,25 +353,21 @@ class Admin extends React.Component {
                           <th scope="row" className="align-middle">
                             {index + 1}
                           </th>
-                          <td className="align-middle">{user["username"]}</td>
-                          <td className="align-middle">{user["role"]}</td>
-                          <td className="align-middle">{user["created_on"]}</td>
+                          <td className="align-middle">{user.username}</td>
+                          <td className="align-middle">{user.role}</td>
+                          <td className="align-middle">{user.created_on}</td>
                           <td className="align-middle">
                             <IconButton
                               icon={faEdit}
                               size="sm"
-                              title={"Edit user"}
-                              onClick={(e) =>
-                                this.handleEditUser(e, user["user_id"])
-                              }
+                              title="Edit user"
+                              onClick={e => this.handleEditUser(e, user.user_id)}
                             />
                             <IconButton
                               icon={faTrash}
                               size="sm"
-                              title={"Delete User"}
-                              onClick={(e) =>
-                                this.handleDeleteUser(e, user["user_id"])
-                              }
+                              title="Delete User"
+                              onClick={e => this.handleDeleteUser(e, user.user_id)}
                             />
                             {/* <IconButton
                               icon={faTrashAlt}

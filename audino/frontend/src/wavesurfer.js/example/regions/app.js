@@ -1,7 +1,5 @@
-'use strict';
-
 // Create an instance
-var wavesurfer;
+let wavesurfer;
 
 // Init & load audio file
 document.addEventListener('DOMContentLoaded', function() {
@@ -43,24 +41,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load audio from URL
     wavesurfer.load('../media/demo.wav');
 
-
-    document.querySelector(
-        '[data-action="play-region-1"]'
-    ).addEventListener('click', function() {
+    document.querySelector('[data-action="play-region-1"]').addEventListener('click', function() {
         let region = Object.values(wavesurfer.regions.list)[0];
         region.play();
     });
 
-    document.querySelector(
-        '[data-action="play-region-2"]'
-    ).addEventListener('click', function() {
+    document.querySelector('[data-action="play-region-2"]').addEventListener('click', function() {
         let region = Object.values(wavesurfer.regions.list)[1];
         region.playLoop();
     });
 
-    document.querySelector(
-        '[data-action="pause"]'
-    ).addEventListener('click', function() {
+    document.querySelector('[data-action="pause"]').addEventListener('click', function() {
         wavesurfer.pause();
     });
 });
