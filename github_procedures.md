@@ -20,4 +20,4 @@ If there is a unrelated bug to your work, create an issue post on the github to 
 **Security Notes**
 Don't post passwords, usernames, or url on the repo as this is a security risk
 Also don't push the file /audino/.env or rclone config files to the repo. 
-If this happens, no worries. Lets the leads know so we can change the password.
+If this happens, no worries. Let the leads know so we can change the password.
