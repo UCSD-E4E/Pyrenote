@@ -68,7 +68,7 @@ $ docker-compose -f docker-compose.dev.yml down
 
 At this point, the docker should have gotten everything set up. After going to [http://localhost:3000/](http://localhost:3000/) you should be able to log into the docker
 
-To access the site, sign in with the username of **admin** and password of **password**. On logging in navigate to the admin-portal to create your frist project (make sure to make a label group and some labels for the project!). 
+To access the site, sign in with the username of **admin** and password of **password**. After logging in navigate to the admin-portal to create your first project (make sure to make a label group and some labels for the project!). 
 
 ***Note*** Skip next step is you are able to upload via the admin portal upload button
 After creating a project, get the api key by returning to the admin portal. You can use the api key to add data to a project. Create a new terminal (while docker is running the severs) and cd into audino/backend/scripts. Here use the fallowing command:
@@ -86,7 +86,7 @@ Once that runs you are ready to start testing!
 You can either run the project on [default configuration](./docker-compose.prod.yml) or modify them to your need.
 **Note**: Before proceeding further, you might need to give docker `sudo` access or run the commands listed below as `sudo`.
 
-Ask Team Leads for nessary config files to run this and help setting up production sever on a local machine. 
+Ask Team Leads for necessary config files to run this and help setting up production sever on a local machine. 
 Production will not work on windows. 
 
 **To build the services, run:**
