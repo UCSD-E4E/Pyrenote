@@ -1,6 +1,7 @@
 {
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
+  "ignorePatterns": ["/src/wavesurfer.js"],
   "rules": {
     "prettier/prettier": [
       "error",

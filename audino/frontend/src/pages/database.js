@@ -159,15 +159,15 @@ class Database extends React.Component {
                   <table className="table table-striped text-center">
                     <thead>
                       <tr>
-                            <th scope="col">Select</th>
-                            <th scope="col">File Name</th>
-                            <th scope="col">No. of segmentations</th>
-                            <th scope="col">Created On</th>
-                            <th scope="col">Trash</th>
-                          </tr>
+                        <th scope="col">Select</th>
+                        <th scope="col">File Name</th>
+                        <th scope="col">No. of segmentations</th>
+                        <th scope="col">Created On</th>
+                        <th scope="col">Trash</th>
+                      </tr>
                     </thead>
                     <tbody>
-                      {data.map((data, index) => { 
+                      {data.map((data, index) => {
                         console.log('made it here');
                         return (
                           <tr key={index}>

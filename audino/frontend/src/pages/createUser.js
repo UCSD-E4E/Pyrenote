@@ -1,8 +1,5 @@
-import axios from 'axios';
 import React from 'react';
-import { Helmet } from 'react-helmet';
-import { IconButton, Button } from '../components/button';
-import Loader from '../components/loader';
+import { Button } from '../components/button';
 import CreateUserForm from '../containers/forms/createUserForm';
 
 class CreateUser extends React.Component {

@@ -3,7 +3,7 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
-import { faPlusSquare, faEdit, faList, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlusSquare, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { IconButton } from '../components/button';
 import Loader from '../components/loader';
@@ -13,7 +13,7 @@ class Labels extends React.Component {
   constructor(props) {
     super(props);
 
-    const projectId = Number(this.props.match.params.id);
+    const { projectId } = this.props;
 
     this.state = {
       projectId,
