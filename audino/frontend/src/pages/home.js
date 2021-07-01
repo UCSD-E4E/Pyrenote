@@ -1,11 +1,10 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
 import LoginForm from '../containers/forms/loginForm';
-import { IconButton, Button } from '../components/button';
+import { Button } from '../components/button';
 
-function signUp(e) {
-  window.location.href = `${window.location.href}/newUser`;
-}
+// function signUp(e) {
+//   window.location.href = `${window.location.href}/newUser`;
+// }
 
 const Home = () => {
   return (
