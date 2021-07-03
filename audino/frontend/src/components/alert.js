@@ -7,7 +7,7 @@ const Alert = ({ type, message, overlay, onClose = () => {} }) => {
       className={`alert alert-${type} alert-dismissible fade show ${
         overlay ? "overlay" : ""
       }`}
-      style={{ cursor: "pointer", top: 0, left: 0, right: 0 }}
+      style={{ cursor: "pointer", bottom: 0, left: "2%" }}
       onClick={onClose}
       role="alert"
     >
