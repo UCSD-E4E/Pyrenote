@@ -5,16 +5,23 @@ import BootstrapAlert from 'react-bootstrap/Alert';
 
 const Alert = ({ type, message, overlay, onClose }) => {
   return (
-    <div className={overlay ? 'overlay center-top' : ''}>
-      <BootstrapAlert
-        variant={type}
-        style={{ cursor: 'pointer' }}
-        onClick={onClose}
-        role="alert"
-        dismissible={onClose != null}
+    <div
+      className={`alert alert-${type} alert-dismissible fade show ${
+        overlay ? "overlay" : ""
+      }`}
+      style={{ cursor: "pointer", bottom: 0, left: "2%" }}
+      onClick={onClose}
+      role="alert"
+    >
+      {message}
+      <button
+        type="button"
+        className="close"
+        data-dismiss="alert"
+        aria-label="Close"
       >
         {message}
-      </BootstrapAlert>
+        </button>
     </div>
   );
 };
