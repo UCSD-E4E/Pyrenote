@@ -125,7 +125,7 @@ class App extends React.Component {
         });
     }
     else {
-      console.log("hopefully just creating a user")
+      // console.log("hopefully just creating a user")
       this.props.store.set("isUserCreatingAccount", true);
       this.props.store.set("isUserLoggedIn", false);
       history.push("/newUser");
@@ -153,7 +153,7 @@ class App extends React.Component {
               path="/"
               render={(props) => {
                 if (isUserLoggedIn === false) {
-                  console.log(window.location.href)
+                  // console.log(window.location.href)
                   if (isUserCreatingAccount && window.location.href.includes("/newUser")) {  // window.location.href.includes("/newUser")
                     return <Redirect {...props} to="/newUser"/>;
                   } else {

@@ -155,7 +155,7 @@ export default class Drawer extends util.Observer {
             this.drawSpectrogram(buffer);
             console.log(new Date().toLocaleString());
         } else {
-            this.params.barWidth
+            this.params.barWidth?
                 this.drawBars(peaks, 0, start, end)
                 :this.drawWave(peaks, 0, start, end);
         }
@@ -194,7 +194,7 @@ export default class Drawer extends util.Observer {
         let target = position - half;
         let offset = target - scrollLeft;
 
-        if (maxScroll == 0) {
+        if (maxScroll === 0) {
             // no need to continue if scrollbar is not there
             return;
         }
@@ -215,7 +215,7 @@ export default class Drawer extends util.Observer {
         // limit target to valid range (0 to maxScroll)
         target = Math.max(0, Math.min(maxScroll, target));
         // no use attempting to scroll if we're not moving
-        if (target != scrollLeft) {
+        if (target !== scrollLeft) {
             this.wrapper.scrollLeft = target;
         }
     }
@@ -260,7 +260,7 @@ export default class Drawer extends util.Observer {
    * @return {boolean} Whether the width of the container was updated or not
    */
     setWidth(width) {
-        if (this.width == width) {
+        if (this.width === width) {
             return false;
         }
 
@@ -287,7 +287,7 @@ export default class Drawer extends util.Observer {
    * @return {boolean} Whether the height of the container was updated or not
    */
     setHeight(height) {
-        if (height == this.height) {
+        if (height === this.height) {
             return false;
         }
         this.height = height;
@@ -327,7 +327,7 @@ export default class Drawer extends util.Observer {
     destroy() {
         this.unAll();
         if (this.wrapper) {
-            if (this.wrapper.parentNode == this.container) {
+            if (this.wrapper.parentNode === this.container) {
                 this.container.removeChild(this.wrapper);
             }
             this.wrapper = null;
@@ -366,7 +366,7 @@ export default class Drawer extends util.Observer {
         }
         var fft = new WaveSurfer.FFT(fftSamples, sampleRate);
 
-        var maxSlicesCount = Math.floor(bufferLength / (fftSamples - noverlap));
+        // var maxSlicesCount = Math.floor(bufferLength / (fftSamples - noverlap));
 
         var currentOffset = 0;
 
@@ -402,7 +402,7 @@ export default class Drawer extends util.Observer {
                 var newEnd = newStart + newPiece;
 
                 var overlap =
-          oldEnd <= newStart || newEnd <= oldStart
+          oldEnd <= newStart || newEnd <= oldStart?
               0 :
               Math.min(Math.max(oldEnd, newStart), Math.max(newEnd, oldStart)) -
               Math.max(Math.min(oldEnd, newStart), Math.min(newEnd, oldStart));

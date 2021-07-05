@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+// import { Helmet } from 'react-helmet';
 import { withStore } from '@spyna/react-store';
 import { faPlusSquare, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
@@ -77,6 +77,10 @@ class LabelValues extends React.Component {
     });
   }
 
+  setModalShow(modalShow) {
+    this.setState({ modalShow });
+  }
+
   refreshPage() {
     this.componentDidMount();
     /* const { history } = this.props;
@@ -85,10 +89,6 @@ class LabelValues extends React.Component {
     setTimeout(() => {
       history.replace({ pathname: labelsUrl });
     }); */
-  }
-
-  setModalShow(modalShow) {
-    this.setState({ modalShow });
   }
 
   render() {

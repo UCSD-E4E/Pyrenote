@@ -185,7 +185,7 @@ export default class MediaElement extends WebAudio {
         //
         // note that we avoid calling media.load here when given peaks and preload == 'none'
         // as this almost always triggers some browser fetch of the media.
-        if (typeof media.load == 'function' && !(peaks && preload == 'none')) {
+        if (typeof media.load == 'function' && !(peaks && preload === 'none')) {
             // Resets the media element and restarts the media resource. Any
             // pending events are discarded. How much media data is fetched is
             // still affected by the preload attribute.

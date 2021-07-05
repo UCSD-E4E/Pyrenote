@@ -106,7 +106,7 @@ class CreateLabelForm extends React.Component {
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          {previousLabelId == -1 ? (
+          {previousLabelId === -1 ? (
             <form
               // className="col-6"
               name="new_user"

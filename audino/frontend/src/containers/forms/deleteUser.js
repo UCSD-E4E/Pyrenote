@@ -102,7 +102,7 @@ class DeleteUserForm extends React.Component {
   }
 
   render() {
-    const { username, isSubmitting, errorMessage, successMessage, isLoading, role } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isLoading } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">

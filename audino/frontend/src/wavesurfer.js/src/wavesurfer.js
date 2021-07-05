@@ -395,7 +395,7 @@ export default class WaveSurfer extends util.Observer {
 
       if (this.params.maxCanvasWidth <= 1) {
           throw new Error('maxCanvasWidth must be greater than 1');
-      } else if (this.params.maxCanvasWidth % 2 == 1) {
+      } else if (this.params.maxCanvasWidth % 2 === 1) {
           throw new Error('maxCanvasWidth must be an even number');
       }
 
@@ -453,12 +453,12 @@ export default class WaveSurfer extends util.Observer {
      * @private The uninitialised Backend class
      */
       // Back compat
-      if (this.params.backend == 'AudioElement') {
+      if (this.params.backend === 'AudioElement') {
           this.params.backend = 'MediaElement';
       }
 
       if (
-          (this.params.backend == 'WebAudio' || this.params.backend === 'MediaElementWebAudio') &&
+          (this.params.backend === 'WebAudio' || this.params.backend === 'MediaElementWebAudio') &&
       !WebAudio.prototype.supportsWebAudio.call(null)
       ) {
           this.params.backend = 'MediaElement';
@@ -1473,7 +1473,7 @@ export default class WaveSurfer extends util.Observer {
           data => {
               // Only use the decoded data if we haven't been destroyed or
               // another decode started in the meantime
-              if (!this.isDestroyed && this.arraybuffer == arraybuffer) {
+              if (!this.isDestroyed && this.arraybuffer === arraybuffer) {
                   callback(data);
                   this.arraybuffer = null;
               }
