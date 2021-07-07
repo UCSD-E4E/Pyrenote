@@ -9,7 +9,10 @@
   "rules": {
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "react/prop-types": "off",
-    "allowForLoopAfterthoughts": 1,
+    "no-plusplus":"off",
+    "camelcase":"off",
+    "no-underscore-dangle":"off",
+    "class-methods-use-this":"off",
     "prettier/prettier": [
       "error",
       {
