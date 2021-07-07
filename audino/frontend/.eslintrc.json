@@ -16,6 +16,10 @@
     "camelcase":"off",
     "no-underscore-dangle":"off",
     "class-methods-use-this":"off",
+    "jsx-a11y/no-autofocus":"off",
+    "jsx-a11y/label-has-associated-control":"off",
+    "no-param-reassign": "off",
+
 
     "prettier/prettier": [
       "error",
