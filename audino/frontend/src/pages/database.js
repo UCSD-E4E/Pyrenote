@@ -52,7 +52,7 @@ class Database extends React.Component {
       });
   }
 
-  // uhhhhhhh 
+  // uhhhhhhh
   select() {
     console.log('hi');
   }
@@ -108,7 +108,7 @@ class Database extends React.Component {
           });
         });
     }
-    const { data } = this.state
+    const { data } = this.state;
     const projectId = 1;
     console.log(data.length);
     if (data.length > 0) {

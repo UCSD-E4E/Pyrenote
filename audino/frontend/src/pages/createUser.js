@@ -11,6 +11,7 @@ class CreateUser extends React.Component {
       isProjectLoading: false
     };
   }
+
   goBack() {
     const index = window.location.href.indexOf('/newUser');
     const path = window.location.href.substring(0, index);

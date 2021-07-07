@@ -106,10 +106,7 @@ class CreateLabelForm extends React.Component {
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
           {previousLabelId === -1 ? (
-            <form
-              name="new_user"
-              ref={el => (this.form = el)}
-            >
+            <form name="new_user" ref={el => (this.form = el)}>
               {errorMessage ? (
                 <Alert
                   type="danger"
