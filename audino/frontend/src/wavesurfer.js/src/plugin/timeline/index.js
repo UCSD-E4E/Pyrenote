@@ -58,7 +58,7 @@
  * });
  */
 export default class TimelinePlugin {
-    /**
+  /**
    * Timeline plugin definition factory
    *
    * This function must be used to create a plugin definition which can be
@@ -67,20 +67,20 @@ export default class TimelinePlugin {
    * @param  {TimelinePluginParams} params parameters use to initialise the plugin
    * @return {PluginDefinition} an object representing the plugin
    */
-    static create(params) {
-        return {
-            name: 'timeline',
-            deferInit: params && params.deferInit ? params.deferInit : false,
-            params: params,
-            instance: TimelinePlugin
-        };
-    }
+  static create(params) {
+    return {
+      name: 'timeline',
+      deferInit: params && params.deferInit ? params.deferInit : false,
+      params,
+      instance: TimelinePlugin
+    };
+  }
 
   // event handlers
   _onScroll = () => {
-      if (this.wrapper && this.drawer.wrapper) {
-          this.wrapper.scrollLeft = this.drawer.wrapper.scrollLeft;
-      }
+    if (this.wrapper && this.drawer.wrapper) {
+      this.wrapper.scrollLeft = this.drawer.wrapper.scrollLeft;
+    }
   };
 
   /**
@@ -89,28 +89,28 @@ export default class TimelinePlugin {
   _onRedraw = () => this.render();
 
   _onReady = () => {
-      const ws = this.wavesurfer;
-      this.drawer = ws.drawer;
-      this.pixelRatio = ws.drawer.params.pixelRatio;
-      this.maxCanvasWidth = ws.drawer.maxCanvasWidth || ws.drawer.width;
-      this.maxCanvasElementWidth =
+    const ws = this.wavesurfer;
+    this.drawer = ws.drawer;
+    this.pixelRatio = ws.drawer.params.pixelRatio;
+    this.maxCanvasWidth = ws.drawer.maxCanvasWidth || ws.drawer.width;
+    this.maxCanvasElementWidth =
       ws.drawer.maxCanvasElementWidth || Math.round(this.maxCanvasWidth / this.pixelRatio);
 
-      // add listeners
-      ws.drawer.wrapper.addEventListener('scroll', this._onScroll);
-      ws.on('redraw', this._onRedraw);
-      ws.on('zoom', this._onZoom);
+    // add listeners
+    ws.drawer.wrapper.addEventListener('scroll', this._onScroll);
+    ws.on('redraw', this._onRedraw);
+    ws.on('zoom', this._onZoom);
 
-      this.render();
+    this.render();
   };
 
   /**
    * @param {object} e Click event
    */
   _onWrapperClick = e => {
-      e.preventDefault();
-      const relX = 'offsetX' in e ? e.offsetX : e.layerX;
-      this.fireEvent('click', relX / this.wrapper.scrollWidth || 0);
+    e.preventDefault();
+    const relX = 'offsetX' in e ? e.offsetX : e.layerX;
+    this.fireEvent('click', relX / this.wrapper.scrollWidth || 0);
   };
 
   /**
@@ -122,45 +122,45 @@ export default class TimelinePlugin {
    * @param {object} ws Wavesurfer instance
    */
   constructor(params, ws) {
-      this.container =
-      typeof params.container == 'string'
-          ? document.querySelector(params.container)
-          : params.container;
+    this.container =
+      typeof params.container === 'string'
+        ? document.querySelector(params.container)
+        : params.container;
 
-      if (!this.container) {
-          throw new Error('No container for wavesurfer timeline');
-      }
+    if (!this.container) {
+      throw new Error('No container for wavesurfer timeline');
+    }
 
-      this.wavesurfer = ws;
-      this.util = ws.util;
-      this.params = {
+    this.wavesurfer = ws;
+    this.util = ws.util;
+    this.params = {
       height: 20,
       notchPercentHeight: 90,
       labelPadding: 5,
-          unlabeledNotchColor: '#c0c0c0',
+      unlabeledNotchColor: '#c0c0c0',
       primaryColor: '#000',
-          secondaryColor: '#c0c0c0',
+      secondaryColor: '#c0c0c0',
       primaryFontColor: '#000',
-          secondaryFontColor: '#000',
-          fontFamily: 'Arial',
+      secondaryFontColor: '#000',
+      fontFamily: 'Arial',
       fontSize: 10,
-          duration: null,
-          zoomDebounce: false,
-          formatTimeCallback: this.defaultFormatTimeCallback,
-          timeInterval: this.defaultTimeInterval,
+      duration: null,
+      zoomDebounce: false,
+      formatTimeCallback: this.defaultFormatTimeCallback,
+      timeInterval: this.defaultTimeInterval,
       primaryLabelInterval: this.defaultPrimaryLabelInterval,
-          secondaryLabelInterval: this.defaultSecondaryLabelInterval,
-          offset: 0,
+      secondaryLabelInterval: this.defaultSecondaryLabelInterval,
+      offset: 0,
       ...params
     };
 
-      this.canvases = [];
-      this.wrapper = null;
-      this.drawer = null;
-      this.pixelRatio = null;
-      this.maxCanvasWidth = null;
-      this.maxCanvasElementWidth = null;
-      /**
+    this.canvases = [];
+    this.wrapper = null;
+    this.drawer = null;
+    this.pixelRatio = null;
+    this.maxCanvasWidth = null;
+    this.maxCanvasElementWidth = null;
+    /**
      * This event handler has to be in the constructor function because it
      * relies on the debounce function which is only available after
      * instantiation
@@ -169,7 +169,7 @@ export default class TimelinePlugin {
      *
      * @returns {void}
      */
-      /* this._onZoom = this.params.zoomDebounce
+    /* this._onZoom = this.params.zoomDebounce
             ? this.wavesurfer.util.debounce(
                 () => this.render(),
                 this.params.zoomDebounce
@@ -181,28 +181,28 @@ export default class TimelinePlugin {
    * Initialisation function used by the plugin API
    */
   init() {
-      // Check if ws is ready
-      if (this.wavesurfer.isReady) {
-          this._onReady();
-      } else {
-          this.wavesurfer.once('ready', this._onReady);
-      }
+    // Check if ws is ready
+    if (this.wavesurfer.isReady) {
+      this._onReady();
+    } else {
+      this.wavesurfer.once('ready', this._onReady);
+    }
   }
 
   /**
    * Destroy function used by the plugin API
    */
   destroy() {
-      this.unAll();
-      this.wavesurfer.un('redraw', this._onRedraw);
-      this.wavesurfer.un('zoom', this._onZoom);
-      this.wavesurfer.un('ready', this._onReady);
-      this.wavesurfer.drawer.wrapper.removeEventListener('scroll', this._onScroll);
-      if (this.wrapper && this.wrapper.parentNode) {
-          this.wrapper.removeEventListener('click', this._onWrapperClick);
-          this.wrapper.parentNode.removeChild(this.wrapper);
-          this.wrapper = null;
-      }
+    this.unAll();
+    this.wavesurfer.un('redraw', this._onRedraw);
+    this.wavesurfer.un('zoom', this._onZoom);
+    this.wavesurfer.un('ready', this._onReady);
+    this.wavesurfer.drawer.wrapper.removeEventListener('scroll', this._onScroll);
+    if (this.wrapper && this.wrapper.parentNode) {
+      this.wrapper.removeEventListener('click', this._onWrapperClick);
+      this.wrapper.parentNode.removeChild(this.wrapper);
+      this.wrapper = null;
+    }
   }
 
   /**
@@ -210,26 +210,26 @@ export default class TimelinePlugin {
    *
    */
   createWrapper() {
-      const wsParams = this.wavesurfer.params;
-      this.container.innerHTML = '';
-      this.wrapper = this.container.appendChild(document.createElement('timeline'));
+    const wsParams = this.wavesurfer.params;
+    this.container.innerHTML = '';
+    this.wrapper = this.container.appendChild(document.createElement('timeline'));
+    this.util.style(this.wrapper, {
+      display: 'block',
+      position: 'relative',
+      userSelect: 'none',
+      webkitUserSelect: 'none',
+      height: `${this.params.height}px`
+    });
+
+    if (wsParams.fillParent || wsParams.scrollParent) {
       this.util.style(this.wrapper, {
-          display: 'block',
-          position: 'relative',
-          userSelect: 'none',
-          webkitUserSelect: 'none',
-          height: `${this.params.height}px`
+        width: '100%',
+        overflowX: 'hidden',
+        overflowY: 'hidden'
       });
+    }
 
-      if (wsParams.fillParent || wsParams.scrollParent) {
-          this.util.style(this.wrapper, {
-              width: '100%',
-              overflowX: 'hidden',
-              overflowY: 'hidden'
-          });
-      }
-
-      this.wrapper.addEventListener('click', this._onWrapperClick);
+    this.wrapper.addEventListener('click', this._onWrapperClick);
   }
 
   /**
@@ -237,12 +237,12 @@ export default class TimelinePlugin {
    *
    */
   render() {
-      if (!this.wrapper) {
-          this.createWrapper();
-      }
-      this.updateCanvases();
-      this.updateCanvasesPositioning();
-      this.renderCanvases();
+    if (!this.wrapper) {
+      this.createWrapper();
+    }
+    this.updateCanvases();
+    this.updateCanvasesPositioning();
+    this.renderCanvases();
   }
 
   /**
@@ -250,12 +250,12 @@ export default class TimelinePlugin {
    *
    */
   addCanvas() {
-      const canvas = this.wrapper.appendChild(document.createElement('canvas'));
-      this.canvases.push(canvas);
-      this.util.style(canvas, {
-          position: 'absolute',
-          zIndex: 4
-      });
+    const canvas = this.wrapper.appendChild(document.createElement('canvas'));
+    this.canvases.push(canvas);
+    this.util.style(canvas, {
+      position: 'absolute',
+      zIndex: 4
+    });
   }
 
   /**
@@ -263,8 +263,8 @@ export default class TimelinePlugin {
    *
    */
   removeCanvas() {
-      const canvas = this.canvases.pop();
-      canvas.parentElement.removeChild(canvas);
+    const canvas = this.canvases.pop();
+    canvas.parentElement.removeChild(canvas);
   }
 
   /**
@@ -273,16 +273,16 @@ export default class TimelinePlugin {
    *
    */
   updateCanvases() {
-      const totalWidth = Math.round(this.drawer.wrapper.scrollWidth);
-      const requiredCanvases = Math.ceil(totalWidth / this.maxCanvasElementWidth);
+    const totalWidth = Math.round(this.drawer.wrapper.scrollWidth);
+    const requiredCanvases = Math.ceil(totalWidth / this.maxCanvasElementWidth);
 
-      while (this.canvases.length < requiredCanvases) {
-          this.addCanvas();
-      }
+    while (this.canvases.length < requiredCanvases) {
+      this.addCanvas();
+    }
 
-      while (this.canvases.length > requiredCanvases) {
-          this.removeCanvas();
-      }
+    while (this.canvases.length > requiredCanvases) {
+      this.removeCanvas();
+    }
   }
 
   /**
@@ -290,26 +290,26 @@ export default class TimelinePlugin {
    *
    */
   updateCanvasesPositioning() {
-      // cache length for performance
-      const canvasesLength = this.canvases.length;
-      this.canvases.forEach((canvas, i) => {
+    // cache length for performance
+    const canvasesLength = this.canvases.length;
+    this.canvases.forEach((canvas, i) => {
       // canvas width is the max element width, or if it is the last the
       // required width
-          const canvasWidth =
+      const canvasWidth =
         i === canvasesLength - 1
-            ? this.drawer.wrapper.scrollWidth - this.maxCanvasElementWidth * (canvasesLength - 1)
-            : this.maxCanvasElementWidth;
-          // set dimensions and style
-          canvas.width = canvasWidth * this.pixelRatio;
-          // on certain pixel ratios the canvas appears cut off at the bottom,
-          // therefore leave 1px extra
-          canvas.height = (this.params.height + 1) * this.pixelRatio;
-          this.util.style(canvas, {
-              width: `${canvasWidth}px`,
-              height: `${this.params.height}px`,
-              left: `${i * this.maxCanvasElementWidth}px`
-          });
+          ? this.drawer.wrapper.scrollWidth - this.maxCanvasElementWidth * (canvasesLength - 1)
+          : this.maxCanvasElementWidth;
+      // set dimensions and style
+      canvas.width = canvasWidth * this.pixelRatio;
+      // on certain pixel ratios the canvas appears cut off at the bottom,
+      // therefore leave 1px extra
+      canvas.height = (this.params.height + 1) * this.pixelRatio;
+      this.util.style(canvas, {
+        width: `${canvasWidth}px`,
+        height: `${this.params.height}px`,
+        left: `${i * this.maxCanvasElementWidth}px`
       });
+    });
   }
 
   /**
@@ -317,87 +317,87 @@ export default class TimelinePlugin {
    *
    */
   renderCanvases() {
-      const duration = this.params.duration || this.wavesurfer.backend.getDuration();
+    const duration = this.params.duration || this.wavesurfer.backend.getDuration();
 
-      if (duration <= 0) {
-          return;
-      }
-      const wsParams = this.wavesurfer.params;
-      const fontSize = this.params.fontSize * wsParams.pixelRatio;
-      const totalSeconds = parseInt(duration, 10) + 1;
-      const width =
+    if (duration <= 0) {
+      return;
+    }
+    const wsParams = this.wavesurfer.params;
+    const fontSize = this.params.fontSize * wsParams.pixelRatio;
+    const totalSeconds = parseInt(duration, 10) + 1;
+    const width =
       wsParams.fillParent && !wsParams.scrollParent
-          ? this.drawer.getWidth()
-          : this.drawer.wrapper.scrollWidth * wsParams.pixelRatio;
-      const height1 = this.params.height * this.pixelRatio;
-      const height2 = this.params.height * (this.params.notchPercentHeight / 100) * this.pixelRatio;
-      const pixelsPerSecond = width / duration;
+        ? this.drawer.getWidth()
+        : this.drawer.wrapper.scrollWidth * wsParams.pixelRatio;
+    const height1 = this.params.height * this.pixelRatio;
+    const height2 = this.params.height * (this.params.notchPercentHeight / 100) * this.pixelRatio;
+    const pixelsPerSecond = width / duration;
 
-      const formatTime = this.params.formatTimeCallback;
-      // if parameter is function, call the function with
-      // pixelsPerSecond, otherwise simply take the value as-is
-      const intervalFnOrVal = option =>
-          typeof option === 'function' ? option(pixelsPerSecond) : option;
-      const timeInterval = intervalFnOrVal(this.params.timeInterval);
-      const primaryLabelInterval = intervalFnOrVal(this.params.primaryLabelInterval);
-      const secondaryLabelInterval = intervalFnOrVal(this.params.secondaryLabelInterval);
+    const formatTime = this.params.formatTimeCallback;
+    // if parameter is function, call the function with
+    // pixelsPerSecond, otherwise simply take the value as-is
+    const intervalFnOrVal = option =>
+      typeof option === 'function' ? option(pixelsPerSecond) : option;
+    const timeInterval = intervalFnOrVal(this.params.timeInterval);
+    const primaryLabelInterval = intervalFnOrVal(this.params.primaryLabelInterval);
+    const secondaryLabelInterval = intervalFnOrVal(this.params.secondaryLabelInterval);
 
-      let curPixel = pixelsPerSecond * this.params.offset;
-      let curSeconds = 0;
-      let i;
-      // build an array of position data with index, second and pixel data,
-      // this is then used multiple times below
-      const positioning = [];
-      for (i = 0; i < totalSeconds / timeInterval; i++) {
-          positioning.push([i, curSeconds, curPixel]);
-          curSeconds += timeInterval;
-          curPixel += pixelsPerSecond * timeInterval;
+    let curPixel = pixelsPerSecond * this.params.offset;
+    let curSeconds = 0;
+    let i;
+    // build an array of position data with index, second and pixel data,
+    // this is then used multiple times below
+    const positioning = [];
+    for (i = 0; i < totalSeconds / timeInterval; i++) {
+      positioning.push([i, curSeconds, curPixel]);
+      curSeconds += timeInterval;
+      curPixel += pixelsPerSecond * timeInterval;
+    }
+
+    // iterate over each position
+    const renderPositions = cb => {
+      positioning.forEach(pos => {
+        cb(pos[0], pos[1], pos[2]);
+      });
+    };
+
+    // render primary labels
+    this.setFillStyles(this.params.primaryColor);
+    this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
+    this.setFillStyles(this.params.primaryFontColor);
+    renderPositions((i, curSeconds, curPixel) => {
+      if (i % primaryLabelInterval === 0) {
+        this.fillRect(curPixel, 0, 1, height1);
+        this.fillText(
+          formatTime(curSeconds, pixelsPerSecond),
+          curPixel + this.params.labelPadding * this.pixelRatio,
+          height1
+        );
       }
+    });
 
-      // iterate over each position
-      const renderPositions = cb => {
-          positioning.forEach(pos => {
-              cb(pos[0], pos[1], pos[2]);
-          });
-      };
+    // render secondary labels
+    this.setFillStyles(this.params.secondaryColor);
+    this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
+    this.setFillStyles(this.params.secondaryFontColor);
+    renderPositions((i, curSeconds, curPixel) => {
+      if (i % secondaryLabelInterval === 0) {
+        this.fillRect(curPixel, 0, 1, height1);
+        this.fillText(
+          formatTime(curSeconds, pixelsPerSecond),
+          curPixel + this.params.labelPadding * this.pixelRatio,
+          height1
+        );
+      }
+    });
 
-      // render primary labels
-      this.setFillStyles(this.params.primaryColor);
-      this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
-      this.setFillStyles(this.params.primaryFontColor);
-      renderPositions((i, curSeconds, curPixel) => {
-          if (i % primaryLabelInterval === 0) {
-              this.fillRect(curPixel, 0, 1, height1);
-              this.fillText(
-                  formatTime(curSeconds, pixelsPerSecond),
-                  curPixel + this.params.labelPadding * this.pixelRatio,
-                  height1
-              );
-          }
-      });
-
-      // render secondary labels
-      this.setFillStyles(this.params.secondaryColor);
-      this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
-      this.setFillStyles(this.params.secondaryFontColor);
-      renderPositions((i, curSeconds, curPixel) => {
-          if (i % secondaryLabelInterval === 0) {
-              this.fillRect(curPixel, 0, 1, height1);
-              this.fillText(
-                  formatTime(curSeconds, pixelsPerSecond),
-                  curPixel + this.params.labelPadding * this.pixelRatio,
-                  height1
-              );
-          }
-      });
-
-      // render the actual notches (when no labels are used)
-      this.setFillStyles(this.params.unlabeledNotchColor);
-      renderPositions((i, curSeconds, curPixel) => {
-          if (i % secondaryLabelInterval !== 0 && i % primaryLabelInterval !== 0) {
-              this.fillRect(curPixel, 0, 1, height2);
-          }
-      });
+    // render the actual notches (when no labels are used)
+    this.setFillStyles(this.params.unlabeledNotchColor);
+    renderPositions((i, curSeconds, curPixel) => {
+      if (i % secondaryLabelInterval !== 0 && i % primaryLabelInterval !== 0) {
+        this.fillRect(curPixel, 0, 1, height2);
+      }
+    });
   }
 
   /**
@@ -407,9 +407,9 @@ export default class TimelinePlugin {
    * use
    */
   setFillStyles(fillStyle) {
-      this.canvases.forEach(canvas => {
-          canvas.getContext('2d').fillStyle = fillStyle;
-      });
+    this.canvases.forEach(canvas => {
+      canvas.getContext('2d').fillStyle = fillStyle;
+    });
   }
 
   /**
@@ -418,9 +418,9 @@ export default class TimelinePlugin {
    * @param {DOMString} font Font to use
    */
   setFonts(font) {
-      this.canvases.forEach(canvas => {
-          canvas.getContext('2d').font = font;
-      });
+    this.canvases.forEach(canvas => {
+      canvas.getContext('2d').font = font;
+    });
   }
 
   /**
@@ -434,27 +434,27 @@ export default class TimelinePlugin {
    * @param {number} height Height
    */
   fillRect(x, y, width, height) {
-      this.canvases.forEach((canvas, i) => {
-          const leftOffset = i * this.maxCanvasWidth;
+    this.canvases.forEach((canvas, i) => {
+      const leftOffset = i * this.maxCanvasWidth;
 
-          const intersection = {
-              x1: Math.max(x, i * this.maxCanvasWidth),
-              y1: y,
-              x2: Math.min(x + width, i * this.maxCanvasWidth + canvas.width),
-              y2: y + height
-          };
+      const intersection = {
+        x1: Math.max(x, i * this.maxCanvasWidth),
+        y1: y,
+        x2: Math.min(x + width, i * this.maxCanvasWidth + canvas.width),
+        y2: y + height
+      };
 
-          if (intersection.x1 < intersection.x2) {
-              canvas
-                  .getContext('2d')
-                  .fillRect(
-                      intersection.x1 - leftOffset,
-                      intersection.y1,
-                      intersection.x2 - intersection.x1,
-                      intersection.y2 - intersection.y1
-                  );
-          }
-      });
+      if (intersection.x1 < intersection.x2) {
+        canvas
+          .getContext('2d')
+          .fillRect(
+            intersection.x1 - leftOffset,
+            intersection.y1,
+            intersection.x2 - intersection.x1,
+            intersection.y2 - intersection.y1
+          );
+      }
+    });
   }
 
   /**
@@ -465,24 +465,24 @@ export default class TimelinePlugin {
    * @param {number} y Y-position
    */
   fillText(text, x, y) {
-      let textWidth;
-      let xOffset = 0;
+    let textWidth;
+    let xOffset = 0;
 
-      this.canvases.forEach(canvas => {
-          const context = canvas.getContext('2d');
-          const canvasWidth = context.canvas.width;
+    this.canvases.forEach(canvas => {
+      const context = canvas.getContext('2d');
+      const canvasWidth = context.canvas.width;
 
-          if (xOffset > x + textWidth) {
-              return;
-          }
+      if (xOffset > x + textWidth) {
+        return;
+      }
 
-          if (xOffset + canvasWidth > x) {
-              textWidth = context.measureText(text).width;
-              context.fillText(text, x - xOffset, y);
-          }
+      if (xOffset + canvasWidth > x) {
+        textWidth = context.measureText(text).width;
+        context.fillText(text, x - xOffset, y);
+      }
 
-          xOffset += canvasWidth;
-      });
+      xOffset += canvasWidth;
+    });
   }
 
   /**
@@ -493,15 +493,15 @@ export default class TimelinePlugin {
    * @returns {number} Time
    */
   defaultFormatTimeCallback(seconds, pxPerSec) {
-      if (seconds / 60 > 1) {
+    if (seconds / 60 > 1) {
       // calculate minutes and seconds from seconds count
-          const minutes = parseInt(seconds / 60, 10);
-          seconds = parseInt(seconds % 60, 10);
-          // fill up seconds with zeroes
-          seconds = seconds < 10 ? `0${seconds}` : seconds;
-          return `${minutes}:${seconds}`;
-      }
-      return Math.round(seconds * 1000) / 1000;
+      const minutes = parseInt(seconds / 60, 10);
+      seconds = parseInt(seconds % 60, 10);
+      // fill up seconds with zeroes
+      seconds = seconds < 10 ? `0${seconds}` : seconds;
+      return `${minutes}:${seconds}`;
+    }
+    return Math.round(seconds * 1000) / 1000;
   }
 
   /**
@@ -511,16 +511,16 @@ export default class TimelinePlugin {
    * @returns {number} Time
    */
   defaultTimeInterval(pxPerSec) {
-      if (pxPerSec >= 25) {
-          return 1;
-      }
+    if (pxPerSec >= 25) {
+      return 1;
+    }
     if (pxPerSec * 5 >= 25) {
-          return 5;
-      }
+      return 5;
+    }
     if (pxPerSec * 15 >= 25) {
-          return 15;
-      }
-      return Math.ceil(0.5 / pxPerSec) * 60;
+      return 15;
+    }
+    return Math.ceil(0.5 / pxPerSec) * 60;
   }
 
   /**
@@ -530,16 +530,16 @@ export default class TimelinePlugin {
    * @returns {number} Cadence
    */
   defaultPrimaryLabelInterval(pxPerSec) {
-      if (pxPerSec >= 25) {
-          return 10;
-      }
+    if (pxPerSec >= 25) {
+      return 10;
+    }
     if (pxPerSec * 5 >= 25) {
-          return 6;
-      }
+      return 6;
+    }
     if (pxPerSec * 15 >= 25) {
-          return 4;
-      }
       return 4;
+    }
+    return 4;
   }
 
   /**
@@ -549,15 +549,15 @@ export default class TimelinePlugin {
    * @returns {number} Cadence
    */
   defaultSecondaryLabelInterval(pxPerSec) {
-      if (pxPerSec >= 25) {
-          return 5;
-      }
+    if (pxPerSec >= 25) {
+      return 5;
+    }
     if (pxPerSec * 5 >= 25) {
-          return 2;
-      }
-    if (pxPerSec * 15 >= 25) {
-          return 2;
-      }
       return 2;
+    }
+    if (pxPerSec * 15 >= 25) {
+      return 2;
+    }
+    return 2;
   }
 }

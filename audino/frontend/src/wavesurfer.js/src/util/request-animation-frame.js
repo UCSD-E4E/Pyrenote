@@ -6,7 +6,7 @@
  * @return {function} Available `requestAnimationFrame` function for the browser
  */
 export default (
-    window.requestAnimationFrame ||
+  window.requestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
   window.mozRequestAnimationFrame ||
   window.oRequestAnimationFrame ||

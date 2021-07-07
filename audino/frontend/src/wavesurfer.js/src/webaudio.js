@@ -12,7 +12,7 @@ const FINISHED = 'finished';
  */
 export default class WebAudio extends util.Observer {
   /** scriptBufferSize: size of the processing buffer */
-  static scriptBufferSize = 256;
+  static scriptBufferSize=256;
 
   /** audioContext: allows to process audio with WebAudio API */
   audioContext = null;
@@ -231,9 +231,9 @@ export default class WebAudio extends util.Observer {
       if (this.params.audioScriptProcessor) {
           this.scriptNode = this.params.audioScriptProcessor;
       } else if (this.ac.createScriptProcessor) {
-      this.scriptNode = this.ac.createScriptProcessor(WebAudio.scriptBufferSize);
+          this.scriptNode = this.ac.createScriptProcessor(WebAudio.scriptBufferSize);
       } else {
-      this.scriptNode = this.ac.createJavaScriptNode(WebAudio.scriptBufferSize);
+          this.scriptNode = this.ac.createJavaScriptNode(WebAudio.scriptBufferSize);
       }
       this.scriptNode.connect(this.ac.destination);
   }
@@ -288,24 +288,24 @@ export default class WebAudio extends util.Observer {
    * are no errors.
    */
   setSinkId(deviceId) {
-    if (deviceId) {
+      if (deviceId) {
       /**
        * The webaudio API doesn't currently support setting the device
        * output. Here we create an HTMLAudioElement, connect the
        * webaudio stream to that element and setSinkId there.
        */
-      let audio = new window.Audio();
-      if (!audio.setSinkId) {
-        return Promise.reject(new Error('setSinkId is not supported in your browser'));
+          let audio = new window.Audio();
+          if (!audio.setSinkId) {
+              return Promise.reject(new Error('setSinkId is not supported in your browser'));
       }
-      audio.autoplay = true;
-      const dest = this.ac.createMediaStreamDestination();
-      this.gainNode.disconnect();
-      this.gainNode.connect(dest);
-      audio.srcObject = dest.stream;
+          audio.autoplay = true;
+          const dest = this.ac.createMediaStreamDestination();
+          this.gainNode.disconnect();
+          this.gainNode.connect(dest);
+          audio.srcObject = dest.stream;
 
       return audio.setSinkId(deviceId);
-    }
+      }
       return Promise.reject(new Error(`Invalid deviceId: ${deviceId}`));
   }
 
@@ -634,8 +634,8 @@ export default class WebAudio extends util.Observer {
       }
 
       return {
-          start: start,
-          end: end
+          start,
+          end
       };
   }
 

@@ -40,7 +40,7 @@
  * });
  */
 export default class MicrophonePlugin {
-    /**
+  /**
    * Microphone plugin definition factory
    *
    * This function must be used to create a plugin definition which can be
@@ -49,309 +49,309 @@ export default class MicrophonePlugin {
    * @param  {MicrophonePluginParams} params parameters use to initialise the plugin
    * @return {PluginDefinition} an object representing the plugin
    */
-    static create(params) {
-        return {
-            name: 'microphone',
-            deferInit: params && params.deferInit ? params.deferInit : false,
-            params: params,
-            instance: MicrophonePlugin
-        };
-    }
+  static create(params) {
+    return {
+      name: 'microphone',
+      deferInit: params && params.deferInit ? params.deferInit : false,
+      params,
+      instance: MicrophonePlugin
+    };
+  }
 
-    constructor(params, ws) {
-        this.params = params;
-        this.wavesurfer = ws;
+  constructor(params, ws) {
+    this.params = params;
+    this.wavesurfer = ws;
 
-        this.active = false;
-        this.paused = false;
-        this.browser = this.detectBrowser();
-        this.reloadBufferFunction = e => this.reloadBuffer(e);
+    this.active = false;
+    this.paused = false;
+    this.browser = this.detectBrowser();
+    this.reloadBufferFunction = e => this.reloadBuffer(e);
 
-        // cross-browser getUserMedia
-        const promisifiedOldGUM = (constraints, successCallback, errorCallback) => {
-            // get a hold of getUserMedia, if present
-            const getUserMedia =
+    // cross-browser getUserMedia
+    const promisifiedOldGUM = (constraints, successCallback, errorCallback) => {
+      // get a hold of getUserMedia, if present
+      const getUserMedia =
         navigator.getUserMedia ||
         navigator.webkitGetUserMedia ||
         navigator.mozGetUserMedia ||
         navigator.msGetUserMedia;
-            // Some browsers just don't implement it - return a rejected
-            // promise with an error to keep a consistent interface
-            if (!getUserMedia) {
-                return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
-            }
-            // otherwise, wrap the call to the old navigator.getUserMedia with
-            // a Promise
-            return new Promise((successCallback, errorCallback) => {
-                getUserMedia.call(navigator, constraints, successCallback, errorCallback);
-            });
-        };
-        // Older browsers might not implement mediaDevices at all, so we set an
-        // empty object first
-        if (navigator.mediaDevices === undefined) {
-            navigator.mediaDevices = {};
-        }
-        // Some browsers partially implement mediaDevices. We can't just assign
-        // an object with getUserMedia as it would overwrite existing
-        // properties. Here, we will just add the getUserMedia property if it's
-        // missing.
-        if (navigator.mediaDevices.getUserMedia === undefined) {
-            navigator.mediaDevices.getUserMedia = promisifiedOldGUM;
-        }
-        this.constraints = this.params.constraints || {
-            video: false,
-            audio: true
-        };
-        this.bufferSize = this.params.bufferSize || 4096;
-        this.numberOfInputChannels = this.params.numberOfInputChannels || 1;
-        this.numberOfOutputChannels = this.params.numberOfOutputChannels || 1;
-
-        this._onBackendCreated = () => {
-            // wavesurfer's AudioContext where we'll route the mic signal to
-            this.micContext = this.wavesurfer.backend.getAudioContext();
-        };
+      // Some browsers just don't implement it - return a rejected
+      // promise with an error to keep a consistent interface
+      if (!getUserMedia) {
+        return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+      }
+      // otherwise, wrap the call to the old navigator.getUserMedia with
+      // a Promise
+      return new Promise((successCallback, errorCallback) => {
+        getUserMedia.call(navigator, constraints, successCallback, errorCallback);
+      });
+    };
+    // Older browsers might not implement mediaDevices at all, so we set an
+    // empty object first
+    if (navigator.mediaDevices === undefined) {
+      navigator.mediaDevices = {};
     }
-
-    init() {
-        this.wavesurfer.on('backend-created', this._onBackendCreated);
-        if (this.wavesurfer.backend) {
-            this._onBackendCreated();
-        }
+    // Some browsers partially implement mediaDevices. We can't just assign
+    // an object with getUserMedia as it would overwrite existing
+    // properties. Here, we will just add the getUserMedia property if it's
+    // missing.
+    if (navigator.mediaDevices.getUserMedia === undefined) {
+      navigator.mediaDevices.getUserMedia = promisifiedOldGUM;
     }
+    this.constraints = this.params.constraints || {
+      video: false,
+      audio: true
+    };
+    this.bufferSize = this.params.bufferSize || 4096;
+    this.numberOfInputChannels = this.params.numberOfInputChannels || 1;
+    this.numberOfOutputChannels = this.params.numberOfOutputChannels || 1;
 
-    /**
+    this._onBackendCreated = () => {
+      // wavesurfer's AudioContext where we'll route the mic signal to
+      this.micContext = this.wavesurfer.backend.getAudioContext();
+    };
+  }
+
+  init() {
+    this.wavesurfer.on('backend-created', this._onBackendCreated);
+    if (this.wavesurfer.backend) {
+      this._onBackendCreated();
+    }
+  }
+
+  /**
    * Destroy the microphone plugin.
    */
-    destroy() {
+  destroy() {
     // make sure the buffer is not redrawn during
     // cleanup and demolition of this plugin.
-        this.paused = true;
+    this.paused = true;
 
-        this.wavesurfer.un('backend-created', this._onBackendCreated);
-        this.stop();
-    }
+    this.wavesurfer.un('backend-created', this._onBackendCreated);
+    this.stop();
+  }
 
-    /**
+  /**
    * Allow user to select audio input device, e.g. microphone, and
    * start the visualization.
    */
-    start() {
-        navigator.mediaDevices
-            .getUserMedia(this.constraints)
-            .then(data => this.gotStream(data))
-            .catch(data => this.deviceError(data));
-    }
+  start() {
+    navigator.mediaDevices
+      .getUserMedia(this.constraints)
+      .then(data => this.gotStream(data))
+      .catch(data => this.deviceError(data));
+  }
 
-    /**
+  /**
    * Pause/resume visualization.
    */
-    togglePlay() {
-        if (!this.active) {
-            // start it first
-            this.start();
-        } else {
-            // toggle paused
-            this.paused = !this.paused;
+  togglePlay() {
+    if (!this.active) {
+      // start it first
+      this.start();
+    } else {
+      // toggle paused
+      this.paused = !this.paused;
 
-            if (this.paused) {
-                this.pause();
-            } else {
-                this.play();
-            }
-        }
+      if (this.paused) {
+        this.pause();
+      } else {
+        this.play();
+      }
     }
+  }
 
-    /**
+  /**
    * Play visualization.
    */
-    play() {
-        this.paused = false;
+  play() {
+    this.paused = false;
 
-        this.connect();
-    }
+    this.connect();
+  }
 
-    /**
+  /**
    * Pause visualization.
    */
-    pause() {
-        this.paused = true;
+  pause() {
+    this.paused = true;
 
-        // disconnect sources so they can be used elsewhere
-        // (eg. during audio playback)
-        this.disconnect();
-    }
+    // disconnect sources so they can be used elsewhere
+    // (eg. during audio playback)
+    this.disconnect();
+  }
 
-    /**
+  /**
    * Stop the device stream and remove any remaining waveform drawing from
    * the wavesurfer canvas.
    */
-    stop() {
-        if (this.active) {
-            // stop visualization and device
-            this.stopDevice();
+  stop() {
+    if (this.active) {
+      // stop visualization and device
+      this.stopDevice();
 
-            // empty last frame
-            this.wavesurfer.empty();
-        }
+      // empty last frame
+      this.wavesurfer.empty();
     }
+  }
 
-    /**
+  /**
    * Stop the device and the visualization.
    */
-    stopDevice() {
-        this.active = false;
+  stopDevice() {
+    this.active = false;
 
-        // stop visualization
-        this.disconnect();
+    // stop visualization
+    this.disconnect();
 
-        // stop stream from device
-        if (this.stream) {
-            // MediaStream.stop is deprecated since:
-            // - Firefox 44 (https://www.fxsitecompat.com/en-US/docs/2015/mediastream-stop-has-been-deprecated/)
-            // - Chrome 45 (https://developers.google.com/web/updates/2015/07/mediastream-deprecations)
-            if (
-                (this.browser.browser === 'chrome' && this.browser.version >= 45) ||
+    // stop stream from device
+    if (this.stream) {
+      // MediaStream.stop is deprecated since:
+      // - Firefox 44 (https://www.fxsitecompat.com/en-US/docs/2015/mediastream-stop-has-been-deprecated/)
+      // - Chrome 45 (https://developers.google.com/web/updates/2015/07/mediastream-deprecations)
+      if (
+        (this.browser.browser === 'chrome' && this.browser.version >= 45) ||
         (this.browser.browser === 'firefox' && this.browser.version >= 44) ||
         this.browser.browser === 'edge' ||
         this.browser.browser === 'safari'
-            ) {
-                if (this.stream.getTracks) {
-                    // note that this should not be a call
-                    this.stream.getTracks().forEach(stream => stream.stop());
-                    return;
-                }
-            }
-
-            this.stream.stop();
+      ) {
+        if (this.stream.getTracks) {
+          // note that this should not be a call
+          this.stream.getTracks().forEach(stream => stream.stop());
+          return;
         }
-    }
+      }
 
-    /**
+      this.stream.stop();
+    }
+  }
+
+  /**
    * Connect the media sources that feed the visualization.
    */
-    connect() {
-        if (this.stream !== undefined) {
-            // Create a local buffer for data to be copied to the Wavesurfer buffer for Edge
-            if (this.browser.browser === 'edge') {
-                this.localAudioBuffer = this.micContext.createBuffer(
-                    this.numberOfInputChannels,
-                    this.bufferSize,
-                    this.micContext.sampleRate
-                );
-            }
+  connect() {
+    if (this.stream !== undefined) {
+      // Create a local buffer for data to be copied to the Wavesurfer buffer for Edge
+      if (this.browser.browser === 'edge') {
+        this.localAudioBuffer = this.micContext.createBuffer(
+          this.numberOfInputChannels,
+          this.bufferSize,
+          this.micContext.sampleRate
+        );
+      }
 
-            // Create an AudioNode from the stream.
-            this.mediaStreamSource = this.micContext.createMediaStreamSource(this.stream);
+      // Create an AudioNode from the stream.
+      this.mediaStreamSource = this.micContext.createMediaStreamSource(this.stream);
 
-            this.levelChecker = this.micContext.createScriptProcessor(
-                this.bufferSize,
-                this.numberOfInputChannels,
-                this.numberOfOutputChannels
-            );
-            this.mediaStreamSource.connect(this.levelChecker);
+      this.levelChecker = this.micContext.createScriptProcessor(
+        this.bufferSize,
+        this.numberOfInputChannels,
+        this.numberOfOutputChannels
+      );
+      this.mediaStreamSource.connect(this.levelChecker);
 
-            this.levelChecker.connect(this.micContext.destination);
-            this.levelChecker.onaudioprocess = this.reloadBufferFunction;
-        }
+      this.levelChecker.connect(this.micContext.destination);
+      this.levelChecker.onaudioprocess = this.reloadBufferFunction;
     }
+  }
 
-    /**
+  /**
    * Disconnect the media sources that feed the visualization.
    */
-    disconnect() {
-        if (this.mediaStreamSource !== undefined) {
-            this.mediaStreamSource.disconnect();
-        }
-
-        if (this.levelChecker !== undefined) {
-            this.levelChecker.disconnect();
-            this.levelChecker.onaudioprocess = undefined;
-        }
-
-        if (this.localAudioBuffer !== undefined) {
-            this.localAudioBuffer = undefined;
-        }
+  disconnect() {
+    if (this.mediaStreamSource !== undefined) {
+      this.mediaStreamSource.disconnect();
     }
 
-    /**
+    if (this.levelChecker !== undefined) {
+      this.levelChecker.disconnect();
+      this.levelChecker.onaudioprocess = undefined;
+    }
+
+    if (this.localAudioBuffer !== undefined) {
+      this.localAudioBuffer = undefined;
+    }
+  }
+
+  /**
    * Redraw the waveform.
    *
    * @param {object} event Audioprocess event
    */
-    reloadBuffer(event) {
-        if (!this.paused) {
-            this.wavesurfer.empty();
+  reloadBuffer(event) {
+    if (!this.paused) {
+      this.wavesurfer.empty();
 
-            if (this.browser.browser === 'edge') {
-                // copy audio data to a local audio buffer,
-                // from https://github.com/audiojs/audio-buffer-utils
-                let channel;
-                let l;
-                for (
-                    channel = 0,
-                    l = Math.min(
-                        this.localAudioBuffer.numberOfChannels,
-                        event.inputBuffer.numberOfChannels
-                    );
-                    channel < l;
-                    channel++
-                ) {
-                    this.localAudioBuffer
-                        .getChannelData(channel)
-                        .set(event.inputBuffer.getChannelData(channel));
-                }
-
-                this.wavesurfer.loadDecodedBuffer(this.localAudioBuffer);
-            } else {
-                this.wavesurfer.loadDecodedBuffer(event.inputBuffer);
-            }
+      if (this.browser.browser === 'edge') {
+        // copy audio data to a local audio buffer,
+        // from https://github.com/audiojs/audio-buffer-utils
+        let channel;
+        let l;
+        for (
+          channel = 0,
+            l = Math.min(
+              this.localAudioBuffer.numberOfChannels,
+              event.inputBuffer.numberOfChannels
+            );
+          channel < l;
+          channel++
+        ) {
+          this.localAudioBuffer
+            .getChannelData(channel)
+            .set(event.inputBuffer.getChannelData(channel));
         }
-    }
 
-    /**
+        this.wavesurfer.loadDecodedBuffer(this.localAudioBuffer);
+      } else {
+        this.wavesurfer.loadDecodedBuffer(event.inputBuffer);
+      }
+    }
+  }
+
+  /**
    * Audio input device is ready.
    *
    * @param {MediaStream} stream The microphone's media stream.
    */
-    gotStream(stream) {
-        this.stream = stream;
-        this.active = true;
+  gotStream(stream) {
+    this.stream = stream;
+    this.active = true;
 
-        // start visualization
-        this.play();
+    // start visualization
+    this.play();
 
-        // notify listeners
-        this.fireEvent('deviceReady', stream);
-    }
+    // notify listeners
+    this.fireEvent('deviceReady', stream);
+  }
 
-    /**
+  /**
    * Device error callback.
    *
    * @param {string} code Error message
    */
-    deviceError(code) {
+  deviceError(code) {
     // notify listeners
-        this.fireEvent('deviceError', code);
-    }
+    this.fireEvent('deviceError', code);
+  }
 
-    /**
+  /**
    * Extract browser version out of the provided user agent string.
    * @param {!string} uastring userAgent string.
    * @param {!string} expr Regular expression used as match criteria.
    * @param {!number} pos position in the version string to be returned.
    * @return {!number} browser version.
    */
-    extractVersion(uastring, expr, pos) {
-        const match = uastring.match(expr);
-        return match && match.length >= pos && parseInt(match[pos], 10);
-    }
+  extractVersion(uastring, expr, pos) {
+    const match = uastring.match(expr);
+    return match && match.length >= pos && parseInt(match[pos], 10);
+  }
 
-    /**
+  /**
    * Browser detector.
    * @return {object} result containing browser, version and minVersion
    *     properties.
    */
-    detectBrowser() {
+  detectBrowser() {
     // Returned result object.
     const result = {};
     result.browser = null;
@@ -371,21 +371,21 @@ export default class MicrophonePlugin {
       result.minVersion = 31;
       return result;
     }
-        if (navigator.webkitGetUserMedia) {
+    if (navigator.webkitGetUserMedia) {
       // Chrome/Chromium/Webview/Opera
       result.browser = 'chrome';
       result.version = this.extractVersion(navigator.userAgent, /Chrom(e|ium)\/(\d+)\./, 2);
       result.minVersion = 38;
       return result;
     }
-        if (navigator.mediaDevices && navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)) {
+    if (navigator.mediaDevices && navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)) {
       // Edge
       result.browser = 'edge';
       result.version = this.extractVersion(navigator.userAgent, /Edge\/(\d+).(\d+)$/, 2);
       result.minVersion = 10547;
       return result;
     }
-        if (window.RTCPeerConnection && navigator.userAgent.match(/AppleWebKit\/(\d+)\./)) {
+    if (window.RTCPeerConnection && navigator.userAgent.match(/AppleWebKit\/(\d+)\./)) {
       // Safari
       result.browser = 'safari';
       result.minVersion = 11;
