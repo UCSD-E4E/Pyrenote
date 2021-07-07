@@ -10,7 +10,9 @@ const Home = () => {
         <Button
           size="lg"
           type="primary"
-          onClick={() => {window.location.href = `/newUser`}}
+          onClick={() => {
+            window.location.href = `/newUser`;
+          }}
           text="No Account? Sign up here!"
         />
       </div>

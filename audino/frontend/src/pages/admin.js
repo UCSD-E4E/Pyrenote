@@ -43,9 +43,9 @@ class Admin extends React.Component {
           isProjectLoading: false
         });
       })
-      .catch(error => {
+      .catch(() => {
         this.setState({
-          errorMessage: error.response.data.message,
+          // errorMessage: error.response.data.message,
           isProjectLoading: false
         });
       });
@@ -57,20 +57,12 @@ class Admin extends React.Component {
       .then(response => {
         this.setState({ users: response.data.users, isUserLoading: false });
       })
-      .catch(error => {
+      .catch(() => {
         this.setState({
-          errorMessage: error.response.data.message,
+          // errorMessage: error.response.data.message,
           isUserLoading: false
         });
       });
-  }
-
-  refreshPage() {
-    const { history } = this.props;
-    history.replace({ pathname: '/empty' });
-    setTimeout(() => {
-      history.replace({ pathname: '/admin' });
-    });
   }
 
   handleNewProject() {
@@ -80,7 +72,11 @@ class Admin extends React.Component {
 
   handleEditProject(e, projectId) {
     this.setModalShow(true);
-    this.setState({ formType: 'Edit_PROJECT', title: 'Edit Project', projectId });
+    this.setState({
+      formType: 'Edit_PROJECT',
+      title: 'Edit Project',
+      projectId
+    });
   }
 
   handleDeleteProject() {
@@ -100,7 +96,6 @@ class Admin extends React.Component {
 
   handleDeleteUser(e, userId) {
     // TODO: CREATE MODAL TO CONFRIM BUT FOR NOW MAKE DEV BUTTON
-    console.log('DELETE USER', userId);
     this.setModalShow(true);
     this.setState({ formType: 'DELETE_USER', title: 'Delete User', userId });
   }
@@ -120,7 +115,6 @@ class Admin extends React.Component {
   }
 
   handleUploadDataToProject(e, projectName, projectId, api_key) {
-    console.log(api_key, 'hi');
     this.setModalShow(true);
     this.setState({
       formType: 'UPLOAD_DATA',
@@ -132,7 +126,6 @@ class Admin extends React.Component {
   }
 
   handleDownloadDataToProject(e, projectName, projectId, api_key) {
-    console.log(api_key, 'hi');
     this.setModalShow(true);
     this.setState({
       formType: 'DOWNLOAD_DATA',
@@ -141,6 +134,34 @@ class Admin extends React.Component {
       projectName,
       api_key
     });
+  }
+
+  setModalShow(modalShow) {
+    this.setState({ modalShow });
+  }
+
+  refreshPage() {
+    const { history } = this.props;
+    history.replace({ pathname: '/empty' });
+    setTimeout(() => {
+      history.replace({ pathname: '/admin' });
+    });
+  }
+
+  _export_raw(name, data) {
+    const urlObject = window.URL || window.webkitURL || window;
+    const export_blob = new Blob(data);
+
+    if ('msSaveBlob' in navigator) {
+      navigator.msSaveBlob(export_blob, name);
+    } else if ('download' in HTMLAnchorElement.prototype) {
+      const save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+      save_link.href = urlObject.createObjectURL(export_blob);
+      save_link.download = name;
+      this._fake_click(save_link);
+    } else {
+      throw new Error('Neither a[download] nor msSaveBlob is available');
+    }
   }
 
   _fake_click(obj) {
@@ -163,26 +184,6 @@ class Admin extends React.Component {
       null
     );
     obj.dispatchEvent(ev);
-  }
-
-  _export_raw(name, data) {
-    const urlObject = window.URL || window.webkitURL || window;
-    const export_blob = new Blob(data);
-
-    if ('msSaveBlob' in navigator) {
-      navigator.msSaveBlob(export_blob, name);
-    } else if ('download' in HTMLAnchorElement.prototype) {
-      const save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
-      save_link.href = urlObject.createObjectURL(export_blob);
-      save_link.download = name;
-      this._fake_click(save_link);
-    } else {
-      throw new Error('Neither a[download] nor msSaveBlob is available');
-    }
-  }
-
-  setModalShow(modalShow) {
-    this.setState({ modalShow });
   }
 
   render() {
@@ -245,64 +246,65 @@ class Admin extends React.Component {
                     </tr>
                   </thead>
                   <tbody>
-                    {projects.map((project, index) => {
-                      return (
-                        <tr key={index}>
-                          <th scope="row" className="align-middle">
-                            {index + 1}
-                          </th>
-                          <td className="align-middle">{project.name}</td>
-                          <td className="align-middle">{project.created_by}</td>
-                          <td className="align-middle">{project.api_key}</td>
-                          <td className="align-middle">
-                            <IconButton
-                              icon={faUserPlus}
-                              size="sm"
-                              title="Manage users"
-                              onClick={e =>
-                                this.handleAddUsersToProject(e, project.project_id, project.name)}
-                            />
-                            <IconButton
-                              icon={faTags}
-                              size="sm"
-                              title="Manage labels"
-                              onClick={e => this.handleAddLabelsToProject(e, project.project_id)}
-                            />
-                            <IconButton
-                              icon={faEdit}
-                              size="sm"
-                              title="Edit Annotations"
-                              onClick={e => this.handleEditProject(e, project.project_id)}
-                            />
-                            <div />
-                            <IconButton
-                              icon={faUpload}
-                              size="sm"
-                              title="Upload Data"
-                              onClick={e =>
-                                this.handleUploadDataToProject(
-                                  e,
-                                  project.name,
-                                  project.project_id,
-                                  project.api_key
-                                )}
-                            />
-                            <IconButton
-                              icon={faDownload}
-                              size="sm"
-                              title="Download Data"
-                              onClick={e =>
-                                this.handleDownloadDataToProject(
-                                  e,
-                                  project.name,
-                                  project.project_id,
-                                  project.api_key
-                                )}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {projects.map((project, index) => (
+                      <tr key={index}>
+                        <th scope="row" className="align-middle">
+                          {index + 1}
+                        </th>
+                        <td className="align-middle">{project.name}</td>
+                        <td className="align-middle">{project.created_by}</td>
+                        <td className="align-middle">{project.api_key}</td>
+                        <td className="align-middle">
+                          <IconButton
+                            icon={faUserPlus}
+                            size="sm"
+                            title="Manage users"
+                            onClick={e =>
+                              this.handleAddUsersToProject(e, project.project_id, project.name)
+                            }
+                          />
+                          <IconButton
+                            icon={faTags}
+                            size="sm"
+                            title="Manage labels"
+                            onClick={e => this.handleAddLabelsToProject(e, project.project_id)}
+                          />
+                          <IconButton
+                            icon={faEdit}
+                            size="sm"
+                            title="Edit Annotations"
+                            onClick={e => this.handleEditProject(e, project.project_id)}
+                          />
+                          <div />
+                          <IconButton
+                            icon={faUpload}
+                            size="sm"
+                            title="Upload Data"
+                            onClick={e =>
+                              this.handleUploadDataToProject(
+                                e,
+                                project.name,
+                                project.project_id,
+                                project.api_key
+                              )
+                            }
+                          />
+                          <IconButton
+                            icon={faDownload}
+                            size="sm"
+                            title="Download Data"
+                            onClick={e =>
+                              this.handleDownloadDataToProject(
+                                e,
+                                project.name,
+                                project.project_id,
+                                project.api_key
+                              )
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               ) : null}
@@ -339,32 +341,30 @@ class Admin extends React.Component {
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((user, index) => {
-                      return (
-                        <tr key={index}>
-                          <th scope="row" className="align-middle">
-                            {index + 1}
-                          </th>
-                          <td className="align-middle">{user.username}</td>
-                          <td className="align-middle">{user.role}</td>
-                          <td className="align-middle">{user.created_on}</td>
-                          <td className="align-middle">
-                            <IconButton
-                              icon={faEdit}
-                              size="sm"
-                              title="Edit user"
-                              onClick={e => this.handleEditUser(e, user.user_id)}
-                            />
-                            <IconButton
-                              icon={faTrash}
-                              size="sm"
-                              title="Delete User"
-                              onClick={e => this.handleDeleteUser(e, user.user_id)}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {users.map((user, index) => (
+                      <tr key={index}>
+                        <th scope="row" className="align-middle">
+                          {index + 1}
+                        </th>
+                        <td className="align-middle">{user.username}</td>
+                        <td className="align-middle">{user.role}</td>
+                        <td className="align-middle">{user.created_on}</td>
+                        <td className="align-middle">
+                          <IconButton
+                            icon={faEdit}
+                            size="sm"
+                            title="Edit user"
+                            onClick={e => this.handleEditUser(e, user.user_id)}
+                          />
+                          <IconButton
+                            icon={faTrash}
+                            size="sm"
+                            title="Delete User"
+                            onClick={e => this.handleDeleteUser(e, user.user_id)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               ) : null}

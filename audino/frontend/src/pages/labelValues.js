@@ -143,7 +143,8 @@ class LabelValues extends React.Component {
                               size="sm"
                               title="Edit label value"
                               onClick={e =>
-                                this.handleEditLabelValue(e, labelId, labelValue.value_id)}
+                                this.handleEditLabelValue(e, labelId, labelValue.value_id)
+                              }
                             />
                             <IconButton
                               icon={faTrash}

@@ -4,12 +4,7 @@ import CreateUserForm from '../containers/forms/createUserForm';
 
 class CreateUser extends React.Component {
   constructor(props) {
-    // const { location } = this.props;
     super(props);
-    this.state = {
-      projects: [],
-      isProjectLoading: false
-    };
   }
 
   goBack() {
