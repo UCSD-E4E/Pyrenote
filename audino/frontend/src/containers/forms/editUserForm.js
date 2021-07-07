@@ -6,7 +6,7 @@ import { withStore } from '@spyna/react-store';
 import Alert from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
-import { setAuthorizationToken } from '../../utils';
+import setAuthorizationToken from '../../utils';
 
 class EditUserForm extends React.Component {
   constructor(props) {

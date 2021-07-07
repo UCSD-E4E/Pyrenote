@@ -8,4 +8,4 @@ const setAuthorizationToken = token => {
   }
 };
 
-export default { setAuthorizationToken };
+export default setAuthorizationToken ;

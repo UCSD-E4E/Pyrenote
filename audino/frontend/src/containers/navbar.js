@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
-import { setAuthorizationToken } from '../utils';
+import setAuthorizationToken from '../utils';
 
 class NavBar extends React.Component {
   handleLogout(e) {

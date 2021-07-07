@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
-import { setAuthorizationToken } from '../../utils';
+import setAuthorizationToken from '../../utils';
 import Alert from '../../components/alert';
 import { Button } from '../../components/button';
 

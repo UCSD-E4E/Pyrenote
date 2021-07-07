@@ -6,7 +6,7 @@ import { withStore } from '@spyna/react-store';
 import Alert from '../../components/alert';
 import { Button } from '../../components/button';
 
-import { setAuthorizationToken } from '../../utils';
+import setAuthorizationToken from '../../utils';
 
 class LoginForm extends React.Component {
   constructor(props) {
