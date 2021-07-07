@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
@@ -50,11 +49,7 @@ class UploadDataForm extends React.Component {
       }); */
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
-  handleUpload(e) {
+  handleUpload() {
     const { uploadUrl, apiKey, files } = this.state;
     console.log(apiKey);
     console.log('hello?');
@@ -109,7 +104,7 @@ class UploadDataForm extends React.Component {
       console.log(data);
       data.then(data => {
         console.log(data);
-        if (data.code != 201 && data.type != 'DATA_CREATED') {
+        if (data.code !== 201 && data.type !== 'DATA_CREATED') {
           this.setState({
             isSubmitting: false,
             errorMessage: data.message,
@@ -132,6 +127,10 @@ class UploadDataForm extends React.Component {
   onChangeHandler(e) {
     console.log(e.target.files);
     this.setState({ files: e.target.files });
+  }
+
+  resetState() {
+    this.setState(this.initialState);
   }
 
   handleAlertDismiss(e) {
