@@ -8,7 +8,7 @@ import setAuthorizationToken from '../utils';
 
 class NavBar extends React.Component {
   handleLogout() {
-    const { history } = this.props;
+    const { history, store } = this.props;
 
     axios({
       method: 'delete',
@@ -16,9 +16,9 @@ class NavBar extends React.Component {
     })
       .then(() => {
         localStorage.removeItem('access_token');
-        this.props.store.set('isUserLoggedIn', false);
-        this.props.store.set('isAdmin', false);
-        this.props.store.set('isLoading', false);
+        store.set('isUserLoggedIn', false);
+        store.set('isAdmin', false);
+        store.set('isLoading', false);
 
         setAuthorizationToken(null);
 
