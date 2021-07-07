@@ -26,9 +26,8 @@ class Dashboard extends React.Component {
           isProjectLoading: false
         });
       })
-      .catch(error => {
+      .catch(() => {
         this.setState({
-          errorMessage: error.response.data.message,
           isProjectLoading: false
         });
       });
