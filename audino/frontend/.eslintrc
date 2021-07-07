@@ -1,13 +1,15 @@
 {
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
-  //"ignorePatterns": ["/src/wavesurfer.js"],
+  "ignorePatterns": ["/src/wavesurfer.js"],
   "env": {
     "browser": true,
     "commonjs": true
   },
   "rules": {
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/prop-types": "off",
+    "allowForLoopAfterthoughts": 1,
     "prettier/prettier": [
       "error",
       {
@@ -21,7 +23,6 @@
         "singleQuote": true
       }
     ],
-    "no-console": "off"
-    
+    "no-console": "warn"
   }
 }
