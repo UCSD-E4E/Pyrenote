@@ -11,27 +11,6 @@ class CreateUser extends React.Component {
       isProjectLoading: false
     };
   }
-
-  /* componentDidMount() {
-    this.setState({ isProjectLoading: true });
-
-    axios({
-      method: "get",
-      url: "/api/current_user/projects",
-    })
-      .then((response) => {
-        this.setState({
-          projects: response.data.projects,
-          isProjectLoading: false,
-        });
-      })
-      .catch((error) => {
-        this.setState({
-          errorMessage: error.response.data.message,
-          isProjectLoading: false,
-        });
-      });
-  } */
   goBack() {
     const index = window.location.href.indexOf('/newUser');
     const path = window.location.href.substring(0, index);
@@ -39,7 +18,6 @@ class CreateUser extends React.Component {
   }
 
   render() {
-    const { isProjectLoading, projects } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">

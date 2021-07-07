@@ -41,21 +41,6 @@ class Annotate extends React.Component {
   }
 
   render() {
-    const {
-      zoom,
-      isPlaying,
-      labels,
-      isDataLoading,
-      isMarkedForReview,
-      referenceTranscription,
-      selectedSegment,
-      isSegmentDeleting,
-      isSegmentSaving,
-      errorMessage,
-      errorUnsavedMessage,
-      successMessage,
-      isRendering,
-    } = this.state;
     return (
       <div>
         <Suspense fallback={

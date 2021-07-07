@@ -75,7 +75,7 @@ class DeleteLabelForm extends React.Component {
   }
 
   render() {
-    const { value, isSubmitting, errorMessage, successMessage, isLoading } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isLoading } = this.state;
 
     return (
       <div className="container h-75 text-center">

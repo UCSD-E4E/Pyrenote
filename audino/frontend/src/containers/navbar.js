@@ -7,7 +7,7 @@ import { withStore } from '@spyna/react-store';
 import setAuthorizationToken from '../utils';
 
 class NavBar extends React.Component {
-  handleLogout(e) {
+  handleLogout() {
     const { history } = this.props;
 
     axios({
@@ -32,7 +32,6 @@ class NavBar extends React.Component {
 
   render() {
     const isUserLoggedIn = this.props.store.get('isUserLoggedIn');
-    const isAdmin = this.props.store.get('isAdmin');
 
     return (
       <nav className="navbar navbar-expand-md bg-dark navbar-dark">

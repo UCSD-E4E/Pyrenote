@@ -30,25 +30,6 @@ class UploadDataForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
-  componentDidMount() {
-    /* const { uploadUrl } = this.state;
-
-    this.setState({ isLoading: true });
-
-    axios
-      .all([axios.get(projectUrl), axios.get(getUsersUrl)])
-      .then((response) => {
-        const selectedUsers = response[0].data.users.map((user) =>
-          Number(user["user_id"])
-        );
-        this.setState({
-          selectedUsers,
-          users: response[1].data.users,
-          isLoading: false,
-        });
-      }); */
-  }
-
   handleUpload() {
     const { uploadUrl, apiKey, files } = this.state;
     console.log(apiKey);
@@ -63,38 +44,6 @@ class UploadDataForm extends React.Component {
     formData.append('apiKey', apiKey);
     formData.append('username', ['admin', 'admin']);
     formData.append('file_length', files.length);
-    /*
-    var formData = new FormData();
-    var imagefile = document.querySelector('#file');
-    formData.append("image", imagefile.files[0]);
-    axios.post('upload_file', formData, {
-        headers: {
-        'Content-Type': 'multipart/form-data'
-        }
-    })
-    */
-    // console.log(file)
-    /* axios({
-      method: "post",
-      url: uploadUrl,
-      form: formData,
-      headers: { "Content-Type": "multipart/form-data" },
-      
-    })
-      .then((response) => {
-        this.setState({
-          isSubmitting: false,
-          successMessage: response.data.message,
-          errorMessage: null,
-        });
-      })
-      .catch((error) => {
-        this.setState({
-          isSubmitting: false,
-          errorMessage: error.response.data.message,
-          successMessage: "",
-        });
-      }); */
     this.setState({ isLoading: true });
     fetch(uploadUrl, {
       method: 'POST',

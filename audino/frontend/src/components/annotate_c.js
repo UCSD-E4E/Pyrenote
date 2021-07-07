@@ -1,17 +1,11 @@
 import axios from "axios";
 import React from "react";
 import WaveSurfer from "/app/frontend/src/wavesurfer.js/src/wavesurfer.js";
-import RegionsPlugin from "/app/frontend/src/wavesurfer.js/src/plugin/regions/index.js"; //"wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"; //frontend\src\wavesurfer.js
-// import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
+import RegionsPlugin from "/app/frontend/src/wavesurfer.js/src/plugin/regions/index.js";
 import SpectrogramPlugin from "/app/frontend/src/wavesurfer.js/src/plugin/spectrogram/index.js";
 import { Helmet } from "react-helmet";
 import { withRouter } from "react-router-dom";
-//import drawer from "frontend/src/pages/wavesurfer_drawer_extended.js";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import magma from "/app/frontend/src/colormap/colormap.min.js";
 import {
-  // faSearchMinus,
-  // faSearchPlus,
   faBackward,
   faForward,
   faPlayCircle,
@@ -20,10 +14,6 @@ import {
 import Alert from "../components/alert";
 import { IconButton, Button } from "../components/button";
 import Loader from "../components/loader";
-// import { text } from "@fortawesome/fontawesome-svg-core";
-//import Data from "./data";
-//import * as data from "./data.js";
-//import "./data";
 
 let colormap = require("colormap");
 
@@ -87,8 +77,7 @@ class Annotate_C extends React.Component {
     console.log(new Date().toLocaleString());
     let { page, active } = this.state;
 
-    var apiUrl = `/api/current_user/unknown/projects/${this.state.projectId}/data/${this.state.dataId}`; ///page/${page}`
-    //`/api/current_user/projects/${this.state.projectId}/data/${this.state.dataId}`///page/${page}`
+    var apiUrl = `/api/current_user/unknown/projects/${this.state.projectId}/data/${this.state.dataId}`;
     console.log(this.state.dataId);
     console.log(page);
     console.log(this.state.page);
@@ -121,15 +110,7 @@ class Annotate_C extends React.Component {
           url: apiUrl2,
         })
           .then((response) => {
-            const {
-              data,
-              count,
-              active,
-              page,
-              cuFrrPage,
-              next_page,
-              prev_page,
-            } = response.data;
+            const { data } = response.data;
             console.log(data);
             next_data_url = `/projects/${projectId}/data/${data[0]["data_id"]}/annotate`;
             var index = window.location.href.indexOf("/projects");
@@ -157,10 +138,6 @@ class Annotate_C extends React.Component {
       });
 
     var spectrogramColorMap = colormap({
-      /*colormap: 'jet',
-      nshades: 10, //256
-      format: 'hex',
-      alpha: 1*/
       colormap: "hot",
       nshades: 256,
       format: "float",
@@ -184,7 +161,6 @@ class Annotate_C extends React.Component {
       maxCanvasWidth: 5000000, //false,
       plugins: [
         SpectrogramPlugin.create({
-          //wavesurfer: wavesurfer,
           fftSamples: fftSamples,
           position: "relative",
           container: "#wavegraph",
@@ -192,10 +168,8 @@ class Annotate_C extends React.Component {
           labels: true,
           scrollParent: true,
           colorMap: spectrogramColorMap,
-          //pixelRatio: 1,
         }),
         RegionsPlugin.create(),
-        //TimelinePlugin.create({ container: "#timeline" }),
       ],
     });
     this.showSegmentTranscription(null);
@@ -203,11 +177,9 @@ class Annotate_C extends React.Component {
       wavesurfer.stop();
     });
     wavesurfer.on("ready", () => {
-      console.log("Wavesurfer is ready");
-      console.log("zoom checks");
       console.log(wavesurfer.drawer.getWidth());
       console.log(wavesurfer.getDuration() * wavesurfer.params.minPxPerSec);
-      let screenSize = window.screen.width; //window.innerWidth;
+      let screenSize = window.screen.width;
       if (
         screenSize >
         wavesurfer.getDuration() * wavesurfer.params.minPxPerSec
@@ -216,18 +188,11 @@ class Annotate_C extends React.Component {
         console.log(wavesurfer.spectrogram);
         wavesurfer.spectrogram._onUpdate(screenSize);
       }
-      console.log("zoom checks");
       this.state.isRendering = false;
       this.setState({ isRendering: false });
-      console.log(new Date().toLocaleString());
-      //wavesurfer.drawer.canvases[0].position = 'relative';
-      //document.getElementById("myBtn").style.left = "100px";
-      //wavesurfer.spectrogram.wrapper =  <canvas width="1170" height="256" style="position: relative; z-index: 4; width: 1170px;"></canvas>;
-      console.log(wavesurfer.spectrogram.wrapper);
       wavesurfer.enableDragSelection({ color: "rgba(0, 102, 255, 0.3)" });
     });
     wavesurfer.on("region-updated", (region) => {
-      console.log("changed");
       this.handlePause();
       region.style(region.element, {
         backgroundColor: "rgba(0, 102, 255, 0.3)",
@@ -256,19 +221,11 @@ class Annotate_C extends React.Component {
       }
 
       r.once("out", () => {
-        //wavesurfer.play(r.start);
         console.log("pausing on out");
-        //wavesurfer.pause();
       });
     });
 
     wavesurfer.on("region-click", (r, e) => {
-      const { selectedSegment } = this.state;
-      /*if (selectedSegment.saved = true) {
-        region.style(region.element, {backgroundColor:  "rgba(0, 0, 0, 0.7)",});
-      } else {
-        region.style(region.element, {backgroundColor:  "rgba(0, 102, 255, 0.3)",});
-      }*/
       e.stopPropagation();
       this.setState({
         isPlaying: true,
@@ -322,7 +279,6 @@ class Annotate_C extends React.Component {
         });
 
         wavesurfer.load(`/audios/${filename}`);
-        //wavesurfer.drawBuffer();
         const { zoom } = this.state;
         wavesurfer.zoom(zoom);
 
@@ -516,8 +472,8 @@ class Annotate_C extends React.Component {
     }
   }
 
-  handleAllSegmentSave(e) {
-    const { selectedSegment, segmentationUrl, wavesurfer } = this.state;
+  handleAllSegmentSave() {
+    const { segmentationUrl, wavesurfer } = this.state;
     console.log(wavesurfer.regions.list);
     for (var segment_name in wavesurfer.regions.list) {
       console.log("still running save");
@@ -569,7 +525,6 @@ class Annotate_C extends React.Component {
                 successMessage: "Segment saved",
                 errorMessage: null,
               });
-              //segment.update({color: 'rgba(40, 40, 40, 0.7)'})
               segment.style(segment.element, {
                 backgroundColor: "rgba(0, 0, 0, 0.7)",
               });
@@ -656,12 +611,8 @@ class Annotate_C extends React.Component {
 
   // Go to the next audio recording
   handleNextClip(e, forceNext = false) {
-    //all possible code saved, lets continue!
     this.handleAllSegmentSave(e);
-    console.log("SAVE IS GOOD LETS KEEP GOING");
     const {
-      selectedSegment,
-      segmentationUrl,
       wavesurfer,
       previous_pages,
       num_of_prev,
@@ -749,12 +700,9 @@ class Annotate_C extends React.Component {
 
   // Go to previous audio recording
   handlePreviousClip(e, forceNext = false) {
-    //all possible code saved, lets continue!
     this.handleAllSegmentSave(e);
     console.log("SAVE IS GOOD LETS KEEP GOING");
     const {
-      selectedSegment,
-      segmentationUrl,
       wavesurfer,
       previous_pages,
       num_of_prev,
@@ -782,7 +730,6 @@ class Annotate_C extends React.Component {
       var previous = previous_pages[page_num];
       previous_pages[num_of_prev] = window.location.href;
       console.log(previous);
-      //num_of_prev--;
       localStorage.setItem("previous_links", JSON.stringify(previous_pages));
       localStorage.setItem("count", JSON.stringify(page_num));
       window.location.href = previous;
@@ -791,83 +738,21 @@ class Annotate_C extends React.Component {
       var index = window.location.href.indexOf("/projects");
       var path = window.location.href.substring(0, index);
       console.log("You have hit the end of the clips you have last seen");
-      //window.location.href = path + `/projects/${this.state.projectId}/data`;
     }
-    /*previous_pages[num_of_prev] = window.location.href
-    num_of_prev++;
-    localStorage.setItem("previous_links", JSON.stringify(previous_pages));
-    localStorage.setItem("count", JSON.stringify(num_of_prev));
-
-
-    console.log(this.state.page)
-    console.log(this.state.data)
-    console.log(window.location.href);
-    //TODO: FIX THIS LOGIC HERE TO ACTUALLY SET THE PREVIOUS CLIP
-    var newPageData = this.state.data[0];
-    console.log("entered loop")     
-    
-    for (var key in this.state.data) {
-      key = parseInt(key)
-      console.log(key - 1)
-      if (this.state.data[key]["data_id"] == this.state.dataId) {
-        console.log("exit loop")
-        try {
-          console.log(key - 1)
-          newPageData = this.state.data[key - 1];
-          console.log(newPageData);
-          console.log(newPageData["data_id"]);
-          var url = `/projects/${this.state.projectId}/data/${newPageData["data_id"]}/annotate`
-    
-          ///projects
-          console.log(window.location.href.indexOf("/projects"))
-          var index = window.location.href.indexOf("/projects")
-          var path =  window.location.href.substring(0, index);
-          console.log(path);
-          console.log(path+url);
-          window.location.href = path+url;
-        }
-        catch(e) {
-          try {
-            console.log("hello")
-            console.log(this.state.next_data_url)
-            if (this.state.data[0]["data_id"] != this.state.next_data_id) {
-              window.location.href = this.state.next_data_url
-            }
-            else {
-              throw "no data remains"
-            }
-            //
-          } catch(e) {
-            console.log("oppise " + e)
-            console.log("oppise " + e)
-            var index = window.location.href.indexOf("/projects")
-            var path =  window.location.href.substring(0, index);
-            window.location.href = path + `/projects/${this.state.projectId}/data`;
-            //TODO: Implement next page logic here
-          }
-        }
-        console.log(newPageData)
-        break;
-      }
-    }*/
   }
 
   render() {
     const {
-      data,
-      zoom,
       isPlaying,
       labels,
       isDataLoading,
       isMarkedForReview,
-      referenceTranscription,
       selectedSegment,
       isSegmentDeleting,
       isSegmentSaving,
       errorMessage,
       errorUnsavedMessage,
       successMessage,
-      isRendering,
     } = this.state;
     return (
       <div>
@@ -1037,23 +922,11 @@ class Annotate_C extends React.Component {
                         text="Delete"
                       />
                     </div>
-                    {/*<div className="col-2">
-                        <Button
-                          size="lg"
-                          type="primary"
-                          //disabled={isSegmentSaving}
-                          onClick={(e) => this.handleSegmentSave(e)}
-                          //sSubmitting={isSegmentSaving}
-                          text="Save Current Segment"
-                        />
-                    </div>*/}
                     <div className="col-2">
                       <Button
                         size="lg"
                         type="primary"
-                        //disabled={isSegmentSaving}
                         onClick={(e) => this.handleAllSegmentSave(e)}
-                        //sSubmitting={isSegmentSaving}
                         text="Save All"
                       />
                     </div>

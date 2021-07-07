@@ -6,7 +6,6 @@ import { withStore } from '@spyna/react-store';
 
 import Alert from '../../components/alert';
 import { Button } from '../../components/button';
-import LabelValues from '../../pages/labelValues';
 
 class CreateLabelValueForm extends React.Component {
   constructor(props) {

@@ -6,7 +6,6 @@ import { withStore } from '@spyna/react-store';
 import Alert from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
-import LabelValues from '../../pages/labelValues';
 
 class DeleteLabelValueForm extends React.Component {
   constructor(props) {
@@ -25,10 +24,6 @@ class DeleteLabelValueForm extends React.Component {
     };
 
     this.state = { ...this.initialState };
-  }
-
-  componentDidMount() {
-    console.log('DELETE LABEL FORM HAS RENDER TADA');
   }
 
   resetState() {
@@ -79,7 +74,7 @@ class DeleteLabelValueForm extends React.Component {
   }
 
   render() {
-    const { value, isSubmitting, errorMessage, successMessage, isLoading } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isLoading } = this.state;
 
     return (
       <div className="container h-75 text-center">

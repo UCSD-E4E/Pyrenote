@@ -83,18 +83,11 @@ class LabelValues extends React.Component {
 
   refreshPage() {
     this.componentDidMount();
-    /* const { history } = this.props;
-    const { labelsUrl } = this.state;
-    history.replace({ pathname: "/empty" });
-    setTimeout(() => {
-      history.replace({ pathname: labelsUrl });
-    }); */
   }
 
   render() {
     const { labelValues, labelId, labelValueId, formType, title, modalShow, isLabelValuesLoading } =
       this.state;
-    console.log(labelId);
     return (
       <div>
         <div className="container h-100">

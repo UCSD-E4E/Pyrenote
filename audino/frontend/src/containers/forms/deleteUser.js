@@ -135,7 +135,7 @@ class DeleteUserForm extends React.Component {
                       disabled={!!isSubmitting}
                       onClick={e => this.handleUserUpdation(e)}
                       isSubmitting={isSubmitting}
-                      text="YES DELTE"
+                      text="YES DELETE"
                     />
                   </div>
                 </div>

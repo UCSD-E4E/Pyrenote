@@ -61,11 +61,8 @@ class CreateUserForm extends React.Component {
     e.preventDefault();
 
     this.setState({ isSubmitting: true });
-    // var authNeeded = this.authNeeded;
-    // console.log(authNeeded)
     const { username, password, role, authNeeded } = this.state;
     console.log(authNeeded);
-    const { history } = this.props;
 
     if (!username || username === '') {
       this.setState({
@@ -125,9 +122,6 @@ class CreateUserForm extends React.Component {
       .then(response => {
         if (response.status === 201) {
           if (!authNeeded) {
-            // var index = window.location.href.indexOf("/newUser")
-            // var path =  window.location.href.substring(0, index);
-            // window.location.href = path
             apiurl = 'api/projects/example';
             axios({
               method: 'patch',

@@ -2,16 +2,8 @@ import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
-import {
-  faPlusSquare,
-  faEdit,
-  faUserPlus,
-  faTags,
-  faDownload,
-  faTrash,
-  faUpload
-} from '@fortawesome/free-solid-svg-icons';
-import { IconButton, Button } from '../../components/button';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { IconButton } from '../../components/button';
 import Alert from '../../components/alert';
 
 import Loader from '../../components/loader';
@@ -93,7 +85,6 @@ class DownloadDataForm extends React.Component {
             download(csvContent, `${projectName}.csv`, 'text/csv;encoding:utf-8');
           } catch (e) {
             console.log(e);
-            // this._export_raw(`${projectName}.csv`, data);
           }
         } else {
           console.log('No annotations found');

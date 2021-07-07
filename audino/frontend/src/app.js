@@ -18,12 +18,9 @@ import {
   Labels,
   LabelValues,
   Data,
-  Database,
   CreateUser,
 } from "./pages";
 import NavBar from "./containers/navbar";
-import createUserForm from "./containers/forms/createUserForm";
-import { faWindowRestore } from "@fortawesome/free-solid-svg-icons";
 import React, { Suspense } from 'react';
 const Annotate = React.lazy(() => import("../src/pages/annotate"));
 const history = createBrowserHistory();
@@ -125,11 +122,9 @@ class App extends React.Component {
         });
     }
     else {
-      // console.log("hopefully just creating a user")
       this.props.store.set("isUserCreatingAccount", true);
       this.props.store.set("isUserLoggedIn", false);
       history.push("/newUser");
-      
     }
   }
 
@@ -153,7 +148,6 @@ class App extends React.Component {
               path="/"
               render={(props) => {
                 if (isUserLoggedIn === false) {
-                  // console.log(window.location.href)
                   if (isUserCreatingAccount && window.location.href.includes("/newUser")) {  // window.location.href.includes("/newUser")
                     return <Redirect {...props} to="/newUser"/>;
                   } else {

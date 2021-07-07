@@ -17,8 +17,6 @@ class Database extends React.Component {
     this.state = {
       projectId,
       data: [],
-      // active: params.get("active") || "pending",
-      // page: params.get("page") || 1,
       count: {
         pending: 0,
         completed: 0,
@@ -26,14 +24,6 @@ class Database extends React.Component {
         marked_review: 0
       },
       apiUrl: `/api/current_user/projects/${projectId}/data`,
-      /* tabUrls: {
-          pending: this.prepareUrl(projectId, 1, "pending"),
-          completed: this.prepareUrl(projectId, 1, "completed"),
-          all: this.prepareUrl(projectId, 1, "all"),
-          marked_review: this.prepareUrl(projectId, 1, "marked_review"),
-        },
-        nextPage: null,
-        prevPage: null, */
       isDataLoading: false
     };
   }
@@ -41,21 +31,18 @@ class Database extends React.Component {
   // USE TO GET ALL THE DATA SORTED BY PROJECTS
   omponentDidMount() {
     this.setState({ isDataLoading: true });
-    let { apiUrl, page, active } = this.state;
-    // apiUrl = `${apiUrl}?page=${page}&active=${active}`;
+    let { apiUrl } = this.state;
     apiUrl = `/current_user/projects/get_all`;
-    console.log('hello there');
     axios({
       method: 'get',
       url: apiUrl
     })
       .then(response => {
-        const { data, count } = response.data;
+        const { data } = response.data;
         this.setState({
           data,
           isDataLoading: false
         });
-        console.log('hello there');
       })
       .catch(error => {
         this.setState({
@@ -63,14 +50,14 @@ class Database extends React.Component {
           isDataLoading: false
         });
       });
-    // datas = data;
   }
 
-  select(e) {
+  // uhhhhhhh 
+  select() {
     console.log('hi');
   }
 
-  collaspable(e) {
+  collaspable() {
     const coll = document.getElementsByClassName('table table-striped text-center');
     var i = 0;
     for (var i = 0; i + 1 > coll.length; i++) {
@@ -97,7 +84,7 @@ class Database extends React.Component {
 
     // NOTE TO SELF, IF THE DATA ISN"T LOADING CHECK THE LENGTH OF THE DATA TO MAKE SURE IT IS IN THE RIGHT FORMAT VIA DATA.LENGTH (should be a value not undefined)
     this.state.isDataLoading = true;
-    let { apiUrl, page, active } = this.state;
+    let { apiUrl } = this.state;
     if (this.state.data == 0) {
       // apiUrl = `${apiUrl}?page=${page}&active=${active}`;
       apiUrl = '/api/current_user/projects/get_all';
@@ -107,7 +94,7 @@ class Database extends React.Component {
         url: apiUrl
       })
         .then(response => {
-          const { data, count } = response.data;
+          const { data } = response.data;
           this.setState({
             data,
             isDataLoading: false
@@ -121,9 +108,7 @@ class Database extends React.Component {
           });
         });
     }
-    const { data } = this.state;
-    // datas = data
-    // var isDataLoading = false;
+    const { data } = this.state
     const projectId = 1;
     console.log(data.length);
     if (data.length > 0) {
@@ -150,7 +135,6 @@ class Database extends React.Component {
                   <Button
                     size="lg"
                     type="primary"
-                    // disabled={isSegmentSaving}
                     onClick={e => this.collaspable(e)}
                     text="expand"
                   />
@@ -175,7 +159,6 @@ class Database extends React.Component {
                               <Button
                                 size="lg"
                                 type="primary"
-                                // disabled={isSegmentSaving}
                                 onClick={e => this.select(e)}
                                 text="Select"
                               />
@@ -187,7 +170,6 @@ class Database extends React.Component {
                               <Button
                                 size="lg"
                                 type="primary"
-                                // disabled={isSegmentSaving}
                                 onClick={e => this.select(e)}
                                 text="Trash"
                               />
@@ -206,16 +188,4 @@ class Database extends React.Component {
     );
   }
 }
-/**
- * for (var i = 0; i < coll.length; i++) {
-                    coll[i].addEventListener("click", function() {
-                        this.classList.toggle("active");
-                        var content = this.nextElementSibling;
-                        if (content.style.maxHeight){
-                        content.style.maxHeight = null;
-                        } else {
-                        content.style.maxHeight = content.scrollHeight + "px";
-                        } 
-                    })
- */
 export default withRouter(Database);

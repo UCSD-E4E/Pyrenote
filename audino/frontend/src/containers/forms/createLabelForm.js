@@ -102,13 +102,11 @@ class CreateLabelForm extends React.Component {
 
   render() {
     const { isSubmitting, errorMessage, successMessage, projectId, previousLabelId } = this.state;
-    // console.log(previousLabelId)
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
           {previousLabelId === -1 ? (
             <form
-              // className="col-6"
               name="new_user"
               ref={el => (this.form = el)}
             >

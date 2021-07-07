@@ -70,18 +70,12 @@ class Data extends React.Component {
           isDataLoading: false
         });
       });
-    // datas = data;
   }
 
   getNextPage() {
     const { projectId, isDataLoading, data, count, active, page, nextPage, prevPage, tabUrls } =
       this.state;
 
-    /* Array data
-
-    data.map((data, index) => {
-      href=`/projects/${projectId}/data/${data["data_id"]}/annotate`
-    }); */
     return projectId, data;
   }
 
@@ -111,7 +105,6 @@ class Data extends React.Component {
                 <div className="col justify-content-left my-3">
                   <ul className="nav nav-pills nav-fill">
                     <li className="nav-item">
-                      {/*  See: https://github.com/ReactTraining/react-router/issues/7293 */}
                       <a
                         className={`nav-link ${active === 'pending' ? 'active' : null}`}
                         href={tabUrls.pending}
