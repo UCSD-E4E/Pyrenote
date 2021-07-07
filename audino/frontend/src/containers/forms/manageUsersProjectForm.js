@@ -11,11 +11,13 @@ class ManageUsersProjectForm extends React.Component {
   constructor(props) {
     super(props);
 
-    const projectId = Number(this.props.projectId);
+    let { projectId } = this.props;
+    const { projectName } = this.props;
+    projectId = Number(projectId);
 
     this.initialState = {
       projectId,
-      projectName: this.props.projectName,
+      projectName,
       users: [],
       selectedUsers: [],
       errorMessage: '',
@@ -43,10 +45,6 @@ class ManageUsersProjectForm extends React.Component {
         isLoading: false
       });
     });
-  }
-
-  resetState() {
-    this.setState(this.initialState);
   }
 
   handleUsersChange(e) {
@@ -112,13 +110,23 @@ class ManageUsersProjectForm extends React.Component {
     });
   }
 
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
     const { isSubmitting, errorMessage, successMessage, users, selectedUsers, isLoading } =
       this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form className="col-6" name="manage_users" ref={el => (this.form = el)}>
+          <form
+            className="col-6"
+            name="manage_users"
+            ref={el => {
+              this.form = el;
+            }}
+          >
             {isLoading ? <Loader /> : null}
             {errorMessage ? (
               <Alert

@@ -9,13 +9,14 @@ import Loader from '../../components/loader';
 class UploadDataForm extends React.Component {
   constructor(props) {
     super(props);
-
-    const projectId = Number(this.props.projectId);
+    let { projectId } = this.props;
+    const { apiKey, projectName } = this.props;
+    projectId = Number(projectId);
 
     this.initialState = {
-      apiKey: this.props.apiKey,
+      apiKey,
       projectId,
-      projectName: this.props.projectName,
+      projectName,
       errorMessage: '',
       successMessage: '',
       isLoading: false,
@@ -49,10 +50,8 @@ class UploadDataForm extends React.Component {
       method: 'POST',
       body: formData
     }).then(response => {
-      const data = response.json();
-      console.log(data);
-      data.then(data => {
-        console.log(data);
+      const msg = response.json();
+      msg.then(data => {
         if (data.code !== 201 && data.type !== 'DATA_CREATED') {
           this.setState({
             isSubmitting: false,
@@ -73,15 +72,6 @@ class UploadDataForm extends React.Component {
     });
   }
 
-  onChangeHandler(e) {
-    console.log(e.target.files);
-    this.setState({ files: e.target.files });
-  }
-
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleAlertDismiss(e) {
     e.preventDefault();
     this.setState({
@@ -90,9 +80,16 @@ class UploadDataForm extends React.Component {
     });
   }
 
+  onChangeHandler(e) {
+    this.setState({ files: e.target.files });
+  }
+
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
-    const { isSubmitting, errorMessage, successMessage, users, selectedUsers, isLoading } =
-      this.state;
+    const { isSubmitting, errorMessage, successMessage, isLoading } = this.state;
     return (
       <div className="container h-75 text-center">
         <div>

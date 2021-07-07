@@ -25,13 +25,13 @@ class NavBar extends React.Component {
         history.push('/');
       })
       .catch(error => {
-        // TODO: Show error logging out
-        console.log(error);
+        console.error(error);
       });
   }
 
   render() {
-    const isUserLoggedIn = this.props.store.get('isUserLoggedIn');
+    const { store } = this.props;
+    const isUserLoggedIn = store.get('isUserLoggedIn');
 
     return (
       <nav className="navbar navbar-expand-md bg-dark navbar-dark">

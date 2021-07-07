@@ -136,7 +136,14 @@ class EditLabelForm extends React.Component {
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form name="edit_label" ref={el => (this.form = el)}>
+          <form
+            name="edit_label"
+            ref={el => {
+              this.form = el;
+            }}
+          >
+            {' '}
+            //changed
             {isLoading ? <Loader /> : null}
             {errorMessage ? (
               <Alert

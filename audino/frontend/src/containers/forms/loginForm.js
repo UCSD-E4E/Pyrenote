@@ -13,7 +13,7 @@ class LoginForm extends React.Component {
     super(props);
 
     this.initialState = {
-      username: '',
+      usernameForm: '',
       password: '',
       isSigningIn: false,
       errorMessage: '',
@@ -23,12 +23,8 @@ class LoginForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleUsernameChange(e) {
-    this.setState({ username: e.target.value });
+    this.setState({ usernameForm: e.target.value });
   }
 
   handlePasswordChange(e) {
@@ -39,14 +35,14 @@ class LoginForm extends React.Component {
     e.preventDefault();
     this.setState({ isSigningIn: true });
 
-    const { username, password } = this.state;
-    const { history } = this.props;
+    const { usernameForm, password } = this.state;
+    const { history, store } = this.props;
 
     axios({
       method: 'post',
       url: '/auth/login',
       data: {
-        username,
+        usernameForm,
         password
       }
     })
@@ -57,15 +53,13 @@ class LoginForm extends React.Component {
         });
 
         const { access_token, username, is_admin } = response.data;
-
         localStorage.setItem('access_token', access_token);
 
         setAuthorizationToken(access_token);
 
-        this.props.store.set('username', username);
-        this.props.store.set('isAdmin', is_admin);
-        this.props.store.set('isUserLoggedIn', true);
-
+        store.set('username', username);
+        store.set('isAdmin', is_admin);
+        store.set('isUserLoggedIn', true);
         history.push('/dashboard');
       })
       .catch(error => {
@@ -83,6 +77,10 @@ class LoginForm extends React.Component {
       successMessage: '',
       errorMessage: ''
     });
+  }
+
+  resetState() {
+    this.setState(this.initialState);
   }
 
   render() {
