@@ -116,36 +116,32 @@ class Data extends React.Component {
                         className={`nav-link ${active === 'pending' ? 'active' : null}`}
                         href={tabUrls.pending}
                       >
-                        Yet to annotate ({count.pending}
-)
-</a>
+                        Yet to annotate ({count.pending})
+                      </a>
                     </li>
                     <li className="nav-item">
                       <a
                         className={`nav-link ${active === 'completed' ? 'active' : null}`}
                         href={tabUrls.completed}
                       >
-                        Annotated ({count.completed}
-)
-</a>
+                        Annotated ({count.completed})
+                      </a>
                     </li>
                     <li className="nav-item">
                       <a
                         className={`nav-link ${active === 'all' ? 'active' : null}`}
                         href={tabUrls.all}
                       >
-                        All ({count.all}
-)
-</a>
+                        All ({count.all})
+                      </a>
                     </li>
                     <li className="nav-item">
                       <a
                         className={`nav-link ${active === 'marked_review' ? 'active' : null}`}
                         href={tabUrls.marked_review}
                       >
-                        Marked for review ({count.marked_review}
-)
-</a>
+                        Marked for review ({count.marked_review})
+                      </a>
                     </li>
                   </ul>
                 </div>

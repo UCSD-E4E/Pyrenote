@@ -3,6 +3,7 @@
   "plugins": ["prettier"],
   "ignorePatterns": ["/src/wavesurfer.js"],
   "rules": {
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "prettier/prettier": [
       "error",
       {
@@ -16,7 +17,6 @@
         "singleQuote": true
       }
     ],
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "no-console": "off"
     
   }
