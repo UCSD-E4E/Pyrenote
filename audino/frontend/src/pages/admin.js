@@ -274,14 +274,6 @@ class Admin extends React.Component {
                               title="Edit Annotations"
                               onClick={e => this.handleEditProject(e, project.project_id)}
                             />
-                            {/* <IconButton
-                              icon={faTrash}
-                              size="sm"
-                              title={"Delete Annotations"}
-                              onClick={(e) =>
-                                this.handleDeleteProject(e)
-                              }
-                            /> */}
                             <div />
                             <IconButton
                               icon={faUpload}
@@ -369,13 +361,6 @@ class Admin extends React.Component {
                               title="Delete User"
                               onClick={e => this.handleDeleteUser(e, user.user_id)}
                             />
-                            {/* <IconButton
-                              icon={faTrashAlt}
-                              size="sm"
-                              onClick={(e) =>
-                                this.handleDeleteUser(e, user["user_id"])
-                              }
-                            /> */}
                           </td>
                         </tr>
                       );

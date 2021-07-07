@@ -2,16 +2,16 @@ import axios from "axios";
 import React from "react";
 import WaveSurfer from "/app/frontend/src/wavesurfer.js/src/wavesurfer.js";
 import RegionsPlugin from "/app/frontend/src/wavesurfer.js/src/plugin/regions/index.js"; //"wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"; //frontend\src\wavesurfer.js
-import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
+// import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js";
 import SpectrogramPlugin from "/app/frontend/src/wavesurfer.js/src/plugin/spectrogram/index.js";
 import { Helmet } from "react-helmet";
 import { withRouter } from "react-router-dom";
 //import drawer from "frontend/src/pages/wavesurfer_drawer_extended.js";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import magma from "/app/frontend/src/colormap/colormap.min.js";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import magma from "/app/frontend/src/colormap/colormap.min.js";
 import {
-  faSearchMinus,
-  faSearchPlus,
+  // faSearchMinus,
+  // faSearchPlus,
   faBackward,
   faForward,
   faPlayCircle,
@@ -20,7 +20,7 @@ import {
 import Alert from "../components/alert";
 import { IconButton, Button } from "../components/button";
 import Loader from "../components/loader";
-import { text } from "@fortawesome/fontawesome-svg-core";
+// import { text } from "@fortawesome/fontawesome-svg-core";
 //import Data from "./data";
 //import * as data from "./data.js";
 //import "./data";
