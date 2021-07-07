@@ -45,7 +45,7 @@ class Data extends React.Component {
 
   componentDidMount() {
     this.setState({ isDataLoading: true });
-    let { apiUrl, page, active } = this.state;
+    const { apiUrl, page, active } = this.state;
     apiUrl = `${apiUrl}?page=${page}&active=${active}`;
 
     axios({
@@ -73,8 +73,7 @@ class Data extends React.Component {
   }
 
   getNextPage() {
-    const { projectId, isDataLoading, data, count, active, page, nextPage, prevPage, tabUrls } =
-      this.state;
+    const { projectId, data } = this.state;
 
     return projectId, data;
   }

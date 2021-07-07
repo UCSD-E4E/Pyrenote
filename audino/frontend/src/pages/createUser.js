@@ -3,10 +3,6 @@ import { Button } from '../components/button';
 import CreateUserForm from '../containers/forms/createUserForm';
 
 class CreateUser extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   goBack() {
     const index = window.location.href.indexOf('/newUser');
     const path = window.location.href.substring(0, index);
