@@ -50,10 +50,10 @@ class ManageUsersProjectForm extends React.Component {
   }
 
   handleUsersChange(e) {
-    const { selectedUsers, updateUsersProject } = this.state;
+    const { selectedUsers } = this.state;
     const users = Array.from(e.target.selectedOptions, option => Number(option.value));
     for (let i = 0; i < selectedUsers.length; i++) {
-      if (selectedUsers[i] == users[0]) {
+      if (selectedUsers[i] === users[0]) {
         selectedUsers.splice(i, 1);
         this.setState({ selectedUsers });
         return;

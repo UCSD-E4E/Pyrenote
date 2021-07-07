@@ -1,4 +1,4 @@
-import WaveSurfer from 'wavesurfer.js';
+import WaveSurfer from './wavesurfer.js';
 import * as util from './util';
 // import "frontend/src/wavesurfer.js/lib/wavesurfer.min.js";/
 // import "frontend/src/wavesurfer.js/lib/wavesurfer.spectrogram.min.js"
@@ -406,7 +406,7 @@ export default class Drawer extends util.Observer {
               Math.max(Math.min(oldEnd, newStart), Math.min(newEnd, oldStart));
 
         if (overlap > 0) {
-          for (var k = 0; k < oldMatrix[0].length; k++) {
+          for (let k = 0; k < oldMatrix[0].length; k++) {
             if (column[k] == null) {
               column[k] = 0;
             }
@@ -417,7 +417,7 @@ export default class Drawer extends util.Observer {
 
       const intColumn = new Uint8Array(oldMatrix[0].length);
 
-      for (var k = 0; k < oldMatrix[0].length; k++) {
+      for (let k = 0; k < oldMatrix[0].length; k++) {
         intColumn[k] = column[k];
       }
 
