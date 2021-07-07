@@ -9,10 +9,13 @@
   "rules": {
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "react/prop-types": "off",
+    "react/no-array-index-key":"off",
+    "react/jsx-curly-newline":"off",
     "no-plusplus":"off",
     "camelcase":"off",
     "no-underscore-dangle":"off",
     "class-methods-use-this":"off",
+
     "prettier/prettier": [
       "error",
       {
@@ -26,6 +29,7 @@
         "singleQuote": true
       }
     ],
+
     "no-console": "warn"
   }
 }
