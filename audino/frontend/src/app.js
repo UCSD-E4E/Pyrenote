@@ -6,10 +6,19 @@ import { createBrowserHistory } from 'history';
 import { Helmet } from 'react-helmet';
 
 import React, { Suspense } from 'react';
-import { Admin, Home, Dashboard, Error, Labels, LabelValues, Data, CreateUser } from './pages';
+import {
+  Admin,
+  Annotate,
+  Home,
+  Dashboard,
+  Error,
+  Labels,
+  LabelValues,
+  Data,
+  CreateUser
+} from './pages';
 import NavBar from './containers/navbar';
 
-const Annotate = React.lazy(() => import('./pages/annotate'));
 const history = createBrowserHistory();
 
 const initialState = {

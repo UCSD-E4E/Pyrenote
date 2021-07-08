@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import WaveSurfer from '/app/frontend/src/wavesurfer.js/src/wavesurfer.js';
@@ -20,13 +20,13 @@ const colormap = require('colormap');
 class Annotate extends React.Component {
   constructor(props) {
     super(props);
-    const projectId = Number(this.props.match.params.projectid);
-    const dataId = Number(this.props.match.params.dataid);
+    const { match } = this.props;
+    const projectId = Number(match.params.projectid);
+    const dataId = Number(match.params.dataid);
     const params = new URLSearchParams(window.location.search);
     this.state = {
       active: params.get('active') || 'unknown',
       page: 0,
-      next_page: 1,
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -39,14 +39,13 @@ class Annotate extends React.Component {
       isDataLoading: false,
       wavesurfer: null,
       zoom: 100,
-      referenceTranscription: null,
       isMarkedForReview: false,
       selectedSegment: null,
       isSegmentDeleting: false,
       errorMessage: null,
       errorUnsavedMessage: null,
       successMessage: null,
-      isRendering: true, // TODO: REMEMBER TO SET TO TRUE
+      isRendering: true,
       data: [],
       previous_pages: [],
       num_of_prev: 0
@@ -61,45 +60,33 @@ class Annotate extends React.Component {
     let linksArray = [];
     let count = 0;
     const links = localStorage.getItem('previous_links');
+    const { num_of_prev, dataId, projectId } = this.state;
     if (!links) {
       localStorage.setItem('previous_links', JSON.stringify(linksArray));
-      localStorage.setItem('count', JSON.stringify(this.state.num_of_prev));
+      localStorage.setItem('count', JSON.stringify(num_of_prev));
     } else {
       linksArray = JSON.parse(localStorage.getItem('previous_links'));
-      console.log(JSON.parse(localStorage.getItem('previous_links')), 'LOOOKIE HERE');
       count = JSON.parse(localStorage.getItem('count'));
     }
     this.setState({ previous_pages: linksArray, num_of_prev: count });
-    console.log(linksArray, count, 'MAIN DATA');
-    console.log(new Date().toLocaleString());
-    const { page, active } = this.state;
 
-    const apiUrl = `/api/current_user/unknown/projects/${this.state.projectId}/data/${this.state.dataId}`;
-    console.log(this.state.dataId);
-    console.log(page);
-    console.log(this.state.page);
-    // TODO: figure out how to update page number here
-    console.log(`page number is ${page}`);
+    const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
 
     axios({
       method: 'get',
       url: apiUrl
     })
       .then(response => {
-        const { data, active, page, next_page, prev_page } = response.data;
+        const { data, active, page, next_page } = response.data;
         this.setState({
           data,
           active,
           page,
           next_page
         });
-        console.log(this.state.data);
-        console.log(next_page);
 
         let { next_data_url, projectId } = this.state;
         let apiUrl2 = `/api/current_user/projects/${projectId}/data`;
-        console.log(next_page);
-        console.log(active);
         apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
 
         axios({
@@ -108,18 +95,13 @@ class Annotate extends React.Component {
         })
           .then(response => {
             const { data } = response.data;
-            console.log(data);
             next_data_url = `/projects/${projectId}/data/${data[0].data_id}/annotate`;
             const index = window.location.href.indexOf('/projects');
             const path = window.location.href.substring(0, index);
-            console.log(path);
-            console.log(path + next_data_url);
             this.setState({
               next_data_url: path + next_data_url,
               next_data_id: data[0].data_id
             });
-            console.log('here comes the test');
-            console.log(this.state.next_data_url);
           })
           .catch(error => {
             this.setState({
@@ -210,8 +192,8 @@ class Annotate extends React.Component {
     wavesurfer.on('region-play', r => {
       try {
         console.log(wavesurfer.spectrogram.canvas);
-      } catch {
-        console.log("doesn't exists");
+      } catch (e) {
+        console.error(e);
       }
 
       r.once('out', () => {
@@ -611,71 +593,48 @@ class Annotate extends React.Component {
           });
           return;
         }
-        // TODO: Change this to a modal
       }
-    }
 
-    const currPage = num_of_prev;
+      if (num_of_prev < previous_pages.length - 1) {
+        localStorage.setItem('count', JSON.stringify(num_of_prev + 1));
+        window.location.href = previous_pages[num_of_prev + 1];
+        return;
+      }
+      previous_pages[num_of_prev] = window.location.href;
+      const next_page_num = num_of_prev + 1;
+      localStorage.setItem('previous_links', JSON.stringify(previous_pages));
+      localStorage.setItem('count', JSON.stringify(next_page_num));
+      let newPageData = this.state.data[0];
 
-    console.log(num_of_prev, previous_pages.length);
-    console.log(previous_pages);
-    if (num_of_prev < previous_pages.length - 1) {
-      console.log(num_of_prev, previous_pages.length);
-      localStorage.setItem('count', JSON.stringify(num_of_prev + 1));
-      window.location.href = previous_pages[num_of_prev + 1];
-      return;
-    }
-    previous_pages[num_of_prev] = window.location.href;
-    const next_page_num = num_of_prev + 1;
-    localStorage.setItem('previous_links', JSON.stringify(previous_pages));
-    localStorage.setItem('count', JSON.stringify(next_page_num));
-    console.log(this.state.page);
-    console.log(this.state.data);
-    console.log(window.location.href);
-    // TODO: FIX THIS LOGIC HERE TO ACTUALLY SET THE NEXT CLIP
-    let newPageData = this.state.data[0];
-    console.log('entered loop');
-
-    for (let key in this.state.data) {
-      key = parseInt(key);
-      console.log(key + 1);
-      if (this.state.data[key].data_id == this.state.dataId) {
-        console.log('exit loop');
-        try {
-          console.log(key + 1);
-          newPageData = this.state.data[key + 1];
-          console.log(newPageData);
-          console.log(newPageData.data_id);
-          const url = `/projects/${this.state.projectId}/data/${newPageData.data_id}/annotate`;
-
-          /// projects
-          console.log(window.location.href.indexOf('/projects'));
-          var index = window.location.href.indexOf('/projects');
-          var path = window.location.href.substring(0, index);
-          console.log(path);
-          console.log(path + url);
-          window.location.href = path + url;
-        } catch (e) {
+      for (let key in this.state.data) {
+        key = parseInt(key);
+        if (this.state.data[key].data_id == this.state.dataId) {
           try {
-            console.log('hello');
-            console.log(this.state.next_data_url);
-            if (this.state.data[0].data_id != this.state.next_data_id) {
-              window.location.href = this.state.next_data_url;
-            } else {
-              throw 'no data remains';
+            newPageData = this.state.data[key + 1];
+            const url = `/projects/${this.state.projectId}/data/${newPageData.data_id}/annotate`;
+
+            /// projects
+            console.log(window.location.href.indexOf('/projects'));
+            const index = window.location.href.indexOf('/projects');
+            const path = window.location.href.substring(0, index);
+            window.location.href = path + url;
+          } catch (z) {
+            try {
+              if (this.state.data[0].data_id != this.state.next_data_id) {
+                window.location.href = this.state.next_data_url;
+              } else {
+                throw Error('no data remains');
+              }
+              //
+            } catch (a) {
+              console.error(`frist error: ${z}`, `second error: ${a}`);
+              const index = window.location.href.indexOf('/projects');
+              const path = window.location.href.substring(0, index);
+              window.location.href = `${path}/projects/${this.state.projectId}/data`;
             }
-            //
-          } catch (e) {
-            console.log(`oppise ${e}`);
-            console.log(`oppise ${e}`);
-            var index = window.location.href.indexOf('/projects');
-            var path = window.location.href.substring(0, index);
-            window.location.href = `${path}/projects/${this.state.projectId}/data`;
-            // TODO: Implement next page logic here
           }
+          break;
         }
-        console.log(newPageData);
-        break;
       }
     }
   }
@@ -683,12 +642,10 @@ class Annotate extends React.Component {
   // Go to previous audio recording
   handlePreviousClip(e, forceNext = false) {
     this.handleAllSegmentSave(e);
-    console.log('SAVE IS GOOD LETS KEEP GOING');
     const { wavesurfer, previous_pages, num_of_prev } = this.state;
     for (const segment_name in wavesurfer.regions.list) {
       const segment = wavesurfer.regions.list[segment_name];
-      console.log(segment_name, segment);
-      if (segment.saved == false && !forceNext) {
+      if (segment.saved === false && !forceNext) {
         if (segment.data.annotations == null) {
           this.setState({
             errorUnsavedMessage:
@@ -700,21 +657,13 @@ class Annotate extends React.Component {
       }
     }
 
-    console.log(page_num);
     if (num_of_prev > 0) {
-      var page_num = num_of_prev - 1;
-      console.log(page_num);
-      console.log(previous_pages);
+      const page_num = num_of_prev - 1;
       const previous = previous_pages[page_num];
       previous_pages[num_of_prev] = window.location.href;
-      console.log(previous);
-      localStorage.setItem('previous_links', JSON.stringify(previous_pages));
-      localStorage.setItem('count', JSON.stringify(page_num));
       window.location.href = previous;
     } else {
-      const index = window.location.href.indexOf('/projects');
-      const path = window.location.href.substring(0, index);
-      console.log('You have hit the end of the clips you have last seen');
+      console.warn('You have hit the end of the clips you have last seen');
     }
   }
 
@@ -729,7 +678,9 @@ class Annotate extends React.Component {
       isSegmentSaving,
       errorMessage,
       errorUnsavedMessage,
-      successMessage
+      successMessage,
+      isRendering,
+      original_filename
     } = this.state;
     return (
       <div>
@@ -770,18 +721,22 @@ class Annotate extends React.Component {
                 onClose={e => this.handleAlertDismiss(e)}
               />
             ) : null}
-            <div>{this.state.original_filename}</div>
-            {this.state.isRendering && (
+            <div>{original_filename}</div>
+            {isRendering && (
               <div className="row justify-content-md-center my-4">
-                <text>Please wait while spectrogram renders</text>
+                <text>Please wait while spectrogram renders </text>
                 <Loader />
               </div>
             )}
             <div
               className="row justify-content-md-center my-4 mx-3"
-              style={{ display: this.state.isRendering ? 'none' : '' }}
+              style={{ display: isRendering ? 'none' : '' }}
             >
-              <div ref={el => (this.segmentTranscription = el)} />
+              <div
+                ref={el => {
+                  this.segmentTranscription = el;
+                }}
+              />
               <div id="waveform-labels" style={{ float: 'left' }} />
               <div id="wavegraph" style={{ float: 'left' }} />
               <div id="waveform" style={{ float: 'left' }} />
@@ -857,7 +812,9 @@ class Annotate extends React.Component {
                               (value.type === 'multiselect' ? [] : '')
                             }
                             onChange={e => this.handleLabelChange(key, e)}
-                            ref={el => (this.labelRef[key] = el)}
+                            ref={el => {
+                              this.labelRef[key] = el;
+                            }}
                           >
                             {value.type !== 'multiselect' ? (
                               <option value="-1">Choose Label Type</option>
