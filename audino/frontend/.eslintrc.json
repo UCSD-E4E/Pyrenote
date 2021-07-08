@@ -1,6 +1,7 @@
 {
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
+  //"parser": "babel-eslint",
   "ignorePatterns": ["/src/wavesurfer.js"],
   "env": {
     "browser": true,
@@ -19,7 +20,8 @@
     "jsx-a11y/no-autofocus":"off",
     "jsx-a11y/label-has-associated-control":"off",
     "no-param-reassign": "off",
-
+    "import/extensions": "off",
+    "react/no-unused-prop-types": "off",
 
     "prettier/prettier": [
       "error",
