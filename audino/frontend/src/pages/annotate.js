@@ -859,13 +859,6 @@ class Annotate extends React.Component {
               {selectedSegment ? (
                 <div>
                   <div className="row justify-content-center my-4">
-                    <div className="form-group">
-                      <label className="font-weight-bold">
-                        Segment Transcription
-                      </label>
-                    </div>
-                  </div>
-                  <div className="row justify-content-center my-4">
                     {Object.entries(labels).map(([key, value], index) => {
                       if (!value["values"].length) {
                         return null;
