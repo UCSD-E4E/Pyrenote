@@ -5,15 +5,14 @@ import { withRouter } from 'react-router-dom';
 
 import Loader from '../components/loader';
 
-let datas = [];
+const datas = [];
 
 class Data extends React.Component {
   constructor(props) {
     super(props);
+    const { location, match } = this.props;
+    const projectId = Number(match.params.id);
 
-    const projectId = Number(this.props.match.params.id);
-
-    const { location } = this.props;
     const params = new URLSearchParams(location.search);
     this.state = {
       projectId,
@@ -39,14 +38,10 @@ class Data extends React.Component {
     };
   }
 
-  prepareUrl(projectId, page, active) {
-    return `/projects/${projectId}/data?page=${page}&active=${active}`;
-  }
-
   componentDidMount() {
     this.setState({ isDataLoading: true });
-    let {apiUrl} = this.state;
-    const {page, active } = this.state;
+    let { apiUrl } = this.state;
+    let { page, active } = this.state;
     apiUrl = `${apiUrl}?page=${page}&active=${active}`;
 
     axios({
@@ -54,7 +49,9 @@ class Data extends React.Component {
       url: apiUrl
     })
       .then(response => {
-        const { data, count, active, page, next_page, prev_page } = response.data;
+        const { data, count, next_page, prev_page } = response.data;
+        page = response.data.page;
+        active = response.data.active;
         this.setState({
           data,
           count,
@@ -76,7 +73,11 @@ class Data extends React.Component {
   getNextPage() {
     const { projectId, data } = this.state;
 
-    return projectId, data;
+    return { projectId, data };
+  }
+
+  prepareUrl(projectId, page, active) {
+    return `/projects/${projectId}/data?page=${page}&active=${active}`;
   }
 
   render() {
@@ -84,7 +85,6 @@ class Data extends React.Component {
     localStorage.setItem('count', JSON.stringify(0));
     const { projectId, isDataLoading, data, count, active, page, nextPage, prevPage, tabUrls } =
       this.state;
-    datas = data;
     const nextPageUrl = this.prepareUrl(projectId, nextPage, active);
     const prevPageUrl = this.prepareUrl(projectId, prevPage, active);
 
@@ -148,16 +148,16 @@ class Data extends React.Component {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.map((data, index) => {
+                      {data.map((item, index) => {
                         return (
                           <tr key={index}>
                             <td className="align-middle">
-                              <a href={`/projects/${projectId}/data/${data.data_id}/annotate`}>
-                                {data.original_filename}
+                              <a href={`/projects/${projectId}/data/${item.data_id}/annotate`}>
+                                {item.original_filename}
                               </a>
                             </td>
-                            <td className="align-middle">{data.number_of_segmentations}</td>
-                            <td className="align-middle">{data.created_on}</td>
+                            <td className="align-middle">{item.number_of_segmentations}</td>
+                            <td className="align-middle">{item.created_on}</td>
                           </tr>
                         );
                       })}

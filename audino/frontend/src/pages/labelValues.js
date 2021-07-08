@@ -12,17 +12,14 @@ import FormModal from '../containers/labelValueModal';
 class LabelValues extends React.Component {
   constructor(props) {
     super(props);
-
-    const labelId = Number(this.props.id);
-    const { projectId } = this.props;
+    const { id } = this.props;
+    const labelId = Number(id);
     this.state = {
       labelId,
       labelValues: [],
       formType: null,
       modalShow: false,
       isLabelValuesLoading: false,
-      labelValuesUrl: `/labels/${labelId}/values`,
-      labelsUrl: `/projects/${projectId}/labels`,
       getLabelValuesUrl: `/api/labels/${labelId}/values`
     };
   }
@@ -42,6 +39,7 @@ class LabelValues extends React.Component {
         });
       })
       .catch(error => {
+        console.error(error);
         this.setState({
           errorMessage: error.response.data.message,
           isLabelValuesLoading: false

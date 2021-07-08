@@ -75,7 +75,7 @@ class EditLabelValueForm extends React.Component {
       method: 'patch',
       url: labelValueUrl,
       data: {
-        valueForm
+        value: valueForm
       }
     })
       .then(response => {

@@ -61,8 +61,7 @@ class Labels extends React.Component {
     this.setState({
       formType: 'EDIT_LABEL',
       title: 'Edit Label Category',
-      labelId,
-      showRename: true
+      labelId
     });
   }
 

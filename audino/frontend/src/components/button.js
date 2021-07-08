@@ -13,8 +13,8 @@ const IconButton = ({ icon, size = 'lg', title = '', onClick = noop }) => {
 };
 
 IconButton.propTypes = {
-  icon: PropTypes.object.isRequired,
-  size: PropTypes.oneOf(['lg', 'sm', '2x'])
+  icon: PropTypes.objectOf.isRequired,
+  size: PropTypes.oneOf(['lg', 'sm', '2x']).isRequired
 };
 
 const Button = ({
@@ -48,11 +48,16 @@ const Button = ({
 
 Button.propTypes = {
   text: PropTypes.string.isRequired,
-  size: PropTypes.oneOf(['lg', 'sm']),
-  type: PropTypes.oneOf(['primary', 'danger']),
+  size: PropTypes.oneOf(['lg', 'sm']).isRequired,
+  type: PropTypes.oneOf(['primary', 'danger']).isRequired,
   showLoader: PropTypes.bool,
   isDisabled: PropTypes.bool,
-  onClick: PropTypes.func
+  onClick: PropTypes.func.isRequired
+};
+
+Button.defaultProps = {
+  showLoader: false,
+  isDisabled: false
 };
 
 export { Button, IconButton };
