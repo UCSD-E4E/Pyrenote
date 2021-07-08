@@ -12,8 +12,8 @@ import FormModal from '../containers/modal';
 class Labels extends React.Component {
   constructor(props) {
     super(props);
-
-    const { projectId } = this.props;
+    const { match } = this.props;
+    const projectId = Number(match.params.id);
 
     this.state = {
       projectId,
@@ -75,6 +75,10 @@ class Labels extends React.Component {
     });
   }
 
+  setModalShow(modalShow) {
+    this.setState({ modalShow });
+  }
+
   refreshPage() {
     const { history } = this.props;
     const { labelsUrl } = this.state;
@@ -82,10 +86,6 @@ class Labels extends React.Component {
     setTimeout(() => {
       history.replace({ pathname: labelsUrl });
     });
-  }
-
-  setModalShow(modalShow) {
-    this.setState({ modalShow });
   }
 
   render() {
