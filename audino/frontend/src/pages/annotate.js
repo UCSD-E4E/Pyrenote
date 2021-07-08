@@ -581,7 +581,16 @@ class Annotate extends React.Component {
   // Go to the next audio recording
   handleNextClip(e, forceNext = false) {
     this.handleAllSegmentSave(e);
-    const { wavesurfer, previous_pages, num_of_prev } = this.state;
+    const {
+      wavesurfer,
+      previous_pages,
+      num_of_prev,
+      data,
+      dataId,
+      projectId,
+      next_data_id,
+      next_data_url
+    } = this.state;
     for (const segment_name in wavesurfer.regions.list) {
       const segment = wavesurfer.regions.list[segment_name];
       console.log(segment_name, segment);
@@ -594,47 +603,49 @@ class Annotate extends React.Component {
           return;
         }
       }
+    }
 
-      if (num_of_prev < previous_pages.length - 1) {
-        localStorage.setItem('count', JSON.stringify(num_of_prev + 1));
-        window.location.href = previous_pages[num_of_prev + 1];
-        return;
-      }
-      previous_pages[num_of_prev] = window.location.href;
-      const next_page_num = num_of_prev + 1;
-      localStorage.setItem('previous_links', JSON.stringify(previous_pages));
-      localStorage.setItem('count', JSON.stringify(next_page_num));
-      let newPageData = this.state.data[0];
+    const currPage = num_of_prev;
 
-      for (let key in this.state.data) {
-        key = parseInt(key);
-        if (this.state.data[key].data_id == this.state.dataId) {
+    if (num_of_prev < previous_pages.length - 1) {
+      localStorage.setItem('count', JSON.stringify(num_of_prev + 1));
+      window.location.href = previous_pages[num_of_prev + 1];
+      return;
+    }
+    previous_pages[num_of_prev] = window.location.href;
+    const next_page_num = num_of_prev + 1;
+    localStorage.setItem('previous_links', JSON.stringify(previous_pages));
+    localStorage.setItem('count', JSON.stringify(next_page_num));
+    let newPageData = data[0];
+
+    for (let key in data) {
+      key = parseInt(key);
+      if (data[key].data_id == dataId) {
+        try {
+          newPageData = data[key + 1];
+          const url = `/projects/${projectId}/data/${newPageData.data_id}/annotate`;
+
+          /// projects
+          console.log(window.location.href.indexOf('/projects'));
+          const index = window.location.href.indexOf('/projects');
+          const path = window.location.href.substring(0, index);
+          window.location.href = path + url;
+        } catch (z) {
           try {
-            newPageData = this.state.data[key + 1];
-            const url = `/projects/${this.state.projectId}/data/${newPageData.data_id}/annotate`;
-
-            /// projects
-            console.log(window.location.href.indexOf('/projects'));
+            if (data[0].data_id !== next_data_id) {
+              window.location.href = next_data_url;
+            } else {
+              throw Error('no data remains');
+            }
+            //
+          } catch (a) {
+            console.error(`frist error: ${z}`, `second error: ${a}`);
             const index = window.location.href.indexOf('/projects');
             const path = window.location.href.substring(0, index);
-            window.location.href = path + url;
-          } catch (z) {
-            try {
-              if (this.state.data[0].data_id != this.state.next_data_id) {
-                window.location.href = this.state.next_data_url;
-              } else {
-                throw Error('no data remains');
-              }
-              //
-            } catch (a) {
-              console.error(`frist error: ${z}`, `second error: ${a}`);
-              const index = window.location.href.indexOf('/projects');
-              const path = window.location.href.substring(0, index);
-              window.location.href = `${path}/projects/${this.state.projectId}/data`;
-            }
+            window.location.href = `${path}/projects/${projectId}/data`;
           }
-          break;
         }
+        break;
       }
     }
   }
@@ -658,9 +669,11 @@ class Annotate extends React.Component {
     }
 
     if (num_of_prev > 0) {
-      const page_num = num_of_prev - 1;
-      const previous = previous_pages[page_num];
+      let page_num = num_of_prev - 1;
+      let previous = previous_pages[page_num];
       previous_pages[num_of_prev] = window.location.href;
+      localStorage.setItem("previous_links", JSON.stringify(previous_pages));
+      localStorage.setItem("count", JSON.stringify(page_num));
       window.location.href = previous;
     } else {
       console.warn('You have hit the end of the clips you have last seen');
