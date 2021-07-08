@@ -63,23 +63,14 @@ const PublicRoute = withStore(({ component: Component, ...rest }) => {
 });
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      username: '',
-      isUserLoggedIn: false,
-      isAdmin: false
-    };
-  }
-
   componentDidMount() {
-    let isUserCreatingAccount = this.props.store.get('isUserCreatingAccount');
+    const { store } = this.props;
+    let isUserCreatingAccount = store.get('isUserCreatingAccount');
     if (window.location.href.includes('/newUser')) {
       isUserCreatingAccount = true;
     } else {
       isUserCreatingAccount = false;
-      this.props.store.set('isUserCreatingAccount', false);
+      store.set('isUserCreatingAccount', false);
     }
     if (!isUserCreatingAccount) {
       const apiUrl = '/auth/is_logged_in';
@@ -89,11 +80,11 @@ class App extends React.Component {
       })
         .then(response => {
           const { is_logged_in } = response.data;
-          this.props.store.set('isUserLoggedIn', is_logged_in);
+          store.set('isUserLoggedIn', is_logged_in);
           if (is_logged_in === true) {
             const { username, is_admin } = response.data;
-            this.props.store.set('isAdmin', is_admin);
-            this.props.store.set('username', username);
+            store.set('isAdmin', is_admin);
+            store.set('username', username);
           }
           if (history.location.pathname === '/') {
             history.push('/dashboard');
@@ -104,25 +95,26 @@ class App extends React.Component {
         .catch(error => {
           if (error.response.status === 401) {
             if (history.location.pathname === '/newUser') {
-              this.props.store.set('isUserCreatingAccount', true);
+              store.set('isUserCreatingAccount', true);
               history.push('/newUser');
             } else {
               history.push('/');
-              this.props.store.set('isUserLoggedIn', false);
-              this.props.store.set('isUserCreatingAccount', false);
+              store.set('isUserLoggedIn', false);
+              store.set('isUserCreatingAccount', false);
             }
           }
         });
     } else {
-      this.props.store.set('isUserCreatingAccount', true);
-      this.props.store.set('isUserLoggedIn', false);
+      store.set('isUserCreatingAccount', true);
+      store.set('isUserLoggedIn', false);
       history.push('/newUser');
     }
   }
 
   render() {
-    const isUserLoggedIn = this.props.store.get('isUserLoggedIn');
-    const isUserCreatingAccount = this.props.store.get('isUserCreatingAccount');
+    const { store } = this.props;
+    const isUserLoggedIn = store.get('isUserLoggedIn');
+    const isUserCreatingAccount = store.get('isUserCreatingAccount');
 
     if (isUserLoggedIn === null) {
       return null;

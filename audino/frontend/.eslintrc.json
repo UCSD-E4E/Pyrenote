@@ -22,6 +22,8 @@
     "no-param-reassign": "off",
     "import/extensions": "off",
     "react/no-unused-prop-types": "off",
+    "no-continue": "off",
+    "react/jsx-props-no-spreading": "off",
 
     "prettier/prettier": [
       "error",

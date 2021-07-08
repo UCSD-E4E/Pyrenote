@@ -17,16 +17,21 @@ import Loader from '../components/loader';
 
 const colormap = require('colormap');
 
+/**
+ * Useful object paths:
+ * wavesurfer.spectrogram.canvas
+ * wavesurfer.spectrogram.wrapper
+ * wavesurfer.drawer
+ * wavesurfer.regions.list
+ */
+
 class Annotate extends React.Component {
   constructor(props) {
     super(props);
     const { match } = this.props;
     const projectId = Number(match.params.projectid);
     const dataId = Number(match.params.dataid);
-    const params = new URLSearchParams(window.location.search);
     this.state = {
-      active: params.get('active') || 'unknown',
-      page: 0,
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -77,15 +82,12 @@ class Annotate extends React.Component {
       url: apiUrl
     })
       .then(response => {
-        const { data, active, page, next_page } = response.data;
+        const { active, next_page } = response.data;
         this.setState({
-          data,
-          active,
-          page,
-          next_page
+          data: response.data.data
         });
 
-        let { next_data_url, projectId } = this.state;
+        let { next_data_url } = this.state;
         let apiUrl2 = `/api/current_user/projects/${projectId}/data`;
         apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
 
@@ -93,8 +95,8 @@ class Annotate extends React.Component {
           method: 'get',
           url: apiUrl2
         })
-          .then(response => {
-            const { data } = response.data;
+          .then(message => {
+            const { data } = message.data;
             next_data_url = `/projects/${projectId}/data/${data[0].data_id}/annotate`;
             const index = window.location.href.indexOf('/projects');
             const path = window.location.href.substring(0, index);
@@ -105,7 +107,7 @@ class Annotate extends React.Component {
           })
           .catch(error => {
             this.setState({
-              errorMessage: error.response.data.message
+              errorMessage: error.message.data.message
             });
           });
       })
@@ -121,7 +123,6 @@ class Annotate extends React.Component {
       nshades: 256,
       format: 'float'
     });
-    const json = JSON.stringify(spectrogramColorMap, 2);
     const { labelsUrl, dataUrl } = this.state;
     this.setState({ isDataLoading: true });
     const fftSamples = 512;
@@ -152,16 +153,14 @@ class Annotate extends React.Component {
       ]
     });
     this.showSegmentTranscription(null);
-    this.props.history.listen((location, action) => {
+    const { history } = this.props;
+    history.listen(() => {
       wavesurfer.stop();
     });
     wavesurfer.on('ready', () => {
-      console.log(wavesurfer.drawer.getWidth());
-      console.log(wavesurfer.getDuration() * wavesurfer.params.minPxPerSec);
       const screenSize = window.screen.width;
       if (screenSize > wavesurfer.getDuration() * wavesurfer.params.minPxPerSec) {
         wavesurfer.zoom(screenSize / wavesurfer.getDuration());
-        console.log(wavesurfer.spectrogram);
         wavesurfer.spectrogram._onUpdate(screenSize);
       }
       this.state.isRendering = false;
@@ -178,7 +177,6 @@ class Annotate extends React.Component {
 
     wavesurfer.on('region-created', region => {
       this.handlePause();
-      console.log(region);
       this.setState({
         selectedSegment: region
       });
@@ -189,17 +187,11 @@ class Annotate extends React.Component {
     wavesurfer.on('region-out', () => {
       this.showSegmentTranscription(null);
     });
-    wavesurfer.on('region-play', r => {
-      try {
-        console.log(wavesurfer.spectrogram.canvas);
-      } catch (e) {
-        console.error(e);
-      }
-
+    /* wavesurfer.on('region-play', r => {
       r.once('out', () => {
         console.log('pausing on out');
       });
-    });
+    }); */
 
     wavesurfer.on('region-click', (r, e) => {
       e.stopPropagation();
@@ -208,12 +200,9 @@ class Annotate extends React.Component {
         selectedSegment: r
       });
       r.play();
-
-      console.log(r.saved);
     });
-    wavesurfer.on('pause', (r, e) => {
+    wavesurfer.on('pause', () => {
       this.setState({ isPlaying: false });
-      console.log(this.state.isPlaying);
     });
 
     axios
@@ -224,13 +213,8 @@ class Annotate extends React.Component {
           labels: response[0].data
         });
 
-        const {
-          reference_transcription,
-          is_marked_for_review,
-          segmentations,
-          filename,
-          original_filename
-        } = response[1].data;
+        const { is_marked_for_review, segmentations, filename, original_filename } =
+          response[1].data;
 
         const regions = segmentations.map(segmentation => {
           return {
@@ -240,7 +224,6 @@ class Annotate extends React.Component {
             color: 'rgba(0, 0, 0, 0.7)',
             data: {
               segmentation_id: segmentation.segmentation_id,
-              transcription: segmentation.transcription,
               annotations: segmentation.annotations
             }
           };
@@ -248,9 +231,7 @@ class Annotate extends React.Component {
 
         this.setState({
           isDataLoading: false,
-          referenceTranscription: reference_transcription,
           isMarkedForReview: is_marked_for_review,
-          filename,
           original_filename
         });
 
@@ -262,22 +243,11 @@ class Annotate extends React.Component {
         this.loadRegions(regions);
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
         this.setState({
           isDataLoading: false
         });
       });
-  }
-
-  loadRegions(regions) {
-    const { wavesurfer } = this.state;
-    regions.forEach(region => {
-      wavesurfer.addRegion(region);
-    });
-  }
-
-  showSegmentTranscription(region) {
-    this.segmentTranscription.textContent = (region && region.data.transcription) || '–';
   }
 
   handlePlay() {
@@ -330,7 +300,7 @@ class Annotate extends React.Component {
         });
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
         this.setState({
           isDataLoading: false,
           errorMessage: 'Error changing review status',
@@ -347,7 +317,7 @@ class Annotate extends React.Component {
         method: 'delete',
         url: `${segmentationUrl}/${selectedSegment.data.segmentation_id}`
       })
-        .then(response => {
+        .then(() => {
           wavesurfer.regions.list[selectedSegment.id].remove();
           this.setState({
             selectedSegment: null,
@@ -355,7 +325,7 @@ class Annotate extends React.Component {
           });
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
           this.setState({
             isSegmentDeleting: false
           });
@@ -369,7 +339,7 @@ class Annotate extends React.Component {
     }
   }
 
-  handleSegmentSave(e) {
+  handleSegmentSave() {
     const { selectedSegment, segmentationUrl } = this.state;
     const { start, end } = selectedSegment;
 
@@ -389,8 +359,7 @@ class Annotate extends React.Component {
         }
       })
         .then(response => {
-          const { segmentation_id } = response.data;
-          selectedSegment.data.segmentation_id = segmentation_id;
+          selectedSegment.data.segmentation_id = response.data.segmentation_id;
           this.setState({
             isSegmentSaving: false,
             selectedSegment,
@@ -403,7 +372,7 @@ class Annotate extends React.Component {
           selectedSegment._onSave();
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
           this.setState({
             isSegmentSaving: false,
             errorMessage: 'Error saving segment',
@@ -421,7 +390,7 @@ class Annotate extends React.Component {
           annotations
         }
       })
-        .then(response => {
+        .then(() => {
           this.setState({
             isSegmentSaving: false,
             successMessage: 'Segment saved',
@@ -433,7 +402,7 @@ class Annotate extends React.Component {
           selectedSegment._onSave();
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
           this.setState({
             isSegmentSaving: false,
             errorMessage: 'Error saving segment',
@@ -445,33 +414,25 @@ class Annotate extends React.Component {
 
   handleAllSegmentSave() {
     const { segmentationUrl, wavesurfer } = this.state;
-    console.log(wavesurfer.regions.list);
     for (const segment_name in wavesurfer.regions.list) {
-      console.log('still running save');
       try {
         const segment = wavesurfer.regions.list[segment_name];
         if (segment.saved) {
           continue;
         }
-
-        console.log(segment_name, segment);
         const { start, end } = segment;
         const { transcription = '', annotations = '', segmentation_id = null } = segment.data;
-        console.log(transcription);
-        console.log(annotations);
         if (annotations === '') {
-          console.log('No data, no save');
           continue;
         }
         this.setState({ isSegmentSaving: true });
         const now = Date.now();
         let time_spent = 0;
-        if (segment.lastTime == 0) {
+        if (segment.lastTime === 0) {
           time_spent = now - this.lastTime;
         } else {
           time_spent = now - segment.lastTime;
         }
-        console.log(time_spent);
         segment.setLastTime(now);
         if (segmentation_id === null) {
           axios({
@@ -486,8 +447,7 @@ class Annotate extends React.Component {
             }
           })
             .then(response => {
-              const { segmentation_id } = response.data;
-              segment.data.segmentation_id = segmentation_id;
+              segment.data.segmentation_id = response.data.segmentation_id;
               this.setState({
                 isSegmentSaving: false,
                 selectedSegment: segment,
@@ -500,7 +460,7 @@ class Annotate extends React.Component {
               segment._onSave();
             })
             .catch(error => {
-              console.log(error);
+              console.error(error);
               this.setState({
                 isSegmentSaving: false,
                 errorMessage: 'Error saving segment',
@@ -519,7 +479,7 @@ class Annotate extends React.Component {
               time_spent
             }
           })
-            .then(response => {
+            .then(() => {
               this.setState({
                 isSegmentSaving: false,
                 successMessage: 'Segment saved',
@@ -531,7 +491,7 @@ class Annotate extends React.Component {
               segment._onSave();
             })
             .catch(error => {
-              console.log(error);
+              console.error(error);
               this.setState({
                 isSegmentSaving: false,
                 errorMessage: 'Error saving segment',
@@ -540,7 +500,7 @@ class Annotate extends React.Component {
             });
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
         continue;
       }
     }
@@ -579,8 +539,8 @@ class Annotate extends React.Component {
   }
 
   // Go to the next audio recording
-  handleNextClip(e, forceNext = false) {
-    this.handleAllSegmentSave(e);
+  handleNextClip(forceNext = false) {
+    this.handleAllSegmentSave();
     const {
       wavesurfer,
       previous_pages,
@@ -593,8 +553,7 @@ class Annotate extends React.Component {
     } = this.state;
     for (const segment_name in wavesurfer.regions.list) {
       const segment = wavesurfer.regions.list[segment_name];
-      console.log(segment_name, segment);
-      if (segment.saved == false && !forceNext) {
+      if (segment.saved === false && !forceNext) {
         if (segment.data.annotations == null) {
           this.setState({
             errorUnsavedMessage:
@@ -604,8 +563,6 @@ class Annotate extends React.Component {
         }
       }
     }
-
-    const currPage = num_of_prev;
 
     if (num_of_prev < previous_pages.length - 1) {
       localStorage.setItem('count', JSON.stringify(num_of_prev + 1));
@@ -619,14 +576,13 @@ class Annotate extends React.Component {
     let newPageData = data[0];
 
     for (let key in data) {
-      key = parseInt(key);
-      if (data[key].data_id == dataId) {
+      key = parseInt(key, 10);
+      if (data[key].data_id === dataId) {
         try {
           newPageData = data[key + 1];
           const url = `/projects/${projectId}/data/${newPageData.data_id}/annotate`;
 
           /// projects
-          console.log(window.location.href.indexOf('/projects'));
           const index = window.location.href.indexOf('/projects');
           const path = window.location.href.substring(0, index);
           window.location.href = path + url;
@@ -651,8 +607,8 @@ class Annotate extends React.Component {
   }
 
   // Go to previous audio recording
-  handlePreviousClip(e, forceNext = false) {
-    this.handleAllSegmentSave(e);
+  handlePreviousClip(forceNext = false) {
+    this.handleAllSegmentSave();
     const { wavesurfer, previous_pages, num_of_prev } = this.state;
     for (const segment_name in wavesurfer.regions.list) {
       const segment = wavesurfer.regions.list[segment_name];
@@ -669,15 +625,26 @@ class Annotate extends React.Component {
     }
 
     if (num_of_prev > 0) {
-      let page_num = num_of_prev - 1;
-      let previous = previous_pages[page_num];
+      const page_num = num_of_prev - 1;
+      const previous = previous_pages[page_num];
       previous_pages[num_of_prev] = window.location.href;
-      localStorage.setItem("previous_links", JSON.stringify(previous_pages));
-      localStorage.setItem("count", JSON.stringify(page_num));
+      localStorage.setItem('previous_links', JSON.stringify(previous_pages));
+      localStorage.setItem('count', JSON.stringify(page_num));
       window.location.href = previous;
     } else {
       console.warn('You have hit the end of the clips you have last seen');
     }
+  }
+
+  loadRegions(regions) {
+    const { wavesurfer } = this.state;
+    regions.forEach(region => {
+      wavesurfer.addRegion(region);
+    });
+  }
+
+  showSegmentTranscription(region) {
+    this.segmentTranscription.textContent = (region && region.data.transcription) || '–';
   }
 
   render() {
@@ -708,13 +675,13 @@ class Annotate extends React.Component {
                   type="danger"
                   message={errorUnsavedMessage}
                   overlay
-                  onClose={e => this.handleAlertDismiss(e)}
+                  onClose={() => this.handleAlertDismiss()}
                 />
                 <Button
                   size="large"
                   type="danger"
                   disabled={isSegmentSaving}
-                  onClick={e => this.handleNextClip(e, true)}
+                  onClick={() => this.handleNextClip(true)}
                   isSubmitting={isSegmentSaving}
                   text="Force Next"
                 />
