@@ -42,7 +42,7 @@ class LoginForm extends React.Component {
       method: 'post',
       url: '/auth/login',
       data: {
-        usernameForm,
+        username: usernameForm,
         password
       }
     })

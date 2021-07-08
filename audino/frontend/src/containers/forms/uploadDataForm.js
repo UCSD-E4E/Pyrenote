@@ -33,8 +33,6 @@ class UploadDataForm extends React.Component {
 
   handleUpload() {
     const { uploadUrl, apiKey, files } = this.state;
-    console.log(apiKey);
-    console.log('hello?');
     const formData = new FormData();
 
     for (let i = 0; i < files.length; i++) {

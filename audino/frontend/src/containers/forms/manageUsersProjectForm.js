@@ -58,7 +58,6 @@ class ManageUsersProjectForm extends React.Component {
       }
     }
     const array = selectedUsers.concat(users);
-    console.log(array);
 
     this.setState({ selectedUsers: array });
   }

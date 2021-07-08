@@ -55,16 +55,8 @@ class EditLabelForm extends React.Component {
       });
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleLabelTypeChange(e) {
     this.setState({ type: e.target.value });
-  }
-
-  clearForm() {
-    this.form.reset();
   }
 
   handleLabelUpdation(e) {
@@ -121,6 +113,14 @@ class EditLabelForm extends React.Component {
     });
   }
 
+  clearForm() {
+    this.form.reset();
+  }
+
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
     const {
       name,
@@ -143,7 +143,6 @@ class EditLabelForm extends React.Component {
             }}
           >
             {' '}
-            //changed
             {isLoading ? <Loader /> : null}
             {errorMessage ? (
               <Alert

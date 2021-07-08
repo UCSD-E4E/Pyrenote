@@ -20,10 +20,6 @@ class CreateProjectForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleProjectNameChange(e) {
     this.setState({ name: e.target.value });
   }
@@ -59,7 +55,6 @@ class CreateProjectForm extends React.Component {
         }
       })
       .catch(error => {
-        console.log(error.response);
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: '',
@@ -68,12 +63,22 @@ class CreateProjectForm extends React.Component {
       });
   }
 
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
     const { isSubmitting, errorMessage, successMessage } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form className="col-6" name="new_project" ref={el => (this.form = el)}>
+          <form
+            className="col-6"
+            name="new_project"
+            ref={el => {
+              this.form = el;
+            }}
+          >
             {errorMessage ? <Alert type="danger" message={errorMessage} /> : null}
             {successMessage ? <Alert type="success" message={successMessage} /> : null}
             <div className="form-group text-left">

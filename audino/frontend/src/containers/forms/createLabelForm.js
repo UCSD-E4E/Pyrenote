@@ -27,10 +27,6 @@ class CreateLabelForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleLabelNameChange(e) {
     this.setState({ name: e.target.value });
   }
@@ -76,7 +72,6 @@ class CreateLabelForm extends React.Component {
         if (response.status === 201) {
           this.resetState();
           this.form.reset();
-          console.log(response);
           this.setState({
             successMessage: response.data.message,
             previousLabelId: response.data.label_id
@@ -100,13 +95,22 @@ class CreateLabelForm extends React.Component {
     });
   }
 
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
     const { isSubmitting, errorMessage, successMessage, projectId, previousLabelId } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
           {previousLabelId === -1 ? (
-            <form name="new_user" ref={el => (this.form = el)}>
+            <form
+              name="new_user"
+              ref={el => {
+                this.form = el;
+              }}
+            >
               {errorMessage ? (
                 <Alert
                   type="danger"
@@ -164,7 +168,7 @@ class CreateLabelForm extends React.Component {
                 size="lg"
                 type="primary"
                 disabled={!!isSubmitting}
-                onClick={e => this.setState({ previousLabelId: -1 })}
+                onClick={() => this.setState({ previousLabelId: -1 })}
                 isSubmitting={isSubmitting}
                 text="Create a new Category"
               />

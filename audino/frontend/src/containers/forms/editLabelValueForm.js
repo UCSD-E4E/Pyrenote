@@ -15,9 +15,8 @@ class EditLabelValueForm extends React.Component {
     const { labelId } = this.props;
 
     this.initialState = {
-      labelValueId,
       labelId,
-      value: '',
+      valueForm: '',
       errorMessage: null,
       successMessage: null,
       isLoading: false,
@@ -36,10 +35,9 @@ class EditLabelValueForm extends React.Component {
     })
       .then(response => {
         if (response.status === 200) {
-          const { value_id, value } = response.data;
+          const { value } = response.data;
           this.setState({
-            value,
-            labelValueId: value_id,
+            valueForm: value,
             isLoading: false
           });
         }
@@ -53,16 +51,8 @@ class EditLabelValueForm extends React.Component {
       });
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleLabelValueChange(e) {
-    this.setState({ value: e.target.value });
-  }
-
-  clearForm() {
-    this.form.reset();
+    this.setState({ valueForm: e.target.value });
   }
 
   handleLabelValueUpdation(e) {
@@ -70,9 +60,9 @@ class EditLabelValueForm extends React.Component {
 
     this.setState({ isSubmitting: true });
 
-    const { labelValueUrl, value } = this.state;
+    const { labelValueUrl, valueForm } = this.state;
 
-    if (!value || value === '') {
+    if (!valueForm || valueForm === '') {
       this.setState({
         isSubmitting: false,
         errorMessage: 'Please enter a valid label value!',
@@ -85,15 +75,14 @@ class EditLabelValueForm extends React.Component {
       method: 'patch',
       url: labelValueUrl,
       data: {
-        value
+        valueForm
       }
     })
       .then(response => {
         if (response.status === 200) {
-          const { value_id, value } = response.data;
+          const { value } = response.data;
           this.setState({
-            value,
-            labelValueId: value_id,
+            valueForm: value,
             isLoading: false,
             isSubmitting: false,
             successMessage: 'Label value has been updated',
@@ -118,13 +107,27 @@ class EditLabelValueForm extends React.Component {
     });
   }
 
+  clearForm() {
+    this.form.reset();
+  }
+
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
     const { value, isSubmitting, errorMessage, successMessage, isLoading } = this.state;
 
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form className="col-6" name="edit_label_value" ref={el => (this.form = el)}>
+          <form
+            className="col-6"
+            name="edit_label_value"
+            ref={el => {
+              this.form = el;
+            }}
+          >
             {isLoading ? <Loader /> : null}
             {errorMessage ? (
               <Alert

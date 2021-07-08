@@ -25,10 +25,6 @@ class CreateLabelValueForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleLabelValueChange(e) {
     this.setState({ value: e.target.value });
   }
@@ -83,12 +79,22 @@ class CreateLabelValueForm extends React.Component {
     });
   }
 
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
     const { isSubmitting, errorMessage, successMessage } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form className="col-6" name="new_label_value" ref={el => (this.form = el)}>
+          <form
+            className="col-6"
+            name="new_label_value"
+            ref={el => {
+              this.form = el;
+            }}
+          >
             {errorMessage ? (
               <Alert
                 type="danger"

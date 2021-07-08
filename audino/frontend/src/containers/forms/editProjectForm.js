@@ -9,13 +9,13 @@ import { Button } from '../../components/button';
 class EditProjectForm extends React.Component {
   constructor(props) {
     super(props);
-
+    const { projectId } = this.props;
     this.initialState = {
       name: '',
       errorMessage: '',
       successMessage: '',
       isSubmitting: false,
-      url: `/api/projects/${this.props.projectId}`
+      url: `/api/projects/${projectId}`
     };
 
     this.state = { ...this.initialState };
@@ -23,7 +23,6 @@ class EditProjectForm extends React.Component {
 
   componentDidMount() {
     const { url } = this.state;
-    this.setState({ isLoading: true });
     axios({
       method: 'get',
       url
@@ -37,14 +36,9 @@ class EditProjectForm extends React.Component {
       .catch(error => {
         this.setState({
           errorMessage: error.response.data.message,
-          successMessage: null,
-          isLoading: false
+          successMessage: null
         });
       });
-  }
-
-  resetState() {
-    this.setState(this.initialState);
   }
 
   handleProjectNameChange(e) {
@@ -82,7 +76,7 @@ class EditProjectForm extends React.Component {
         }
       })
       .catch(error => {
-        console.log(error.response);
+        console.error(error.response);
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: '',
@@ -91,12 +85,22 @@ class EditProjectForm extends React.Component {
       });
   }
 
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
-    const { isSubmitting, errorMessage, successMessage } = this.state;
+    const { isSubmitting, errorMessage, successMessage, projectId } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form className="col-6" name="new_project" ref={el => (this.form = el)}>
+          <form
+            className="col-6"
+            name="new_project"
+            ref={el => {
+              this.form = el;
+            }}
+          >
             {errorMessage ? <Alert type="danger" message={errorMessage} /> : null}
             {successMessage ? <Alert type="success" message={successMessage} /> : null}
             <div className="form-group text-left">
@@ -105,7 +109,7 @@ class EditProjectForm extends React.Component {
                 className="form-control"
                 id="username"
                 placeholder=""
-                value={this.props.projectId}
+                value={projectId}
                 autoFocus
                 required
                 disabled

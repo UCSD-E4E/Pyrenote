@@ -9,11 +9,11 @@ import { Button } from '../../components/button';
 class CreateUserForm extends React.Component {
   constructor(props) {
     super(props);
-    console.log(this.props.authNeeded);
-    const authNeeded = this.props.authNeeded === 'true';
+    let authNeeded = this.props;
+    authNeeded = authNeeded === 'true';
     this.initialState = {
       authNeeded,
-      username: '',
+      usernameData: '',
       password: '',
       role: 'user',
       errorMessage: '',
@@ -24,47 +24,26 @@ class CreateUserForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleUsernameChange(e) {
-    this.setState({ username: e.target.value });
+    this.setState({ usernameData: e.target.value });
   }
 
   handlePasswordChange(e) {
     this.setState({ password: e.target.value });
-    this.checkPassword(e);
+    this.checkPassword();
   }
 
   handleRoleChange(e) {
     this.setState({ role: e.target.value });
   }
 
-  checkPassword(e) {
-    const checker = document.getElementById('confirm-password').value;
-    if (this.state.password !== '' && checker !== '' && checker !== this.state.password) {
-      this.setState({
-        isSubmitting: false,
-        errorMessage: 'Passwords do not match!',
-        successMessage: ''
-      });
-    } else {
-      this.setState({
-        errorMessage: '',
-        successMessage: ''
-      });
-    }
-  }
-
   handleUserCreation(e) {
     e.preventDefault();
 
     this.setState({ isSubmitting: true });
-    const { username, password, role, authNeeded } = this.state;
-    console.log(authNeeded);
+    const { usernameData, password, role, authNeeded } = this.state;
 
-    if (!username || username === '') {
+    if (!usernameData || usernameData === '') {
       this.setState({
         isSubmitting: false,
         errorMessage: 'Please enter a valid username!',
@@ -108,12 +87,11 @@ class CreateUserForm extends React.Component {
     } else {
       apiurl = 'api/users/no_auth';
     }
-    console.log(apiurl);
     axios({
       method: 'post',
       url: apiurl,
       data: {
-        username,
+        username: usernameData,
         password,
         role,
         authNeeded
@@ -127,17 +105,17 @@ class CreateUserForm extends React.Component {
               method: 'patch',
               url: apiurl,
               data: {
-                users: username
+                users: usernameData
               }
             })
-              .then(response => {
-                if (response.status === 200) {
+              .then(msg => {
+                if (msg.status === 200) {
                   this.handleLoggingIn(e);
                 }
               })
               .catch(error => {
                 this.setState({
-                  errorMessage: error.response.data.message,
+                  errorMessage: error.msg.data.message,
                   successMessage: '',
                   isSubmitting: false
                 });
@@ -160,16 +138,15 @@ class CreateUserForm extends React.Component {
 
   handleLoggingIn(e) {
     e.preventDefault();
-    this.setState({ isSigningIn: true });
 
-    const { username, password } = this.state;
-    const { history } = this.props;
+    const { usernameData, password } = this.state;
+    const { history, store } = this.props;
 
     axios({
       method: 'post',
       url: '/auth/login',
       data: {
-        username,
+        username: usernameData,
         password
       }
     })
@@ -185,15 +162,14 @@ class CreateUserForm extends React.Component {
 
         setAuthorizationToken(access_token);
 
-        this.props.store.set('username', username);
-        this.props.store.set('isAdmin', is_admin);
-        this.props.store.set('isUserLoggedIn', true);
+        store.set('usernameData', username);
+        store.set('isAdmin', is_admin);
+        store.set('isUserLoggedIn', true);
 
         history.push('/dashboard');
       })
       .catch(error => {
         this.setState({
-          isSigningIn: false,
           successMessage: '',
           errorMessage: error.response.data.message
         });
@@ -208,12 +184,39 @@ class CreateUserForm extends React.Component {
     });
   }
 
+  checkPassword() {
+    const checker = document.getElementById('confirm-password').value;
+    const { password } = this.state;
+    if (password !== '' && checker !== '' && checker !== password) {
+      this.setState({
+        isSubmitting: false,
+        errorMessage: 'Passwords do not match!',
+        successMessage: ''
+      });
+    } else {
+      this.setState({
+        errorMessage: '',
+        successMessage: ''
+      });
+    }
+  }
+
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
     const { isSubmitting, errorMessage, successMessage, authNeeded } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form className="col-6" name="new_user" ref={el => (this.form = el)}>
+          <form
+            className="col-6"
+            name="new_user"
+            ref={el => {
+              this.form = el;
+            }}
+          >
             {errorMessage ? (
               <Alert
                 type="danger"
@@ -256,7 +259,7 @@ class CreateUserForm extends React.Component {
                 id="confirm-password"
                 placeholder="Confirm Password"
                 required
-                onChange={e => this.checkPassword(e)}
+                onChange={() => this.checkPassword()}
               />
             </div>
             {authNeeded && (

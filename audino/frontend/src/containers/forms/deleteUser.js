@@ -10,15 +10,14 @@ import Loader from '../../components/loader';
 class DeleteUserForm extends React.Component {
   constructor(props) {
     super(props);
-
+    const { userId } = this.props;
     this.initialState = {
-      userId: Number(this.props.userId),
-      username: '',
+      userId: Number(userId),
       role: '-1',
       errorMessage: null,
       successMessage: null,
       isLoading: false,
-      url: `/api/users/${this.props.userId}`
+      url: `/api/users/${userId}`
     };
 
     this.state = { ...this.initialState };
@@ -33,8 +32,8 @@ class DeleteUserForm extends React.Component {
     })
       .then(response => {
         if (response.status === 200) {
-          const { username, role_id } = response.data;
-          this.setState({ username, role: String(role_id), isLoading: false });
+          const { role_id } = response.data;
+          this.setState({ role: String(role_id), isLoading: false });
         }
       })
       .catch(error => {
@@ -46,23 +45,15 @@ class DeleteUserForm extends React.Component {
       });
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleRoleChange(e) {
     this.setState({ role: e.target.value });
-  }
-
-  clearForm() {
-    this.form.reset();
   }
 
   handleUserUpdation(e) {
     e.preventDefault();
 
     this.setState({ isSubmitting: true });
-    const { url, role } = this.state;
+    const { url, role, onDelete } = this.state;
     axios({
       method: 'delete',
       url,
@@ -72,16 +63,15 @@ class DeleteUserForm extends React.Component {
     })
       .then(response => {
         if (response.status === 200) {
-          const { username, role_id } = response.data;
+          const { role_id } = response.data;
           this.setState({
-            username,
             role: String(role_id),
             isLoading: false,
             isSubmitting: false,
             successMessage: 'User has been deleted',
             errorMessage: null
           });
-          this.props.onDelete();
+          onDelete();
         }
       })
       .catch(error => {
@@ -101,12 +91,26 @@ class DeleteUserForm extends React.Component {
     });
   }
 
+  resetState() {
+    this.setState(this.initialState);
+  }
+
+  clearForm() {
+    this.form.reset();
+  }
+
   render() {
     const { isSubmitting, errorMessage, successMessage, isLoading } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form className="col-6" name="edit_user" ref={el => (this.form = el)}>
+          <form
+            className="col-6"
+            name="edit_user"
+            ref={el => {
+              this.form = el;
+            }}
+          >
             {isLoading ? <Loader /> : null}
             {errorMessage ? (
               <Alert

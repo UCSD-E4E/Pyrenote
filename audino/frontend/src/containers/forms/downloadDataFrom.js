@@ -11,13 +11,14 @@ import Loader from '../../components/loader';
 class DownloadDataForm extends React.Component {
   constructor(props) {
     super(props);
-
-    const projectId = Number(this.props.projectId);
+    let { projectId } = this.props;
+    const { apiKey, projectName } = this.props;
+    projectId = Number(projectId);
 
     this.initialState = {
-      apiKey: this.props.apiKey,
+      apiKey,
       projectId,
-      projectName: this.props.projectName,
+      projectName,
       errorMessage: '',
       successMessage: '',
       isLoading: false,
@@ -46,14 +47,14 @@ class DownloadDataForm extends React.Component {
         const { annotations } = response.data;
         if (annotations) {
           const data = annotations; // JSON.stringify(annotations, null, 2)
-          console.log(data);
           try {
             let csvContent = '';
-            data.forEach(function (infoArray, index) {
+            data.forEach((infoArray, index) => {
+              // REMOVED FUNCTION HERE, ADD FUNCTION WORD SEAN
               const dataString = infoArray.join(',');
               csvContent += index < data.length ? `${dataString}\n` : dataString;
             });
-            const download = function (content, fileName, mimeType) {
+            const download = (content, fileName, mimeType) => {
               const a = document.createElement('a');
               mimeType = mimeType || 'application/octet-stream';
 
@@ -83,19 +84,50 @@ class DownloadDataForm extends React.Component {
               }
             };
             download(csvContent, `${projectName}.csv`, 'text/csv;encoding:utf-8');
-          } catch (e) {
-            console.log(e);
+          } catch (c) {
+            console.error(c);
           }
         } else {
-          console.log('No annotations found');
+          console.warn('No annotations found');
         }
       })
       .catch(error => {
         this.setState({
-          errorMessage: error.response.data.message,
-          isUserLoading: false
+          errorMessage: error.response.data.message
         });
       });
+  }
+
+  handleDownloadAnnotationsJSON(e, projectName, projectId) {
+    axios({
+      method: 'get',
+      url: `/api/projects/${projectId}/annotations`,
+      headers: {
+        csv: 'false'
+      }
+    })
+      .then(response => {
+        const { annotations } = response.data;
+        if (annotations) {
+          this._export_raw(`${projectName}.json`, JSON.stringify(annotations, null, 2));
+        } else {
+          console.warn('No annotations found');
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        this.setState({
+          errorMessage: error.response.data.message
+        });
+      });
+  }
+
+  handleAlertDismiss(e) {
+    e.preventDefault();
+    this.setState({
+      successMessage: '',
+      errorMessage: ''
+    });
   }
 
   _fake_click(obj) {
@@ -122,9 +154,7 @@ class DownloadDataForm extends React.Component {
 
   _export_raw(name, data) {
     const urlObject = window.URL || window.webkitURL || window;
-    console.log(data);
     const export_blob = new Blob([data], { type: 'application/json' });
-    console.log('ISSUE IS HERE');
     if ('msSaveBlob' in navigator) {
       navigator.msSaveBlob(export_blob, name);
     } else if ('download' in HTMLAnchorElement.prototype) {
@@ -137,59 +167,12 @@ class DownloadDataForm extends React.Component {
     }
   }
 
-  handleDownloadAnnotationsJSON(e, projectName, projectId) {
-    axios({
-      method: 'get',
-      url: `/api/projects/${projectId}/annotations`,
-      headers: {
-        csv: 'false'
-      }
-    })
-      .then(response => {
-        console.log(response);
-        console.log('response is good');
-        console.log(response.data);
-        console.log('response data is good');
-        console.log(response.data.annotations);
-        console.log('response data 2 is good');
-        const { annotations } = response.data;
-        if (annotations) {
-          this._export_raw(`${projectName}.json`, JSON.stringify(annotations, null, 2));
-        } else {
-          console.log('No annotations found');
-        }
-      })
-      .catch(error => {
-        console.log(error);
-        this.setState({
-          errorMessage: error.response.data.message,
-          isUserLoading: false
-        });
-      });
-  }
-
   resetState() {
     this.setState(this.initialState);
   }
 
-  handleUpload(e) {}
-
-  onChangeHandler(e) {
-    console.log(e.target.files);
-    this.setState({ files: e.target.files });
-  }
-
-  handleAlertDismiss(e) {
-    e.preventDefault();
-    this.setState({
-      successMessage: '',
-      errorMessage: ''
-    });
-  }
-
   render() {
-    const { isSubmitting, errorMessage, successMessage, users, selectedUsers, isLoading } =
-      this.state;
+    const { errorMessage, successMessage, isLoading, projectName, projectId } = this.state;
     return (
       <div className="container h-75 text-center">
         <div>
@@ -217,8 +200,7 @@ class DownloadDataForm extends React.Component {
               icon={faDownload}
               size="lg"
               title="Download Annotations - JSON"
-              onClick={e =>
-                this.handleDownloadAnnotationsJSON(e, this.state.projectName, this.state.projectId)}
+              onClick={e => this.handleDownloadAnnotationsJSON(e, projectName, projectId)}
             />
           </div>
           <div
@@ -232,8 +214,7 @@ class DownloadDataForm extends React.Component {
               icon={faDownload}
               size="lg"
               title="Download Annotations - CSV"
-              onClick={e =>
-                this.handleDownloadAnnotationsCSV(e, this.state.projectName, this.state.projectId)}
+              onClick={e => this.handleDownloadAnnotationsCSV(e, projectName, projectId)}
             />
           </div>
         </div>

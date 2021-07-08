@@ -23,29 +23,13 @@ class DeleteLabelForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
-  componentDidMount() {
-    console.log('DELETE LABEL FORM HAS RENDER TADA');
-  }
-
-  resetState() {
-    this.setState(this.initialState);
-  }
-
-  handleLabelValueChange(e) {
-    this.setState({ value: e.target.value });
-  }
-
-  clearForm() {
-    this.form.reset();
-  }
-
   handleLabelValueUpdation(e) {
     e.preventDefault();
-
+    const { labelValueUrl } = this.state;
     this.setState({ isSubmitting: true });
     axios({
       method: 'delete',
-      url: this.state.labelValueUrl
+      url: labelValueUrl
     })
       .then(response => {
         if (response.status === 200) {
@@ -74,13 +58,27 @@ class DeleteLabelForm extends React.Component {
     });
   }
 
+  resetState() {
+    this.setState(this.initialState);
+  }
+
+  clearForm() {
+    this.form.reset();
+  }
+
   render() {
     const { isSubmitting, errorMessage, successMessage, isLoading } = this.state;
 
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form className="col-6" name="edit_label_value" ref={el => (this.form = el)}>
+          <form
+            className="col-6"
+            name="edit_label_value"
+            ref={el => {
+              this.form = el;
+            }}
+          >
             {isLoading ? <Loader /> : null}
             {errorMessage ? (
               <Alert

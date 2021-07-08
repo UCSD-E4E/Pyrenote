@@ -11,16 +11,16 @@ import setAuthorizationToken from '../../utils';
 class EditUserForm extends React.Component {
   constructor(props) {
     super(props);
-
+    const { userId } = this.props;
     this.initialState = {
-      userId: Number(this.props.userId),
+      userId: Number(userId),
       username: '',
       newUserName: '',
       role: '-1',
       errorMessage: null,
       successMessage: null,
       isLoading: false,
-      url: `/api/users/${this.props.userId}`
+      url: `/api/users/${userId}`
     };
 
     this.state = { ...this.initialState };
@@ -53,20 +53,12 @@ class EditUserForm extends React.Component {
       });
   }
 
-  resetState() {
-    this.setState(this.initialState);
-  }
-
   handleRoleChange(e) {
     this.setState({ role: e.target.value });
   }
 
   handleUserNameUpdation(e) {
     this.setState({ newUserName: e.target.value });
-  }
-
-  clearForm() {
-    this.form.reset();
   }
 
   handleUserUpdation(e) {
@@ -130,12 +122,26 @@ class EditUserForm extends React.Component {
     });
   }
 
+  clearForm() {
+    this.form.reset();
+  }
+
+  resetState() {
+    this.setState(this.initialState);
+  }
+
   render() {
     const { username, isSubmitting, errorMessage, successMessage, isLoading, role } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-          <form className="col-6" name="edit_user" ref={el => (this.form = el)}>
+          <form
+            className="col-6"
+            name="edit_user"
+            ref={el => {
+              this.form = el;
+            }}
+          >
             {isLoading ? <Loader /> : null}
             {errorMessage ? (
               <Alert
