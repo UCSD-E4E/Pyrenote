@@ -9,7 +9,7 @@ import { Button } from '../../components/button';
 class CreateUserForm extends React.Component {
   constructor(props) {
     super(props);
-    let authNeeded = this.props;
+    let { authNeeded } = this.props;
     authNeeded = authNeeded === 'true';
     this.initialState = {
       authNeeded,

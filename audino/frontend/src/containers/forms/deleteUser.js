@@ -53,7 +53,7 @@ class DeleteUserForm extends React.Component {
     e.preventDefault();
 
     this.setState({ isSubmitting: true });
-    const { url, role, onDelete } = this.state;
+    const { url, role } = this.state;
     axios({
       method: 'delete',
       url,
@@ -71,7 +71,6 @@ class DeleteUserForm extends React.Component {
             successMessage: 'User has been deleted',
             errorMessage: null
           });
-          onDelete();
         }
       })
       .catch(error => {

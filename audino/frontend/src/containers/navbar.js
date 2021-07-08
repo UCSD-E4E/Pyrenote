@@ -32,6 +32,7 @@ class NavBar extends React.Component {
   render() {
     const { store } = this.props;
     const isUserLoggedIn = store.get('isUserLoggedIn');
+    const isAdmin = store.get('isAdmin');
 
     return (
       <nav className="navbar navbar-expand-md bg-dark navbar-dark">
@@ -56,11 +57,13 @@ class NavBar extends React.Component {
                   Dashboard
                 </Link>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/admin">
-                  Admin Panel
-                </Link>
-              </li>
+              {isAdmin && (
+                <li className="nav-item">
+                  <Link className="nav-link" to="/admin">
+                    Admin Panel
+                  </Link>
+                </li>
+              )}
               <li className="nav-item">
                 <button
                   type="button"
