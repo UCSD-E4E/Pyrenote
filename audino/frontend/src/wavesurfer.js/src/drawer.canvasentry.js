@@ -106,7 +106,6 @@ export default class CanvasEntry {
     // set wave canvas dimensions
     this.wave.width = width;
     this.wave.height = height;
-    console.log(`WAve height${height}`); // CHECK THIS
     const elementSize = { width: `${elementWidth}px` };
     style(this.wave, elementSize);
 
@@ -347,5 +346,6 @@ export default class CanvasEntry {
     if (type === 'dataURL') {
       return this.wave.toDataURL(format, quality);
     }
+    return null;
   }
 }

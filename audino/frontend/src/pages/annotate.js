@@ -1,9 +1,7 @@
+/* eslint "no-nested-ternary": "off" */
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
-import WaveSurfer from '/app/frontend/src/wavesurfer.js/src/wavesurfer.js';
-import RegionsPlugin from '/app/frontend/src/wavesurfer.js/src/plugin/regions/index.js';
-import SpectrogramPlugin from '/app/frontend/src/wavesurfer.js/src/plugin/spectrogram/index.js';
 import { Helmet } from 'react-helmet';
 import {
   faBackward,
@@ -11,12 +9,14 @@ import {
   faPlayCircle,
   faPauseCircle
 } from '@fortawesome/free-solid-svg-icons';
+import WaveSurfer from '../wavesurfer.js/src/wavesurfer.js';
+import RegionsPlugin from '../wavesurfer.js/src/plugin/regions/index.js';
+import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
 import Alert from '../components/alert';
 import { IconButton, Button } from '../components/button';
 import Loader from '../components/loader';
 
 const colormap = require('colormap');
-
 /**
  * Useful object paths:
  * wavesurfer.spectrogram.canvas
@@ -414,96 +414,90 @@ class Annotate extends React.Component {
 
   handleAllSegmentSave() {
     const { segmentationUrl, wavesurfer } = this.state;
-    for (const segment_name in wavesurfer.regions.list) {
-      try {
-        const segment = wavesurfer.regions.list[segment_name];
-        if (segment.saved) {
-          continue;
-        }
-        const { start, end } = segment;
-        const { transcription = '', annotations = '', segmentation_id = null } = segment.data;
-        if (annotations === '') {
-          continue;
-        }
-        this.setState({ isSegmentSaving: true });
-        const now = Date.now();
-        let time_spent = 0;
-        if (segment.lastTime === 0) {
-          time_spent = now - this.lastTime;
-        } else {
-          time_spent = now - segment.lastTime;
-        }
-        segment.setLastTime(now);
-        if (segmentation_id === null) {
-          axios({
-            method: 'post',
-            url: segmentationUrl,
-            data: {
-              start,
-              end,
-              transcription,
-              annotations,
-              time_spent
-            }
-          })
-            .then(response => {
-              segment.data.segmentation_id = response.data.segmentation_id;
-              this.setState({
-                isSegmentSaving: false,
-                selectedSegment: segment,
-                successMessage: 'Segment saved',
-                errorMessage: null
-              });
-              segment.style(segment.element, {
-                backgroundColor: 'rgba(0, 0, 0, 0.7)'
-              });
-              segment._onSave();
+    Object.values(wavesurfer.regions.list).forEach(segment => {
+      if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
+        try {
+          const { start, end } = segment;
+          const { transcription = '', annotations = '', segmentation_id = null } = segment.data;
+          this.setState({ isSegmentSaving: true });
+          const now = Date.now();
+          let time_spent = 0;
+          if (segment.lastTime === 0) {
+            time_spent = now - this.lastTime;
+          } else {
+            time_spent = now - segment.lastTime;
+          }
+          segment.setLastTime(now);
+          if (segmentation_id === null) {
+            axios({
+              method: 'post',
+              url: segmentationUrl,
+              data: {
+                start,
+                end,
+                transcription,
+                annotations,
+                time_spent
+              }
             })
-            .catch(error => {
-              console.error(error);
-              this.setState({
-                isSegmentSaving: false,
-                errorMessage: 'Error saving segment',
-                successMessage: null
+              .then(response => {
+                segment.data.segmentation_id = response.data.segmentation_id;
+                this.setState({
+                  isSegmentSaving: false,
+                  selectedSegment: segment,
+                  successMessage: 'Segment saved',
+                  errorMessage: null
+                });
+                segment.style(segment.element, {
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)'
+                });
+                segment._onSave();
+              })
+              .catch(error => {
+                console.error(error);
+                this.setState({
+                  isSegmentSaving: false,
+                  errorMessage: 'Error saving segment',
+                  successMessage: null
+                });
               });
-            });
-        } else {
-          axios({
-            method: 'put',
-            url: `${segmentationUrl}/${segmentation_id}`,
-            data: {
-              start,
-              end,
-              transcription,
-              annotations,
-              time_spent
-            }
-          })
-            .then(() => {
-              this.setState({
-                isSegmentSaving: false,
-                successMessage: 'Segment saved',
-                errorMessage: null
-              });
-              segment.style(segment.element, {
-                backgroundColor: 'rgba(0, 0, 0, 0.7)'
-              });
-              segment._onSave();
+          } else {
+            axios({
+              method: 'put',
+              url: `${segmentationUrl}/${segmentation_id}`,
+              data: {
+                start,
+                end,
+                transcription,
+                annotations,
+                time_spent
+              }
             })
-            .catch(error => {
-              console.error(error);
-              this.setState({
-                isSegmentSaving: false,
-                errorMessage: 'Error saving segment',
-                successMessage: null
+              .then(() => {
+                this.setState({
+                  isSegmentSaving: false,
+                  successMessage: 'Segment saved',
+                  errorMessage: null
+                });
+                segment.style(segment.element, {
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)'
+                });
+                segment._onSave();
+              })
+              .catch(error => {
+                console.error(error);
+                this.setState({
+                  isSegmentSaving: false,
+                  errorMessage: 'Error saving segment',
+                  successMessage: null
+                });
               });
-            });
+          }
+        } catch (err) {
+          console.error(err);
         }
-      } catch (err) {
-        console.error(err);
-        continue;
       }
-    }
+    });
   }
 
   handleTranscriptionChange(e) {
@@ -551,17 +545,20 @@ class Annotate extends React.Component {
       next_data_id,
       next_data_url
     } = this.state;
-    for (const segment_name in wavesurfer.regions.list) {
-      const segment = wavesurfer.regions.list[segment_name];
+    let success = true;
+    Object.values(wavesurfer.regions.list).forEach(segment => {
       if (segment.saved === false && !forceNext) {
         if (segment.data.annotations == null) {
           this.setState({
             errorUnsavedMessage:
               'There regions without a label! You can\'t leave yet! If you are sure, click "force next"'
           });
-          return;
+          success = false;
         }
       }
+    });
+    if (!success) {
+      return;
     }
 
     if (num_of_prev < previous_pages.length - 1) {
@@ -574,8 +571,7 @@ class Annotate extends React.Component {
     localStorage.setItem('previous_links', JSON.stringify(previous_pages));
     localStorage.setItem('count', JSON.stringify(next_page_num));
     let newPageData = data[0];
-
-    for (let key in data) {
+    Object.keys(data).forEach(key => {
       key = parseInt(key, 10);
       if (data[key].data_id === dataId) {
         try {
@@ -601,27 +597,29 @@ class Annotate extends React.Component {
             window.location.href = `${path}/projects/${projectId}/data`;
           }
         }
-        break;
       }
-    }
+    });
   }
 
   // Go to previous audio recording
   handlePreviousClip(forceNext = false) {
     this.handleAllSegmentSave();
     const { wavesurfer, previous_pages, num_of_prev } = this.state;
-    for (const segment_name in wavesurfer.regions.list) {
-      const segment = wavesurfer.regions.list[segment_name];
+    let success = true;
+    Object.values(wavesurfer.regions.list).forEach(segment => {
       if (segment.saved === false && !forceNext) {
         if (segment.data.annotations == null) {
           this.setState({
             errorUnsavedMessage:
               'There regions without a label! You can\'t leave yet! If you are sure, click "force previous"'
           });
-          return;
+          success = false;
         }
         // TODO: Change this to a modal
       }
+    });
+    if (!success) {
+      return;
     }
 
     if (num_of_prev > 0) {
@@ -853,7 +851,7 @@ class Annotate extends React.Component {
                   size="lg"
                   type="primary"
                   disabled={isSegmentSaving}
-                  onClick={e => this.handlePreviousClip(e)}
+                  onClick={() => this.handlePreviousClip()}
                   isSubmitting={isSegmentSaving}
                   text="Previous"
                 />
@@ -863,7 +861,7 @@ class Annotate extends React.Component {
                   size="lg"
                   type="primary"
                   disabled={isSegmentSaving}
-                  onClick={e => this.handleNextClip(e)}
+                  onClick={() => this.handleNextClip()}
                   isSubmitting={isSegmentSaving}
                   text="Next"
                 />
