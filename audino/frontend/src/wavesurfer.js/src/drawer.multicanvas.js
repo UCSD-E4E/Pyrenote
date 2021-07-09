@@ -1,7 +1,7 @@
 import Drawer from './drawer';
 import * as util from './util';
 import CanvasEntry from './drawer.canvasentry';
-import 'wavesurfer.js';
+// import 'wavesurfer.js';
 // import "frontend/src/wavesurfer.js/lib/wavesurfer.min.js"; //frontend\src\wavesurfer.js\lib\wavesurfer.min.js//
 // import "frontend/src/wavesurfer.js/lib/wavesurfer.spectrogram.min.js"
 
@@ -36,7 +36,7 @@ export default class MultiCanvas extends Drawer {
      *
      * @type {boolean}
      */
-    this.hasProgressCanvas = params.waveColor != params.progressColor;
+    this.hasProgressCanvas = params.waveColor !== params.progressColor;
 
     /**
      * @type {number}
@@ -148,7 +148,7 @@ export default class MultiCanvas extends Drawer {
     let canvasWidth = this.maxCanvasWidth + this.overlap;
     const lastCanvas = this.canvases.length - 1;
     this.canvases.forEach((entry, i) => {
-      if (i == lastCanvas) {
+      if (i === lastCanvas) {
         canvasWidth = this.width - this.maxCanvasWidth * lastCanvas;
       }
       console.log(`MORE INFO HERE + ${this.height}`);
@@ -301,7 +301,7 @@ export default class MultiCanvas extends Drawer {
 
           /* in case of silences, allow the user to specify that we
            * always draw *something* (normally a 1px high bar) */
-          if (h == 0 && this.params.barMinHeight) h = this.params.barMinHeight;
+          if (h === 0 && this.params.barMinHeight) h = this.params.barMinHeight;
 
           this.fillRect(
             i + this.halfPixel,

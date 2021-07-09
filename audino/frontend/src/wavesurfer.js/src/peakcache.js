@@ -39,7 +39,7 @@ export default class PeakCache {
    * @return {Number.<Array[]>} Array with arrays of numbers
    */
   addRangeToPeakCache(length, start, end) {
-    if (length != this.peakCacheLength) {
+    if (length !== this.peakCacheLength) {
       this.clearPeakCache();
       this.peakCacheLength = length;
     }
@@ -55,7 +55,7 @@ export default class PeakCache {
     // |start| falls between an existing range, and the uncached region
     // starts when we encounter the next node in |peakCacheRanges| or
     // |end|, whichever comes first.
-    if (i % 2 == 0) {
+    if (i % 2 === 0) {
       uncachedRanges.push(start);
     }
     while (i < this.peakCacheRanges.length && this.peakCacheRanges[i] <= end) {
@@ -63,19 +63,19 @@ export default class PeakCache {
       i++;
     }
     // If |i| is even, |end| is after all existing ranges.
-    if (i % 2 == 0) {
+    if (i % 2 === 0) {
       uncachedRanges.push(end);
     }
 
     // Filter out the 0-length ranges.
     uncachedRanges = uncachedRanges.filter((item, pos, arr) => {
-      if (pos == 0) {
-        return item != arr[pos + 1];
+      if (pos === 0) {
+        return item !== arr[pos + 1];
       }
-      if (pos == arr.length - 1) {
-        return item != arr[pos - 1];
+      if (pos === arr.length - 1) {
+        return item !== arr[pos - 1];
       }
-      return item != arr[pos - 1] && item != arr[pos + 1];
+      return item !== arr[pos - 1] && item !== arr[pos + 1];
     });
 
     // Merge the two ranges together, uncachedRanges will either contain
@@ -85,13 +85,13 @@ export default class PeakCache {
     this.peakCacheRanges = this.peakCacheRanges
       .sort((a, b) => a - b)
       .filter((item, pos, arr) => {
-        if (pos == 0) {
-          return item != arr[pos + 1];
+        if (pos === 0) {
+          return item !== arr[pos + 1];
         }
-        if (pos == arr.length - 1) {
-          return item != arr[pos - 1];
+        if (pos === arr.length - 1) {
+          return item !== arr[pos - 1];
         }
-        return item != arr[pos - 1] && item != arr[pos + 1];
+        return item !== arr[pos - 1] && item !== arr[pos + 1];
       });
 
     // Push the uncached ranges into an array of arrays for ease of

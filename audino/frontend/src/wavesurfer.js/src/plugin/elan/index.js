@@ -115,7 +115,7 @@ export default class ElanPlugin {
     };
 
     const header = xml.querySelector('HEADER');
-    const inMilliseconds = header.getAttribute('TIME_UNITS') == 'milliseconds';
+    const inMilliseconds = header.getAttribute('TIME_UNITS') === 'milliseconds';
     const media = header.querySelector('MEDIA_DESCRIPTOR');
     data.media.url = media.getAttribute('MEDIA_URL');
     data.media.type = media.getAttribute('MIME_TYPE');
@@ -145,7 +145,7 @@ export default class ElanPlugin {
             value: node.querySelector('ANNOTATION_VALUE').textContent.trim()
           };
 
-          if (this.Types.ALIGNABLE_ANNOTATION == annot.type) {
+          if (this.Types.ALIGNABLE_ANNOTATION === annot.type) {
             // Add start & end to alignable annotation
             annot.start = timeOrder[node.getAttribute('TIME_SLOT_REF1')];
             annot.end = timeOrder[node.getAttribute('TIME_SLOT_REF2')];
@@ -164,7 +164,7 @@ export default class ElanPlugin {
     // Create JavaScript references between annotations
     data.tiers.forEach(tier => {
       tier.annotations.forEach(annot => {
-        if (annot.ref != null) {
+        if (annot.ref !== null) {
           annot.reference = data.annotations[annot.ref];
         }
       });
@@ -173,7 +173,7 @@ export default class ElanPlugin {
     // Sort alignable annotations by start & end
     data.alignableAnnotations.sort((a, b) => {
       let d = a.start - b.start;
-      if (d == 0) {
+      if (d === 0) {
         d = b.end - a.end;
       }
       return d;
@@ -196,7 +196,7 @@ export default class ElanPlugin {
     let indeces = {};
     tiers.forEach((tier, index) => {
       tier.annotations.forEach(annot => {
-        if (annot.reference && annot.reference.type == this.Types.ALIGNABLE_ANNOTATION) {
+        if (annot.reference && annot.reference.type === this.Types.ALIGNABLE_ANNOTATION) {
           if (!(annot.reference.id in backRefs)) {
             backRefs[annot.ref] = {};
           }
@@ -272,7 +272,7 @@ export default class ElanPlugin {
   bindClick() {
     this._onClick = e => {
       const { ref } = e.target.dataset;
-      if (ref != null) {
+      if (ref !== null) {
         const annot = this.data.annotations[ref];
         if (annot) {
           this.fireEvent('select', annot.start, annot.end);

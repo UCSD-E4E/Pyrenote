@@ -86,19 +86,13 @@ export default class SpectrogramPlugin {
       this.render();
     };
     this._onUpdate = width => {
-      console.log('LOOKS LIKE WE NEED TO UPDATE THE SPECTROGRAM ONE SEC PLS');
       const drawer = (this.drawer = ws.drawer);
       this.width = width || drawer.width;
-      console.log('SPECTROGRAM STATE 0');
       this.createWrapper();
-      console.log('SPECTROGRAM STATE 1');
       this.createCanvas();
-      console.log('SPECTROGRAM STATE 2');
       this.render(true);
-      console.log('SPECTROGRAM STATE 3');
 
       this.drawer.wrapper.addEventListener('scroll', this._onScroll);
-      console.log('SPECTROGRAM UPDATE COMPLETED');
     };
     this._onWrapperClick = e => {
       this._wrapperClickHandler(e);
@@ -157,7 +151,6 @@ export default class SpectrogramPlugin {
       drawer.wrapper.addEventListener('scroll', this._onScroll);
       ws.on('redraw', this._onRender);
       ws.on('zoom', () => {
-        console.log('ZOOMY ZOOM');
         this._onRender();
       });
     };
@@ -189,21 +182,17 @@ export default class SpectrogramPlugin {
 
   createWrapper() {
     const prevSpectrogram = this.container.querySelector('spectrogram');
-    console.log('last spectro');
     if (prevSpectrogram) {
       this.container.removeChild(prevSpectrogram);
     }
-    console.log('last label');
     const prevLabel = this.labelContainer.querySelector('labels');
     if (prevLabel) {
       this.labelContainer.removeChild(prevLabel);
     }
-    console.log('all create for removing old bois');
     const wsParams = this.wavesurfer.params;
     this.wrapper = document.createElement('spectrogram');
     this.wrapper2 = document.createElement('labels');
     // if labels are active
-    console.log('looks like it reading from here');
     if (this.params.labels) {
       const labelsEl = (this.labelsEl = document.createElement('canvas'));
       labelsEl.classList.add('spec-labels');
@@ -280,7 +269,6 @@ export default class SpectrogramPlugin {
     this.updateCanvasStyle(zoom);
 
     if (this.frequenciesDataUrl) {
-      console.log('ITS RUNNING THIS ONE!!');
       this.loadFrequenciesData(this.frequenciesDataUrl);
     } else {
       this.getFrequencies(this.drawSpectrogram);
@@ -292,7 +280,6 @@ export default class SpectrogramPlugin {
     if (!zoom) {
       width = `${Math.round(this.width / this.pixelRatio)}px`;
     }
-    console.log(`The new width is ${width}`);
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.canvas.style.width = width;
@@ -465,10 +452,6 @@ export default class SpectrogramPlugin {
 
   resample(oldMatrix) {
     const columnsNumber = this.width; // this.wavesurfer.backend.getDuration() * this.wavesurfer.params.minPxPerSec;
-    console.log('HEY LOOK HERE');
-    console.log(this.wavesurfer.params.minPxPerSec);
-    console.log(this.wavesurfer);
-    console.log(columnsNumber); // this.width;
     const newMatrix = [];
 
     const oldPiece = 1 / oldMatrix.length;

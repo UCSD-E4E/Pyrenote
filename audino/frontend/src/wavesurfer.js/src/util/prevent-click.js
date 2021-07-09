@@ -14,7 +14,7 @@ function preventClickHandler(event) {
  *
  * @param {object} values Values
  */
-export default function preventClick(values) {
+export default function preventClick() {
   // removed values
   document.body.addEventListener('click', preventClickHandler, true);
 }

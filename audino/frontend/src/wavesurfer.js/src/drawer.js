@@ -65,7 +65,6 @@ export default class Drawer extends util.Observer {
       height: `${this.params.height / this.params.pixelRatio + 17}px`, // THIS IS WHERE HEIGHT IS CHANGED
       left: `${55 / this.params.pixelRatio / 2}px`
     }); // ${-55 / this.pixelRatio / 2}
-    console.log(-55 / this.pixelRatio / 2);
     if (this.params.fillParent || this.params.scrollParent) {
       this.style(this.wrapper, {
         width: '100%',
@@ -151,9 +150,9 @@ export default class Drawer extends util.Observer {
     if (visualization === 'invisible') {
       // draw nothing
     } else if (visualization === 'spectrogram' && buffer) {
-      console.log(new Date().toLocaleString());
+      console.warn(new Date().toLocaleString());
       this.drawSpectrogram(buffer);
-      console.log(new Date().toLocaleString());
+      console.warn(new Date().toLocaleString());
     } else {
       this.params.barWidth
         ? this.drawBars(peaks, 0, start, end)
@@ -295,7 +294,6 @@ export default class Drawer extends util.Observer {
     this.style(this.wrapper, {
       height: `${~~(this.height / this.params.pixelRatio)}px`
     });
-    console.log(`HEY LOOK HERE${~~(this.height / this.params.pixelRatio)}px`);
     this.updateSize();
     return true;
   }
@@ -446,7 +444,7 @@ export default class Drawer extends util.Observer {
   }
 
   /* Renderer-specific methods */
-
+  /* eslint-disable */
   /**
    * Called after cursor related params have changed.
    *

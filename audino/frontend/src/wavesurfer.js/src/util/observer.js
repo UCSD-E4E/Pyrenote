@@ -40,13 +40,14 @@ export default class Observer {
       handlers = this.handlers[event]; // changed this
     }
     handlers.push(fn);
-
+    /* eslint-disable */
     // Return an event descriptor
     return {
       name: event,
       callback: fn,
       un: (e, fn) => this.un(e, fn)
     };
+    /* eslint-enable */
   }
 
   /**
@@ -66,7 +67,7 @@ export default class Observer {
     if (handlers) {
       if (fn) {
         for (i = handlers.length - 1; i >= 0; i--) {
-          if (handlers[i] == fn) {
+          if (handlers[i] === fn) {
             handlers.splice(i, 1);
           }
         }

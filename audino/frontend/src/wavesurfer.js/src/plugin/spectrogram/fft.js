@@ -1,4 +1,4 @@
-/* eslint-disable complexity, no-redeclare, no-var, one-var */
+/* eslint "complexity": "off", "no-redeclare": "off", "no-var": "off", "one-var": off, "vars-on-top": off */
 
 /**
  * Calculate FFT - Based on https://github.com/corbanbrook/dsp.js
@@ -93,8 +93,8 @@ export default function FFT(bufferSize, sampleRate, windowFunc, alpha) {
       throw Error(`No such window function '${windowFunc}'`);
   }
 
-  var limit = 1;
-  var bit = bufferSize >> 1;
+  let limit = 1;
+  let bit = bufferSize >> 1;
   var i;
 
   while (limit < bufferSize) {
@@ -113,20 +113,20 @@ export default function FFT(bufferSize, sampleRate, windowFunc, alpha) {
 
   this.calculateSpectrum = function (buffer) {
     // Locally scope variables for speed up
-    var { bufferSize } = this,
-      { cosTable } = this,
-      { sinTable } = this,
-      { reverseTable } = this,
-      real = new Float32Array(bufferSize),
-      imag = new Float32Array(bufferSize),
-      bSi = 2 / this.bufferSize,
-      { sqrt } = Math,
-      rval,
-      ival,
-      mag,
-      spectrum = new Float32Array(bufferSize / 2);
+    const { bufferSize } = this;
+    const { cosTable } = this;
+    const { sinTable } = this;
+    const { reverseTable } = this;
+    const real = new Float32Array(bufferSize);
+    const imag = new Float32Array(bufferSize);
+    const bSi = 2 / this.bufferSize;
+    const { sqrt } = Math;
+    let rval;
+    let ival;
+    let mag;
+    const spectrum = new Float32Array(bufferSize / 2);
 
-    var k = Math.floor(Math.log(bufferSize) / Math.LN2);
+    const k = Math.floor(Math.log(bufferSize) / Math.LN2);
 
     if (Math.pow(2, k) !== bufferSize) {
       throw 'Invalid buffer size, must be a power of 2.';
@@ -135,15 +135,15 @@ export default function FFT(bufferSize, sampleRate, windowFunc, alpha) {
       throw `Supplied buffer is not the same size as defined FFT. FFT Size: ${bufferSize} Buffer Size: ${buffer.length}`;
     }
 
-    var halfSize = 1,
-      phaseShiftStepReal,
-      phaseShiftStepImag,
-      currentPhaseShiftReal,
-      currentPhaseShiftImag,
-      off,
-      tr,
-      ti,
-      tmpReal;
+    let halfSize = 1;
+    let phaseShiftStepReal;
+    let phaseShiftStepImag;
+    let currentPhaseShiftReal;
+    let currentPhaseShiftImag;
+    let off;
+    let tr;
+    let ti;
+    let tmpReal;
 
     for (var i = 0; i < bufferSize; i++) {
       real[i] = buffer[reverseTable[i]] * this.windowValues[reverseTable[i]];
@@ -157,7 +157,7 @@ export default function FFT(bufferSize, sampleRate, windowFunc, alpha) {
       currentPhaseShiftReal = 1;
       currentPhaseShiftImag = 0;
 
-      for (var fftStep = 0; fftStep < halfSize; fftStep++) {
+      for (let fftStep = 0; fftStep < halfSize; fftStep++) {
         var i = fftStep;
 
         while (i < bufferSize) {

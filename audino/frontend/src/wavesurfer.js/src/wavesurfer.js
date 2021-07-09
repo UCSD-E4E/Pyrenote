@@ -1,3 +1,5 @@
+/* eslint-disable */
+//This was done becuase the entire file is flagged for having abstract funtions
 import * as util from './util';
 import MultiCanvas from './drawer.multicanvas';
 import WebAudio from './webaudio';
