@@ -297,6 +297,7 @@ export default class WaveSurfer extends util.Observer {
       filterChannels: [],
       relativeNormalization: false
     },
+    vertical: false,
     waveColor: '#999',
     xhr: {}
   };
@@ -328,7 +329,7 @@ export default class WaveSurfer extends util.Observer {
    * @example
    * console.log('Using wavesurfer.js ' + WaveSurfer.VERSION);
    */
-  // static VERSION = __VERSION__;
+   //static VERSION = __VERSION__;
 
   /**
    * Functions in the `util` property are available as a prototype property to
@@ -365,16 +366,17 @@ export default class WaveSurfer extends util.Observer {
      * Extract relevant parameters (or defaults)
      * @private
      */
-    this.params = { ...this.defaultParams, ...params };
-    this.params.splitChannelsOptions = {
-      ...this.defaultParams.splitChannelsOptions,
-      ...params.splitChannelsOptions
-    };
+     this.params = Object.assign({}, this.defaultParams, params);
+     this.params.splitChannelsOptions = Object.assign(
+         {},
+         this.defaultParams.splitChannelsOptions,
+         params.splitChannelsOptions
+     );
     /** @private */
     this.container =
-      typeof params.container === 'string'
-        ? document.querySelector(this.params.container)
-        : this.params.container;
+            'string' == typeof params.container
+                ? document.querySelector(this.params.container)
+                : this.params.container;
 
     if (!this.container) {
       throw new Error('Container element not found');
@@ -402,8 +404,12 @@ export default class WaveSurfer extends util.Observer {
     }
 
     if (this.params.rtl === true) {
-      util.style(this.container, { transform: 'rotateY(180deg)' });
-    }
+            if (this.params.vertical === true) {
+                util.style(this.container, { transform: 'rotateX(180deg)' });
+            } else {
+                util.style(this.container, { transform: 'rotateY(180deg)' });
+            }
+        }
 
     if (this.params.backgroundColor) {
       this.setBackgroundColor(this.params.backgroundColor);
@@ -485,7 +491,7 @@ export default class WaveSurfer extends util.Observer {
     // responsive debounced event listener. If this.params.responsive is not
     // set, this is never called. Use 100ms or this.params.responsive as
     // timeout for the debounce function.
-    /* let prevWidth = 0;
+    let prevWidth = 0;
         this._onResize = util.debounce(
             () => {
                 if (
@@ -499,7 +505,7 @@ export default class WaveSurfer extends util.Observer {
             typeof this.params.responsive === 'number'
                 ? this.params.responsive
                 : 100
-        ); */
+        );
 
     return this;
   }
@@ -901,14 +907,26 @@ export default class WaveSurfer extends util.Observer {
    * // seek to the middle of the audio
    * wavesurfer.seekTo(0.5);
    */
-  seekTo(progress) {
+   seekTo(progress) {
     // return an error if progress is not a number between 0 and 1
-    if (typeof progress !== 'number' || !isFinite(progress) || progress < 0 || progress > 1) {
-      throw new Error(
-        'Error calling wavesurfer.seekTo, parameter must be a number between 0 and 1!'
-      );
+    if (
+        typeof progress !== 'number' ||
+        !isFinite(progress) ||
+        progress < 0 ||
+        progress > 1
+    ) {
+        throw new Error(
+            'Error calling wavesurfer.seekTo, parameter must be a number between 0 and 1!'
+        );
     }
     this.fireEvent('interaction', () => this.seekTo(progress));
+
+    const isWebAudioBackend = this.params.backend === 'WebAudio';
+    const paused = this.backend.isPaused();
+
+    if (isWebAudioBackend && !paused) {
+        this.backend.pause();
+    }
 
     // avoid small scrolls while paused seeking
     const oldScrollParent = this.params.scrollParent;
@@ -916,9 +934,13 @@ export default class WaveSurfer extends util.Observer {
     this.backend.seekTo(progress * this.getDuration());
     this.drawer.progress(progress);
 
+    if (isWebAudioBackend && !paused) {
+        this.backend.play();
+    }
+
     this.params.scrollParent = oldScrollParent;
     this.fireEvent('seek', progress);
-  }
+}
 
   /**
    * Stops and goes to the beginning.
@@ -1289,21 +1311,25 @@ export default class WaveSurfer extends util.Observer {
     this.fireEvent('ready');
   }
 
-  /**
-   * Loads audio data from a Blob or File object
-   *
-   * @param {Blob|File} blob Audio data
-   * @example
-   */
-  loadBlob(blob) {
-    // Create file reader
-    const reader = new FileReader();
-    reader.addEventListener('progress', e => this.onProgress(e));
-    reader.addEventListener('load', e => this.loadArrayBuffer(e.target.result));
-    reader.addEventListener('error', () => this.fireEvent('error', 'Error reading file'));
-    reader.readAsArrayBuffer(blob);
-    this.empty();
-  }
+    /**
+     * Loads audio data from a Blob or File object
+     *
+     * @param {Blob|File} blob Audio data
+     * @example
+     */
+     loadBlob(blob) {
+        // Create file reader
+        const reader = new FileReader();
+        reader.addEventListener('progress', e => this.onProgress(e));
+        reader.addEventListener('load', e =>
+            this.loadArrayBuffer(e.target.result)
+        );
+        reader.addEventListener('error', () =>
+            this.fireEvent('error', 'Error reading file')
+        );
+        reader.readAsArrayBuffer(blob);
+        this.empty();
+    }
 
   /**
    * Loads audio and re-renders the waveform.
@@ -1332,45 +1358,52 @@ export default class WaveSurfer extends util.Observer {
    *   true
    * );
    */
-  load(url, peaks, preload, duration) {
+   load(url, peaks, preload, duration) {
     if (!url) {
-      throw new Error('url parameter cannot be empty');
+        throw new Error('url parameter cannot be empty');
     }
     this.empty();
     if (preload) {
-      // check whether the preload attribute will be usable and if not log
-      // a warning listing the reasons why not and nullify the variable
-      const preloadIgnoreReasons = {
-        "Preload is not 'auto', 'none' or 'metadata'":
-          ['auto', 'metadata', 'none'].indexOf(preload) === -1,
-        'Peaks are not provided': !peaks,
-        "Backend is not of type 'MediaElement' or 'MediaElementWebAudio'":
-          ['MediaElement', 'MediaElementWebAudio'].indexOf(this.params.backend) === -1,
-        'Url is not of type string': typeof url !== 'string'
-      };
-      const activeReasons = Object.keys(preloadIgnoreReasons).filter(
-        reason => preloadIgnoreReasons[reason]
-      );
-      if (activeReasons.length) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Preload parameter of wavesurfer.load will be ignored because:\n\t- ${activeReasons.join(
-            '\n\t- '
-          )}`
+        // check whether the preload attribute will be usable and if not log
+        // a warning listing the reasons why not and nullify the variable
+        const preloadIgnoreReasons = {
+            "Preload is not 'auto', 'none' or 'metadata'":
+                ['auto', 'metadata', 'none'].indexOf(preload) === -1,
+            'Peaks are not provided': !peaks,
+            "Backend is not of type 'MediaElement' or 'MediaElementWebAudio'":
+                ['MediaElement', 'MediaElementWebAudio'].indexOf(
+                    this.params.backend
+                ) === -1,
+            'Url is not of type string': typeof url !== 'string'
+        };
+        const activeReasons = Object.keys(preloadIgnoreReasons).filter(
+            reason => preloadIgnoreReasons[reason]
         );
-        // stop invalid values from being used
-        preload = null;
-      }
+        if (activeReasons.length) {
+            // eslint-disable-next-line no-console
+            console.warn(
+                'Preload parameter of wavesurfer.load will be ignored because:\n\t- ' +
+                    activeReasons.join('\n\t- ')
+            );
+            // stop invalid values from being used
+            preload = null;
+        }
+    }
+
+    // loadBuffer(url, peaks, duration) requires that url is a string
+    // but users can pass in a HTMLMediaElement to WaveSurfer
+    if (this.params.backend === 'WebAudio' && url instanceof HTMLMediaElement) {
+        url = url.src;
     }
 
     switch (this.params.backend) {
-      case 'WebAudio':
-        return this.loadBuffer(url, peaks, duration);
-      case 'MediaElement':
-      case 'MediaElementWebAudio':
-        return this.loadMediaElement(url, peaks, preload, duration);
+        case 'WebAudio':
+            return this.loadBuffer(url, peaks, duration);
+        case 'MediaElement':
+        case 'MediaElementWebAudio':
+            return this.loadMediaElement(url, peaks, preload, duration);
     }
-  }
+}
 
   /**
    * Loads audio using Web Audio buffer backend.
@@ -1492,32 +1525,34 @@ export default class WaveSurfer extends util.Observer {
    * @returns {util.fetchFile} fetch call
    * @private
    */
-  getArrayBuffer(url, callback) {
-    const options = {
-      url,
-      responseType: 'arraybuffer',
-      ...this.params.xhr
-    };
+   getArrayBuffer(url, callback) {
+    let options = Object.assign(
+        {
+            url: url,
+            responseType: 'arraybuffer'
+        },
+        this.params.xhr
+    );
     const request = util.fetchFile(options);
 
     this.currentRequest = request;
 
     this.tmpEvents.push(
-      request.on('progress', e => {
-        this.onProgress(e);
-      }),
-      request.on('success', data => {
-        callback(data);
-        this.currentRequest = null;
-      }),
-      request.on('error', e => {
-        this.fireEvent('error', e);
-        this.currentRequest = null;
-      })
+        request.on('progress', e => {
+            this.onProgress(e);
+        }),
+        request.on('success', data => {
+            callback(data);
+            this.currentRequest = null;
+        }),
+        request.on('error', e => {
+            this.fireEvent('error', e);
+            this.currentRequest = null;
+        })
     );
 
     return request;
-  }
+}
 
   /**
    * Called while the audio file is loading

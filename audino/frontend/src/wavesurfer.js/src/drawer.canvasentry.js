@@ -57,7 +57,7 @@ export default class CanvasEntry {
      */
     this.id = getId(
       typeof this.constructor.name !== 'undefined'
-        ? `${this.constructor.name.toLowerCase()}_`
+      ? this.constructor.name.toLowerCase() + '_'
         : 'canvasentry_'
     );
     /**
@@ -86,7 +86,10 @@ export default class CanvasEntry {
    */
   initProgress(element) {
     this.progress = element;
-    this.progressCtx = this.progress.getContext('2d', this.canvasContextAttributes);
+    this.progressCtx = this.progress.getContext(
+        '2d',
+        this.canvasContextAttributes
+    );
   }
 
   /**
@@ -106,7 +109,7 @@ export default class CanvasEntry {
     // set wave canvas dimensions
     this.wave.width = width;
     this.wave.height = height;
-    const elementSize = { width: `${elementWidth}px` };
+    let elementSize = { width: elementWidth + 'px' };
     style(this.wave, elementSize);
 
     if (this.hasProgressCanvas) {
@@ -122,7 +125,12 @@ export default class CanvasEntry {
    */
   clearWave() {
     // wave
-    this.waveCtx.clearRect(0, 0, this.waveCtx.canvas.width, this.waveCtx.canvas.height);
+    this.waveCtx.clearRect(
+        0,
+        0,
+        this.waveCtx.canvas.width,
+        this.waveCtx.canvas.height
+    );
 
     // progress
     if (this.hasProgressCanvas) {
@@ -149,7 +157,23 @@ export default class CanvasEntry {
     }
   }
 
-  /**
+/**
+     * Set the canvas transforms for wave and progress
+     *
+     * @param {boolean} vertical Whether to render vertically
+     */
+ applyCanvasTransforms(vertical) {
+    if (vertical) {
+        // Reflect the waveform across the line y = -x
+        this.waveCtx.setTransform(0, 1, 1, 0, 0, 0);
+
+        if (this.hasProgressCanvas) {
+            this.progressCtx.setTransform(0, 1, 1, 0, 0, 0);
+        }
+    }
+}
+
+/**
    * Draw a rectangle for wave and progress
    *
    * @param {number} x X start position
@@ -162,7 +186,14 @@ export default class CanvasEntry {
     this.fillRectToContext(this.waveCtx, x, y, width, height, radius);
 
     if (this.hasProgressCanvas) {
-      this.fillRectToContext(this.progressCtx, x, y, width, height, radius);
+        this.fillRectToContext(
+            this.progressCtx,
+            x,
+            y,
+            width,
+            height,
+            radius
+        );
     }
   }
 
@@ -216,7 +247,12 @@ export default class CanvasEntry {
     ctx.lineTo(x + width - radius, y);
     ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
     ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.quadraticCurveTo(
+        x + width,
+        y + height,
+        x + width - radius,
+        y + height
+    );
     ctx.lineTo(x + radius, y + height);
     ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
     ctx.lineTo(x, y + radius);
@@ -238,10 +274,26 @@ export default class CanvasEntry {
    * should be rendered
    */
   drawLines(peaks, absmax, halfH, offsetY, start, end) {
-    this.drawLineToContext(this.waveCtx, peaks, absmax, halfH, offsetY, start, end);
+    this.drawLineToContext(
+        this.waveCtx,
+        peaks,
+        absmax,
+        halfH,
+        offsetY,
+        start,
+        end
+    );
 
     if (this.hasProgressCanvas) {
-      this.drawLineToContext(this.progressCtx, peaks, absmax, halfH, offsetY, start, end);
+        this.drawLineToContext(
+            this.progressCtx,
+            peaks,
+            absmax,
+            halfH,
+            offsetY,
+            start,
+            end
+        );
     }
   }
 
@@ -286,9 +338,7 @@ export default class CanvasEntry {
       halfOffset - Math.round((peaks[2 * canvasStart] || 0) / absmaxHalf)
     );
 
-    let i;
-    let peak;
-    let h;
+    let i, peak, h;
     for (i = canvasStart; i < canvasEnd; i++) {
       peak = peaks[2 * i] || 0;
       h = Math.round(peak / absmaxHalf);
@@ -306,7 +356,8 @@ export default class CanvasEntry {
 
     ctx.lineTo(
       (canvasStart - first) * scale,
-      halfOffset - Math.round((peaks[2 * canvasStart + 1] || 0) / absmaxHalf)
+      halfOffset -
+                Math.round((peaks[2 * canvasStart + 1] || 0) / absmaxHalf)
     );
 
     ctx.closePath();
@@ -342,10 +393,8 @@ export default class CanvasEntry {
       return new Promise(resolve => {
         this.wave.toBlob(resolve, format, quality);
       });
+    } else if (type === 'dataURL') {
+        return this.wave.toDataURL(format, quality);
     }
-    if (type === 'dataURL') {
-      return this.wave.toDataURL(format, quality);
-    }
-    return null;
   }
 }

@@ -14,6 +14,7 @@
     "axios": "^0.21.1",
     "bootstrap": "^4.4.1",
     "colormap": "^2.3.1",
+    "debounce": "^1.2.1",
     "history": "^5.0.0",
     "jquery": "^3.5.0",
     "popper.js": "^1.16.1",
@@ -27,7 +28,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
     "redux": "^4.0.5",
-    "wavesurfer.js": "^3.3.3"
+    "wavesurfer.js": "^5.1.0"
   },
   "proxy": "http://backend:5000",
   "scripts": {
