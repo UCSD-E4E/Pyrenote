@@ -1,8 +1,8 @@
 {
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
-  //"parser": "babel-eslint",
-  "ignorePatterns": ["/src/wavesurfer.js"],
+  "parser": "babel-eslint",
+  //"ignorePatterns": ["/src/wavesurfer.js"],
   "env": {
     "browser": true,
     "commonjs": true
@@ -22,8 +22,8 @@
     "no-param-reassign": "off",
     "import/extensions": "off",
     "react/no-unused-prop-types": "off",
-    "no-continue": "off",
     "react/jsx-props-no-spreading": "off",
+    "no-unused-expressions": "off",
 
     "prettier/prettier": [
       "error",
