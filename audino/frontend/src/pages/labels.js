@@ -41,8 +41,8 @@ class Labels extends React.Component {
         });
       })
       .catch(error => {
+        console.error(error);
         this.setState({
-          errorMessage: error.response.data.message,
           isLabelsLoading: false
         });
       });

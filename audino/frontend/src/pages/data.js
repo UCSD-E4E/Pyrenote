@@ -63,8 +63,8 @@ class Data extends React.Component {
         });
       })
       .catch(error => {
+        console.error(error);
         this.setState({
-          errorMessage: error.response.data.message,
           isDataLoading: false
         });
       });

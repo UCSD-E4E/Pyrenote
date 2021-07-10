@@ -41,7 +41,6 @@ class LabelValues extends React.Component {
       .catch(error => {
         console.error(error);
         this.setState({
-          errorMessage: error.response.data.message,
           isLabelValuesLoading: false
         });
       });
