@@ -328,35 +328,30 @@ export default class WebAudio extends util.Observer {
   }
 
   /**
-     * Decode an array buffer and pass data to a callback
-     *
-     * @private
-     * @param {ArrayBuffer} arraybuffer The array buffer to decode
-     * @param {function} callback The function to call on complete.
-     * @param {function} errback The function to call on error.
-     */
-   decodeArrayBuffer(arraybuffer, callback, errback) {
+   * Decode an array buffer and pass data to a callback
+   *
+   * @private
+   * @param {ArrayBuffer} arraybuffer The array buffer to decode
+   * @param {function} callback The function to call on complete.
+   * @param {function} errback The function to call on error.
+   */
+  decodeArrayBuffer(arraybuffer, callback, errback) {
     if (!this.offlineAc) {
-        this.offlineAc = this.getOfflineAudioContext(
-            this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100
-        );
+      this.offlineAc = this.getOfflineAudioContext(
+        this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100
+      );
     }
     if ('webkitAudioContext' in window) {
-        // Safari: no support for Promise-based decodeAudioData enabled
-        // Enable it in Safari using the Experimental Features > Modern WebAudio API option
-        this.offlineAc.decodeAudioData(
-            arraybuffer,
-            data => callback(data),
-            errback
-        );
+      // Safari: no support for Promise-based decodeAudioData enabled
+      // Enable it in Safari using the Experimental Features > Modern WebAudio API option
+      this.offlineAc.decodeAudioData(arraybuffer, data => callback(data), errback);
     } else {
-        this.offlineAc.decodeAudioData(arraybuffer).then(
-            (data) => callback(data)
-        ).catch(
-            (err) => errback(err)
-        );
+      this.offlineAc
+        .decodeAudioData(arraybuffer)
+        .then(data => callback(data))
+        .catch(err => errback(err));
     }
-}
+  }
 
   /**
    * Set pre-decoded peaks
@@ -406,12 +401,12 @@ export default class WebAudio extends util.Observer {
    * @return {number[]|Number.<Array[]>} Array of 2*<length> peaks or array of arrays of
    * peaks consisting of (max, min) values for each subrange.
    */
-   getPeaks(length, first, last) {
+  getPeaks(length, first, last) {
     if (this.peaks) {
-        return this.peaks;
+      return this.peaks;
     }
     if (!this.buffer) {
-        return [];
+      return [];
     }
 
     first = first || 0;
@@ -420,9 +415,7 @@ export default class WebAudio extends util.Observer {
     this.setLength(length);
 
     if (!this.buffer) {
-        return this.params.splitChannels
-            ? this.splitPeaks
-            : this.mergedPeaks;
+      return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
     }
 
     /**
@@ -688,27 +681,27 @@ export default class WebAudio extends util.Observer {
   }
 
   /**
-     * Pauses the loaded audio.
-     */
-   pause() {
+   * Pauses the loaded audio.
+   */
+  pause() {
     this.scheduledPause = null;
 
     this.startPosition += this.getPlayedTime();
     try {
-        this.source && this.source.stop(0);
+      this.source && this.source.stop(0);
     } catch (err) {
-        // Calling stop can throw the following 2 errors:
-        // - RangeError (The value specified for when is negative.)
-        // - InvalidStateNode (The node has not been started by calling start().)
-        // We can safely ignore both errors, because:
-        // - The range is surely correct
-        // - The node might not have been started yet, in which case we just want to carry on without causing any trouble.
+      // Calling stop can throw the following 2 errors:
+      // - RangeError (The value specified for when is negative.)
+      // - InvalidStateNode (The node has not been started by calling start().)
+      // We can safely ignore both errors, because:
+      // - The range is surely correct
+      // - The node might not have been started yet, in which case we just want to carry on without causing any trouble.
     }
 
     this.setState(PAUSED);
 
     this.fireEvent('pause');
-}
+  }
 
   /**
    * Returns the current time in seconds relative to the audio-clip's
@@ -730,17 +723,14 @@ export default class WebAudio extends util.Observer {
   }
 
   /**
-     * Set the audio source playback rate.
-     *
-     * @param {number} value The playback rate to use
-     */
-   setPlaybackRate(value) {
+   * Set the audio source playback rate.
+   *
+   * @param {number} value The playback rate to use
+   */
+  setPlaybackRate(value) {
     this.playbackRate = value || 1;
-    this.source && this.source.playbackRate.setValueAtTime(
-        this.playbackRate,
-        this.ac.currentTime
-    );
-}
+    this.source && this.source.playbackRate.setValueAtTime(this.playbackRate, this.ac.currentTime);
+  }
 
   /**
    * Set a point in seconds for playback to stop at.

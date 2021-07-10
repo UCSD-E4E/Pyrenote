@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax, guard-for-in  */
 /**
  *  @since 4.0.0
  *
@@ -8,7 +9,7 @@
  *
  * @extends {Observer}
  */
-export class Region {
+class Region {
   constructor(params, regionsUtils, ws) {
     this.wavesurfer = ws;
     this.wrapper = ws.drawer.wrapper;
@@ -22,12 +23,10 @@ export class Region {
     this.end =
       params.end == null
         ? // small marker-like region
-        this.start +
-        (4 / this.wrapper.scrollWidth) * this.wavesurfer.getDuration()
+          this.start + (4 / this.wrapper.scrollWidth) * this.wavesurfer.getDuration()
         : Number(params.end);
-this.resize =
-    params.resize === undefined ? true : Boolean(params.resize);
-     this.drag = params.drag === undefined ? true : Boolean(params.drag);
+    this.resize = params.resize === undefined ? true : Boolean(params.resize);
+    this.drag = params.drag === undefined ? true : Boolean(params.drag);
     // reflect resize and drag state of region for region-updated listener
     this.isResizing = false;
     this.isDragging = false;
@@ -55,25 +54,21 @@ this.resize =
     this.scrollThreshold = params.scrollThreshold || 10;
     // Determines whether the context menu is prevented from being opened.
     this.preventContextMenu =
-    params.preventContextMenu === undefined
-    ? false
-    : Boolean(params.preventContextMenu);
+      params.preventContextMenu === undefined ? false : Boolean(params.preventContextMenu);
 
     // select channel ID to set region
-    let channelIdx =
-        params.channelIdx == null ? -1 : parseInt(params.channelIdx);
+    const channelIdx = params.channelIdx == null ? -1 : parseInt(params.channelIdx, 10);
     this.regionHeight = '100%';
     this.marginTop = '0px';
 
     if (channelIdx !== -1) {
-        let channelCount =
+      const channelCount =
         this.wavesurfer.backend.buffer != null
           ? this.wavesurfer.backend.buffer.numberOfChannels
           : -1;
       if (channelCount >= 0 && channelIdx < channelCount) {
-        this.regionHeight = Math.floor((1 / channelCount) * 100) + '%';
-        this.marginTop =
-            this.wavesurfer.getHeight() * channelIdx + 'px';
+        this.regionHeight = `${Math.floor((1 / channelCount) * 100)}%`;
+        this.marginTop = `${this.wavesurfer.getHeight() * channelIdx}px`;
       }
     }
 
@@ -151,7 +146,7 @@ this.resize =
   /* Remove a single region. */
   remove() {
     if (this.element) {
-        this.wrapper.removeChild(this.element.domElement);
+      this.wrapper.removeChild(this.element.domElement);
       this.element = null;
       this.fireEvent('remove');
       this.wavesurfer.un('zoom', this._onRedraw);
@@ -191,21 +186,18 @@ this.resize =
   /* Render a region as a DOM element. */
   render() {
     this.element = this.util.withOrientation(
-        this.wrapper.appendChild(document.createElement('region')),
-        this.vertical
+      this.wrapper.appendChild(document.createElement('region')),
+      this.vertical
     );
 
     this.element.className = 'wavesurfer-region';
     if (this.showTooltip) {
-        this.element.title = this.formatTime(this.start, this.end);
+      this.element.title = this.formatTime(this.start, this.end);
     }
     this.element.setAttribute('data-id', this.id);
 
     for (const attrname in this.attributes) {
-      this.element.setAttribute(
-                'data-region-' + attrname,
-                this.attributes[attrname]
-            );
+      this.element.setAttribute(`data-region-${attrname}`, this.attributes[attrname]);
     }
 
     this.style(this.element, {
@@ -217,14 +209,14 @@ this.resize =
 
     /* Resize handles */
     if (this.resize) {
-        this.handleLeftEl = this.util.withOrientation(
-            this.element.appendChild(document.createElement('handle')),
-            this.vertical
-        );
-        this.handleRightEl = this.util.withOrientation(
-            this.element.appendChild(document.createElement('handle')),
-            this.vertical
-        );
+      this.handleLeftEl = this.util.withOrientation(
+        this.element.appendChild(document.createElement('handle')),
+        this.vertical
+      );
+      this.handleRightEl = this.util.withOrientation(
+        this.element.appendChild(document.createElement('handle')),
+        this.vertical
+      );
 
       this.handleLeftEl.className = 'wavesurfer-handle wavesurfer-handle-start';
       this.handleRightEl.className = 'wavesurfer-handle wavesurfer-handle-end';
@@ -241,21 +233,11 @@ this.resize =
 
       // Merge CSS properties per handle.
       const handleLeftCss =
-                this.handleStyle.left !== 'none'
-                    ? Object.assign(
-                        { left: '0px' },
-                        css,
-                        this.handleStyle.left
-                    )
-                    : null;
-            const handleRightCss =
-                this.handleStyle.right !== 'none'
-                    ? Object.assign(
-                        { right: '0px' },
-                        css,
-                        this.handleStyle.right
-                    )
-                    : null;
+        this.handleStyle.left !== 'none' ? { left: '0px', ...css, ...this.handleStyle.left } : null;
+      const handleRightCss =
+        this.handleStyle.right !== 'none'
+          ? { right: '0px', ...css, ...this.handleStyle.right }
+          : null;
 
       if (handleLeftCss) {
         this.style(this.handleLeftEl, handleLeftCss);
@@ -274,11 +256,11 @@ this.resize =
     if (this.formatTimeCallback) {
       return this.formatTimeCallback(start, end);
     }
-    return (start == end ? [start] : [start, end])
-    .map((time) =>
-    [
-        Math.floor((time % 3600) / 60), // minutes
-        ('00' + Math.floor(time % 60)).slice(-2) // seconds
+    return (start === end ? [start] : [start, end])
+      .map(time =>
+        [
+          Math.floor((time % 3600) / 60), // minutes
+          `00${Math.floor(time % 60)}`.slice(-2) // seconds
         ].join(':')
       )
       .join('-');
@@ -298,7 +280,7 @@ this.resize =
     let endLimited = this.end;
     if (startLimited < 0) {
       startLimited = 0;
-      endLimited = endLimited - startLimited;
+      endLimited -= startLimited;
     }
     if (endLimited > dur) {
       endLimited = dur;
@@ -320,22 +302,19 @@ this.resize =
       const regionWidth = Math.round((endLimited / dur) * width) - left;
 
       this.style(this.element, {
-        left: left + 'px',
-        width: regionWidth + 'px',
-        backgroundColor: this.color,
+        left: `${left}px`,
+        width: `${regionWidth}px`,
+        backgroundColor: color,
         cursor: this.drag ? 'move' : 'default'
       });
 
       for (const attrname in this.attributes) {
-        this.element.setAttribute(
-            'data-region-' + attrname,
-            this.attributes[attrname]
-        );
+        this.element.setAttribute(`data-region-${attrname}`, this.attributes[attrname]);
       }
 
       if (this.showTooltip) {
         this.element.title = this.formatTime(this.start, this.end);
-    }
+      }
     }
   }
 
@@ -344,16 +323,12 @@ this.resize =
     this.firedIn = false;
     this.firedOut = false;
 
-    const onProcess = (time) => {
-        let start = Math.round(this.start * 10) / 10;
-        let end = Math.round(this.end * 10) / 10;
-        time = Math.round(time * 10) / 10;
+    const onProcess = time => {
+      const start = Math.round(this.start * 10) / 10;
+      const end = Math.round(this.end * 10) / 10;
+      time = Math.round(time * 10) / 10;
 
-        if (
-            !this.firedOut &&
-            this.firedIn &&
-            (start > time || end <= time)
-        ) {
+      if (!this.firedOut && this.firedIn && (start > time || end <= time)) {
         this.firedOut = true;
         this.firedIn = false;
         this.fireEvent('out');
@@ -386,32 +361,32 @@ this.resize =
 
   /* Bind DOM events. */
   bindEvents() {
-    const preventContextMenu = this.preventContextMenu;
+    const { preventContextMenu } = this;
 
-     this.element.addEventListener('mouseenter', (e) => {
+    this.element.addEventListener('mouseenter', e => {
       this.fireEvent('mouseenter', e);
       this.wavesurfer.fireEvent('region-mouseenter', this, e);
     });
 
-    this.element.addEventListener('mouseleave', (e) => {
+    this.element.addEventListener('mouseleave', e => {
       this.fireEvent('mouseleave', e);
       this.wavesurfer.fireEvent('region-mouseleave', this, e);
     });
 
-    this.element.addEventListener('click', (e) => {
+    this.element.addEventListener('click', e => {
       e.preventDefault();
       this.fireEvent('click', e);
       this.wavesurfer.fireEvent('region-click', this, e);
     });
 
-    this.element.addEventListener('dblclick', (e) => {
+    this.element.addEventListener('dblclick', e => {
       e.stopPropagation();
       e.preventDefault();
       this.fireEvent('dblclick', e);
       this.wavesurfer.fireEvent('region-dblclick', this, e);
     });
 
-    this.element.addEventListener('contextmenu', (e) => {
+    this.element.addEventListener('contextmenu', e => {
       if (preventContextMenu) {
         e.preventDefault();
       }
@@ -426,9 +401,9 @@ this.resize =
   }
 
   bindDragEvents() {
-    const container = this.wavesurfer.drawer.container;
-    const scrollSpeed = this.scrollSpeed;
-    const scrollThreshold = this.scrollThreshold;
+    const { container } = this.wavesurfer.drawer;
+    const { scrollSpeed } = this;
+    // const { scrollThreshold } = this;
     let startTime;
     let touchId;
     let drag;
@@ -441,8 +416,8 @@ this.resize =
     let regionRightHalfTime;
 
     // Scroll when the user is dragging within the threshold
-    const edgeScroll = (event) => {
-        let orientedEvent = this.util.withOrientation(event, this.vertical);
+    const edgeScroll = event => {
+      const orientedEvent = this.util.withOrientation(event, this.vertical);
       const duration = this.wavesurfer.getDuration();
       if (!scrollDirection || (!drag && !resize)) {
         return;
@@ -469,7 +444,7 @@ this.resize =
         }
       } else {
         // Considering minLength while edgescroll
-        let minLength = this.minLength;
+        let { minLength } = this;
         if (!minLength) {
           minLength = 0;
         }
@@ -498,33 +473,49 @@ this.resize =
       // Don't edgescroll if region has reached min or max limit
       const wrapperScrollLeft = this.wrapper.scrollLeft;
 
-            if (scrollDirection === -1) {
-                if (Math.round(wrapperScrollLeft) === 0) {
-                    return;
-                }
+      if (scrollDirection === -1) {
+        if (Math.round(wrapperScrollLeft) === 0) {
+          return;
+        }
 
-                if (Math.round(wrapperScrollLeft - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge) <= 0) {
-                    return;
-                }
-            } else {
-                if (Math.round(wrapperScrollLeft) === maxScroll) {
-                    return;
-                }
+        if (
+          Math.round(
+            wrapperScrollLeft - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge
+          ) <= 0
+        ) {
+          return;
+        }
+      } else {
+        if (Math.round(wrapperScrollLeft) === maxScroll) {
+          return;
+        }
 
-                if (Math.round(wrapperScrollLeft + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge) >= maxScroll) {
-                    return;
-                }
-            }
+        if (
+          Math.round(
+            wrapperScrollLeft + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge
+          ) >= maxScroll
+        ) {
+          return;
+        }
+      }
 
       // Update scroll position
       let scrollLeft = wrapperScrollLeft - adjustment + scrollSpeed * scrollDirection;
 
-            if (scrollDirection === -1) {
-                const calculatedLeft = Math.max(0 + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge, scrollLeft);
-                this.wrapper.scrollLeft = scrollLeft = calculatedLeft;
-            } else {
-                const calculatedRight = Math.min(maxScroll - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge, scrollLeft);
-        this.wrapper.scrollLeft = scrollLeft = calculatedRight;
+      if (scrollDirection === -1) {
+        const calculatedLeft = Math.max(
+          0 + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge,
+          scrollLeft
+        );
+        scrollLeft = calculatedLeft;
+        this.wrapper.scrollLeft = calculatedLeft;
+      } else {
+        const calculatedRight = Math.min(
+          maxScroll - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge,
+          scrollLeft
+        );
+        scrollLeft = calculatedRight;
+        this.wrapper.scrollLeft = scrollLeft;
       }
 
       const delta = time - startTime;
@@ -539,7 +530,7 @@ this.resize =
       });
     };
 
-    const onDown = (event) => {
+    const onDown = event => {
       const duration = this.wavesurfer.getDuration();
       if (event.touches && event.touches.length > 1) {
         return;
@@ -549,7 +540,7 @@ this.resize =
       // stop the event propagation, if this region is resizable or draggable
       // and the event is therefore handled here.
       if (this.drag || this.resize) {
-         event.stopPropagation();
+        event.stopPropagation();
       }
 
       // Store the selected startTime we begun dragging or resizing
@@ -564,26 +555,21 @@ this.resize =
       // Store for scroll calculations
       maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
 
-      wrapperRect = this.util.withOrientation(
-        this.wrapper.getBoundingClientRect(),
-        this.vertical
-    );
+      wrapperRect = this.util.withOrientation(this.wrapper.getBoundingClientRect(), this.vertical);
 
       this.isResizing = false;
       this.isDragging = false;
-       if (event.target.tagName.toLowerCase() === 'handle') {
-                this.isResizing = true;
-                resize = event.target.classList.contains('wavesurfer-handle-start')
-                    ? 'start'
-                    : 'end';
+      if (event.target.tagName.toLowerCase() === 'handle') {
+        this.isResizing = true;
+        resize = event.target.classList.contains('wavesurfer-handle-start') ? 'start' : 'end';
       } else {
         this.isDragging = true;
         drag = true;
         resize = false;
       }
     };
-    const onUp = (event) => {
-        if (event.touches && event.touches.length > 1) {
+    const onUp = event => {
+      if (event.touches && event.touches.length > 1) {
         return;
       }
 
@@ -599,24 +585,24 @@ this.resize =
         updated = false;
         this.util.preventClick();
         this.fireEvent('update-end', event);
-                this.wavesurfer.fireEvent('region-update-end', this, event);
+        this.wavesurfer.fireEvent('region-update-end', this, event);
       }
     };
-    const onMove = (event) => {
-        const duration = this.wavesurfer.getDuration();
-        let orientedEvent = this.util.withOrientation(event, this.vertical);
+    const onMove = event => {
+      const duration = this.wavesurfer.getDuration();
+      const orientedEvent = this.util.withOrientation(event, this.vertical);
 
-        if (event.touches && event.touches.length > 1) {
+      if (event.touches && event.touches.length > 1) {
         return;
       }
-      if (event.targetTouches && event.targetTouches[0].identifier != touchId) {
+      if (event.targetTouches && event.targetTouches[0].identifier !== touchId) {
         return;
       }
       if (!drag && !resize) {
         return;
       }
 
-      const oldTime = startTime;
+      // const oldTime = startTime;
       let time = this.regionsUtil.getRegionSnapToGridValue(
         this.wavesurfer.drawer.handleEvent(event) * duration
       );
@@ -636,7 +622,7 @@ this.resize =
       if (resize) {
         // To maintain relative cursor start point while resizing
         // we have to handle for minLength
-        let minLength = this.minLength;
+        let { minLength } = this;
         if (!minLength) {
           minLength = 0;
         }
@@ -660,7 +646,7 @@ this.resize =
         }
       }
 
-      let delta = time - startTime;
+      const delta = time - startTime;
       startTime = time;
 
       // Drag
@@ -675,45 +661,43 @@ this.resize =
         this.onResize(delta, resize);
       }
 
-      if (
-        this.scroll && container.clientWidth < this.wrapper.scrollWidth
-    ) {
-            // Triggering edgescroll from within edgeScrollWidth
-        let x = orientedEvent.clientX;
+      if (this.scroll && container.clientWidth < this.wrapper.scrollWidth) {
+        // Triggering edgescroll from within edgeScrollWidth
+        const x = orientedEvent.clientX;
 
-                // Check direction
-                if (x < wrapperRect.left + this.edgeScrollWidth) {
-                    scrollDirection = -1;
-                } else if (x > wrapperRect.right - this.edgeScrollWidth) {
-                    scrollDirection = 1;
-                } else {
-                    scrollDirection = null;
-                }
+        // Check direction
+        if (x < wrapperRect.left + this.edgeScrollWidth) {
+          scrollDirection = -1;
+        } else if (x > wrapperRect.right - this.edgeScrollWidth) {
+          scrollDirection = 1;
+        } else {
+          scrollDirection = null;
+        }
 
-                if (scrollDirection) {
-                    edgeScroll(event);
-                }
-            }
-        };
+        if (scrollDirection) {
+          edgeScroll(event);
+        }
+      }
+    };
 
     this.element.addEventListener('mousedown', onDown);
     this.element.addEventListener('touchstart', onDown);
 
     document.body.addEventListener('mousemove', onMove);
-    document.body.addEventListener('touchmove', onMove, {passive: false});
+    document.body.addEventListener('touchmove', onMove, { passive: false });
 
     document.addEventListener('mouseup', onUp);
     document.body.addEventListener('touchend', onUp);
 
     this.on('remove', () => {
-        document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('mouseup', onUp);
       document.body.removeEventListener('touchend', onUp);
       document.body.removeEventListener('mousemove', onMove);
       document.body.removeEventListener('touchmove', onMove);
     });
 
     this.wavesurfer.on('destroy', () => {
-        document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('mouseup', onUp);
       document.body.removeEventListener('touchend', onUp);
     });
   }
@@ -751,7 +735,7 @@ this.resize =
         delta = this.end - this.minLength - this.start;
       }
 
-      if (delta < 0 && (this.start + delta) < 0) {
+      if (delta < 0 && this.start + delta < 0) {
         delta = this.start * -1;
       }
 
@@ -766,7 +750,7 @@ this.resize =
         delta = this.start + this.minLength - this.end;
       }
 
-      if (delta > 0 && (this.end + delta) > duration) {
+      if (delta > 0 && this.end + delta > duration) {
         delta = duration - this.end;
       }
 
@@ -779,13 +763,15 @@ this.resize =
 
   updateHandlesResize(resize) {
     let cursorStyle;
-        if (resize) {
-            cursorStyle = this.vertical ? 'row-resize' : 'col-resize';
-        } else {
-            cursorStyle = 'auto';
-        }
+    if (resize) {
+      cursorStyle = this.vertical ? 'row-resize' : 'col-resize';
+    } else {
+      cursorStyle = 'auto';
+    }
 
     this.handleLeftEl && this.style(this.handleLeftEl, { cursor: cursorStyle });
     this.handleRightEl && this.style(this.handleRightEl, { cursor: cursorStyle });
   }
 }
+
+export default Region;

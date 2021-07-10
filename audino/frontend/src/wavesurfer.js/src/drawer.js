@@ -1,4 +1,4 @@
-//import WaveSurfer from './wavesurfer.js';
+// import WaveSurfer from './wavesurfer.js';
 import * as util from './util';
 /**
  * Parent class for renderers
@@ -54,8 +54,8 @@ export default class Drawer extends util.Observer {
    */
   createWrapper() {
     this.wrapper = util.withOrientation(
-        this.container.appendChild(document.createElement('wave')),
-        this.params.vertical
+      this.container.appendChild(document.createElement('wave')),
+      this.params.vertical
     );
 
     this.style(this.wrapper, {
@@ -87,10 +87,10 @@ export default class Drawer extends util.Observer {
   handleEvent(e, noPrevent) {
     !noPrevent && e.preventDefault();
 
-    const clientX = util.withOrientation(
-        e.targetTouches ? e.targetTouches[0] : e,
-        this.params.vertical
-    ).clientX;
+    const { clientX } = util.withOrientation(
+      e.targetTouches ? e.targetTouches[0] : e,
+      this.params.vertical
+    );
     const bbox = this.wrapper.getBoundingClientRect();
 
     const nominalWidth = this.width;
@@ -99,11 +99,9 @@ export default class Drawer extends util.Observer {
 
     let progress;
     if (!this.params.fillParent && nominalWidth < parentWidth) {
-        progress = progressPixels *
-          (this.params.pixelRatio / nominalWidth) || 0;
+      progress = progressPixels * (this.params.pixelRatio / nominalWidth) || 0;
     } else {
-        progress = (progressPixels + this.wrapper.scrollLeft) /
-          this.wrapper.scrollWidth || 0;
+      progress = (progressPixels + this.wrapper.scrollLeft) / this.wrapper.scrollWidth || 0;
     }
 
     return util.clamp(progress, 0, 1);
@@ -111,16 +109,15 @@ export default class Drawer extends util.Observer {
 
   getProgressPixels(wrapperBbox, clientX) {
     if (this.params.rtl) {
-        return wrapperBbox.right - clientX;
-    } else {
-        return clientX - wrapperBbox.left;
+      return wrapperBbox.right - clientX;
     }
-}
+    return clientX - wrapperBbox.left;
+  }
+
   setupWrapperEvents() {
     this.wrapper.addEventListener('click', e => {
-        const orientedEvent = util.withOrientation(e, this.params.vertical);
-        const scrollbarHeight = this.wrapper.offsetHeight -
-                  this.wrapper.clientHeight;
+      const orientedEvent = util.withOrientation(e, this.params.vertical);
+      const scrollbarHeight = this.wrapper.offsetHeight - this.wrapper.clientHeight;
       if (scrollbarHeight !== 0) {
         // scrollbar is visible.  Check if click was on it
         const bbox = this.wrapper.getBoundingClientRect();
@@ -141,9 +138,7 @@ export default class Drawer extends util.Observer {
       }
     });
 
-    this.wrapper.addEventListener('scroll', e =>
-    this.fireEvent('scroll', e)
-);
+    this.wrapper.addEventListener('scroll', e => this.fireEvent('scroll', e));
   }
 
   /**
@@ -160,7 +155,7 @@ export default class Drawer extends util.Observer {
   drawPeaks(peaks, length, start, end, buffer) {
     this.resetScroll();
     if (!this.setWidth(length)) {
-        this.clearWave();
+      this.clearWave();
     }
     const { visualization } = this.params;
     if (visualization === 'invisible') {
@@ -203,7 +198,7 @@ export default class Drawer extends util.Observer {
    * @param {boolean} immediate Set to true to immediately scroll somewhere
    */
   recenterOnPosition(position, immediate) {
-    const scrollLeft = this.wrapper.scrollLeft;
+    const { scrollLeft } = this.wrapper;
     const half = ~~(this.wrapper.clientWidth / 2);
     const maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
     let target = position - half;
@@ -243,7 +238,7 @@ export default class Drawer extends util.Observer {
   getScrollX() {
     let x = 0;
     if (this.wrapper) {
-        const pixelRatio = this.params.pixelRatio;
+      const { pixelRatio } = this.params;
       x = Math.round(this.wrapper.scrollLeft * pixelRatio);
 
       // In cases of elastic scroll (safari with mouse wheel) you can
@@ -252,10 +247,7 @@ export default class Drawer extends util.Observer {
       // of bounds value is not returned
       // Ticket #1312
       if (this.params.scrollParent) {
-        const maxScroll = ~~(
-            this.wrapper.scrollWidth * pixelRatio -
-            this.getWidth()
-        );
+        const maxScroll = ~~(this.wrapper.scrollWidth * pixelRatio - this.getWidth());
         x = Math.min(maxScroll, Math.max(0, x));
       }
     }
@@ -289,7 +281,7 @@ export default class Drawer extends util.Observer {
         width: ''
       });
     } else {
-        const newWidth = ~~(this.width / this.params.pixelRatio) + 'px';
+      const newWidth = `${~~(this.width / this.params.pixelRatio)}px`;
       this.style(this.wrapper, {
         width: newWidth
       });
@@ -312,8 +304,9 @@ export default class Drawer extends util.Observer {
     this.height = height;
 
     this.style(this.wrapper, {
-        height: ~~(this.height / this.params.pixelRatio) + 'px'
-    });    this.updateSize();
+      height: `${~~(this.height / this.params.pixelRatio)}px`
+    });
+    this.updateSize();
     return true;
   }
 
@@ -331,10 +324,7 @@ export default class Drawer extends util.Observer {
 
       if (this.params.scrollParent && this.params.autoCenter) {
         const newPos = ~~(this.wrapper.scrollWidth * progress);
-        this.recenterOnPosition(
-            newPos,
-            this.params.autoCenterImmediately
-        );
+        this.recenterOnPosition(newPos, this.params.autoCenterImmediately);
       }
 
       this.updateProgress(pos);
@@ -347,9 +337,9 @@ export default class Drawer extends util.Observer {
   destroy() {
     this.unAll();
     if (this.wrapper) {
-        if (this.wrapper.parentNode == this.container.domElement) {
-            this.container.removeChild(this.wrapper.domElement);
-        }
+      if (this.wrapper.parentNode === this.container.domElement) {
+        this.container.removeChild(this.wrapper.domElement);
+      }
       this.wrapper = null;
     }
   }

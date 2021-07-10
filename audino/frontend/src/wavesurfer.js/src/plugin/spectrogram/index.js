@@ -1,4 +1,5 @@
 /* eslint-enable complexity, no-redeclare, no-var, one-var */
+/* eslint-disable no-unused-vars */
 
 import FFT from './fft';
 
@@ -65,9 +66,9 @@ export default class SpectrogramPlugin {
     return {
       name: 'spectrogram',
       deferInit: params && params.deferInit ? params.deferInit : false,
-      params: params,
+      params,
       staticProps: {
-          FFT: FFT
+        FFT
       },
       instance: SpectrogramPlugin
     };
@@ -86,7 +87,8 @@ export default class SpectrogramPlugin {
       this.render();
     };
     this._onUpdate = width => {
-      const drawer = (this.drawer = ws.drawer);
+      this.drawer = ws.drawer;
+      const { drawer } = this;
       this.width = width || drawer.width;
       this.createWrapper();
       this.createCanvas();
@@ -98,10 +100,11 @@ export default class SpectrogramPlugin {
       this._wrapperClickHandler(e);
     };
     this._onReady = () => {
-      const drawer = (this.drawer = ws.drawer);
+      this.drawer = ws.drawer;
+      const { drawer } = this;
 
       this.container =
-      'string' == typeof params.container
+        typeof params.container === 'string'
           ? document.querySelector(params.container)
           : params.container;
 
@@ -125,9 +128,7 @@ export default class SpectrogramPlugin {
         for (let i = 0; i < params.colorMap.length; i++) {
           const cmEntry = params.colorMap[i];
           if (cmEntry.length !== 4) {
-            throw new Error(
-                'ColorMap entries must contain 4 values'
-            );
+            throw new Error('ColorMap entries must contain 4 values');
           }
         }
         this.colorMap = params.colorMap;
@@ -140,8 +141,7 @@ export default class SpectrogramPlugin {
       }
       this.width = params.input_width || drawer.width;
       this.pixelRatio = this.params.pixelRatio || ws.params.pixelRatio;
-      this.fftSamples =
-      this.params.fftSamples || ws.params.fftSamples || 512;
+      this.fftSamples = this.params.fftSamples || ws.params.fftSamples || 512;
       this.height = this.fftSamples / 2;
       this.noverlap = params.noverlap;
       this.windowFunc = params.windowFunc;
@@ -197,7 +197,8 @@ export default class SpectrogramPlugin {
     this.wrapper2 = document.createElement('labels');
     // if labels are active
     if (this.params.labels) {
-      const labelsEl = (this.labelsEl = document.createElement('canvas'));
+      this.labelsEl = document.createElement('canvas');
+      const { labelsEl } = this;
       labelsEl.classList.add('spec-labels');
       this.drawer.style(labelsEl, {
         left: 0,
@@ -257,10 +258,8 @@ export default class SpectrogramPlugin {
   }
 
   createCanvas() {
-    const canvas = (this.canvas = this.wrapper.appendChild(
-        document.createElement('canvas')
-    ));
-
+    this.canvas = this.wrapper.appendChild(document.createElement('canvas'));
+    const { canvas } = this;
 
     this.spectrCc = canvas.getContext('2d');
 
@@ -292,45 +291,46 @@ export default class SpectrogramPlugin {
   }
 
   drawSpectrogram(frequenciesData, my) {
-    const spectrCc = my.spectrCc;
-    const height = my.height;
-    const width = my.width;
+    const { spectrCc } = my;
+    const { height } = my;
+    const { width } = my;
     const pixels = my.resample(frequenciesData);
     const heightFactor = my.buffer ? 2 / my.buffer.numberOfChannels : 1;
     if (spectrCc) {
-    const imageData = spectrCc.createImageData(width, height);
-    let i;
-    let j;
-    let k;
+      const imageData = spectrCc.createImageData(width, height);
+      let i;
+      let j;
+      let k;
 
-    for (i = 0; i < pixels.length; i++) {
-      for (j = 0; j < pixels[i].length; j++) {
-        const colorMap = my.colorMap[pixels[i][j]];
-        /* eslint-disable max-depth */
-        for (k = 0; k < heightFactor; k++) {
-          let y = height - j * heightFactor;
-          if (heightFactor === 2 && k === 1) {
-            y--;
+      for (i = 0; i < pixels.length; i++) {
+        for (j = 0; j < pixels[i].length; j++) {
+          const colorMap = my.colorMap[pixels[i][j]];
+          /* eslint-disable max-depth */
+          for (k = 0; k < heightFactor; k++) {
+            let y = height - j * heightFactor;
+            if (heightFactor === 2 && k === 1) {
+              y--;
+            }
+            const redIndex = y * (width * 4) + i * 4;
+            imageData.data[redIndex] = colorMap[0] * 255;
+            imageData.data[redIndex + 1] = colorMap[1] * 255;
+            imageData.data[redIndex + 2] = colorMap[2] * 255;
+            imageData.data[redIndex + 3] = colorMap[3] * 255;
           }
-          const redIndex = y * (width * 4) + i * 4;
-          imageData.data[redIndex] = colorMap[0] * 255;
-          imageData.data[redIndex + 1] = colorMap[1] * 255;
-          imageData.data[redIndex + 2] = colorMap[2] * 255;
-          imageData.data[redIndex + 3] = colorMap[3] * 255;
+          /* eslint-enable max-depth */
         }
-        /* eslint-enable max-depth */
       }
+      spectrCc.putImageData(imageData, 0, 0);
     }
-    spectrCc.putImageData(imageData, 0, 0);
   }
-}
 
   getFrequencies(callback) {
-    const fftSamples = this.fftSamples;
-    const buffer = (this.buffer = this.wavesurfer.backend.buffer);
+    const { fftSamples } = this;
+    this.buffer = this.wavesurfer.backend.buffer;
+    const { buffer } = this;
     const channelOne = buffer.getChannelData(0);
-    const bufferLength = buffer.length;
-    const sampleRate = buffer.sampleRate;
+    // const bufferLength = buffer.length;
+    const { sampleRate } = buffer;
     const frequencies = [];
 
     if (!buffer) {
@@ -338,28 +338,17 @@ export default class SpectrogramPlugin {
       return;
     }
 
-    let noverlap = this.noverlap;
+    let { noverlap } = this;
     if (!noverlap) {
       const uniqueSamplesPerPx = buffer.length / this.canvas.width;
       noverlap = Math.max(0, Math.round(fftSamples - uniqueSamplesPerPx));
     }
 
-    const fft = new FFT(
-        fftSamples,
-        sampleRate,
-        this.windowFunc,
-        this.alpha
-    );
-    const maxSlicesCount = Math.floor(
-        bufferLength / (fftSamples - noverlap)
-    );
+    const fft = new FFT(fftSamples, sampleRate, this.windowFunc, this.alpha);
     let currentOffset = 0;
 
     while (currentOffset + fftSamples < channelOne.length) {
-        const segment = channelOne.slice(
-            currentOffset,
-            currentOffset + fftSamples
-        );
+      const segment = channelOne.slice(currentOffset, currentOffset + fftSamples);
       const spectrum = fft.calculateSpectrum(segment);
       const array = new Uint8Array(fftSamples / 2);
       let j;
@@ -373,11 +362,9 @@ export default class SpectrogramPlugin {
   }
 
   loadFrequenciesData(url) {
-    const request = this.util.fetchFile({ url: url });
+    const request = this.util.fetchFile({ url });
 
-    request.on('success', data =>
-        this.drawSpectrogram(JSON.parse(data), this)
-    );
+    request.on('success', data => this.drawSpectrogram(JSON.parse(data), this));
     request.on('error', e => this.fireEvent('error', e));
 
     return request;
@@ -414,9 +401,7 @@ export default class SpectrogramPlugin {
     const getMaxY = frequenciesHeight || 512;
     const labelIndex = 5 * (getMaxY / 256);
     const freqStart = 0;
-    const step =
-    (this.wavesurfer.backend.ac.sampleRate / 2 - freqStart) /
-    labelIndex;
+    const step = (this.wavesurfer.backend.ac.sampleRate / 2 - freqStart) / labelIndex;
 
     // prepare canvas element for labels
     const ctx = this.labelsEl.getContext('2d');
@@ -424,51 +409,49 @@ export default class SpectrogramPlugin {
     this.labelsEl.width = bgWidth;
 
     if (ctx) {
-        // fill background
-    ctx.fillStyle = bgFill;
-    ctx.fillRect(0, 0, bgWidth, getMaxY);
-    ctx.fill();
-    let i;
+      // fill background
+      ctx.fillStyle = bgFill;
+      ctx.fillRect(0, 0, bgWidth, getMaxY);
+      ctx.fill();
+      let i;
 
-    // render labels
-    for (i = 0; i <= labelIndex; i++) {
-      ctx.textAlign = textAlign;
-      ctx.textBaseline = 'middle';
+      // render labels
+      for (i = 0; i <= labelIndex; i++) {
+        ctx.textAlign = textAlign;
+        ctx.textBaseline = 'middle';
 
-      const freq = freqStart + step * i;
-      const index = Math.round(
-        (freq / (this.sampleRate / 2)) * this.fftSamples
-    );
-      const label = this.freqType(freq);
-      const units = this.unitType(freq);
-      const yLabelOffset = 2;
-      const x = 16;
-      let y;
+        const freq = freqStart + step * i;
+        // const index = Math.round((freq / (this.sampleRate / 2)) * this.fftSamples);
+        const label = this.freqType(freq);
+        const units = this.unitType(freq);
+        const yLabelOffset = 2;
+        const x = 16;
+        let y;
 
-      if (i == 0) {
-        y = getMaxY + i - 10;
-        // unit label
-        ctx.fillStyle = textColorUnit;
-        ctx.font = fontSizeUnit + ' ' + fontType;
-        ctx.fillText(units, x + 24, y);
-        // freq label
-        ctx.fillStyle = textColorFreq;
-        ctx.font = fontSizeFreq + ' ' + fontType;
-        ctx.fillText(label, x, y);
-      } else {
-        y = getMaxY - i * 50 + yLabelOffset;
-        // unit label
-        ctx.fillStyle = textColorUnit;
-        ctx.font = fontSizeUnit + ' ' + fontType;
-        ctx.fillText(units, x + 24, y);
-        // freq label
-        ctx.fillStyle = textColorFreq;
-        ctx.font = fontSizeFreq + ' ' + fontType;
-        ctx.fillText(label, x, y);
+        if (i === 0) {
+          y = getMaxY + i - 10;
+          // unit label
+          ctx.fillStyle = textColorUnit;
+          ctx.font = `${fontSizeUnit} ${fontType}`;
+          ctx.fillText(units, x + 24, y);
+          // freq label
+          ctx.fillStyle = textColorFreq;
+          ctx.font = `${fontSizeFreq} ${fontType}`;
+          ctx.fillText(label, x, y);
+        } else {
+          y = getMaxY - i * 50 + yLabelOffset;
+          // unit label
+          ctx.fillStyle = textColorUnit;
+          ctx.font = `${fontSizeUnit} ${fontType}`;
+          ctx.fillText(units, x + 24, y);
+          // freq label
+          ctx.fillStyle = textColorFreq;
+          ctx.font = `${fontSizeFreq} ${fontType}`;
+          ctx.fillText(label, x, y);
+        }
       }
     }
   }
-}
 
   updateScroll(e) {
     if (this.wrapper) {
@@ -497,14 +480,8 @@ export default class SpectrogramPlugin {
         const overlap =
           oldEnd <= newStart || newEnd <= oldStart
             ? 0
-            : Math.min(
-                Math.max(oldEnd, newStart),
-                Math.max(newEnd, oldStart)
-            ) -
-            Math.max(
-                Math.min(oldEnd, newStart),
-                Math.min(newEnd, oldStart)
-            );
+            : Math.min(Math.max(oldEnd, newStart), Math.max(newEnd, oldStart)) -
+              Math.max(Math.min(oldEnd, newStart), Math.min(newEnd, oldStart));
         let k;
         /* eslint-disable max-depth */
         if (overlap > 0) {

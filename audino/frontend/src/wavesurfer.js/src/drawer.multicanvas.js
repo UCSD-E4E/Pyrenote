@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow, prefer-destructuring */
 import Drawer from './drawer';
 import * as util from './util';
 import CanvasEntry from './drawer.canvasentry';
@@ -25,9 +26,7 @@ export default class MultiCanvas extends Drawer {
     /**
      * @type {number}
      */
-     this.maxCanvasElementWidth = Math.round(
-        params.maxCanvasWidth / params.pixelRatio
-    );
+    this.maxCanvasElementWidth = Math.round(params.maxCanvasWidth / params.pixelRatio);
 
     /**
      * Whether or not the progress wave is rendered. If the `waveColor`
@@ -84,11 +83,11 @@ export default class MultiCanvas extends Drawer {
     this.barRadius = params.barRadius || 0;
 
     /**
-         * Whether to render the waveform vertically. Defaults to false.
-         *
-         * @type {boolean}
-         */
-     this.vertical = params.vertical;
+     * Whether to render the waveform vertically. Defaults to false.
+     *
+     * @type {boolean}
+     */
+    this.vertical = params.vertical;
   }
 
   /**
@@ -105,22 +104,22 @@ export default class MultiCanvas extends Drawer {
    */
   createElements() {
     this.progressWave = util.withOrientation(
-        this.wrapper.appendChild(document.createElement('wave')),
-        this.params.vertical
+      this.wrapper.appendChild(document.createElement('wave')),
+      this.params.vertical
     );
     this.style(this.progressWave, {
-        position: 'relative',
-        zIndex: 3,
-        left: 0,
-        top: 0,
-        bottom: 0,
-        overflow: 'hidden',
-        width: '0',
-        display: 'none',
-        boxSizing: 'border-box',
-        borderRightStyle: 'solid',
-        pointerEvents: 'none'
-      });
+      position: 'relative',
+      zIndex: 3,
+      left: 0,
+      top: 0,
+      bottom: 0,
+      overflow: 'hidden',
+      width: '0',
+      display: 'none',
+      boxSizing: 'border-box',
+      borderRightStyle: 'solid',
+      pointerEvents: 'none'
+    });
 
     this.addCanvas();
     this.updateCursor();
@@ -131,7 +130,7 @@ export default class MultiCanvas extends Drawer {
    */
   updateCursor() {
     this.style(this.progressWave, {
-        borderRightWidth: this.params.cursorWidth + 'px',
+      borderRightWidth: `${this.params.cursorWidth}px`,
       borderRightColor: this.params.cursorColor
     });
   }
@@ -141,9 +140,7 @@ export default class MultiCanvas extends Drawer {
    */
   updateSize() {
     const totalWidth = Math.round(this.width / this.params.pixelRatio);
-    const requiredCanvases = Math.ceil(
-        totalWidth / (this.maxCanvasElementWidth + this.overlap)
-    );
+    const requiredCanvases = Math.ceil(totalWidth / (this.maxCanvasElementWidth + this.overlap));
 
     // add required canvases
     while (this.canvases.length < requiredCanvases) {
@@ -179,35 +176,35 @@ export default class MultiCanvas extends Drawer {
     const leftOffset = this.maxCanvasElementWidth * this.canvases.length;
 
     // wave
-    let wave = util.withOrientation(
-        this.wrapper.appendChild(document.createElement('canvas')),
-        this.params.vertical
+    const wave = util.withOrientation(
+      this.wrapper.appendChild(document.createElement('canvas')),
+      this.params.vertical
     );
     this.style(wave, {
-          position: 'relative',
-          zIndex: 2,
-          left: leftOffset + 'px',
-          top: 0,
-          bottom: 0,
-          height: '100%',
-          pointerEvents: 'none'
-        });
-        entry.initWave(wave);
+      position: 'relative',
+      zIndex: 2,
+      left: `${leftOffset}px`,
+      top: 0,
+      bottom: 0,
+      height: '100%',
+      pointerEvents: 'none'
+    });
+    entry.initWave(wave);
 
     // progress
     if (this.hasProgressCanvas) {
-        let progress = util.withOrientation(
-            this.progressWave.appendChild(document.createElement('canvas')),
-            this.params.vertical
-        );
-        this.style(progress, {
-            position: 'relative',
-            left: leftOffset + 'px',
-            top: 0,
-            bottom: 0,
-            height: '100%'
-        });
-        entry.initProgress(progress);
+      const progress = util.withOrientation(
+        this.progressWave.appendChild(document.createElement('canvas')),
+        this.params.vertical
+      );
+      this.style(progress, {
+        position: 'relative',
+        left: `${leftOffset}px`,
+        top: 0,
+        bottom: 0,
+        height: '100%'
+      });
+      entry.initProgress(progress);
     }
 
     this.canvases.push(entry);
@@ -225,7 +222,7 @@ export default class MultiCanvas extends Drawer {
 
     // progress
     if (this.hasProgressCanvas) {
-        lastEntry.progress.parentElement.removeChild(lastEntry.progress.domElement);
+      lastEntry.progress.parentElement.removeChild(lastEntry.progress.domElement);
     }
 
     // cleanup
@@ -283,7 +280,7 @@ export default class MultiCanvas extends Drawer {
       channelIndex,
       start,
       end,
-      ({ absmax, hasMinVals, height, offsetY, halfH, peaks, channelIndex: ch }) => {
+      ({ absmax, hasMinVals, offsetY, halfH, peaks, channelIndex: ch }) => {
         // if drawBars was called within ws.empty we don't pass a start and
         // don't want anything to happen
         if (start === undefined) {
@@ -296,10 +293,7 @@ export default class MultiCanvas extends Drawer {
         const gap =
           this.params.barGap === null
             ? Math.max(this.params.pixelRatio, ~~(bar / 2))
-            : Math.max(
-                this.params.pixelRatio,
-                this.params.barGap * this.params.pixelRatio
-            );
+            : Math.max(this.params.pixelRatio, this.params.barGap * this.params.pixelRatio);
         const step = bar + gap;
 
         const scale = length / this.width;
@@ -308,15 +302,14 @@ export default class MultiCanvas extends Drawer {
         let i = first;
 
         for (i; i < last; i += step) {
-            const peak =
-            peaks[Math.floor(i * scale * peakIndexScale)] || 0;
+          const peak = peaks[Math.floor(i * scale * peakIndexScale)] || 0;
           let h = Math.round((peak / absmax) * halfH);
 
           /* in case of silences, allow the user to specify that we
            * always draw *something* (normally a 1px high bar) */
-          if (h == 0 && this.params.barMinHeight) {
+          if (h === 0 && this.params.barMinHeight) {
             h = this.params.barMinHeight;
-        }
+          }
 
           this.fillRect(
             i + this.halfPixel,
@@ -324,7 +317,7 @@ export default class MultiCanvas extends Drawer {
             bar + this.halfPixel,
             h * 2,
             this.barRadius,
-                        ch
+            ch
           );
         }
       }
@@ -350,7 +343,7 @@ export default class MultiCanvas extends Drawer {
       channelIndex,
       start,
       end,
-      ({ absmax, hasMinVals, height, offsetY, halfH, peaks, channelIndex }) => {
+      ({ absmax, hasMinVals, offsetY, halfH, peaks, channelIndex }) => {
         if (!hasMinVals) {
           const reflectedPeaks = [];
           const len = peaks.length;
@@ -375,7 +368,7 @@ export default class MultiCanvas extends Drawer {
           this.width,
           this.halfPixel,
           this.barRadius,
-                    channelIndex
+          channelIndex
         );
       }
     );
@@ -395,8 +388,9 @@ export default class MultiCanvas extends Drawer {
    * @param {channelIndex} channelIndex The channel index of the line drawn
    */
   drawLine(peaks, absmax, halfH, offsetY, start, end, channelIndex) {
-    const { waveColor, progressColor } = this.params.splitChannelsOptions.channelColors[channelIndex] || {};
-    this.canvases.forEach((entry, i) => {
+    const { waveColor, progressColor } =
+      this.params.splitChannelsOptions.channelColors[channelIndex] || {};
+    this.canvases.forEach(entry => {
       this.setFillStyles(entry, waveColor, progressColor);
       this.applyCanvasTransforms(entry, this.params.vertical);
       entry.drawLines(peaks, absmax, halfH, offsetY, start, end);
@@ -413,7 +407,7 @@ export default class MultiCanvas extends Drawer {
    * @param {number} radius Radius of the rectangle
    * @param {channelIndex} channelIndex The channel index of the bar drawn
    */
-   fillRect(x, y, width, height, radius, channelIndex) {
+  fillRect(x, y, width, height, radius, channelIndex) {
     const startCanvas = Math.floor(x / this.maxCanvasWidth);
     const endCanvas = Math.min(
       Math.ceil((x + width) / this.maxCanvasWidth) + 1,
@@ -427,15 +421,13 @@ export default class MultiCanvas extends Drawer {
       const intersection = {
         x1: Math.max(x, i * this.maxCanvasWidth),
         y1: y,
-        x2: Math.min(
-            x + width,
-            i * this.maxCanvasWidth + entry.wave.width
-        ),
+        x2: Math.min(x + width, i * this.maxCanvasWidth + entry.wave.width),
         y2: y + height
       };
 
       if (intersection.x1 < intersection.x2) {
-        const { waveColor, progressColor } = this.params.splitChannelsOptions.channelColors[channelIndex] || {};
+        const { waveColor, progressColor } =
+          this.params.splitChannelsOptions.channelColors[channelIndex] || {};
         this.setFillStyles(entry, waveColor, progressColor);
         this.applyCanvasTransforms(entry, this.params.vertical);
 
@@ -457,7 +449,10 @@ export default class MultiCanvas extends Drawer {
    * @returns {bool} True to hide the channel, false to draw.
    */
   hideChannel(channelIndex) {
-    return this.params.splitChannels && this.params.splitChannelsOptions.filterChannels.includes(channelIndex);
+    return (
+      this.params.splitChannels &&
+      this.params.splitChannelsOptions.filterChannels.includes(channelIndex)
+    );
   }
 
   /**
@@ -487,21 +482,29 @@ export default class MultiCanvas extends Drawer {
           const filteredChannels = channels.filter((c, i) => !this.hideChannel(i));
           if (!this.params.splitChannelsOptions.overlay) {
             this.setHeight(
-                Math.max(filteredChannels.length, 1) *
-                this.params.height *
-                this.params.pixelRatio
+              Math.max(filteredChannels.length, 1) * this.params.height * this.params.pixelRatio
             );
           }
 
           let overallAbsMax;
-          if (this.params.splitChannelsOptions && this.params.splitChannelsOptions.relativeNormalization) {
+          if (
+            this.params.splitChannelsOptions &&
+            this.params.splitChannelsOptions.relativeNormalization
+          ) {
             // calculate maximum peak across channels to use for normalization
-            overallAbsMax = util.max(channels.map((channelPeaks => util.absMax(channelPeaks))));
+            overallAbsMax = util.max(channels.map(channelPeaks => util.absMax(channelPeaks)));
           }
 
-
           return channels.forEach((channelPeaks, i) =>
-            this.prepareDraw(channelPeaks, i, start, end, fn, filteredChannels.indexOf(channelPeaks), overallAbsMax)
+            this.prepareDraw(
+              channelPeaks,
+              i,
+              start,
+              end,
+              fn,
+              filteredChannels.indexOf(channelPeaks),
+              overallAbsMax
+            )
           );
         }
         peaks = channels[0];
@@ -528,20 +531,20 @@ export default class MultiCanvas extends Drawer {
 
       let offsetY = height * drawIndex || 0;
 
-     // Override offsetY if overlay is true
-     if (this.params.splitChannelsOptions && this.params.splitChannelsOptions.overlay) {
+      // Override offsetY if overlay is true
+      if (this.params.splitChannelsOptions && this.params.splitChannelsOptions.overlay) {
         offsetY = 0;
-    }
+      }
 
-    return fn({
-        absmax: absmax,
-        hasMinVals: hasMinVals,
-        height: height,
-        offsetY: offsetY,
-        halfH: halfH,
-        peaks: peaks,
-        channelIndex: channelIndex
-    });
+      return fn({
+        absmax,
+        hasMinVals,
+        height,
+        offsetY,
+        halfH,
+        peaks,
+        channelIndex
+      });
     })();
   }
 
@@ -552,19 +555,23 @@ export default class MultiCanvas extends Drawer {
    * @param {string} waveColor Wave color to draw this entry
    * @param {string} progressColor Progress color to draw this entry
    */
-   setFillStyles(entry, waveColor = this.params.waveColor, progressColor = this.params.progressColor) {
+  setFillStyles(
+    entry,
+    waveColor = this.params.waveColor,
+    progressColor = this.params.progressColor
+  ) {
     entry.setFillStyles(waveColor, progressColor);
   }
 
-   /**
-     * Set the canvas transforms for a certain entry (wave and progress)
-     *
-     * @param {CanvasEntry} entry Target entry
-     * @param {boolean} vertical Whether to render the waveform vertically
-     */
-    applyCanvasTransforms(entry, vertical = false) {
-        entry.applyCanvasTransforms(vertical);
-    }
+  /**
+   * Set the canvas transforms for a certain entry (wave and progress)
+   *
+   * @param {CanvasEntry} entry Target entry
+   * @param {boolean} vertical Whether to render the waveform vertically
+   */
+  applyCanvasTransforms(entry, vertical = false) {
+    entry.applyCanvasTransforms(vertical);
+  }
 
   /**
    * Return image data of the multi-canvas
@@ -587,11 +594,10 @@ export default class MultiCanvas extends Drawer {
           return entry.getImage(format, quality, type);
         })
       );
-    } else if (type === 'dataURL') {
-            let images = this.canvases.map(entry =>
-                entry.getImage(format, quality, type)
-            );
-            return images.length > 1 ? images : images[0];
+    }
+    if (type === 'dataURL') {
+      const images = this.canvases.map(entry => entry.getImage(format, quality, type));
+      return images.length > 1 ? images : images[0];
     }
   }
 
@@ -601,6 +607,6 @@ export default class MultiCanvas extends Drawer {
    * @param {number} position X-offset of progress position in pixels
    */
   updateProgress(position) {
-    this.style(this.progressWave, { width: position + 'px' });
+    this.style(this.progressWave, { width: `${position}px` });
   }
 }

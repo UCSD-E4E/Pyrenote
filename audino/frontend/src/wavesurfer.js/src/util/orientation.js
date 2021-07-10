@@ -1,32 +1,33 @@
+/* eslint "func-names": "off" */
 const verticalPropMap = {
-    width: 'height',
-    height: 'width',
+  width: 'height',
+  height: 'width',
 
-    overflowX: 'overflowY',
-    overflowY: 'overflowX',
+  overflowX: 'overflowY',
+  overflowY: 'overflowX',
 
-    clientWidth: 'clientHeight',
-    clientHeight: 'clientWidth',
+  clientWidth: 'clientHeight',
+  clientHeight: 'clientWidth',
 
-    clientX: 'clientY',
-    clientY: 'clientX',
+  clientX: 'clientY',
+  clientY: 'clientX',
 
-    scrollWidth: 'scrollHeight',
-    scrollLeft: 'scrollTop',
+  scrollWidth: 'scrollHeight',
+  scrollLeft: 'scrollTop',
 
-    offsetLeft: 'offsetTop',
-    offsetTop: 'offsetLeft',
-    offsetHeight: 'offsetWidth',
-    offsetWidth: 'offsetHeight',
+  offsetLeft: 'offsetTop',
+  offsetTop: 'offsetLeft',
+  offsetHeight: 'offsetWidth',
+  offsetWidth: 'offsetHeight',
 
-    left: 'top',
-    right: 'bottom',
-    top: 'left',
-    bottom: 'right',
+  left: 'top',
+  right: 'bottom',
+  top: 'left',
+  bottom: 'right',
 
-    borderRightStyle: 'borderBottomStyle',
-    borderRightWidth: 'borderBottomWidth',
-    borderRightColor: 'borderBottomColor'
+  borderRightStyle: 'borderBottomStyle',
+  borderRightWidth: 'borderBottomWidth',
+  borderRightColor: 'borderBottomColor'
 };
 
 /**
@@ -37,14 +38,13 @@ const verticalPropMap = {
  * @returns {string} prop, converted appropriately
  */
 function mapProp(prop, vertical) {
-    if (Object.prototype.hasOwnProperty.call(verticalPropMap, prop)) {
-        return vertical ? verticalPropMap[prop] : prop;
-    } else {
-        return prop;
-    }
+  if (Object.prototype.hasOwnProperty.call(verticalPropMap, prop)) {
+    return vertical ? verticalPropMap[prop] : prop;
+  }
+  return prop;
 }
 
-const isProxy = Symbol("isProxy");
+const isProxy = Symbol('isProxy');
 
 /**
  * Returns an appropriately oriented object based on vertical.
@@ -61,38 +61,39 @@ const isProxy = Symbol("isProxy");
  * @since 5.0.0
  */
 export default function withOrientation(target, vertical) {
-    if (target[isProxy]) {
-        return target;
-    } else {
-        return new Proxy(
-            target, {
-                get: function(obj, prop, receiver) {
-                    if (prop === isProxy) {
-                        return true;
-                    } else if (prop === 'domElement') {
-                        return obj;
-                    } else if (prop === 'style') {
-                        return withOrientation(obj.style, vertical);
-                    } else if (prop === 'canvas') {
-                        return withOrientation(obj.canvas, vertical);
-                    } else if (prop === 'getBoundingClientRect') {
-                        return function(...args) {
-                            return withOrientation(obj.getBoundingClientRect(...args), vertical);
-                        };
-                    } else if (prop === 'getContext') {
-                        return function(...args) {
-                            return withOrientation(obj.getContext(...args), vertical);
-                        };
-                    } else {
-                        let value = obj[mapProp(prop, vertical)];
-                        return typeof value == 'function' ? value.bind(obj) : value;
-                    }
-                },
-                set: function(obj, prop, value) {
-                    obj[mapProp(prop, vertical)] = value;
-                    return true;
-                }
-            }
-        );
+  if (target[isProxy]) {
+    return target;
+  }
+  return new Proxy(target, {
+    get(obj, prop) {
+      if (prop === isProxy) {
+        return true;
+      }
+      if (prop === 'domElement') {
+        return obj;
+      }
+      if (prop === 'style') {
+        return withOrientation(obj.style, vertical);
+      }
+      if (prop === 'canvas') {
+        return withOrientation(obj.canvas, vertical);
+      }
+      if (prop === 'getBoundingClientRect') {
+        return function (...args) {
+          return withOrientation(obj.getBoundingClientRect(...args), vertical);
+        };
+      }
+      if (prop === 'getContext') {
+        return function (...args) {
+          return withOrientation(obj.getContext(...args), vertical);
+        };
+      }
+      const value = obj[mapProp(prop, vertical)];
+      return typeof value === 'function' ? value.bind(obj) : value;
+    },
+    set(obj, prop, value) {
+      obj[mapProp(prop, vertical)] = value;
+      return true;
     }
+  });
 }
