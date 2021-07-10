@@ -14,6 +14,8 @@ import DeleteUserForm from "./forms/deleteUser";
 import DeleteLabelForm from "./forms/deleteLabelFrom"
 import EditProjectForm from "./forms/editProjectForm"
 import DownloadDataForm from "./forms/downloadDataFrom";
+import FeatureForm from "./forms/featureForm";
+import featureForm from "./forms/featureForm";
 
 const FormModal = (props) => {
   console.log("INSIDE FORMMODAL", props.formType)
@@ -86,6 +88,13 @@ const FormModal = (props) => {
             projectId={props.projectId}
             projectName={props.projectName}
             apiKey={props.api_key}
+          />
+        ) : null}
+        {props.formType === "FEATURE_FORM" ? (
+          <featureForm
+            //projectId={props.projectId}
+            //projectName={props.projectName}
+            //apiKey={props.api_key}
           />
         ) : null}
       </Modal.Body>
