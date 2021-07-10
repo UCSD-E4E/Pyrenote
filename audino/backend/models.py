@@ -217,6 +217,8 @@ class Project(db.Model):
 
     api_key = db.Column("api_key", db.String(32), nullable=False, unique=True)
 
+    features_list = db.Column("features_list", db.JSON(), nullable=True, default=None)
+
     created_at = db.Column(
         "created_at", db.DateTime(), nullable=False, default=db.func.now()
     )
