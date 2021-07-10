@@ -2,7 +2,7 @@
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
   "parser": "babel-eslint",
-  //"ignorePatterns": ["/src/wavesurfer.js"],
+  "ignorePatterns": ["/src/wavesurfer.js/build-config", "/src/wavesurfer.js/spec", "/src/wavesurfer.js/karma.conf.js"],
   "env": {
     "browser": true,
     "commonjs": true
@@ -30,6 +30,8 @@
     "block-scoped-var": "off",
     "no-restricted-properties": "off",
     "vars-on-top": "off",
+    "prefer-destructuring": "off",
+    "no-shadow": "off",
 
     "prettier/prettier": [
       "error",
