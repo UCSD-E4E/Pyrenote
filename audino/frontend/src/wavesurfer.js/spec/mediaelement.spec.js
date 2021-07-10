@@ -1,14 +1,13 @@
 /* eslint-env jasmine */
 
 import { sharedErrorTests, sharedTests } from './mediaelement-shared';
-import TestHelpers from './test-helpers';
 
 /** @test {WaveSurfer} */
-describe('WaveSurfer/MediaElement:', function () {
+describe('WaveSurfer/MediaElement:', () => {
   sharedTests('MediaElement');
 });
 
 /** @test {WaveSurfer} */
-describe('WaveSurfer/MediaElement/errors:', function () {
+describe('WaveSurfer/MediaElement/errors:', () => {
   sharedErrorTests('MediaElement');
 });

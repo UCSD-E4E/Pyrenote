@@ -1,4 +1,5 @@
 /* eslint-env jasmine */
+/* eslint-disable no-use-before-define */
 import TestHelpers from './test-helpers';
 
 let audioElement;
@@ -7,7 +8,7 @@ export function sharedTests(backend) {
   let element;
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
-  beforeEach(function () {
+  beforeEach(() => {
     audioElement = TestHelpers.createElement('testAudio', 'audio');
     const wave = TestHelpers.createWaveform({
       container: TestHelpers.createElement(),
@@ -20,14 +21,14 @@ export function sharedTests(backend) {
     element = wave[1];
   });
 
-  afterEach(function () {
+  afterEach(() => {
     wavesurfer.destroy();
     TestHelpers.removeElement(element);
   });
   /**
    * @test {WaveSurfer#isReady}
    */
-  it('should be ready', function (done) {
+  it('should be ready', done => {
     wavesurfer.once('ready', done);
     loadElement();
   });
@@ -35,7 +36,7 @@ export function sharedTests(backend) {
   /**
    * @test {WaveSurfer#waveform-ready} When the waveform is drawn, the 'waveform-ready' event is triggered
    */
-  it('should fire waveform-ready event when the waveform is drawn', function (done) {
+  it('should fire waveform-ready event when the waveform is drawn', done => {
     const waveformReadySpy = jasmine.createSpy('waveform-ready-spy');
 
     wavesurfer.on('waveform-ready', () => {
@@ -53,8 +54,8 @@ export function sharedTests(backend) {
    * @test {WaveSurfer#play}
    * @test {WaveSurfer#isPlaying}
    */
-  it('should play', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should play', done => {
+    wavesurfer.once('ready', () => {
       wavesurfer.play();
 
       expect(wavesurfer.isPlaying()).toBeTrue();
@@ -69,8 +70,8 @@ export function sharedTests(backend) {
    * @test {WaveSurfer#isPlaying}
    * @test {WaveSurfer#pause}
    */
-  it('should pause', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should pause', done => {
+    wavesurfer.once('ready', () => {
       wavesurfer.play();
       expect(wavesurfer.isPlaying()).toBeTrue();
 
@@ -86,8 +87,8 @@ export function sharedTests(backend) {
    * @test {WaveSurfer#playPause}
    * @test {WaveSurfer#isPlaying}
    */
-  it('should play or pause', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should play or pause', done => {
+    wavesurfer.once('ready', () => {
       wavesurfer.playPause();
       expect(wavesurfer.isPlaying()).toBeTrue();
 
@@ -100,8 +101,8 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#getDuration}  */
-  it('should get duration', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should get duration', done => {
+    wavesurfer.once('ready', () => {
       const duration = parseInt(wavesurfer.getDuration(), 10);
       expect(duration).toEqual(TestHelpers.EXAMPLE_FILE_DURATION);
 
@@ -111,8 +112,8 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#getCurrentTime}  */
-  it('should get currentTime', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should get currentTime', done => {
+    wavesurfer.once('ready', () => {
       // initially zero
       let time = wavesurfer.getCurrentTime();
       expect(time).toEqual(0);
@@ -128,8 +129,8 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#setCurrentTime}  */
-  it('should set currentTime', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should set currentTime', done => {
+    wavesurfer.once('ready', () => {
       // initially zero
       let time = wavesurfer.getCurrentTime();
       expect(time).toEqual(0);
@@ -152,8 +153,8 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#skipBackward}  */
-  it('should skip backward', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should skip backward', done => {
+    wavesurfer.once('ready', () => {
       // seek to 50%
       wavesurfer.seekTo(0.5);
 
@@ -173,8 +174,8 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#skipForward}  */
-  it('should skip forward', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should skip forward', done => {
+    wavesurfer.once('ready', () => {
       // skip 4 seconds forward
       wavesurfer.skipForward(4);
       let time = wavesurfer.getCurrentTime();
@@ -191,8 +192,8 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#getPlaybackRate}  */
-  it('should get playback rate', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should get playback rate', done => {
+    wavesurfer.once('ready', () => {
       const rate = wavesurfer.getPlaybackRate();
       expect(rate).toEqual(1);
 
@@ -202,8 +203,8 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#setPlaybackRate}  */
-  it('should set playback rate', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should set playback rate', done => {
+    wavesurfer.once('ready', () => {
       const rate = 0.5;
       wavesurfer.setPlaybackRate(rate);
 
@@ -215,9 +216,9 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#getVolume}  */
-  it('should get volume', function (done) {
+  it('should get volume', done => {
     audioElement.volume = 0.3;
-    wavesurfer.once('ready', function () {
+    wavesurfer.once('ready', () => {
       const volume = wavesurfer.getVolume();
       expect(volume).toEqual(audioElement.volume);
 
@@ -227,25 +228,25 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#setVolume}  */
-  it('should set volume', function (done) {
+  it('should set volume', done => {
     const targetVolume = 0.5;
 
-    wavesurfer.once('volume', function (result) {
+    wavesurfer.once('volume', result => {
       expect(result).toEqual(targetVolume);
       expect(wavesurfer.getVolume()).toEqual(targetVolume);
 
       done();
     });
 
-    wavesurfer.once('ready', function () {
+    wavesurfer.once('ready', () => {
       wavesurfer.setVolume(targetVolume);
     });
     loadElement();
   });
 
   /** @test {WaveSurfer#toggleMute}  */
-  it('should toggle mute', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should toggle mute', done => {
+    wavesurfer.once('ready', () => {
       wavesurfer.toggleMute();
       expect(wavesurfer.isMuted).toBeTrue();
 
@@ -258,8 +259,8 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#setMute}  */
-  it('should set mute', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should set mute', done => {
+    wavesurfer.once('ready', () => {
       wavesurfer.setMute(true);
       expect(wavesurfer.isMuted).toBeTrue();
 
@@ -272,8 +273,8 @@ export function sharedTests(backend) {
   });
 
   /** @test {WaveSurfer#getMute}  */
-  it('should get mute', function (done) {
-    wavesurfer.once('ready', function () {
+  it('should get mute', done => {
+    wavesurfer.once('ready', () => {
       wavesurfer.setMute(true);
       expect(wavesurfer.getMute()).toBeTrue();
 
@@ -289,23 +290,23 @@ export function sharedTests(backend) {
 export function sharedErrorTests(backend) {
   let element;
 
-  beforeEach(function () {
+  beforeEach(() => {
     element = TestHelpers.createElement('test');
   });
 
-  afterEach(function () {
+  afterEach(() => {
     TestHelpers.removeElement(element);
   });
 
   /**
    * @test {WaveSurfer}
    */
-  it('throw when load is called with invalid HTMLMediaElement', function () {
+  it('throw when load is called with invalid HTMLMediaElement', () => {
     const wave = TestHelpers.createWaveform({
       container: '#test',
       backend
     });
-    expect(function () {
+    expect(() => {
       wave[0].load({
         foo: 'bar'
       });

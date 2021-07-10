@@ -5,10 +5,10 @@ import WaveSurfer from '../src/wavesurfer.js';
 import TestHelpers from './test-helpers.js';
 
 /** @test {util.fetchFile} */
-describe('util.fetchFile:', function () {
+describe('util.fetchFile:', () => {
   const audioExampleUrl = TestHelpers.EXAMPLE_FILE_PATH;
 
-  it('load ArrayBuffer response', function (done) {
+  it('load ArrayBuffer response', done => {
     const options = {
       url: audioExampleUrl,
       responseType: 'arraybuffer'
@@ -31,7 +31,7 @@ describe('util.fetchFile:', function () {
     });
   });
 
-  it('load Blob response', function (done) {
+  it('load Blob response', done => {
     const options = {
       url: audioExampleUrl,
       responseType: 'blob'
@@ -48,7 +48,7 @@ describe('util.fetchFile:', function () {
     });
   });
 
-  it('load JSON response', function (done) {
+  it('load JSON response', done => {
     const options = {
       url: '/base/spec/support/test.json',
       responseType: 'json'
@@ -65,7 +65,7 @@ describe('util.fetchFile:', function () {
     });
   });
 
-  it('load text response', function (done) {
+  it('load text response', done => {
     const options = {
       url: '/base/spec/support/test.txt',
       responseType: 'text'
@@ -82,7 +82,7 @@ describe('util.fetchFile:', function () {
     });
   });
 
-  it('load unknown response type', function (done) {
+  it('load unknown response type', done => {
     const options = {
       url: audioExampleUrl,
       responseType: 'fooBar'
@@ -95,7 +95,7 @@ describe('util.fetchFile:', function () {
     });
   });
 
-  it('throws error when URL contains credentials', function () {
+  it('throws error when URL contains credentials', () => {
     const options = {
       url: 'http://user:password@example.com'
     };
@@ -106,7 +106,7 @@ describe('util.fetchFile:', function () {
     }
   });
 
-  it('throws error when URL is missing', function () {
+  it('throws error when URL is missing', () => {
     try {
       WaveSurfer.util.fetchFile({});
     } catch (err) {
@@ -114,7 +114,7 @@ describe('util.fetchFile:', function () {
     }
   });
 
-  it('throws error when options are missing', function () {
+  it('throws error when options are missing', () => {
     try {
       WaveSurfer.util.fetchFile();
     } catch (err) {
@@ -122,7 +122,7 @@ describe('util.fetchFile:', function () {
     }
   });
 
-  it('fires error event when the file is not found', function (done) {
+  it('fires error event when the file is not found', done => {
     const options = {
       url: '/foo/bar'
     };
@@ -135,7 +135,7 @@ describe('util.fetchFile:', function () {
     });
   });
 
-  it('accepts custom request headers', function (done) {
+  it('accepts custom request headers', done => {
     const options = {
       url: '/base/spec/support/test.txt',
       responseType: 'text',
@@ -147,7 +147,7 @@ describe('util.fetchFile:', function () {
       ]
     };
     const instance = WaveSurfer.util.fetchFile(options);
-    instance.once('success', data => {
+    instance.once('success', () => {
       expect(instance.response.headers.has('Content-Type')).toBeTrue();
       expect(instance.response.headers.get('Content-Type')).toEqual('text/plain');
 
@@ -157,56 +157,56 @@ describe('util.fetchFile:', function () {
 });
 
 /** @test {util} */
-describe('util:', function () {
+describe('util:', () => {
   /** @test {getId} */
-  it('getId returns a random string with a default prefix', function () {
+  it('getId returns a random string with a default prefix', () => {
     const prefix = 'wavesurfer_';
     expect(WaveSurfer.util.getId()).toStartWith(prefix);
   });
 
   /** @test {getId} */
-  it('getId returns a random string with a custom prefix', function () {
+  it('getId returns a random string with a custom prefix', () => {
     const prefix = 'test-';
     expect(WaveSurfer.util.getId(prefix)).toStartWith(prefix);
   });
 
   /** @test {min} */
-  it('min returns the smallest number in the provided array', function () {
+  it('min returns the smallest number in the provided array', () => {
     expect(WaveSurfer.util.min([0, 1, 1.1, 100, -1])).toEqual(-1);
   });
 
   /** @test {min} */
-  it('min returns +Infinity for an empty array', function () {
+  it('min returns +Infinity for an empty array', () => {
     expect(WaveSurfer.util.min([])).toEqual(+Infinity);
   });
 
   /** @test {max} */
-  it('max returns the largest number in the provided array', function () {
+  it('max returns the largest number in the provided array', () => {
     expect(WaveSurfer.util.max([0, 1, 1.1, 100, -1])).toEqual(100);
   });
 
   /** @test {max} */
-  it('max returns -Infinity for an empty array', function () {
+  it('max returns -Infinity for an empty array', () => {
     expect(WaveSurfer.util.max([])).toEqual(-Infinity);
   });
 
   /** @test {absMax} */
-  it('absMax returns largest absolute number in the provided array when largest is positive', function () {
+  it('absMax returns largest absolute number in the provided array when largest is positive', () => {
     expect(WaveSurfer.util.absMax([0, 1, 1.1, 100, -1])).toEqual(100);
   });
 
   /** @test {absMax} */
-  it('absMax returns largest absolute number in the provided array when largest is negative', function () {
+  it('absMax returns largest absolute number in the provided array when largest is negative', () => {
     expect(WaveSurfer.util.absMax([0, 1, -101, 1.1, 100, -1])).toEqual(101);
   });
 
   /** @test {absMax} */
-  it('absMax returns -Infinity for an empty array', function () {
+  it('absMax returns -Infinity for an empty array', () => {
     expect(WaveSurfer.util.absMax([])).toEqual(-Infinity);
   });
 
   /** @test {style} */
-  it('style applies a map of styles to an element', function () {
+  it('style applies a map of styles to an element', () => {
     const el = {
       style: {}
     };
@@ -222,24 +222,24 @@ describe('util:', function () {
 });
 
 /** @test {util.clamp} */
-describe('util.clamp:', function () {
+describe('util.clamp:', () => {
   const min = 0;
   const max = 2;
 
   /** @test {clamp/min} */
-  it('clamp should return min if val is less than min', function () {
+  it('clamp should return min if val is less than min', () => {
     const val = min - 1;
     expect(WaveSurfer.util.clamp(val, min, max)).toBe(min);
   });
 
   /** @test {clamp/val} */
-  it('clamp should return val if val is more than min and less than max', function () {
+  it('clamp should return val if val is more than min and less than max', () => {
     const val = 1;
     expect(WaveSurfer.util.clamp(val, min, max)).toBe(val);
   });
 
   /** @test {clamp/max} */
-  it('clamp should return max if val is more than max', function () {
+  it('clamp should return max if val is more than max', () => {
     const val = max + 1;
     expect(WaveSurfer.util.clamp(val, min, max)).toBe(max);
   });

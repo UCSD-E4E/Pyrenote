@@ -3,11 +3,11 @@
 import { sharedErrorTests, sharedTests } from './mediaelement-shared';
 
 /** @test {WaveSurfer} */
-describe('WaveSurfer/MediaElementWebAudio:', function () {
+describe('WaveSurfer/MediaElementWebAudio:', () => {
   sharedTests('MediaElementWebAudio');
 });
 
 /** @test {WaveSurfer} */
-describe('WaveSurfer/MediaElementWebAudio/errors:', function () {
+describe('WaveSurfer/MediaElementWebAudio/errors:', () => {
   sharedErrorTests('MediaElementWebAudio');
 });

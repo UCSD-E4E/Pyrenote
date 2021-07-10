@@ -71,12 +71,12 @@ describe('WaveSurfer/plugin API:', () => {
     expect(typeof Object.getPrototypeOf(wavesurfer.dummy).on).toEqual('function');
 
     dummyPlugin = {};
-    expect(function () {
+    expect(() => {
       wavesurfer.addPlugin(dummyPlugin);
     }).toThrow(new Error('Plugin does not have a name!'));
 
     dummyPlugin.name = 'foo';
-    expect(function () {
+    expect(() => {
       wavesurfer.addPlugin(dummyPlugin);
     }).toThrow(new Error('Plugin foo does not have an instance property!'));
   });
@@ -92,7 +92,7 @@ describe('WaveSurfer/plugin API:', () => {
     expect(wavesurfer.dummy.init).toHaveBeenCalled();
     expect(wavesurfer.initialisedPluginList.dummy).toBeTrue();
 
-    expect(function () {
+    expect(() => {
       wavesurfer.initPlugin('foo');
     }).toThrow(new Error('Plugin foo has not been added yet!'));
   });
@@ -109,7 +109,7 @@ describe('WaveSurfer/plugin API:', () => {
     expect(wavesurfer.dummy.destroy).toHaveBeenCalled();
     expect(wavesurfer.initialisedPluginList.dummy).toBeUndefined();
 
-    expect(function () {
+    expect(() => {
       wavesurfer.destroyPlugin('foo');
     }).toThrow(new Error('Plugin foo has not been added yet and cannot be destroyed!'));
   });

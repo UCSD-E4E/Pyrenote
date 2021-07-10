@@ -21,10 +21,10 @@ const TestHelpers = {
   EXAMPLE_STEREO_FILE_JSON_PATH: '/base/spec/support/stereo-peaks.json',
 
   createElement(id, type) {
-    if (id == undefined) {
+    if (id === undefined) {
       id = WaveSurfer.util.getId('waveform_');
     }
-    if (type == undefined) {
+    if (type === undefined) {
       type = 'div';
     }
     const element = document.createElement(type);

@@ -1,7 +1,7 @@
 /* eslint-env jasmine */
 import PeakCache from '../src/peakcache';
 
-describe('PeakCache:', function () {
+describe('PeakCache:', () => {
   let peakcache;
   const test_length = 200;
   const test_length2 = 300;
@@ -18,13 +18,13 @@ describe('PeakCache:', function () {
     peakcache = new PeakCache();
   }
 
-  beforeEach(function (done) {
+  beforeEach(done => {
     __createPeakCache();
     done();
   });
 
   /** @test {PeakCache#addRangeToPeakCache} */
-  it('empty cache returns full range', function () {
+  it('empty cache returns full range', () => {
     const newranges = peakcache.addRangeToPeakCache(test_length, test_start, test_end);
     expect(newranges.length).toEqual(1);
     expect(newranges[0][0]).toEqual(test_start);
@@ -32,7 +32,7 @@ describe('PeakCache:', function () {
   });
 
   /** @test {PeakCache#addRangeToPeakCache} */
-  it('different length clears cache', function () {
+  it('different length clears cache', () => {
     peakcache.addRangeToPeakCache(test_length, test_start, test_end);
     const newranges = peakcache.addRangeToPeakCache(test_length2, test_start, test_end);
     expect(newranges.length).toEqual(1);
@@ -41,14 +41,14 @@ describe('PeakCache:', function () {
   });
 
   /** @test {PeakCache#addRangeToPeakCache} */
-  it('consecutive calls return no ranges', function () {
+  it('consecutive calls return no ranges', () => {
     peakcache.addRangeToPeakCache(test_length, test_start, test_end);
     const newranges = peakcache.addRangeToPeakCache(test_length, test_start, test_end);
     expect(newranges.length).toEqual(0);
   });
 
   /** @test {PeakCache#addRangeToPeakCache} */
-  it('sliding window returns window sized range', function () {
+  it('sliding window returns window sized range', () => {
     let newranges = peakcache.addRangeToPeakCache(test_length, test_start, test_end);
     expect(newranges.length).toEqual(1);
     expect(newranges[0][0]).toEqual(test_start);
@@ -73,7 +73,7 @@ describe('PeakCache:', function () {
 
   /** @test {PeakCache#addRangeToPeakCache} */
   /** @test {PeakCache#getCacheRanges} */
-  it('disjoint set creates two ranges', function () {
+  it('disjoint set creates two ranges', () => {
     peakcache.addRangeToPeakCache(test_length, test_start, test_end);
     peakcache.addRangeToPeakCache(test_length, test_start3, test_end3);
     const ranges = peakcache.getCacheRanges();
@@ -86,7 +86,7 @@ describe('PeakCache:', function () {
 
   /** @test {PeakCache#addRangeToPeakCache} */
   /** @test {PeakCache#getCacheRanges} */
-  it('filling in disjoint sets coalesces', function () {
+  it('filling in disjoint sets coalesces', () => {
     peakcache.addRangeToPeakCache(test_length, test_start, test_end);
     peakcache.addRangeToPeakCache(test_length, test_start3, test_end3);
     const newranges = peakcache.addRangeToPeakCache(test_length, test_start, test_end3);
@@ -101,7 +101,7 @@ describe('PeakCache:', function () {
 
   /** @test {PeakCache#addRangeToPeakCache} */
   /** @test {PeakCache#getCacheRanges} */
-  it('filling in disjoint sets coalesces / edge cases', function () {
+  it('filling in disjoint sets coalesces / edge cases', () => {
     peakcache.addRangeToPeakCache(test_length, test_start, test_end);
     peakcache.addRangeToPeakCache(test_length, test_start3, test_end3);
     const newranges = peakcache.addRangeToPeakCache(test_length, test_start2, test_end2);
