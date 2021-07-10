@@ -28,6 +28,8 @@
     "consistent-return": "off",
     "max-classes-per-file": ["error", 3],
     "block-scoped-var": "off",
+    "no-restricted-properties": "off",
+    "vars-on-top": "off",
 
     "prettier/prettier": [
       "error",
