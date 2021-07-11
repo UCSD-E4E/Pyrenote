@@ -693,7 +693,7 @@ class Annotate extends React.Component {
                   type="danger"
                   message={errorUnsavedMessage}
                   overlay
-                  onClose={() => this.handleAlertDismiss()}
+                  onClose={(e) => this.handleAlertDismiss(e)}
                 />
                 <Button
                   size="large"
