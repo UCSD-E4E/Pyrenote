@@ -1,13 +1,17 @@
-import axios from 'axios';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import axios from "axios";
+import React from "react";
+import { withRouter } from "react-router-dom";
 // import { Helmet } from 'react-helmet';
-import { withStore } from '@spyna/react-store';
-import { faPlusSquare, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { withStore } from "@spyna/react-store";
+import {
+  faPlusSquare,
+  faEdit,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 
-import { IconButton } from '../components/button';
-import Loader from '../components/loader';
-import FormModal from '../containers/labelValueModal';
+import { IconButton } from "../components/button";
+import Loader from "../components/loader";
+import FormModal from "../containers/labelValueModal";
 
 class LabelValues extends React.Component {
   constructor(props) {
@@ -20,7 +24,7 @@ class LabelValues extends React.Component {
       formType: null,
       modalShow: false,
       isLabelValuesLoading: false,
-      getLabelValuesUrl: `/api/labels/${labelId}/values`
+      getLabelValuesUrl: `/api/labels/${labelId}/values`,
     };
   }
 
@@ -29,19 +33,19 @@ class LabelValues extends React.Component {
     this.setState({ isLabelValuesLoading: true });
 
     axios({
-      method: 'get',
-      url: getLabelValuesUrl
+      method: "get",
+      url: getLabelValuesUrl,
     })
-      .then(response => {
+      .then((response) => {
         this.setState({
           labelValues: response.data.values,
-          isLabelValuesLoading: false
+          isLabelValuesLoading: false,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
         this.setState({
-          isLabelValuesLoading: false
+          isLabelValuesLoading: false,
         });
       });
   }
@@ -49,28 +53,28 @@ class LabelValues extends React.Component {
   handleNewLabelValues() {
     this.setModalShow(true);
     this.setState({
-      formType: 'NEW_LABEL_VALUE',
-      title: 'Create New Label Value'
+      formType: "NEW_LABEL_VALUE",
+      title: "Create New Label Value",
     });
   }
 
   handleEditLabelValue(e, labelId, labelValueId) {
     this.setModalShow(true);
     this.setState({
-      formType: 'EDIT_LABEL_VALUE',
-      title: 'Edit Label Value',
+      formType: "EDIT_LABEL_VALUE",
+      title: "Edit Label Value",
       labelId,
-      labelValueId
+      labelValueId,
     });
   }
 
   handleDeleteLabel(e, labelId, labelValueId) {
     this.setModalShow(true);
     this.setState({
-      formType: 'DELETE_LABEL_VALUE',
-      title: 'DELETE Label Value',
+      formType: "DELETE_LABEL_VALUE",
+      title: "DELETE Label Value",
       labelId,
-      labelValueId
+      labelValueId,
     });
   }
 
@@ -83,8 +87,15 @@ class LabelValues extends React.Component {
   }
 
   render() {
-    const { labelValues, labelId, labelValueId, formType, title, modalShow, isLabelValuesLoading } =
-      this.state;
+    const {
+      labelValues,
+      labelId,
+      labelValueId,
+      formType,
+      title,
+      modalShow,
+      isLabelValuesLoading,
+    } = this.state;
     return (
       <div>
         <div className="container h-100">
@@ -106,7 +117,7 @@ class LabelValues extends React.Component {
                     icon={faPlusSquare}
                     size="lg"
                     title="Create new label"
-                    onClick={e => this.handleNewLabelValues(e)}
+                    onClick={(e) => this.handleNewLabelValues(e)}
                   />
                 </h1>
               </div>
@@ -128,23 +139,37 @@ class LabelValues extends React.Component {
                           <th scope="row" className="align-middle">
                             {index + 1}
                           </th>
-                          <td className="align-middle">{labelValue.value_id}</td>
+                          <td className="align-middle">
+                            {labelValue.value_id}
+                          </td>
                           <td className="align-middle">{labelValue.value}</td>
-                          <td className="align-middle">{labelValue.created_on}</td>
+                          <td className="align-middle">
+                            {labelValue.created_on}
+                          </td>
                           <td className="align-middle">
                             <IconButton
                               icon={faEdit}
                               size="sm"
                               title="Edit label value"
-                              onClick={e =>
-                                this.handleEditLabelValue(e, labelId, labelValue.value_id)
+                              onClick={(e) =>
+                                this.handleEditLabelValue(
+                                  e,
+                                  labelId,
+                                  labelValue.value_id
+                                )
                               }
                             />
                             <IconButton
                               icon={faTrash}
                               size="sm"
                               title="Delete Label"
-                              onClick={e => this.handleDeleteLabel(e, labelId, labelValue.value_id)}
+                              onClick={(e) =>
+                                this.handleDeleteLabel(
+                                  e,
+                                  labelId,
+                                  labelValue.value_id
+                                )
+                              }
                             />
                           </td>
                         </tr>
