@@ -787,58 +787,53 @@ class Annotate extends React.Component {
                 </div>
               </div>
 
-              <div>
-                {selectedSegment && (
-                  <>
-                    <div className="row justify-content-center my-4">
-                      {Object.entries(labels).map(([key, value], index) => {
-                        if (!value.values.length) {
-                          return null;
-                        }
-                        return (
-                          <div className="col-3 text-left" key={index}>
-                            <label htmlFor={key} className="font-weight-bold">
-                              {key}
-                            </label>
-                            <select
-                              className="form-control"
-                              name={key}
-                              multiple={value.type === "multiselect"}
-                              value={
-                                (selectedSegment &&
-                                  selectedSegment.data.annotations &&
-                                  selectedSegment.data.annotations[key] &&
-                                  selectedSegment.data.annotations[key]
-                                    .values) ||
-                                (value.type === "multiselect" ? [] : "")
-                              }
-                              onChange={(e) => this.handleLabelChange(key, e)}
-                              ref={(el) => {
-                                this.labelRef[key] = el;
-                              }}
-                            >
-                              {value.type !== "multiselect" ? (
-                                <option value="-1">Choose Label Type</option>
-                              ) : null}
-                              {value.values.map((val) => {
-                                return (
-                                  <option
-                                    key={val.value_id}
-                                    value={`${val.value_id}`}
-                                  >
-                                    {val.value}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-                <div className="row justify-content-center my-4">
-                  {selectedSegment && (
+              {selectedSegment ? (
+                <div>
+                  <div className="row justify-content-center my-4">
+                    {Object.entries(labels).map(([key, value], index) => {
+                      if (!value.values.length) {
+                        return null;
+                      }
+                      return (
+                        <div className="col-3 text-left" key={index}>
+                          <label htmlFor={key} className="font-weight-bold">
+                            {key}
+                          </label>
+                          <select
+                            className="form-control"
+                            name={key}
+                            multiple={value.type === "multiselect"}
+                            value={
+                              (selectedSegment &&
+                                selectedSegment.data.annotations &&
+                                selectedSegment.data.annotations[key] &&
+                                selectedSegment.data.annotations[key].values) ||
+                              (value.type === "multiselect" ? [] : "")
+                            }
+                            onChange={(e) => this.handleLabelChange(key, e)}
+                            ref={(el) => {
+                              this.labelRef[key] = el;
+                            }}
+                          >
+                            {value.type !== "multiselect" ? (
+                              <option value="-1">Choose Label Type</option>
+                            ) : null}
+                            {value.values.map((val) => {
+                              return (
+                                <option
+                                  key={val.value_id}
+                                  value={`${val.value_id}`}
+                                >
+                                  {val.value}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="row justify-content-center my-4">
                     <div className="col-2">
                       <Button
                         size="lg"
@@ -849,17 +844,17 @@ class Annotate extends React.Component {
                         text="Delete"
                       />
                     </div>
-                  )}
-                  <div className="col-2">
-                    <Button
-                      size="lg"
-                      type="primary"
-                      onClick={(e) => this.handleAllSegmentSave(e)}
-                      text="Save All"
-                    />
+                    <div className="col-2">
+                      <Button
+                        size="lg"
+                        type="primary"
+                        onClick={(e) => this.handleAllSegmentSave(e)}
+                        text="Save All"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : null}
 
               <div className="row justify-content-center my-4">
                 <div className="form-check">
