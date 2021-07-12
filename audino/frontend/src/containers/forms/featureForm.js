@@ -14,57 +14,64 @@ class FeatureForm extends React.Component {
 
     this.initialState = {
       projectId: props.projectId,
-      password: "",
-      isSigningIn: false,
       errorMessage: "",
       successMessage: "",
       featuresEnabled: {
-        "example Feature": false,
-        "spectograms": false,
-        "power": false,
-        "banana": false,
+        "next button": true,
+        "example": false,
+        "example 2": false,
+        "example 3": false,
       }
     };
 
     this.state = Object.assign({}, this.initialState);
   }
-  
-  handleSubmitFeatures(e) {
-    e.preventDefault();
-    this.setState({ isSigningIn: true });
 
-    const { username, password } = this.state;
-    const { history } = this.props;
-
+  componentDidMount() {
+    const { projectId } = this.state;
+    let { featuresEnabled } = this.state;
     axios({
-      method: "post",
-      url: "/auth/login",
-      data: {
-        username,
-        password,
-      },
+      method: "get",
+      url: 'api/projects/' + projectId + '/toggled',
     })
       .then((response) => {
-        this.resetState();
+        //take all the current values of featuresList, include the new ones defined at the line 27
+        let featuresList = response.data.features_list
+        if (!feature_list) {return;}
+        Object.entries(featuresList).map(([key, value])=> {
+          featuresEnabled[key] = value;
+        })
         this.setState({
-          successMessage: "Logging you in...",
+          featuresEnabled
         });
-
-        const { access_token, username, is_admin } = response.data;
-
-        localStorage.setItem("access_token", access_token);
-
-        setAuthorizationToken(access_token);
-
-        this.props.store.set("username", username);
-        this.props.store.set("isAdmin", is_admin);
-        this.props.store.set("isUserLoggedIn", true);
-
-        history.push("/dashboard");
       })
       .catch((error) => {
         this.setState({
-          isSigningIn: false,
+          errorMessage: error.response.data.message,
+        });
+      });
+  }
+  
+  handleSubmitFeatures(e) {
+    e.preventDefault();
+    const { featuresEnabled, projectId } = this.state;
+    console.log(featuresEnabled)
+    axios({
+      method: "patch",
+      url: "/api/projects/toggled",
+      data: {
+        featuresEnabled,
+        projectId,
+      },
+    })
+      .then((response) => {
+        console.log("success")
+        this.setState({
+          successMessage: "successfully updated features",
+        });
+      })
+      .catch((error) => {
+        this.setState({
           successMessage: "",
           errorMessage: error.response.data.message,
         });
@@ -77,65 +84,36 @@ class FeatureForm extends React.Component {
     this.setState({
       featuresEnabled
     })
-    console.log(featuresEnabled)
+  }
+
+  renderFeatureCols(start, end, feature_list) {
+    return (
+      <div>
+        <form style={{
+          float: "left",
+          width: "25%"
+        }}>
+          {feature_list.slice(start, end).map(([key, value]) => {
+            return (<FeatureChecklist item={key} isChecked={value} handleCheck={() => {this.handleCheck(key)}} />)
+        })}
+        </form>
+      </div>
+    )
   }
 
   render() {
     const { featuresEnabled } = this.state;
+    let feature_list = Object.entries(featuresEnabled)
+    let numPerCol = feature_list.length/4
     return (
       <div>
           <div style={{ display: "table", justifyContent: "space-evenly", width: "100%"}}>
-            <div>
-              <form style={{
-                float: "left",
-                width: "25%"
-              }}>
-                {Object.entries(featuresEnabled).map(([key, value], index) => {
-                 return (<FeatureChecklist item={key} isChecked={value} handleCheck={() => {this.handleCheck(key)}} />)
-              })}
-              </form>
-            </div>
-            <div>
-              <form style={{
-               float: "left",
-               width: "25%"
-              }}>
-                <input type="checkbox" style={{flex: "1 0 25%"}} id="vehicle1" name="vehicle1" value="Bike"/>
-                <label for="vehicle1">&ensp;  I have a bike</label><br/>
-                <input type="checkbox" style={{flex: "1 0 25%"}} id="vehicle2" name="vehicle2" value="Car"/>
-                <label for="vehicle2">&ensp;  I have a car</label><br/>
-                <input type="checkbox" style={{flex: "1 0 25%"}} id="vehicle3" name="vehicle3" value="Boat"/>
-                <label for="vehicle3">&ensp;  I have a boat</label><br/><br/>
-              </form>
-            </div>
-            <div>
-              <form style={{
-                float: "left",
-                width: "25%"
-              }}>
-                <input type="checkbox" style={{flex: "1 0 25%"}} id="vehicle1" name="vehicle1" value="Bike"/>
-                <label for="vehicle1">&ensp;  I have a bike</label><br/>
-                <input type="checkbox" style={{flex: "1 0 25%"}} id="vehicle2" name="vehicle2" value="Car"/>
-                <label for="vehicle2">&ensp;  I have a car</label><br/>
-                <input type="checkbox" style={{flex: "1 0 25%"}} id="vehicle3" name="vehicle3" value="Boat"/>
-                <label for="vehicle3">&ensp;  I have a boat</label><br/><br/>
-              </form>
-            </div>
-            <div>
-              <form style={{
-                float: "left",
-                width: "25%"
-              }}>
-                <input type="checkbox" style={{flex: "1 0 25%"}} id="vehicle1" name="vehicle1" value="Bike"/>
-                <label for="vehicle1">&ensp;  I have a bike</label><br/>
-                <input type="checkbox" style={{flex: "1 0 25%"}} id="vehicle2" name="vehicle2" value="Car"/>
-                <label for="vehicle2">&ensp;  I have a car</label><br/>
-                <input type="checkbox" style={{flex: "1 0 25%"}} id="vehicle3" name="vehicle3" value="Boat"/>
-                <label for="vehicle3">&ensp;  I have a boat</label><br/><br/>
-              </form>
-            </div>
+            {this.renderFeatureCols(0, numPerCol, feature_list)}
+            {this.renderFeatureCols(numPerCol * 1, numPerCol*2, feature_list)}
+            {this.renderFeatureCols(numPerCol * 2, numPerCol*3, feature_list)}
+            {this.renderFeatureCols(numPerCol*3, feature_list.length, feature_list)}
           </div>
-        <input style={{position: 'relative', width: "10%",left: '45%'}} type="submit" value="Submit"/>
+        <input style={{position: 'relative', width: "10%",left: '45%'}} type="submit" value="Submit" onClick={(e) => this.handleSubmitFeatures(e)}/>
       </div>
     );
   }
