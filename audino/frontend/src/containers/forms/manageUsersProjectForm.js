@@ -114,8 +114,14 @@ class ManageUsersProjectForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, users, selectedUsers, isLoading } =
-      this.state;
+    const {
+      isSubmitting,
+      errorMessage,
+      successMessage,
+      users,
+      selectedUsers,
+      isLoading
+    } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
