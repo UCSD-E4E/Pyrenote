@@ -543,7 +543,7 @@ class Annotate extends React.Component {
   }
 
   handleAlertDismiss(e) {
-    e.preventDefault();
+    e.preventDefault(e);
     this.setState({
       successMessage: "",
       errorMessage: "",
@@ -693,15 +693,7 @@ class Annotate extends React.Component {
                   type="danger"
                   message={errorUnsavedMessage}
                   overlay
-                  onClose={() => this.handleAlertDismiss()}
-                />
-                <Button
-                  size="large"
-                  type="danger"
-                  disabled={isSegmentSaving}
-                  onClick={() => this.handleNextClip(true)}
-                  isSubmitting={isSegmentSaving}
-                  text="Force Next"
+                  onClose={(e) => this.handleAlertDismiss(e)}
                 />
               </div>
             ) : errorMessage ? (
@@ -832,6 +824,7 @@ class Annotate extends React.Component {
                       );
                     })}
                   </div>
+
                   <div className="row justify-content-center my-4">
                     <div className="col-2">
                       <Button
@@ -872,6 +865,21 @@ class Annotate extends React.Component {
                   </label>
                 </div>
               </div>
+              {errorUnsavedMessage && (
+                <div
+                  className="buttons-container-item"
+                  style={{ margin: "auto", marginBottom: "2%" }}
+                >
+                  <Button
+                    size="lg"
+                    type="danger"
+                    disabled={isSegmentSaving}
+                    onClick={() => this.handleNextClip(true)}
+                    isSubmitting={isSegmentSaving}
+                    text="Force Next"
+                  />
+                </div>
+              )}
               <div className="buttons-container">
                 <div className="buttons-container-item">
                   <div className="previous">
