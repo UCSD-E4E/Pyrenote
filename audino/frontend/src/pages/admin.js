@@ -1,7 +1,7 @@
-import axios from "axios";
-import React from "react";
-import { withRouter } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import axios from 'axios';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 import {
   faPlusSquare,
@@ -10,13 +10,13 @@ import {
   faTags,
   faDownload,
   faTrash,
-  faUpload,
-} from "@fortawesome/free-solid-svg-icons";
-import { IconButton } from "../components/button";
-import Loader from "../components/loader";
-import FormModal from "../containers/modal";
+  faUpload
+} from '@fortawesome/free-solid-svg-icons';
+import { IconButton } from '../components/button';
+import Loader from '../components/loader';
+import FormModal from '../containers/modal';
 
-const Admin = (props) => {
+const Admin = props => {
   const [modalState, setModalState] = React.useState({
     formType: null,
     modalShow: false,
@@ -24,54 +24,54 @@ const Admin = (props) => {
     userId: null,
     projectId: null,
     projectName: null,
-    api_key: null,
+    api_key: null
   });
 
   const [userState, setUserState] = React.useState({
     users: [],
-    isUserLoading: false,
+    isUserLoading: false
   });
   const [projectState, setProjectState] = React.useState({
     projects: [],
-    isProjectLoading: false,
+    isProjectLoading: false
   });
 
   const fetchProjects = () => {
     axios({
-      method: "get",
-      url: "/api/projects",
+      method: 'get',
+      url: '/api/projects'
     })
-      .then((response) => {
+      .then(response => {
         setProjectState({
           ...projectState,
           projects: response.data.projects,
-          isProjectLoading: false,
+          isProjectLoading: false
         });
       })
       .catch(() => {
         setProjectState({
           ...projectState,
-          isProjectLoading: false,
+          isProjectLoading: false
         });
       });
   };
 
   const fetchUsers = () => {
     axios({
-      method: "get",
-      url: "/api/users",
+      method: 'get',
+      url: '/api/users'
     })
-      .then((response) => {
+      .then(response => {
         setUserState({
           ...userState,
           users: response.data.users,
-          isUserLoading: false,
+          isUserLoading: false
         });
       })
       .catch(() => {
         setUserState({
           ...userState,
-          isUserLoading: false,
+          isUserLoading: false
         });
       });
   };
@@ -81,64 +81,64 @@ const Admin = (props) => {
     fetchUsers();
   }, []);
 
-  const showModal = (newState) => {
+  const showModal = newState => {
     setModalState({ ...modalState, ...newState, modalShow: true });
   };
 
   const handleNewProject = () => {
-    showModal({ formType: "NEW_PROJECT", title: "Create New Project" });
+    showModal({ formType: 'NEW_PROJECT', title: 'Create New Project' });
   };
 
   const handleEditProject = (e, projectId) => {
     showModal({
-      formType: "Edit_PROJECT",
-      title: "Edit Project",
-      projectId,
+      formType: 'Edit_PROJECT',
+      title: 'Edit Project',
+      projectId
     });
   };
 
   const handleDeleteProject = () => {
-    showModal({ formType: "DELETE_PROJECT", title: "Delete Project" });
+    showModal({ formType: 'DELETE_PROJECT', title: 'Delete Project' });
   };
 
   const handleNewUser = () => {
-    showModal({ formType: "NEW_USER", title: "Create New User" });
+    showModal({ formType: 'NEW_USER', title: 'Create New User' });
   };
 
   const handleEditUser = (e, userId) => {
-    showModal({ formType: "EDIT_USER", title: "Edit User", userId });
+    showModal({ formType: 'EDIT_USER', title: 'Edit User', userId });
   };
 
   const handleDeleteUser = (e, userId) => {
     // TODO: CREATE MODAL TO CONFRIM BUT FOR NOW MAKE DEV BUTTON
-    showModal({ formType: "DELETE_USER", title: "Delete User", userId });
+    showModal({ formType: 'DELETE_USER', title: 'Delete User', userId });
   };
 
   const handleAddUsersToProject = (e, projectId, projectName) => {
     showModal({
-      formType: "MANAGE_PROJECT_USERS",
+      formType: 'MANAGE_PROJECT_USERS',
       title: `Project ${projectName}: Manage User Access`,
-      projectId,
+      projectId
     });
   };
 
   const handleUploadDataToProject = (e, projectName, projectId, api_key) => {
     showModal({
-      formType: "UPLOAD_DATA",
+      formType: 'UPLOAD_DATA',
       title: `Project ${projectName}: Upload Project Audio Files`,
       projectId,
       projectName,
-      api_key,
+      api_key
     });
   };
 
   const handleDownloadDataToProject = (e, projectName, projectId, api_key) => {
     showModal({
-      formType: "DOWNLOAD_DATA",
+      formType: 'DOWNLOAD_DATA',
       title: `Project ${projectName}: DOWNLOAD ANNOTATIONS`,
       projectId,
       projectName,
-      api_key,
+      api_key
     });
   };
 
@@ -156,25 +156,22 @@ const Admin = (props) => {
     const urlObject = window.URL || window.webkitURL || window;
     const export_blob = new Blob(data);
 
-    if ("msSaveBlob" in navigator) {
+    if ('msSaveBlob' in navigator) {
       navigator.msSaveBlob(export_blob, name);
-    } else if ("download" in HTMLAnchorElement.prototype) {
-      const save_link = document.createElementNS(
-        "http://www.w3.org/1999/xhtml",
-        "a"
-      );
+    } else if ('download' in HTMLAnchorElement.prototype) {
+      const save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
       save_link.href = urlObject.createObjectURL(export_blob);
       save_link.download = name;
       _fake_click(save_link);
     } else {
-      throw new Error("Neither a[download] nor msSaveBlob is available");
+      throw new Error('Neither a[download] nor msSaveBlob is available');
     }
   };
 
-  const _fake_click = (obj) => {
-    const ev = document.createEvent("MouseEvents");
+  const _fake_click = obj => {
+    const ev = document.createEvent('MouseEvents');
     ev.initMouseEvent(
-      "click",
+      'click',
       true,
       false,
       window,
@@ -222,12 +219,11 @@ const Admin = (props) => {
                   icon={faPlusSquare}
                   size="lg"
                   title="Create new project"
-                  onClick={(e) => handleNewProject(e)}
+                  onClick={e => handleNewProject(e)}
                 />
               </h1>
             </div>
-            {!projectState.isProjectLoading &&
-            projectState.projects.length > 0 ? (
+            {!projectState.isProjectLoading && projectState.projects.length > 0 ? (
               <table className="table table-striped">
                 <thead>
                   <tr>
@@ -252,36 +248,28 @@ const Admin = (props) => {
                           icon={faUserPlus}
                           size="sm"
                           title="Manage users"
-                          onClick={(e) =>
-                            handleAddUsersToProject(
-                              e,
-                              project.project_id,
-                              project.name
-                            )
+                          onClick={e =>
+                            handleAddUsersToProject(e, project.project_id, project.name)
                           }
                         />
                         <IconButton
                           icon={faTags}
                           size="sm"
                           title="Manage labels"
-                          onClick={(e) =>
-                            handleAddLabelsToProject(e, project.project_id)
-                          }
+                          onClick={e => handleAddLabelsToProject(e, project.project_id)}
                         />
                         <IconButton
                           icon={faEdit}
                           size="sm"
                           title="Edit Annotations"
-                          onClick={(e) =>
-                            handleEditProject(e, project.project_id)
-                          }
+                          onClick={e => handleEditProject(e, project.project_id)}
                         />
                         <div />
                         <IconButton
                           icon={faUpload}
                           size="sm"
                           title="Upload Data"
-                          onClick={(e) =>
+                          onClick={e =>
                             handleUploadDataToProject(
                               e,
                               project.name,
@@ -294,7 +282,7 @@ const Admin = (props) => {
                           icon={faDownload}
                           size="sm"
                           title="Download Data"
-                          onClick={(e) =>
+                          onClick={e =>
                             handleDownloadDataToProject(
                               e,
                               project.name,
@@ -312,8 +300,7 @@ const Admin = (props) => {
           </div>
           <div className="row my-4 justify-content-center align-items-center">
             {projectState.isProjectLoading ? <Loader /> : null}
-            {!projectState.isProjectLoading &&
-            projectState.projects.length === 0 ? (
+            {!projectState.isProjectLoading && projectState.projects.length === 0 ? (
               <div className="font-weight-bold">No projects exists!</div>
             ) : null}
           </div>
@@ -327,7 +314,7 @@ const Admin = (props) => {
                   icon={faPlusSquare}
                   size="lg"
                   title="Create new user"
-                  onClick={(e) => handleNewUser(e)}
+                  onClick={e => handleNewUser(e)}
                 />
               </h1>
             </div>
@@ -356,13 +343,13 @@ const Admin = (props) => {
                           icon={faEdit}
                           size="sm"
                           title="Edit user"
-                          onClick={(e) => handleEditUser(e, user.user_id)}
+                          onClick={e => handleEditUser(e, user.user_id)}
                         />
                         <IconButton
                           icon={faTrash}
                           size="sm"
                           title="Delete User"
-                          onClick={(e) => handleDeleteUser(e, user.user_id)}
+                          onClick={e => handleDeleteUser(e, user.user_id)}
                         />
                       </td>
                     </tr>
