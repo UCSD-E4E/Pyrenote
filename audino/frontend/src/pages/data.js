@@ -38,20 +38,30 @@ class Data extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.setState({ isDataLoading: true });
-    let { apiUrl } = this.state;
-    let { page, active } = this.state;
+  prepareUrl(projectId, page, active) {
+    return `/projects/${projectId}/data?page=${page}&active=${active}`;
+  }
+
+  getData() {
+    let { apiUrl, page, active, data } = this.state;
     apiUrl = `${apiUrl}?page=${page}&active=${active}`;
 
     axios({
       method: 'get',
       url: apiUrl
     })
-      .then(response => {
-        const { data, count, next_page, prev_page } = response.data;
-        page = response.data.page;
-        active = response.data.active;
+      .then((response) => {
+        const {
+          count,
+          active,
+          page,
+          next_page,
+          prev_page,
+        } = response.data;
+        let next_page_data = response.data.data;
+        console.log(next_page_data)
+        data = next_page_data.concat(data)
+        console.log(data)
         this.setState({
           data,
           count,
@@ -70,15 +80,31 @@ class Data extends React.Component {
       });
   }
 
-  getNextPage() {
-    const { projectId, data } = this.state;
-
-    return { projectId, data };
+  //code below from
+  //https://stackoverflow.com/questions/45585542/detecting-when-user-scrolls-to-bottom-of-div-with-react-js 
+  componentDidMount() {
+    this.setState({ isDataLoading: true });
+    this.getData()
+    window.addEventListener('scroll', this.trackScrolling);
   }
 
-  prepareUrl(projectId, page, active) {
-    return `/projects/${projectId}/data?page=${page}&active=${active}`;
+  isBottom() {
+    //https://stackoverflow.com/questions/17688595/finding-the-maximum-scroll-position-of-a-page
+      let yMax = document.body.scrollHeight - document.body.clientHeight
+      console.log(window.pageYOffset ,yMax,)
+    return window.pageYOffset >= yMax;
   }
+  
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.trackScrolling);
+  }
+  
+  trackScrolling = () => {
+    if (this.isBottom()) {
+      //this.setState({ isDataLoading: true });
+      this.getData()
+    }
+  };
 
   render() {
     localStorage.setItem('previous_links', JSON.stringify([]));
@@ -194,7 +220,4 @@ class Data extends React.Component {
 }
 
 export default withRouter(Data);
-export function getData() {
-  Data.getNextPage();
-}
-export const dataLinks = datas;
+export let dataLinks = datas;
