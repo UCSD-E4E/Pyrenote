@@ -716,8 +716,18 @@ class Annotate extends React.Component {
             <div>{original_filename}</div>
             {isRendering && (
               <div className="row justify-content-md-center my-4">
-                <text>Please wait while spectrogram renders </text>
-                <Loader />
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <text style={{ marginBottom: "2%" }}>
+                    Please wait while spectrogram renders{" "}
+                  </text>
+                  <Loader />
+                </div>
               </div>
             )}
             <div
