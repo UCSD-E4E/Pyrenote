@@ -828,7 +828,7 @@ class Annotate extends React.Component {
                   </div>
 
                   <div className="row justify-content-center my-4">
-                    <div className="col-2">
+                    <div className="col-4">
                       <Button
                         size="lg"
                         type="danger"
@@ -838,7 +838,7 @@ class Annotate extends React.Component {
                         text="Delete"
                       />
                     </div>
-                    <div className="col-2">
+                    <div className="col-4">
                       <Button
                         size="lg"
                         type="primary"
