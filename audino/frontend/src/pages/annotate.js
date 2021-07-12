@@ -45,6 +45,7 @@ class Annotate extends React.Component {
       wavesurfer: null,
       zoom: 100,
       isMarkedForReview: false,
+      isMarkedForReviewLoading: false,
       selectedSegment: null,
       isSegmentDeleting: false,
       errorMessage: null,
@@ -289,7 +290,7 @@ class Annotate extends React.Component {
   handleIsMarkedForReview(e) {
     const { dataUrl } = this.state;
     const isMarkedForReview = e.target.checked;
-    this.setState({ isDataLoading: true });
+    this.setState({ isMarkedForReviewLoading: true });
 
     axios({
       method: "patch",
@@ -300,7 +301,7 @@ class Annotate extends React.Component {
     })
       .then((response) => {
         this.setState({
-          isDataLoading: false,
+          isMarkedForReviewLoading: false,
           isMarkedForReview: response.data.is_marked_for_review,
           errorMessage: null,
           successMessage: "Marked for review status changed",
@@ -671,6 +672,7 @@ class Annotate extends React.Component {
       labels,
       isDataLoading,
       isMarkedForReview,
+      isMarkedForReviewLoading,
       selectedSegment,
       isSegmentDeleting,
       isSegmentSaving,
@@ -856,6 +858,7 @@ class Annotate extends React.Component {
                     value
                     checked={isMarkedForReview}
                     onChange={(e) => this.handleIsMarkedForReview(e)}
+                    disabled={isMarkedForReviewLoading}
                   />
                   <label
                     className="form-check-label"
@@ -865,6 +868,7 @@ class Annotate extends React.Component {
                   </label>
                 </div>
               </div>
+
               {errorUnsavedMessage && (
                 <div
                   className="buttons-container-item"
