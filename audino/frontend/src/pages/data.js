@@ -83,8 +83,17 @@ class Data extends React.Component {
   render() {
     localStorage.setItem('previous_links', JSON.stringify([]));
     localStorage.setItem('count', JSON.stringify(0));
-    const { projectId, isDataLoading, data, count, active, page, nextPage, prevPage, tabUrls } =
-      this.state;
+    const {
+      projectId,
+      isDataLoading,
+      data,
+      count,
+      active,
+      page,
+      nextPage,
+      prevPage,
+      tabUrls
+    } = this.state;
     const nextPageUrl = this.prepareUrl(projectId, nextPage, active);
     const prevPageUrl = this.prepareUrl(projectId, prevPage, active);
 
