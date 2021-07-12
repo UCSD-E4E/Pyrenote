@@ -37,10 +37,12 @@ class FeatureForm extends React.Component {
       .then((response) => {
         //take all the current values of featuresList, include the new ones defined at the line 27
         let featuresList = response.data.features_list
-        if (!feature_list) {return;}
+        console.log(featuresList)
+        if (!featuresList) {return;}
         Object.entries(featuresList).map(([key, value])=> {
           featuresEnabled[key] = value;
         })
+        console.log(featuresEnabled)
         this.setState({
           featuresEnabled
         });
@@ -55,7 +57,6 @@ class FeatureForm extends React.Component {
   handleSubmitFeatures(e) {
     e.preventDefault();
     const { featuresEnabled, projectId } = this.state;
-    console.log(featuresEnabled)
     axios({
       method: "patch",
       url: "/api/projects/toggled",
@@ -65,7 +66,6 @@ class FeatureForm extends React.Component {
       },
     })
       .then((response) => {
-        console.log("success")
         this.setState({
           successMessage: "successfully updated features",
         });
