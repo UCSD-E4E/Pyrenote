@@ -842,6 +842,7 @@ class Annotate extends React.Component {
                       <Button
                         size="lg"
                         type="primary"
+                        isSubmitting={isSegmentSaving}
                         onClick={(e) => this.handleAllSegmentSave(e)}
                         text="Save All"
                       />
@@ -892,7 +893,6 @@ class Annotate extends React.Component {
                       type="primary"
                       disabled={isSegmentSaving}
                       onClick={() => this.handlePreviousClip()}
-                      isSubmitting={isSegmentSaving}
                       text="Previous"
                     />
                   </div>
@@ -904,7 +904,6 @@ class Annotate extends React.Component {
                       type="primary"
                       disabled={isSegmentSaving}
                       onClick={() => this.handleNextClip()}
-                      isSubmitting={isSegmentSaving}
                       text="Next"
                     />
                   </div>
