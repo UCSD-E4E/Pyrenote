@@ -3,27 +3,10 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
-import {
-  faBackward,
-  faForward,
-  faPlayCircle,
-  faPauseCircle
-} from '@fortawesome/free-solid-svg-icons';
-import WaveSurfer from '../wavesurfer.js/src/wavesurfer.js';
-import RegionsPlugin from '../wavesurfer.js/src/plugin/regions/index.js';
-import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
 import Alert from '../components/alert';
-import { IconButton, Button } from '../components/button';
+import { Button } from '../components/button';
 import Loader from '../components/loader';
-
-const colormap = require('colormap');
-/**
- * Useful object paths:
- * wavesurfer.spectrogram.canvas
- * wavesurfer.spectrogram.wrapper
- * wavesurfer.drawer
- * wavesurfer.regions.list
- */
+import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -77,7 +60,7 @@ class Annotate extends React.Component {
       count = JSON.parse(localStorage.getItem('count'));
     }
     this.setState({ previous_pages: linksArray, num_of_prev: count });
-
+    const { labelsUrl, dataUrl } = this.state;
     const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
 
     axios({
@@ -101,7 +84,7 @@ class Annotate extends React.Component {
             const { data } = message.data;
             const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
             this.setState({
-              next_data_url: next_data_url,
+              next_data_url,
               next_data_id: data[0].data_id
             });
           })
@@ -118,80 +101,8 @@ class Annotate extends React.Component {
         });
       });
 
-    const spectrogramColorMap = colormap({
-      colormap: 'hot',
-      nshades: 256,
-      format: 'float'
-    });
-    const { labelsUrl, dataUrl } = this.state;
-    this.setState({ isDataLoading: true });
-    const fftSamples = 512;
-    const wavesurfer = WaveSurfer.create({
-      container: '#waveform',
-      barWidth: 0,
-      barHeight: 0,
-      height: fftSamples / 2,
-      width: '100%',
-      barGap: null,
-      mediaControls: false,
-      fillParent: true,
-      scrollParent: true,
-      visualization: 'invisible', // spectrogram //invisable
-      minPxPerSec: 100,
-      maxCanvasWidth: 5000000, // false,
-      plugins: [
-        SpectrogramPlugin.create({
-          fftSamples,
-          position: 'relative',
-          container: '#wavegraph',
-          labelContainer: '#waveform-labels',
-          labels: true,
-          scrollParent: true,
-          colorMap: spectrogramColorMap
-        }),
-        RegionsPlugin.create()
-      ]
-    });
-    const { history } = this.props;
-    history.listen(() => {
-      wavesurfer.stop();
-    });
-    // remember to look at wavesurfer documentation for all events called by wavesurfer!!
-    wavesurfer.on('ready', () => {
-      const screenSize = window.screen.width;
-      if (screenSize > wavesurfer.getDuration() * wavesurfer.params.minPxPerSec) {
-        wavesurfer.zoom(screenSize / wavesurfer.getDuration());
-        wavesurfer.spectrogram._onUpdate(screenSize);
-      }
-      this.state.isRendering = false;
-      this.setState({ isRendering: false });
-      wavesurfer.enableDragSelection({ color: 'rgba(0, 102, 255, 0.3)' });
-    });
-    wavesurfer.on('region-updated', region => {
-      this.handlePause();
-      this.styleRegionColor(region, 'rgba(0, 102, 255, 0.3)');
-      region._onUnSave();
-    });
-
-    wavesurfer.on('region-created', region => {
-      this.handlePause();
-      this.setState({
-        selectedSegment: region
-      });
-    });
-
-    wavesurfer.on('region-click', (r, e) => {
-      e.stopPropagation();
-      this.setState({
-        isPlaying: true,
-        selectedSegment: r
-      });
-      r.play();
-    });
-    wavesurfer.on('pause', () => {
-      this.setState({ isPlaying: false });
-    });
-
+    const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state });
+    const wavesurfer = wavesurferMethods.loadWavesurfer();
     axios
       .all([axios.get(labelsUrl), axios.get(dataUrl)])
       .then(response => {
@@ -226,7 +137,7 @@ class Annotate extends React.Component {
         const { zoom } = this.state;
         wavesurfer.zoom(zoom);
 
-        this.setState({ wavesurfer });
+        this.setState({ wavesurfer, wavesurferMethods });
         this.loadRegions(regions);
       })
       .catch(error => {
@@ -319,7 +230,7 @@ class Annotate extends React.Component {
   }
 
   handleAllSegmentSave() {
-    const { segmentationUrl, wavesurfer } = this.state;
+    const { segmentationUrl, wavesurfer, wavesurferMethods } = this.state;
     Object.values(wavesurfer.regions.list).forEach(segment => {
       if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
         try {
@@ -353,7 +264,7 @@ class Annotate extends React.Component {
                   successMessage: 'Segment saved',
                   errorMessage: null
                 });
-                this.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
+                wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
                 segment._onSave();
               })
               .catch(error => {
@@ -381,7 +292,7 @@ class Annotate extends React.Component {
                   successMessage: 'Segment saved',
                   errorMessage: null
                 });
-                this.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
+                wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
                 segment._onSave();
               })
               .catch(error => {
@@ -467,13 +378,12 @@ class Annotate extends React.Component {
           /// projects
           window.location.href = path + url;
         } catch (z) {
-            if (next_data_id && data[0].data_id !== next_data_id) {
-              window.location.href = next_data_url;
-            } else {
-              window.location.href = `${path}/projects/${projectId}/data`;
+          if (next_data_id && data[0].data_id !== next_data_id) {
+            window.location.href = next_data_url;
+          } else {
+            window.location.href = `${path}/projects/${projectId}/data`;
           }
         }
-        return;
       }
     });
   }
@@ -503,12 +413,6 @@ class Annotate extends React.Component {
     this.setState({
       selectedSegment: null,
       isSegmentDeleting: false
-    });
-  }
-
-  styleRegionColor(region, color) {
-    region.style(region.element, {
-      backgroundColor: color
     });
   }
 
@@ -574,8 +478,12 @@ class Annotate extends React.Component {
       errorUnsavedMessage,
       successMessage,
       isRendering,
-      original_filename
+      original_filename,
+      wavesurferMethods
     } = this.state;
+    if (wavesurferMethods) {
+      wavesurferMethods.updateState(this.state);
+    }
     return (
       <div>
         <Helmet>
@@ -618,50 +526,9 @@ class Annotate extends React.Component {
             </div>
 
             <div className={isDataLoading ? 'hidden' : ''}>
-              <div className="row justify-content-center my-4">
-                <div className="col-md-1 col-2">
-                  <IconButton
-                    icon={faBackward}
-                    size="2x"
-                    title="Skip Backward"
-                    onClick={() => {
-                      this.handleBackward();
-                    }}
-                  />
-                </div>
-                <div className="col-md-1 col-2">
-                  {!isPlaying ? (
-                    <IconButton
-                      icon={faPlayCircle}
-                      size="2x"
-                      title="Play"
-                      onClick={() => {
-                        this.handlePlay();
-                      }}
-                    />
-                  ) : null}
-                  {isPlaying ? (
-                    <IconButton
-                      icon={faPauseCircle}
-                      size="2x"
-                      title="Pause"
-                      onClick={() => {
-                        this.handlePause();
-                      }}
-                    />
-                  ) : null}
-                </div>
-                <div className="col-md-1 col-2">
-                  <IconButton
-                    icon={faForward}
-                    size="2x"
-                    title="Skip Forward"
-                    onClick={() => {
-                      this.handleForward();
-                    }}
-                  />
-                </div>
-              </div>
+              {/* this renders play and skip buttons */}
+              {wavesurferMethods && wavesurferMethods.renderButtons(isPlaying)}
+
               {selectedSegment ? (
                 <div>
                   <div className="row justify-content-center my-4">
