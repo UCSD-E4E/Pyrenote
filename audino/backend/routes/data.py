@@ -263,7 +263,6 @@ def add_data_from_site():
         metadata = mutagen.File(file_path.as_posix()).info
         frame_rate = metadata.sample_rate
         clip_duration = metadata.length
-
         try:
             data = Data(
                 project_id=project.id,
