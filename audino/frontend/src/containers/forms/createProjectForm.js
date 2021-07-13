@@ -24,6 +24,12 @@ class CreateProjectForm extends React.Component {
     this.setState({ name: e.target.value });
   }
 
+  handleEnter(e) {
+    if(e.key === 'Enter') {
+      this.handleProjectCreation(e)        
+    }
+  }
+
   handleProjectCreation(e) {
     e.preventDefault();
 
@@ -87,9 +93,10 @@ class CreateProjectForm extends React.Component {
                 className="form-control"
                 id="project_name"
                 placeholder="Project Name"
-                autoFocus
+                //autoFocus
                 required
                 onChange={e => this.handleProjectNameChange(e)}
+                onKeyDown={e => this.handleEnter(e)}
               />
             </div>
             <div className="form-row">
