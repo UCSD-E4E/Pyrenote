@@ -61,7 +61,6 @@ class Annotate extends React.Component {
     };
     this.lastTime = 0;
     this.labelRef = {};
-    this.transcription = null;
   }
 
   styleRegionColor(region, color) {
@@ -160,11 +159,11 @@ class Annotate extends React.Component {
         RegionsPlugin.create()
       ]
     });
-    this.showSegmentTranscription(null);
     const { history } = this.props;
     history.listen(() => {
       wavesurfer.stop();
     });
+    //remember to look at wavesurfer documentation for all events called by wavesurfer!!
     wavesurfer.on('ready', () => {
       const screenSize = window.screen.width;
       if (screenSize > wavesurfer.getDuration() * wavesurfer.params.minPxPerSec) {
@@ -187,17 +186,6 @@ class Annotate extends React.Component {
         selectedSegment: region
       });
     });
-    wavesurfer.on('region-in', region => {
-      this.showSegmentTranscription(region);
-    });
-    wavesurfer.on('region-out', () => {
-      this.showSegmentTranscription(null);
-    });
-    /* wavesurfer.on('region-play', r => {
-      r.once('out', () => {
-        console.log('pausing on out');
-      });
-    }); */
 
     wavesurfer.on('region-click', (r, e) => {
       e.stopPropagation();
@@ -353,7 +341,7 @@ class Annotate extends React.Component {
       if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
         try {
           const { start, end } = segment;
-          const { transcription = '', annotations = '', segmentation_id = null } = segment.data;
+          const { annotations = '', segmentation_id = null } = segment.data;
           this.setState({ isSegmentSaving: true });
           const now = Date.now();
           let time_spent = 0;
@@ -370,7 +358,6 @@ class Annotate extends React.Component {
               data: {
                 start,
                 end,
-                transcription,
                 annotations,
                 time_spent
               }
@@ -401,7 +388,6 @@ class Annotate extends React.Component {
               data: {
                 start,
                 end,
-                transcription,
                 annotations,
                 time_spent
               }
@@ -429,12 +415,6 @@ class Annotate extends React.Component {
         }
       }
     });
-  }
-
-  handleTranscriptionChange(e) {
-    const { selectedSegment } = this.state;
-    selectedSegment.data.transcription = e.target.value;
-    this.setState({ selectedSegment });
   }
 
   handleLabelChange(key, e) {
@@ -554,16 +534,11 @@ class Annotate extends React.Component {
     return success
   }
 
-
   loadRegions(regions) {
     const { wavesurfer } = this.state;
     regions.forEach(region => {
       wavesurfer.addRegion(region);
     });
-  }
-
-  showSegmentTranscription(region) {
-    this.segmentTranscription.textContent = (region && region.data.transcription) || '–';
   }
 
   renderNextPreviousButtons(className, callback) {
@@ -645,11 +620,6 @@ class Annotate extends React.Component {
               className="row justify-content-md-center my-4 mx-3"
               style={{ display: isRendering ? 'none' : '' }}
             >
-              <div
-                ref={el => {
-                  this.segmentTranscription = el;
-                }}
-              />
               <div id="waveform-labels" style={{ float: 'left' }} />
               <div id="wavegraph" style={{ float: 'left' }} />
               <div id="waveform" style={{ float: 'left' }} />

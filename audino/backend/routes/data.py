@@ -28,7 +28,7 @@ def send_audio_file(file_name):
 def validate_segmentation(segment):
     """Validate the segmentation before accepting the annotation's upload from users
     """
-    required_key = {"start_time", "end_time", "transcription"}
+    required_key = {"start_time", "end_time"}
 
     if set(required_key).issubset(segment.keys()):
         return True
@@ -38,7 +38,6 @@ def validate_segmentation(segment):
 
 def generate_segmentation(
     annotations,
-    transcription,
     project_id,
     start_time,
     end_time,
@@ -54,7 +53,6 @@ def generate_segmentation(
             data_id=data_id,
             start_time=start_time,
             end_time=end_time,
-            transcription=transcription,
             time_spent=time_spent,
         )
     else:
@@ -64,7 +62,6 @@ def generate_segmentation(
         ).first()
         segmentation.set_start_time(start_time)
         segmentation.set_end_time(end_time)
-        segmentation.set_transcription(transcription)
         segmentation.set_time_spent(time_spent)
 
     db.session.add(segmentation)
@@ -139,7 +136,6 @@ def add_data():
         username_id[name] = user.id
 
     segmentations = request.form.get("segmentations", "[]")
-    reference_transcription = request.form.get("reference_transcription", None)
     is_marked_for_review = bool(request.form.get("is_marked_for_review", False))
     audio_file = request.files["audio_file"]
     original_filename = secure_filename(audio_file.filename)
@@ -160,7 +156,6 @@ def add_data():
             project_id=project.id,
             filename=filename,
             original_filename=original_filename,
-            reference_transcription=reference_transcription,
             is_marked_for_review=is_marked_for_review,
             assigned_user_id= username_id,
             sampling_rate = sampling_rate,
@@ -189,7 +184,6 @@ def add_data():
             end_time=segment["end_time"],
             start_time=segment["start_time"],
             annotations=segment.get("annotations", {}),
-            transcription=segment["transcription"],
         )
 
         new_segmentations.append(new_segment)
@@ -239,7 +233,6 @@ def add_data_from_site():
         username_id[name] = user.id
     app.logger.info("also made it to asdfasdfasdfhere!")
     #segmentations = request.form.get("segmentations", "[]")
-    reference_transcription = "" #request.form.get("reference_transcription", None)
     is_marked_for_review = True #bool(request.form.get("is_marked_for_review", False))
     app.logger.info("made it to here!")
     file_length = request.form.get("file_length", None)
@@ -275,7 +268,6 @@ def add_data_from_site():
                 project_id=project.id,
                 filename=filename,
                 original_filename=original_filename,
-                reference_transcription=reference_transcription,
                 is_marked_for_review=is_marked_for_review,
                 assigned_user_id= username_id,
                 sampling_rate=frame_rate,
@@ -305,7 +297,7 @@ def add_data_from_site():
         #        end_time=segment["end_time"],
         #        start_time=segment["start_time"],
         #        annotations=segment.get("annotations", {}),
-        #        transcription=segment["transcription"],
+        # 
         #    )
     #
         #    new_segmentations.append(new_segment)

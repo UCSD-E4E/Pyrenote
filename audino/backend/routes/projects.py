@@ -535,7 +535,6 @@ def get_segmentations_for_data(project_id, data_id):
                 "segmentation_id": segment.id,
                 "start_time": segment.start_time,
                 "end_time": segment.end_time,
-                "transcription": segment.transcription,
             }
 
             values = dict()
@@ -560,7 +559,6 @@ def get_segmentations_for_data(project_id, data_id):
         response = {
             "filename": data.filename,
             "original_filename": data.original_filename,
-            "reference_transcription": data.reference_transcription,
             "is_marked_for_review": data.is_marked_for_review,
             "segmentations": segmentations,
             "sampling_rate": data.sampling_rate,
@@ -649,7 +647,6 @@ def add_segmentations(project_id, data_id, segmentation_id=None):
             400,
         )
 
-    transcription = request.json.get("transcription", None)
     annotations = request.json.get("annotations", dict())
     time_spent = request.json.get("time_spent", 0)/1000 #miliseconds to seconds
     app.logger.info(time_spent)
@@ -674,7 +671,6 @@ def add_segmentations(project_id, data_id, segmentation_id=None):
             end_time=end_time,
             start_time=start_time,
             annotations=annotations,
-            transcription=transcription,
             time_spent=time_spent,
             segmentation_id=segmentation_id,
 
