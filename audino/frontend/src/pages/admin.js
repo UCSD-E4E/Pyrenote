@@ -97,10 +97,6 @@ const Admin = props => {
     });
   };
 
-  const handleDeleteProject = () => {
-    showModal({ formType: 'DELETE_PROJECT', title: 'Delete Project' });
-  };
-
   const handleNewUser = () => {
     showModal({ formType: 'NEW_USER', title: 'Create New User' });
   };
@@ -150,44 +146,6 @@ const Admin = props => {
   const updatePage = () => {
     fetchProjects();
     fetchUsers();
-  };
-
-  const _export_raw = (name, data) => {
-    const urlObject = window.URL || window.webkitURL || window;
-    const export_blob = new Blob(data);
-
-    if ('msSaveBlob' in navigator) {
-      navigator.msSaveBlob(export_blob, name);
-    } else if ('download' in HTMLAnchorElement.prototype) {
-      const save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
-      save_link.href = urlObject.createObjectURL(export_blob);
-      save_link.download = name;
-      _fake_click(save_link);
-    } else {
-      throw new Error('Neither a[download] nor msSaveBlob is available');
-    }
-  };
-
-  const _fake_click = obj => {
-    const ev = document.createEvent('MouseEvents');
-    ev.initMouseEvent(
-      'click',
-      true,
-      false,
-      window,
-      0,
-      0,
-      0,
-      0,
-      0,
-      false,
-      false,
-      false,
-      false,
-      0,
-      null
-    );
-    obj.dispatchEvent(ev);
   };
 
   return (

@@ -83,15 +83,8 @@ class LabelValues extends React.Component {
   }
 
   render() {
-    const {
-      labelValues,
-      labelId,
-      labelValueId,
-      formType,
-      title,
-      modalShow,
-      isLabelValuesLoading
-    } = this.state;
+    const { labelValues, labelId, labelValueId, formType, title, modalShow, isLabelValuesLoading } =
+      this.state;
     return (
       <div>
         <div className="container h-100">

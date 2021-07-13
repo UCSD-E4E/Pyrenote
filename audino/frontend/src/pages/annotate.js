@@ -32,7 +32,7 @@ class Annotate extends React.Component {
     const projectId = Number(match.params.projectid);
     const dataId = Number(match.params.dataid);
     const index = window.location.href.indexOf('/projects');
-    
+
     this.state = {
       next_data_url: '',
       next_data_id: -1,
@@ -63,12 +63,6 @@ class Annotate extends React.Component {
     this.labelRef = {};
   }
 
-  styleRegionColor(region, color) {
-    region.style(region.element, {
-      backgroundColor: color
-    });
-  }
-
   componentDidMount() {
     this.lastTime = Date.now();
     let linksArray = [];
@@ -96,7 +90,6 @@ class Annotate extends React.Component {
           data: response.data.data
         });
 
-        let { next_data_url } = this.state;
         let apiUrl2 = `/api/current_user/projects/${projectId}/data`;
         apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
 
@@ -106,7 +99,7 @@ class Annotate extends React.Component {
         })
           .then(message => {
             const { data } = message.data;
-            next_data_url = `/projects/${projectId}/data/${data[0].data_id}/annotate`;
+            const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
             this.setState({
               next_data_url: path + next_data_url,
               next_data_id: data[0].data_id
@@ -163,7 +156,7 @@ class Annotate extends React.Component {
     history.listen(() => {
       wavesurfer.stop();
     });
-    //remember to look at wavesurfer documentation for all events called by wavesurfer!!
+    // remember to look at wavesurfer documentation for all events called by wavesurfer!!
     wavesurfer.on('ready', () => {
       const screenSize = window.screen.width;
       if (screenSize > wavesurfer.getDuration() * wavesurfer.params.minPxPerSec) {
@@ -176,7 +169,7 @@ class Annotate extends React.Component {
     });
     wavesurfer.on('region-updated', region => {
       this.handlePause();
-      this.styleRegionColor(region, 'rgba(0, 102, 255, 0.3)')
+      this.styleRegionColor(region, 'rgba(0, 102, 255, 0.3)');
       region._onUnSave();
     });
 
@@ -207,12 +200,8 @@ class Annotate extends React.Component {
           labels: response[0].data
         });
 
-        const {
-          is_marked_for_review,
-          segmentations,
-          filename,
-          original_filename
-        } = response[1].data;
+        const { is_marked_for_review, segmentations, filename, original_filename } =
+          response[1].data;
 
         const regions = segmentations.map(segmentation => {
           return {
@@ -307,14 +296,6 @@ class Annotate extends React.Component {
       });
   }
 
-  removeSegment(wavesurfer, selectedSegment) {
-    wavesurfer.regions.list[selectedSegment.id].remove();
-    this.setState({
-      selectedSegment: null,
-      isSegmentDeleting: false
-    });
-  }
-
   handleSegmentDelete() {
     const { wavesurfer, selectedSegment, segmentationUrl } = this.state;
     this.setState({ isSegmentDeleting: true });
@@ -323,7 +304,9 @@ class Annotate extends React.Component {
         method: 'delete',
         url: `${segmentationUrl}/${selectedSegment.data.segmentation_id}`
       })
-        .then(() => {this.removeSegment(wavesurfer, selectedSegment)})
+        .then(() => {
+          this.removeSegment(wavesurfer, selectedSegment);
+        })
         .catch(error => {
           console.error(error);
           this.setState({
@@ -331,7 +314,7 @@ class Annotate extends React.Component {
           });
         });
     } else {
-      this.removeSegment(wavesurfer, selectedSegment)
+      this.removeSegment(wavesurfer, selectedSegment);
     }
   }
 
@@ -370,7 +353,7 @@ class Annotate extends React.Component {
                   successMessage: 'Segment saved',
                   errorMessage: null
                 });
-                this.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)')
+                this.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
                 segment._onSave();
               })
               .catch(error => {
@@ -398,7 +381,7 @@ class Annotate extends React.Component {
                   successMessage: 'Segment saved',
                   errorMessage: null
                 });
-                this.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)')
+                this.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
                 segment._onSave();
               })
               .catch(error => {
@@ -457,9 +440,8 @@ class Annotate extends React.Component {
       path
     } = this.state;
 
-
     let success = true;
-    success = this.checkForSave(success, forceNext)
+    success = this.checkForSave(success, forceNext);
     if (!success) {
       return;
     }
@@ -482,7 +464,6 @@ class Annotate extends React.Component {
         try {
           newPageData = data[key + 1];
           const url = `/projects/${projectId}/data/${newPageData.data_id}/annotate`;
-
           /// projects
           window.location.href = path + url;
         } catch (z) {
@@ -492,6 +473,7 @@ class Annotate extends React.Component {
               window.location.href = `${path}/projects/${projectId}/data`;
           }
         }
+        return;
       }
     });
   }
@@ -499,27 +481,39 @@ class Annotate extends React.Component {
   // Go to previous audio recording
   handlePreviousClip(forceNext = false) {
     this.handleAllSegmentSave();
-    const {previous_pages, num_of_prev } = this.state;
+    const { previous_pages, num_of_prev } = this.state;
     let success = true;
-    success = this.checkForSave(success, forceNext)
-    if (!success) {
-      return;
-    }
-
-    if (num_of_prev > 0) {
-      const page_num = num_of_prev - 1;
-      const previous = previous_pages[page_num];
-      previous_pages[num_of_prev] = window.location.href;
-      localStorage.setItem('previous_links', JSON.stringify(previous_pages));
-      localStorage.setItem('count', JSON.stringify(page_num));
-      window.location.href = previous;
-    } else {
-      console.warn('You have hit the end of the clips you have last seen');
+    success = this.checkForSave(success, forceNext);
+    if (success) {
+      if (num_of_prev > 0) {
+        const page_num = num_of_prev - 1;
+        const previous = previous_pages[page_num];
+        previous_pages[num_of_prev] = window.location.href;
+        localStorage.setItem('previous_links', JSON.stringify(previous_pages));
+        localStorage.setItem('count', JSON.stringify(page_num));
+        window.location.href = previous;
+      } else {
+        console.warn('You have hit the end of the clips you have last seen');
+      }
     }
   }
 
+  removeSegment(wavesurfer, selectedSegment) {
+    wavesurfer.regions.list[selectedSegment.id].remove();
+    this.setState({
+      selectedSegment: null,
+      isSegmentDeleting: false
+    });
+  }
+
+  styleRegionColor(region, color) {
+    region.style(region.element, {
+      backgroundColor: color
+    });
+  }
+
   checkForSave(success, forceNext) {
-    const { wavesurfer } = this.state
+    const { wavesurfer } = this.state;
     Object.values(wavesurfer.regions.list).forEach(segment => {
       if (segment.saved === false && !forceNext) {
         if (segment.data.annotations == null) {
@@ -531,7 +525,7 @@ class Annotate extends React.Component {
         }
       }
     });
-    return success
+    return success;
   }
 
   loadRegions(regions) {
@@ -542,7 +536,7 @@ class Annotate extends React.Component {
   }
 
   renderNextPreviousButtons(className, callback) {
-    const {isSegmentSaving} = this.state
+    const { isSegmentSaving } = this.state;
     return (
       <div className="buttons-container-item">
         <div className={className}>
@@ -555,20 +549,15 @@ class Annotate extends React.Component {
           />
         </div>
       </div>
-    )
+    );
   }
 
   renderAlerts(type, message) {
     return (
-    <div>
-      <Alert
-        type={type}
-        message={message}
-        overlay
-        onClose={e => this.handleAlertDismiss(e)}
-      />
-    </div>
-    )
+      <div>
+        <Alert type={type} message={message} overlay onClose={e => this.handleAlertDismiss(e)} />
+      </div>
+    );
   }
 
   render() {
@@ -594,13 +583,13 @@ class Annotate extends React.Component {
         </Helmet>
         <div className="container h-100">
           <div className="h-100 mt-5 text-center">
-            {errorUnsavedMessage ? (
-              this.renderAlerts("danger", errorUnsavedMessage)
-            ) : errorMessage ? (
-              this.renderAlerts("danger", errorMessage)
-            ) : successMessage ? (
-              this.renderAlerts("success", successMessage)
-            ) : null}
+            {errorUnsavedMessage
+              ? this.renderAlerts('danger', errorUnsavedMessage)
+              : errorMessage
+              ? this.renderAlerts('danger', errorMessage)
+              : successMessage
+              ? this.renderAlerts('success', successMessage)
+              : null}
             <div>{original_filename}</div>
             {isRendering && (
               <div className="row justify-content-md-center my-4">
@@ -611,7 +600,9 @@ class Annotate extends React.Component {
                     alignItems: 'center'
                   }}
                 >
-                  <text style={{ marginBottom: '2%' }}>Please wait while spectrogram renders &nbsp;</text>
+                  <text style={{ marginBottom: '2%' }}>
+                    Please wait while spectrogram renders &nbsp;
+                  </text>
                   <Loader />
                 </div>
               </div>
@@ -771,8 +762,8 @@ class Annotate extends React.Component {
                 </div>
               )}
               <div className="buttons-container">
-                {this.renderNextPreviousButtons("previous", () => this.handlePreviousClip())}
-                {this.renderNextPreviousButtons("next", () => this.handleNextClip())}
+                {this.renderNextPreviousButtons('previous', () => this.handlePreviousClip())}
+                {this.renderNextPreviousButtons('next', () => this.handleNextClip())}
               </div>
             </div>
           </div>
