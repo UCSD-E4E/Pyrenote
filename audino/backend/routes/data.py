@@ -263,11 +263,7 @@ def add_data_from_site():
         metadata = mutagen.File(file_path.as_posix()).info
         frame_rate = metadata.sample_rate
         clip_duration = metadata.length
-        #wave_file = wave.open(str(file_path), 'rb')
-        #frames = wave_file.getnframes()
-        #frame_rate = wave_file.getframerate()
-        #clip_duration = frames / float(frame_rate)
-        #wave_file.close()
+
         try:
             data = Data(
                 project_id=project.id,
