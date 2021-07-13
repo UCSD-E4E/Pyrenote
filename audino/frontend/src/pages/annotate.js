@@ -101,7 +101,7 @@ class Annotate extends React.Component {
             const { data } = message.data;
             const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
             this.setState({
-              next_data_url: path + next_data_url,
+              next_data_url: next_data_url,
               next_data_id: data[0].data_id
             });
           })
