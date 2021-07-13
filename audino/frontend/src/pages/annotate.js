@@ -31,6 +31,8 @@ class Annotate extends React.Component {
     const { match } = this.props;
     const projectId = Number(match.params.projectid);
     const dataId = Number(match.params.dataid);
+    const index = window.location.href.indexOf('/projects');
+    
     this.state = {
       next_data_url: '',
       next_data_id: -1,
@@ -54,11 +56,18 @@ class Annotate extends React.Component {
       isRendering: true,
       data: [],
       previous_pages: [],
-      num_of_prev: 0
+      num_of_prev: 0,
+      path: window.location.href.substring(0, index)
     };
     this.lastTime = 0;
     this.labelRef = {};
     this.transcription = null;
+  }
+
+  styleRegionColor(region, color) {
+    region.style(region.element, {
+      backgroundColor: color
+    });
   }
 
   componentDidMount() {
@@ -66,7 +75,7 @@ class Annotate extends React.Component {
     let linksArray = [];
     let count = 0;
     const links = localStorage.getItem('previous_links');
-    const { num_of_prev, dataId, projectId } = this.state;
+    const { num_of_prev, dataId, projectId, path } = this.state;
     if (!links) {
       localStorage.setItem('previous_links', JSON.stringify(linksArray));
       localStorage.setItem('count', JSON.stringify(num_of_prev));
@@ -99,8 +108,6 @@ class Annotate extends React.Component {
           .then(message => {
             const { data } = message.data;
             next_data_url = `/projects/${projectId}/data/${data[0].data_id}/annotate`;
-            const index = window.location.href.indexOf('/projects');
-            const path = window.location.href.substring(0, index);
             this.setState({
               next_data_url: path + next_data_url,
               next_data_id: data[0].data_id
@@ -170,9 +177,7 @@ class Annotate extends React.Component {
     });
     wavesurfer.on('region-updated', region => {
       this.handlePause();
-      region.style(region.element, {
-        backgroundColor: 'rgba(0, 102, 255, 0.3)'
-      });
+      this.styleRegionColor(region, 'rgba(0, 102, 255, 0.3)')
       region._onUnSave();
     });
 
@@ -314,6 +319,14 @@ class Annotate extends React.Component {
       });
   }
 
+  removeSegment(wavesurfer, selectedSegment) {
+    wavesurfer.regions.list[selectedSegment.id].remove();
+    this.setState({
+      selectedSegment: null,
+      isSegmentDeleting: false
+    });
+  }
+
   handleSegmentDelete() {
     const { wavesurfer, selectedSegment, segmentationUrl } = this.state;
     this.setState({ isSegmentDeleting: true });
@@ -322,13 +335,7 @@ class Annotate extends React.Component {
         method: 'delete',
         url: `${segmentationUrl}/${selectedSegment.data.segmentation_id}`
       })
-        .then(() => {
-          wavesurfer.regions.list[selectedSegment.id].remove();
-          this.setState({
-            selectedSegment: null,
-            isSegmentDeleting: false
-          });
-        })
+        .then(() => {this.removeSegment(wavesurfer, selectedSegment)})
         .catch(error => {
           console.error(error);
           this.setState({
@@ -336,84 +343,7 @@ class Annotate extends React.Component {
           });
         });
     } else {
-      wavesurfer.regions.list[selectedSegment.id].remove();
-      this.setState({
-        selectedSegment: null,
-        isSegmentDeleting: false
-      });
-    }
-  }
-
-  handleSegmentSave() {
-    const { selectedSegment, segmentationUrl } = this.state;
-    const { start, end } = selectedSegment;
-
-    const { transcription, annotations, segmentation_id = null } = selectedSegment.data;
-
-    this.setState({ isSegmentSaving: true });
-
-    if (segmentation_id === null) {
-      axios({
-        method: 'post',
-        url: segmentationUrl,
-        data: {
-          start,
-          end,
-          transcription,
-          annotations
-        }
-      })
-        .then(response => {
-          selectedSegment.data.segmentation_id = response.data.segmentation_id;
-          this.setState({
-            isSegmentSaving: false,
-            selectedSegment,
-            successMessage: 'Segment saved',
-            errorMessage: null
-          });
-          selectedSegment.style(selectedSegment.element, {
-            backgroundColor: 'rgba(0, 0, 0, 0.7)'
-          });
-          selectedSegment._onSave();
-        })
-        .catch(error => {
-          console.error(error);
-          this.setState({
-            isSegmentSaving: false,
-            errorMessage: 'Error saving segment',
-            successMessage: null
-          });
-        });
-    } else {
-      axios({
-        method: 'put',
-        url: `${segmentationUrl}/${segmentation_id}`,
-        data: {
-          start,
-          end,
-          transcription,
-          annotations
-        }
-      })
-        .then(() => {
-          this.setState({
-            isSegmentSaving: false,
-            successMessage: 'Segment saved',
-            errorMessage: null
-          });
-          selectedSegment.style(selectedSegment.element, {
-            backgroundColor: 'rgba(0, 0, 0, 0.7)'
-          });
-          selectedSegment._onSave();
-        })
-        .catch(error => {
-          console.error(error);
-          this.setState({
-            isSegmentSaving: false,
-            errorMessage: 'Error saving segment',
-            successMessage: null
-          });
-        });
+      this.removeSegment(wavesurfer, selectedSegment)
     }
   }
 
@@ -453,9 +383,7 @@ class Annotate extends React.Component {
                   successMessage: 'Segment saved',
                   errorMessage: null
                 });
-                segment.style(segment.element, {
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)'
-                });
+                this.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)')
                 segment._onSave();
               })
               .catch(error => {
@@ -484,9 +412,7 @@ class Annotate extends React.Component {
                   successMessage: 'Segment saved',
                   errorMessage: null
                 });
-                segment.style(segment.element, {
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)'
-                });
+                this.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)')
                 segment._onSave();
               })
               .catch(error => {
@@ -541,40 +467,34 @@ class Annotate extends React.Component {
   handleNextClip(forceNext = false) {
     this.handleAllSegmentSave();
     const {
-      wavesurfer,
       previous_pages,
       num_of_prev,
       data,
       dataId,
       projectId,
       next_data_id,
-      next_data_url
+      next_data_url,
+      path
     } = this.state;
+
+
     let success = true;
-    Object.values(wavesurfer.regions.list).forEach(segment => {
-      if (segment.saved === false && !forceNext) {
-        if (segment.data.annotations == null) {
-          this.setState({
-            errorUnsavedMessage:
-              'There regions without a label! You can\'t leave yet! If you are sure, click "force next"'
-          });
-          success = false;
-        }
-      }
-    });
+    success = this.checkForSave(success, forceNext)
     if (!success) {
       return;
     }
 
+    const next_page_num = num_of_prev + 1;
+
     if (num_of_prev < previous_pages.length - 1) {
-      localStorage.setItem('count', JSON.stringify(num_of_prev + 1));
-      window.location.href = previous_pages[num_of_prev + 1];
+      localStorage.setItem('count', JSON.stringify(next_page_num));
+      window.location.href = previous_pages[next_page_num];
       return;
     }
     previous_pages[num_of_prev] = window.location.href;
-    const next_page_num = num_of_prev + 1;
     localStorage.setItem('previous_links', JSON.stringify(previous_pages));
     localStorage.setItem('count', JSON.stringify(next_page_num));
+
     let newPageData = data[0];
     Object.keys(data).forEach(key => {
       key = parseInt(key, 10);
@@ -584,22 +504,12 @@ class Annotate extends React.Component {
           const url = `/projects/${projectId}/data/${newPageData.data_id}/annotate`;
 
           /// projects
-          const index = window.location.href.indexOf('/projects');
-          const path = window.location.href.substring(0, index);
           window.location.href = path + url;
         } catch (z) {
-          try {
-            if (data[0].data_id !== next_data_id) {
+            if (next_data_id && data[0].data_id !== next_data_id) {
               window.location.href = next_data_url;
             } else {
-              throw Error('no data remains');
-            }
-            //
-          } catch (a) {
-            console.error(`frist error: ${z}`, `second error: ${a}`);
-            const index = window.location.href.indexOf('/projects');
-            const path = window.location.href.substring(0, index);
-            window.location.href = `${path}/projects/${projectId}/data`;
+              window.location.href = `${path}/projects/${projectId}/data`;
           }
         }
       }
@@ -609,20 +519,9 @@ class Annotate extends React.Component {
   // Go to previous audio recording
   handlePreviousClip(forceNext = false) {
     this.handleAllSegmentSave();
-    const { wavesurfer, previous_pages, num_of_prev } = this.state;
+    const {previous_pages, num_of_prev } = this.state;
     let success = true;
-    Object.values(wavesurfer.regions.list).forEach(segment => {
-      if (segment.saved === false && !forceNext) {
-        if (segment.data.annotations == null) {
-          this.setState({
-            errorUnsavedMessage:
-              'There regions without a label! You can\'t leave yet! If you are sure, click "force previous"'
-          });
-          success = false;
-        }
-        // TODO: Change this to a modal
-      }
-    });
+    success = this.checkForSave(success, forceNext)
     if (!success) {
       return;
     }
@@ -639,6 +538,23 @@ class Annotate extends React.Component {
     }
   }
 
+  checkForSave(success, forceNext) {
+    const { wavesurfer } = this.state
+    Object.values(wavesurfer.regions.list).forEach(segment => {
+      if (segment.saved === false && !forceNext) {
+        if (segment.data.annotations == null) {
+          this.setState({
+            errorUnsavedMessage:
+              'There regions without a label! You can\'t leave yet! If you are sure, click "force next"'
+          });
+          success = false;
+        }
+      }
+    });
+    return success
+  }
+
+
   loadRegions(regions) {
     const { wavesurfer } = this.state;
     regions.forEach(region => {
@@ -648,6 +564,36 @@ class Annotate extends React.Component {
 
   showSegmentTranscription(region) {
     this.segmentTranscription.textContent = (region && region.data.transcription) || '–';
+  }
+
+  renderNextPreviousButtons(className, callback) {
+    const {isSegmentSaving} = this.state
+    return (
+      <div className="buttons-container-item">
+        <div className={className}>
+          <Button
+            size="lg"
+            type="primary"
+            disabled={isSegmentSaving}
+            onClick={callback}
+            text={className}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  renderAlerts(type, message) {
+    return (
+    <div>
+      <Alert
+        type={type}
+        message={message}
+        overlay
+        onClose={e => this.handleAlertDismiss(e)}
+      />
+    </div>
+    )
   }
 
   render() {
@@ -674,28 +620,11 @@ class Annotate extends React.Component {
         <div className="container h-100">
           <div className="h-100 mt-5 text-center">
             {errorUnsavedMessage ? (
-              <div>
-                <Alert
-                  type="danger"
-                  message={errorUnsavedMessage}
-                  overlay
-                  onClose={e => this.handleAlertDismiss(e)}
-                />
-              </div>
+              this.renderAlerts("danger", errorUnsavedMessage)
             ) : errorMessage ? (
-              <Alert
-                type="danger"
-                message={errorMessage}
-                overlay
-                onClose={e => this.handleAlertDismiss(e)}
-              />
+              this.renderAlerts("danger", errorMessage)
             ) : successMessage ? (
-              <Alert
-                type="success"
-                message={successMessage}
-                overlay
-                onClose={e => this.handleAlertDismiss(e)}
-              />
+              this.renderAlerts("success", successMessage)
             ) : null}
             <div>{original_filename}</div>
             {isRendering && (
@@ -707,7 +636,7 @@ class Annotate extends React.Component {
                     alignItems: 'center'
                   }}
                 >
-                  <text style={{ marginBottom: '2%' }}>Please wait while spectrogram renders </text>
+                  <text style={{ marginBottom: '2%' }}>Please wait while spectrogram renders &nbsp;</text>
                   <Loader />
                 </div>
               </div>
@@ -872,28 +801,8 @@ class Annotate extends React.Component {
                 </div>
               )}
               <div className="buttons-container">
-                <div className="buttons-container-item">
-                  <div className="previous">
-                    <Button
-                      size="lg"
-                      type="primary"
-                      disabled={isSegmentSaving}
-                      onClick={() => this.handlePreviousClip()}
-                      text="Previous"
-                    />
-                  </div>
-                </div>
-                <div className="buttons-container-item">
-                  <div className="next">
-                    <Button
-                      size="lg"
-                      type="primary"
-                      disabled={isSegmentSaving}
-                      onClick={() => this.handleNextClip()}
-                      text="Next"
-                    />
-                  </div>
-                </div>
+                {this.renderNextPreviousButtons("previous", () => this.handlePreviousClip())}
+                {this.renderNextPreviousButtons("next", () => this.handleNextClip())}
               </div>
             </div>
           </div>
