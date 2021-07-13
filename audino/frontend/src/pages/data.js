@@ -17,8 +17,8 @@ class Data extends React.Component {
     this.state = {
       projectId,
       data: [],
-      active: params.get('active') || 'pending',
-      page: params.get('page') || 1,
+      active: params.get("active") || "pending",
+      page:  1,
       count: {
         pending: 0,
         completed: 0,
@@ -42,10 +42,11 @@ class Data extends React.Component {
     return `/projects/${projectId}/data?page=${page}&active=${active}`;
   }
 
-  getData() {
+  getData(next=false) {
     let { apiUrl, page, active, data } = this.state;
     apiUrl = `${apiUrl}?page=${page}&active=${active}`;
-
+    if (next) {page += 1;}
+    console.log(page)
     axios({
       method: 'get',
       url: apiUrl
@@ -54,7 +55,6 @@ class Data extends React.Component {
         const {
           count,
           active,
-          page,
           next_page,
           prev_page,
         } = response.data;
@@ -62,6 +62,7 @@ class Data extends React.Component {
         console.log(next_page_data)
         data = next_page_data.concat(data)
         console.log(data)
+        
         this.setState({
           data,
           count,
@@ -71,6 +72,16 @@ class Data extends React.Component {
           prevPage: prev_page,
           isDataLoading: false
         });
+
+        if (!next) {
+          let yMax = document.body.scrollHeight - document.body.clientHeight
+          console.log(yMax)
+          //TODO: Test on long monitor to deterimine if this is smart
+          //Basically, if user has big monitor, add another set of data to hit scroll limit
+          if (yMax == 0) {
+            this.getData(true)
+          }
+        } 
       })
       .catch(error => {
         console.error(error);
@@ -90,9 +101,9 @@ class Data extends React.Component {
 
   isBottom() {
     //https://stackoverflow.com/questions/17688595/finding-the-maximum-scroll-position-of-a-page
-      let yMax = document.body.scrollHeight - document.body.clientHeight
-      console.log(window.pageYOffset ,yMax,)
-    return window.pageYOffset >= yMax;
+    let yMax = document.body.scrollHeight - document.body.clientHeight
+    console.log(yMax)
+    return window.pageYOffset >= yMax || yMax == 1;
   }
   
   componentWillUnmount() {
@@ -100,9 +111,10 @@ class Data extends React.Component {
   }
   
   trackScrolling = () => {
-    if (this.isBottom()) {
+    const {nextPage} = this.state
+    if (this.isBottom() && nextPage) {
       //this.setState({ isDataLoading: true });
-      this.getData()
+      this.getData(true)
     }
   };
 
@@ -199,7 +211,7 @@ class Data extends React.Component {
               <div className="font-weight-bold">No data exists!</div>
             ) : null}
           </div>
-          <div className="col-12 my-4 justify-content-center align-items-center text-center">
+          {/*<div className="col-12 my-4 justify-content-center align-items-center text-center">
             {prevPage ? (
               <a className="col" href={prevPageUrl}>
                 Previous
@@ -212,7 +224,7 @@ class Data extends React.Component {
                 Next
               </a>
             ) : null}
-          </div>
+            </div>*/}
         </div>
       </div>
     );
