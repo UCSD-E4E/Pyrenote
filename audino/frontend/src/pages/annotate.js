@@ -232,6 +232,7 @@ class Annotate extends React.Component {
   handleAllSegmentSave() {
     const { segmentationUrl, wavesurfer, wavesurferMethods } = this.state;
     Object.values(wavesurfer.regions.list).forEach(segment => {
+      console.log(segment.data.annotations)
       if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
         try {
           const { start, end } = segment;
@@ -312,8 +313,11 @@ class Annotate extends React.Component {
   }
 
   handleLabelChange(key, e) {
-    const { selectedSegment, labels } = this.state;
+    const { selectedSegment, labels, wavesurferMethods } = this.state;
     selectedSegment.data.annotations = selectedSegment.data.annotations || {};
+    if (e.target.value === "-1") {
+      return;
+    }
     if (labels[key].type === 'multiselect') {
       selectedSegment.data.annotations[key] = {
         label_id: labels[key].label_id,
@@ -325,6 +329,8 @@ class Annotate extends React.Component {
         values: e.target.value
       };
     }
+    wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
+    selectedSegment._onUnSave();
     this.setState({ selectedSegment });
   }
 
