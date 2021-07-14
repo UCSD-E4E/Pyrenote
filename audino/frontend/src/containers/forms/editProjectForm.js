@@ -68,11 +68,11 @@ class EditProjectForm extends React.Component {
         name
       }
     })
-      .then(response => {
-        this.resetState();
-        this.form.reset();
-        if (response.status === 201) {
-          this.setState({ successMessage: response.data.message });
+      .then((response) => {
+        if (response.status === 200) {
+          this.resetState();
+          this.form.reset();
+          this.setState({ successMessage: "Successfully changed name" });
         }
       })
       .catch(error => {
@@ -104,16 +104,6 @@ class EditProjectForm extends React.Component {
             {errorMessage ? <Alert type="danger" message={errorMessage} /> : null}
             {successMessage ? <Alert type="success" message={successMessage} /> : null}
             <div className="form-group text-left">
-              <input
-                type="text"
-                className="form-control"
-                id="username"
-                placeholder=""
-                value={projectId}
-                autoFocus
-                required
-                disabled
-              />
               <input
                 type="text"
                 className="form-control"
