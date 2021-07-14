@@ -633,8 +633,8 @@ def add_segmentations(project_id, data_id, segmentation_id=None):
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400
 
-    start_time = request.json.get("start", None)
-    end_time = request.json.get("end", None)
+    start_time = float(request.json.get("start", None))
+    end_time = float(request.json.get("end", None))
 
     if start_time is None or end_time is None:
         return jsonify(message="Params `start_time` or `end_time` missing"), 400
