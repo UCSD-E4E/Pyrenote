@@ -64,7 +64,7 @@ class EditLabelForm extends React.Component {
 
     this.setState({ isSubmitting: true });
 
-    const { labelUrl, type } = this.state;
+    const { labelUrl, type, name } = this.state;
 
     // TODO: Get these values from api
     if (!type || !['1', '2'].includes(type)) {
@@ -80,8 +80,9 @@ class EditLabelForm extends React.Component {
       method: 'patch',
       url: labelUrl,
       data: {
-        type
-      }
+        type,
+        name
+      },
     })
       .then(response => {
         if (response.status === 200) {
@@ -113,12 +114,8 @@ class EditLabelForm extends React.Component {
     });
   }
 
-  clearForm() {
-    this.form.reset();
-  }
-
-  resetState() {
-    this.setState(this.initialState);
+  handleLabelNameChange(e) {
+    this.setState({ name: e.target.value });
   }
 
   render() {
@@ -167,9 +164,9 @@ class EditLabelForm extends React.Component {
                     id="name"
                     placeholder="Name"
                     value={name}
-                    autoFocus
-                    required
-                    disabled
+                    autoFocus={true}
+                    required={true}
+                    onChange={(e) => this.handleLabelNameChange(e)}
                   />
                 </div>
                 <div className="form-group">
