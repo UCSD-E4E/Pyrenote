@@ -2,7 +2,6 @@ import axios from 'axios';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-
 import {
   faPlusSquare,
   faEdit,
@@ -77,8 +76,8 @@ const Admin = props => {
   };
 
   React.useEffect(() => {
-    fetchProjects();
-    fetchUsers();
+    this.fetchProjects();
+    this.fetchUsers();
   }, []);
 
   const showModal = newState => {
