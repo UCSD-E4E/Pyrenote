@@ -14,6 +14,7 @@ import {
 import { IconButton } from '../components/button';
 import Loader from '../components/loader';
 import FormModal from '../containers/modal';
+import {AdminHandleFormProjects, AdminHandleFormUsers} from './adminHandleForm';
 
 const Admin = props => {
   const [modalState, setModalState] = React.useState({
@@ -84,62 +85,12 @@ const Admin = props => {
     setModalState({ ...modalState, ...newState, modalShow: true });
   };
 
-  const handleNewProject = () => {
-    showModal({ formType: 'NEW_PROJECT', title: 'Create New Project' });
-  };
-
-  const handleEditProject = (e, projectId) => {
-    showModal({
-      formType: 'Edit_PROJECT',
-      title: 'Edit Project',
-      projectId
-    });
-  };
-
   const handleNewUser = () => {
     showModal({ formType: 'NEW_USER', title: 'Create New User' });
   };
 
-  const handleEditUser = (e, userId) => {
-    showModal({ formType: 'EDIT_USER', title: 'Edit User', userId });
-  };
-
-  const handleDeleteUser = (e, userId) => {
-    // TODO: CREATE MODAL TO CONFRIM BUT FOR NOW MAKE DEV BUTTON
-    showModal({ formType: 'DELETE_USER', title: 'Delete User', userId });
-  };
-
-  const handleAddUsersToProject = (e, projectId, projectName) => {
-    showModal({
-      formType: 'MANAGE_PROJECT_USERS',
-      title: `Project ${projectName}: Manage User Access`,
-      projectId
-    });
-  };
-
-  const handleUploadDataToProject = (e, projectName, projectId, api_key) => {
-    showModal({
-      formType: 'UPLOAD_DATA',
-      title: `Project ${projectName}: Upload Project Audio Files`,
-      projectId,
-      projectName,
-      api_key
-    });
-  };
-
-  const handleDownloadDataToProject = (e, projectName, projectId, api_key) => {
-    showModal({
-      formType: 'DOWNLOAD_DATA',
-      title: `Project ${projectName}: DOWNLOAD ANNOTATIONS`,
-      projectId,
-      projectName,
-      api_key
-    });
-  };
-
-  const handleAddLabelsToProject = (e, projectId) => {
-    const { history } = props;
-    history.push(`/projects/${projectId}/labels`);
+  const handleNewProject = () => {
+    showModal({ formType: 'NEW_PROJECT', title: 'Create New Project' });
   };
 
   const updatePage = () => {
@@ -200,55 +151,7 @@ const Admin = props => {
                       <td className="align-middle">{project.name}</td>
                       <td className="align-middle">{project.created_by}</td>
                       <td className="align-middle">{project.api_key}</td>
-                      <td className="align-middle">
-                        <IconButton
-                          icon={faUserPlus}
-                          size="sm"
-                          title="Manage users"
-                          onClick={e =>
-                            handleAddUsersToProject(e, project.project_id, project.name)
-                          }
-                        />
-                        <IconButton
-                          icon={faTags}
-                          size="sm"
-                          title="Manage labels"
-                          onClick={e => handleAddLabelsToProject(e, project.project_id)}
-                        />
-                        <IconButton
-                          icon={faEdit}
-                          size="sm"
-                          title="Edit Annotations"
-                          onClick={e => handleEditProject(e, project.project_id)}
-                        />
-                        <div />
-                        <IconButton
-                          icon={faUpload}
-                          size="sm"
-                          title="Upload Data"
-                          onClick={e =>
-                            handleUploadDataToProject(
-                              e,
-                              project.name,
-                              project.project_id,
-                              project.api_key
-                            )
-                          }
-                        />
-                        <IconButton
-                          icon={faDownload}
-                          size="sm"
-                          title="Download Data"
-                          onClick={e =>
-                            handleDownloadDataToProject(
-                              e,
-                              project.name,
-                              project.project_id,
-                              project.api_key
-                            )
-                          }
-                        />
-                      </td>
+                      <AdminHandleFormProjects showModal={showModal} adminProps={props} project={project}/>
                     </tr>
                   ))}
                 </tbody>
@@ -295,20 +198,7 @@ const Admin = props => {
                       <td className="align-middle">{user.username}</td>
                       <td className="align-middle">{user.role}</td>
                       <td className="align-middle">{user.created_on}</td>
-                      <td className="align-middle">
-                        <IconButton
-                          icon={faEdit}
-                          size="sm"
-                          title="Edit user"
-                          onClick={e => handleEditUser(e, user.user_id)}
-                        />
-                        <IconButton
-                          icon={faTrash}
-                          size="sm"
-                          title="Delete User"
-                          onClick={e => handleDeleteUser(e, user.user_id)}
-                        />
-                      </td>
+                      <AdminHandleFormUsers showModal={showModal}  user={user}/>
                     </tr>
                   ))}
                 </tbody>
