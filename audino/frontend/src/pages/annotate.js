@@ -7,6 +7,11 @@ import Alert from '../components/alert';
 import { Button } from '../components/button';
 import Loader from '../components/loader';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
+import NavButton from '../components/navbutton';
+import { 
+  handleAllSegmentSave,
+  handleSegmentDelete 
+} from './annotatefunctions';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -40,6 +45,8 @@ class Annotate extends React.Component {
       data: [],
       previous_pages: [],
       num_of_prev: 0,
+      page: index,
+      numpage: 5,
       path: window.location.href.substring(0, index)
     };
     this.lastTime = 0;
@@ -207,6 +214,7 @@ class Annotate extends React.Component {
       });
   }
 
+  // MOVING TO FUNCTIONS FILE
   handleSegmentDelete() {
     const { wavesurfer, selectedSegment, segmentationUrl } = this.state;
     this.setState({ isSegmentDeleting: true });
@@ -228,7 +236,8 @@ class Annotate extends React.Component {
       this.removeSegment(wavesurfer, selectedSegment);
     }
   }
-
+  
+  // MOVING TO FUNCTIONS FILE
   handleAllSegmentSave() {
     const { segmentationUrl, wavesurfer, wavesurferMethods } = this.state;
     Object.values(wavesurfer.regions.list).forEach(segment => {
@@ -585,7 +594,7 @@ class Annotate extends React.Component {
                         type="danger"
                         disabled={isSegmentDeleting}
                         isSubmitting={isSegmentDeleting}
-                        onClick={e => this.handleSegmentDelete(e)}
+                        onClick={e => handleSegmentDelete(e)}
                         text="Delete"
                       />
                     </div>
@@ -594,7 +603,7 @@ class Annotate extends React.Component {
                         size="lg"
                         type="primary"
                         isSubmitting={isSegmentSaving}
-                        onClick={e => this.handleAllSegmentSave(e)}
+                        onClick={e => handleAllSegmentSave(e)}
                         text="Save All"
                       />
                     </div>
@@ -637,6 +646,7 @@ class Annotate extends React.Component {
                 {this.renderNextPreviousButtons('previous', () => this.handlePreviousClip())}
                 {this.renderNextPreviousButtons('next', () => this.handleNextClip())}
               </div>
+              <NavButton page={this.page} numpage={this.numpage} save={this.handleAllSegmentSave} />
             </div>
           </div>
         </div>
