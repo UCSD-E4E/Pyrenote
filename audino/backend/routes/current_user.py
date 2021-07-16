@@ -9,7 +9,7 @@ from werkzeug.urls import url_parse
 from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
-
+from .logger import post_log_msg
 from . import api
 
 
@@ -17,7 +17,6 @@ from . import api
 @jwt_required
 def fetch_current_user_projects():
     identity = get_jwt_identity()
-
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
@@ -38,7 +37,7 @@ def fetch_current_user_projects():
         app.logger.error(message)
         app.logger.error(e)
         return jsonify(message=message), 500
-
+    post_log_msg("Accessed project's page", request_user.id)
     return jsonify(projects=response), 200
 
 
