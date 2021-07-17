@@ -8,6 +8,7 @@ import { Button } from '../components/button';
 import Loader from '../components/loader';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
 import NavButton from '../components/navbutton';
+
 class Annotate extends React.Component {
   constructor(props) {
     super(props);
@@ -404,7 +405,6 @@ class Annotate extends React.Component {
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
-    console.log(this.state.data)
     return (
       <div>
         <Helmet>
