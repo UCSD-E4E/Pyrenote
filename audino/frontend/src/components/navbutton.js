@@ -1,52 +1,12 @@
-import { faCode } from '@fortawesome/free-solid-svg-icons';
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from './button';
 
 const NavButton = props => {
+
   const { annotate } = props;
-  let { page } = props;
-  const { numpage } = props;
-  const [last, setLast] = useState(false);
-  const [first, setFirst] = useState(false);
-  const projectId = 1;
-
-  // const handleNextClip = () => {
-  //   props.save(annotate);
-  //   console.log('hi');
-  //   console.log(page);
-  //   console.log(numpage);
-  //   // if (page < numpage) {
-  //   //   page += 1;
-  //   //   if (page === numpage) {
-  //   //     setLast(true);
-  //   //   }
-  //   // }
-  //   page += 1;
-  //   console.log(page);
-  //   const url = `/projects/${projectId}/data/${page}/annotate`;
-  //   console.log(url);
-  //   // window.location.href = url;
-  // };
-
-  // const handlePreviousClip = () => {
-  //   props.save(annotate);
-  //   console.log('bye');
-  //   console.log(page);
-  //   console.log(numpage);
-  //   // if (page > 0) {
-  //   //   page -= 1;
-  //   //   if (page === 0) {
-  //   //     setFirst(true);
-  //   //   }
-  //   // }
-  //   page -= 1;
-  //   const url = `/projects/${projectId}/data/${page}/annotate`;
-  //   console.log(url);
-  //   // window.location.href = url;
-  // };
 
   // Go to the next audio recording
-  const handleNextClip = (forceNext = false, annotate) => {
+  const handleNextClip = (forceNext = false) => {
     props.save(annotate);
     const {
       previous_pages,
@@ -97,7 +57,7 @@ const NavButton = props => {
   };
 
   // Go to previous audio recording
-  const handlePreviousClip = (forceNext = false, annotate) => {
+  const handlePreviousClip = (forceNext = false) => {
     annotate.handleAllSegmentSave();
     const { previous_pages, num_of_prev } = annotate.state;
     let success = true;
@@ -117,14 +77,14 @@ const NavButton = props => {
   };
 
   const renderNavButtons = (className, callback) => {
-    // const { isSegmentSaving } = this.state;
+    const { isSegmentSaving } = annotate.state;
     return (
       <div className="buttons-container-item">
         <div className={className}>
           <Button
             size="lg"
             type="primary"
-            // disabled={isSegmentSaving}
+            disabled={isSegmentSaving}
             onClick={callback}
             text={className}
           />
@@ -135,8 +95,8 @@ const NavButton = props => {
 
   return (
     <div className="buttons-container">
-      {!first ? renderNavButtons('previous', () => handlePreviousClip()) : null}
-      {!last ? renderNavButtons('next', () => handleNextClip()) : null}
+      {renderNavButtons('previous', () => handlePreviousClip())}
+      {renderNavButtons('next', () => handleNextClip())}
     </div>
   );
 };
