@@ -2,19 +2,11 @@ import axios from 'axios';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import {
-  faPlusSquare,
-  faEdit,
-  faUserPlus,
-  faTags,
-  faDownload,
-  faTrash,
-  faUpload
-} from '@fortawesome/free-solid-svg-icons';
+import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from '../components/button';
 import Loader from '../components/loader';
 import FormModal from '../containers/modal';
-import {AdminHandleFormProjects, AdminHandleFormUsers} from './adminHandleForm';
+import { AdminHandleFormProjects, AdminHandleFormUsers } from './adminHandleForm';
 
 const Admin = props => {
   const [modalState, setModalState] = React.useState({
@@ -151,7 +143,11 @@ const Admin = props => {
                       <td className="align-middle">{project.name}</td>
                       <td className="align-middle">{project.created_by}</td>
                       <td className="align-middle">{project.api_key}</td>
-                      <AdminHandleFormProjects showModal={showModal} adminProps={props} project={project}/>
+                      <AdminHandleFormProjects
+                        showModal={showModal}
+                        adminProps={props}
+                        project={project}
+                      />
                     </tr>
                   ))}
                 </tbody>
@@ -198,7 +194,7 @@ const Admin = props => {
                       <td className="align-middle">{user.username}</td>
                       <td className="align-middle">{user.role}</td>
                       <td className="align-middle">{user.created_on}</td>
-                      <AdminHandleFormUsers showModal={showModal}  user={user}/>
+                      <AdminHandleFormUsers showModal={showModal} user={user} />
                     </tr>
                   ))}
                 </tbody>
