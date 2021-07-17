@@ -380,34 +380,31 @@ def get_next_data_unknown(project_id, data_value):
         page = -1
         test_page = 1
         while (page == -1):
-            paginate_data = data[active].paginate(test_page, 10, False)
-            next = paginate_data.next_num if paginate_data.has_next else None
-            prev = paginate_data.prev_num if paginate_data.has_prev else None
-            for data_point in paginate_data.items:
-                if (data_point.id != paginate_data):
-                    continue
-                response = {
-                    "data_id": data_point.id,
-                    "filename": data_point.filename,
-                    "original_filename": data_point.original_filename,
-                    "created_on": data_point.created_at.strftime("%B %d, %Y"),
-                    "is_marked_for_review": data_point.is_marked_for_review,
-                    "number_of_segmentations": len(data_point.segmentations),
-                    "sampling_rate": data_point.sampling_rate,
-                    "clip_length": data_point.clip_length,
-                }
-                return (jsonify(
-                    data=response,
-                    next_page=next,
-                    prev_page=prev,
-                    page=test_page,
-                    active=active,
-                ), 200,)
-            if (next is not None):
+            paginated_data = data[active].paginate(test_page, 10, False)
+            next = paginated_data.next_num if paginated_data.has_next else None
+            prev = paginated_data.prev_num if paginated_data.has_prev else None
+            for data_point in paginated_data.items:
+                if (data_point.id == data_value):
+                    response = list(
+                        [
+                            {
+                                "data_id": data_point.id,
+                            }
+                            for data_point in paginated_data.items
+                        ]
+                    )
+                    return (
+                        jsonify(
+                            data=response,
+                            next_page=next,
+                            prev_page=prev,
+                            page=test_page,
+                            active=active,
+                        ),
+                        200,
+                    )
+            if (next_page is not None):
                 test_page += 1
-            # else:
-            #    app.logger.log("data doesn't exist")
-            #    raise "Data Doesn't Exist"
     except Exception as e:
         message = "Error fetching all data points"
         app.logger.error(message)

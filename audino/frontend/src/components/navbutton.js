@@ -22,14 +22,15 @@ const NavButton = props => {
     let success = true;
     success = annotate.checkForSave(success, forceNext);
     if (!success) {
+      console.log("needs saving")
       return;
     }
-
     const next_page_num = num_of_prev + 1;
 
     if (num_of_prev < previous_pages.length - 1) {
       localStorage.setItem('count', JSON.stringify(next_page_num));
       window.location.href = previous_pages[next_page_num];
+      console.log("LOOKIE HERE")
       return;
     }
     previous_pages[num_of_prev] = window.location.href;
@@ -37,9 +38,11 @@ const NavButton = props => {
     localStorage.setItem('count', JSON.stringify(next_page_num));
 
     let newPageData = data[0];
+    console.log("data", data)
     Object.keys(data).forEach(key => {
       key = parseInt(key, 10);
       if (data[key].data_id === dataId) {
+        console.log("MADE IT HERE")
         try {
           newPageData = data[key + 1];
           const url = `/projects/${projectId}/data/${newPageData.data_id}/annotate`;
@@ -52,8 +55,10 @@ const NavButton = props => {
             window.location.href = `${path}/projects/${projectId}/data`;
           }
         }
+        return;
       }
     });
+    console.log("lets go")
   };
 
   // Go to previous audio recording

@@ -239,7 +239,7 @@ class Annotate extends React.Component {
         try {
           const { start, end } = segment;
           const { annotations = '', segmentation_id = null } = segment.data;
-          this.setState({ isSegmentSaving: true });
+          annotate.setState({ isSegmentSaving: true });
           const now = Date.now();
           let time_spent = 0;
           if (segment.lastTime === 0) {
@@ -404,6 +404,7 @@ class Annotate extends React.Component {
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
+    console.log(this.state.data)
     return (
       <div>
         <Helmet>
@@ -509,7 +510,7 @@ class Annotate extends React.Component {
                         size="lg"
                         type="primary"
                         isSubmitting={isSegmentSaving}
-                        onClick={e => this.handleAllSegmentSave(e)}
+                        onClick={() => this.handleAllSegmentSave()}
                         text="Save All"
                       />
                     </div>
