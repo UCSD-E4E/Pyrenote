@@ -150,35 +150,6 @@ class Annotate extends React.Component {
       });
   }
 
-  handlePlay() {
-    const { wavesurfer } = this.state;
-    this.setState({ isPlaying: true });
-    wavesurfer.play();
-  }
-
-  handlePause() {
-    const { wavesurfer } = this.state;
-    this.setState({ isPlaying: false });
-    wavesurfer.pause();
-  }
-
-  handleForward() {
-    const { wavesurfer } = this.state;
-    wavesurfer.skipForward(5);
-  }
-
-  handleBackward() {
-    const { wavesurfer } = this.state;
-    wavesurfer.skipBackward(5);
-  }
-
-  handleZoom(e) {
-    const { wavesurfer } = this.state;
-    const zoom = Number(e.target.value);
-    wavesurfer.zoom(zoom);
-    this.setState({ zoom });
-  }
-
   handleIsMarkedForReview(e) {
     const { dataUrl } = this.state;
     const isMarkedForReview = e.target.checked;
