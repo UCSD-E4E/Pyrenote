@@ -4,7 +4,8 @@ import uuid
 
 from pathlib import Path
 
-from flask import jsonify, flash, redirect, url_for, request, send_from_directory
+from flask import jsonify, flash, redirect, url_for, request
+from flask import send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
@@ -26,7 +27,9 @@ def send_audio_file(file_name):
 
 
 def validate_segmentation(segment):
-    """Validate the segmentation before accepting the annotation's upload from users
+    """
+    Validate the segmentation before accepting the annotation's upload
+    from users
     """
     required_key = {"start_time", "end_time"}
 
@@ -70,10 +73,12 @@ def generate_segmentation(
     values = []
 
     for label_name, val in annotations.items():
-        label = Label.query.filter_by(name=label_name, project_id=project_id).first()
+        label = Label.query.filter_by(name=label_name, project_id=project_id
+                                      ).first()
 
         if label is None:
-            raise NotFound(description=f"Label not found with name: `{label_name}`")
+            description = f"Label not found with name: `{label_name}`"
+            raise NotFound(description=description)
 
         if "values" not in val:
             raise BadRequest(
@@ -84,16 +89,14 @@ def generate_segmentation(
 
         if isinstance(label_values, list):
             for val_id in label_values:
-                app.logger.info(val_id)
-                app.logger.info(label_values)
-                app.logger.info("===================")
                 value = LabelValue.query.filter_by(
                     id=int(val_id), label_id=int(label.id)
                 ).first()
 
                 if value is None:
+                    err = f"label value id `{val_id}` not in `{label_name}`"
                     raise BadRequest(
-                        description=f"`{label_name}` does not have label value with id `{val_id}`"
+                        description=err
                     )
                 values.append(value)
 
@@ -104,10 +107,10 @@ def generate_segmentation(
             value = LabelValue.query.filter_by(
                 id=int(label_values), label_id=int(label.id)
             ).first()
-
+            err = "no label value with id `{label_values}` in `{label_name}`"
             if value is None:
                 raise BadRequest(
-                    description=f"`{label_name}` does not have label value with id `{label_values}`"
+                    description=err
                 )
             values.append(value)
 
@@ -120,7 +123,8 @@ def add_data():
     api_key = request.headers.get("Authorization", None)
 
     if not api_key:
-        raise BadRequest(description="API Key missing from `Authorization` Header")
+        description = "API Key missing from `Authorization` Header"
+        raise BadRequest(description=description)
 
     project = Project.query.filter_by(api_key=api_key).first()
 
@@ -138,7 +142,8 @@ def add_data():
         username_id[name] = user.id
 
     segmentations = request.form.get("segmentations", "[]")
-    is_marked_for_review = bool(request.form.get("is_marked_for_review", False))
+    is_marked_for_review = bool(request.form.get("is_marked_for_review",
+                                                 False))
     audio_file = request.files["audio_file"]
     original_filename = secure_filename(audio_file.filename)
     sampling_rate = request.form.get("sampling_rate", 0)
@@ -159,15 +164,13 @@ def add_data():
             filename=filename,
             original_filename=original_filename,
             is_marked_for_review=is_marked_for_review,
-            assigned_user_id= username_id,
-            sampling_rate = sampling_rate,
-            clip_length = clip_length,
+            assigned_user_id=username_id,
+            sampling_rate=sampling_rate,
+            clip_length=clip_length,
         )
     except Exception as e:
-        #error = "username_id is bad " + username_id 
         raise BadRequest(description="username_id is bad ")
-    print("HELLLO THERE ERROR MESSAGE") 
-    db.session.add(data)
+    print("HELLLO THERE ERROR MESSAGE")
     db.session.flush()
 
     segmentations = json.loads(segmentations)
@@ -198,22 +201,23 @@ def add_data():
     return (
         jsonify(
             data_id=data.id,
-            message=f"Data uploaded, created and assigned successfully for user",
+            message=f"Data uploaded successfully",
             type="DATA_CREATED",
         ),
         201,
     )
 
+
 @api.route("/data/admin_portal", methods=["POST"])
 def add_data_from_site():
-    #start_time = request.json.get("start", None)
     app.logger.info(request.files)
     app.logger.info(request.form)
     api_key = request.form.get("apiKey", None)
     app.logger.info("also made it to asdfasdfasdfhere!")
 
     if not api_key:
-        raise BadRequest(description="API Key missing from `Authorization` Header")
+        description = "API Key missing from `Authorization` Header"
+        raise BadRequest(description=description)
 
     project = Project.query.filter_by(api_key=api_key).first()
 
@@ -227,22 +231,19 @@ def add_data_from_site():
     for name in username:
         app.logger.info(name)
         user = User.query.first()
-        #TODO: replace with actual user assign code in the futur
         app.logger.info(user)
         if not user:
             raise NotFound(description="No user found with given username")
 
         username_id[name] = user.id
     app.logger.info("also made it to asdfasdfasdfhere!")
-    #segmentations = request.form.get("segmentations", "[]")
-    is_marked_for_review = True #bool(request.form.get("is_marked_for_review", False))
+    is_marked_for_review = True
     app.logger.info("made it to here!")
     file_length = request.form.get("file_length", None)
     audio_files = []
     for n in range(int(file_length)):
         audio_files.append(request.files.get(str(n)))
-        
-    
+
     app.logger.info(audio_files)
     app.logger.info(audio_files)
     app.logger.info("also made it to here!")
@@ -271,47 +272,21 @@ def add_data_from_site():
                 filename=filename,
                 original_filename=original_filename,
                 is_marked_for_review=is_marked_for_review,
-                assigned_user_id= username_id,
+                assigned_user_id=username_id,
                 sampling_rate=frame_rate,
                 clip_length=clip_duration,
             )
             app.logger.info(filename)
         except Exception as e:
-            #error = "username_id is bad " + username_id 
             raise BadRequest(description="username_id is bad ")
-        print("HELLLO THERE ERROR MESSAGE") 
         db.session.add(data)
         db.session.flush()
-
-        #segmentations = json.loads(segmentations)
-    #
-        #new_segmentations = []
-    #
-        #for segment in segmentations:
-        #    validated = validate_segmentation(segment)
-    #
-        #    if not validated:
-        #        raise BadRequest(description=f"Segmentations have missing keys.")
-    #
-        #    new_segment = generate_segmentation(
-        #        data_id=data.id,
-        #        project_id=project.id,
-        #        end_time=segment["end_time"],
-        #        start_time=segment["start_time"],
-        #        annotations=segment.get("annotations", {}),
-        # 
-        #    )
-    #
-        #    new_segmentations.append(new_segment)
-    #
-        #data.set_segmentations(new_segmentations)
-    #
         db.session.commit()
         db.session.refresh(data)
 
     return (
         jsonify(
-            message=f"Data uploaded, created and assigned successfully for user",
+            message=f"Data uploaded successfully",
             type="DATA_CREATED",
         ),
         201,
