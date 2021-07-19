@@ -42,42 +42,33 @@ const FormModal = props => {
         <Modal.Title id="contained-modal-title-vcenter">{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {props.formType === "NEW_LABEL_VALUE" ? (
-          <CreateLabelValueForm labelId={props.labelId} />
+        {formType === 'NEW_USER' ? <CreateUserForm authNeeded="true" /> : null}
+        {formType === 'NEW_PROJECT' ? <CreateProjectForm /> : null}
+        {formType === 'EDIT_USER' ? <EditUserForm userId={userId} /> : null}
+        {formType === 'Edit_PROJECT' ? <EditProjectForm projectId={projectId} /> : null}
+        {formType === 'DELETE_USER' ? <DeleteUserForm userId={userId} onDelete={onExited} /> : null}
+        {formType === 'MANAGE_PROJECT_USERS' ? (
+          <ManageUsersProjectForm projectId={projectId} />
         ) : null}
-        {props.formType === "EDIT_LABEL_VALUE" ? (
-          <EditLabelValueForm
-            labelId={props.labelId}
-            labelValueId={props.labelValueId}
-          />
+        {formType === 'NEW_LABEL' ? <CreateLabelForm projectId={projectId} /> : null}
+        {formType === 'EDIT_LABEL' ? (
+          <EditLabelForm projectId={projectId} labelId={labelId} />
         ) : null}
-        {props.formType === "DELETE_LABEL_VALUE" ? (
-          <DeleteLabelValueForm
-            labelId={props.labelId}
-            labelValueId={props.labelValueId}
-            onDelete={props.onExited}
-          />
+        {formType === 'NEW_LABEL_VALUE' ? <CreateLabelValueForm labelId={labelId} /> : null}
+        {formType === 'EDIT_LABEL_VALUE' ? (
+          <EditLabelValueForm labelId={labelId} labelValueId={labelValueId} />
         ) : null}
-        {props.formType === "DELETE_LABEL" ? (      
-          <DeleteLabelForm
-            labelId={props.labelId}
-            projectId={props.projectId}
-            onDelete={props.onExited}
-            />
+        {formType === 'DELETE_LABEL_VALUE' ? (
+          <DeleteLabelValueForm labelId={labelId} labelValueId={labelValueId} />
         ) : null}
-        {props.formType === "UPLOAD_DATA" ? (
-          <UploadDataForm
-            projectId={props.projectId}
-            projectName={props.projectName}
-            apiKey={props.api_key}
-          />
+        {formType === 'DELETE_LABEL' ? (
+          <DeleteLabelForm labelId={labelId} projectId={projectId} />
         ) : null}
-        {props.formType === "DOWNLOAD_DATA" ? (
-          <DownloadDataForm
-            projectId={props.projectId}
-            projectName={props.projectName}
-            apiKey={props.api_key}
-          />
+        {formType === 'UPLOAD_DATA' ? (
+          <UploadDataForm projectId={projectId} projectName={projectName} apiKey={api_key} />
+        ) : null}
+        {formType === 'DOWNLOAD_DATA' ? (
+          <DownloadDataForm projectId={projectId} projectName={projectName} apiKey={api_key} />
         ) : null}
       </Modal.Body>
     </Modal>

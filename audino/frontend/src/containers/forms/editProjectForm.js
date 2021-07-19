@@ -68,11 +68,11 @@ class EditProjectForm extends React.Component {
         name
       }
     })
-      .then((response) => {
+      .then(response => {
         if (response.status === 200) {
           this.resetState();
           this.form.reset();
-          this.setState({ successMessage: "Successfully changed name" });
+          this.setState({ successMessage: 'Successfully changed name' });
         }
       })
       .catch(error => {
@@ -90,7 +90,7 @@ class EditProjectForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, projectId } = this.state;
+    const { isSubmitting, errorMessage, successMessage } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">

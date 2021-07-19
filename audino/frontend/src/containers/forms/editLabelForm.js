@@ -82,7 +82,7 @@ class EditLabelForm extends React.Component {
       data: {
         type,
         name
-      },
+      }
     })
       .then(response => {
         if (response.status === 200) {
@@ -164,9 +164,9 @@ class EditLabelForm extends React.Component {
                     id="name"
                     placeholder="Name"
                     value={name}
-                    autoFocus={true}
-                    required={true}
-                    onChange={(e) => this.handleLabelNameChange(e)}
+                    autoFocus
+                    required
+                    onChange={e => this.handleLabelNameChange(e)}
                   />
                 </div>
                 <div className="form-group">
