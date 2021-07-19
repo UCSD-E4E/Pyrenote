@@ -60,6 +60,18 @@ class AdminHandleFormProjects extends React.Component {
     });
   }
 
+  handleFeatureToggle(e, projectName, projectId, api_key) {
+    console.log(api_key, "hi")
+    this.setModalShow(true);
+    this.setState({
+      formType: "FEATURE_FORM",
+      title: `Toggle Features on or off for ${projectName}`,
+      projectId,
+      projectName,
+      api_key,
+    });
+  }
+
   render() {
     return (
       <td className="align-middle">
@@ -105,6 +117,19 @@ class AdminHandleFormProjects extends React.Component {
               this.project.name,
               this.project.project_id,
               this.project.api_key
+            )
+          }
+        />
+        <IconButton
+          icon={faList}
+          size="sm"
+          title={"Turn on or Off Annotation Features"}
+          onClick={(e) =>
+            this.handleFeatureToggle(
+              e,
+              project["name"],
+              project["project_id"],
+              project["api_key"]
             )
           }
         />
