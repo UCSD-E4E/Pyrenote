@@ -36,6 +36,7 @@ class Annotate extends React.Component {
       isSegmentDeleting: false,
       errorMessage: null,
       errorUnsavedMessage: null,
+      errorUnsavedMessagePrevious: null,
       successMessage: null,
       isRendering: true,
       data: [],
@@ -104,6 +105,7 @@ class Annotate extends React.Component {
       });
 
     const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state });
+    const navButton = new NavButton({ annotate: this, state: this.state, save: this.handleAllSegmentSave});
     const wavesurfer = wavesurferMethods.loadWavesurfer();
     axios
       .all([axios.get(labelsUrl), axios.get(dataUrl)])
@@ -139,7 +141,7 @@ class Annotate extends React.Component {
         const { zoom } = this.state;
         wavesurfer.zoom(zoom);
 
-        this.setState({ wavesurfer, wavesurferMethods });
+        this.setState({ wavesurfer, wavesurferMethods, navButton });
         this.loadRegions(regions);
       })
       .catch(error => {
@@ -313,7 +315,8 @@ class Annotate extends React.Component {
     this.setState({
       successMessage: '',
       errorMessage: '',
-      errorUnsavedMessage: ''
+      errorUnsavedMessage: '',
+      errorUnsavedMessagePrevious: '',
     });
   }
 
@@ -325,14 +328,23 @@ class Annotate extends React.Component {
     });
   }
 
-  checkForSave(success, forceNext) {
+  checkForSave(success, forceNext, next = true) {
     const { wavesurfer } = this.state;
     Object.values(wavesurfer.regions.list).forEach(segment => {
       if (segment.saved === false && !forceNext) {
-        if (segment.data.annotations == null) {
+        if (segment.data.annotations == null && next) {
           this.setState({
             errorUnsavedMessage:
-              'There regions without a label! You can\'t leave yet! If you are sure, click "force next"'
+              'There regions without a label! You can\'t leave yet! If you are sure, click "force next"',
+            errorUnsavedMessagePrevious: ''
+          });
+          success = false;
+        }
+        else if (segment.data.annotations == null) {
+          this.setState({
+            errorUnsavedMessage: '',
+            errorUnsavedMessagePrevious:
+              'There regions without a label! You can\'t leave yet! If you are sure, click "force previous"',
           });
           success = false;
         }
@@ -368,14 +380,18 @@ class Annotate extends React.Component {
       isSegmentSaving,
       errorMessage,
       errorUnsavedMessage,
+      errorUnsavedMessagePrevious,
       successMessage,
       isRendering,
       original_filename,
+      navButton,
       wavesurferMethods
     } = this.state;
+
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
+
     return (
       <div>
         <Helmet>
@@ -385,6 +401,8 @@ class Annotate extends React.Component {
           <div className="h-100 mt-5 text-center">
             {errorUnsavedMessage
               ? this.renderAlerts('danger', errorUnsavedMessage)
+              :errorUnsavedMessagePrevious
+              ? this.renderAlerts('danger', errorUnsavedMessagePrevious)
               : errorMessage
               ? this.renderAlerts('danger', errorMessage)
               : successMessage
@@ -505,7 +523,7 @@ class Annotate extends React.Component {
                 </div>
               </div>
 
-              {errorUnsavedMessage && (
+              {navButton && ( errorUnsavedMessage ? (
                 <div
                   className="buttons-container-item"
                   style={{ margin: 'auto', marginBottom: '2%' }}
@@ -514,13 +532,27 @@ class Annotate extends React.Component {
                     size="lg"
                     type="danger"
                     disabled={isSegmentSaving}
-                    onClick={() => this.handleNextClip(true)}
+                    onClick={() => navButton.handleNextClip(true)}
                     isSubmitting={isSegmentSaving}
                     text="Force Next"
                   />
                 </div>
-              )}
-              <NavButton save={this.handleAllSegmentSave} annotate={this} />
+              ) : errorUnsavedMessagePrevious ? (
+                <div
+                className="buttons-container-item"
+                style={{ margin: 'auto', marginBottom: '2%' }}
+                >
+                  <Button
+                    size="lg"
+                    type="danger"
+                    disabled={isSegmentSaving}
+                    onClick={(e) => navButton.handlePreviousClip(true)}
+                    isSubmitting={isSegmentSaving}
+                    text="Force Previous"
+                  />
+                  </div>)
+                : null)}
+              {navButton && navButton.render({state: this.state})}
             </div>
           </div>
         </div>

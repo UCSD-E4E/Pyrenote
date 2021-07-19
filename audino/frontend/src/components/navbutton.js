@@ -1,12 +1,15 @@
 import React from 'react';
 import { Button } from './button';
 
-const NavButton = props => {
-  const { annotate } = props;
+class NavButton {
+  constructor(props) {
+    this.state = props.state
+    this.annotate = props.annotate
+    this.save = props.save
+  }
 
-  // Go to the next audio recording
-  const handleNextClip = (forceNext = false) => {
-    props.save(annotate);
+  handleNextClip (forceNext = false) {
+    this.save(this.annotate);
     const {
       previous_pages,
       num_of_prev,
@@ -16,10 +19,10 @@ const NavButton = props => {
       next_data_id,
       next_data_url,
       path
-    } = annotate.state;
+    } = this.state;
 
     let success = true;
-    success = annotate.checkForSave(success, forceNext);
+    success = this.annotate.checkForSave(success, forceNext);
     if (!success) {
       return;
     }
@@ -54,12 +57,11 @@ const NavButton = props => {
     });
   };
 
-  // Go to previous audio recording
-  const handlePreviousClip = (forceNext = false) => {
-    annotate.handleAllSegmentSave();
-    const { previous_pages, num_of_prev } = annotate.state;
+  handlePreviousClip (forceNext = false) {
+    this.save(this.annotate);
+    const { previous_pages, num_of_prev } = this.state;
     let success = true;
-    success = annotate.checkForSave(success, forceNext);
+    success = this.annotate.checkForSave(success, forceNext, false);
     if (success) {
       if (num_of_prev > 0) {
         const page_num = num_of_prev - 1;
@@ -74,8 +76,8 @@ const NavButton = props => {
     }
   };
 
-  const renderNavButtons = (className, callback) => {
-    const { isSegmentSaving } = annotate.state;
+  renderNavButton (className, callback) {
+    const { isSegmentSaving } = this.state;
     return (
       <div className="buttons-container-item">
         <div className={className}>
@@ -91,12 +93,15 @@ const NavButton = props => {
     );
   };
 
-  return (
-    <div className="buttons-container">
-      {renderNavButtons('previous', () => handlePreviousClip())}
-      {renderNavButtons('next', () => handleNextClip())}
-    </div>
-  );
-};
+  render(props) {
+    this.state = props.state
+    return (
+      <div className="buttons-container">
+        {this.renderNavButton('previous', () => this.handlePreviousClip())}
+        {this.renderNavButton('next', () => this.handleNextClip())}
+      </div>
+    );
+  }
+}
 
 export default NavButton;
