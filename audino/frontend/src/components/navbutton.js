@@ -59,7 +59,7 @@ const NavButton = props => {
     annotate.handleAllSegmentSave();
     const { previous_pages, num_of_prev } = annotate.state;
     let success = true;
-    success = annotate.checkForSave(success, forceNext);
+    success = annotate.checkForSave(success, forceNext, false);
     if (success) {
       if (num_of_prev > 0) {
         const page_num = num_of_prev - 1;
@@ -99,4 +99,4 @@ const NavButton = props => {
   );
 };
 
-export default NavButton;
+export  {NavButton, handlePreviousClip, handleNextClip};

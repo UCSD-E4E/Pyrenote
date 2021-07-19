@@ -7,7 +7,7 @@ import Alert from '../components/alert';
 import { Button } from '../components/button';
 import Loader from '../components/loader';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import NavButton from '../components/navbutton';
+import { NavButton, handlePreviousClip, handleNextClip} from '../components/navbutton';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -36,6 +36,7 @@ class Annotate extends React.Component {
       isSegmentDeleting: false,
       errorMessage: null,
       errorUnsavedMessage: null,
+      errorUnsavedMessagePrevious: null,
       successMessage: null,
       isRendering: true,
       data: [],
@@ -325,14 +326,21 @@ class Annotate extends React.Component {
     });
   }
 
-  checkForSave(success, forceNext) {
+  checkForSave(success, forceNext, next = true) {
     const { wavesurfer } = this.state;
     Object.values(wavesurfer.regions.list).forEach(segment => {
       if (segment.saved === false && !forceNext) {
-        if (segment.data.annotations == null) {
+        if (segment.data.annotations == null && next) {
           this.setState({
             errorUnsavedMessage:
               'There regions without a label! You can\'t leave yet! If you are sure, click "force next"'
+          });
+          success = false;
+        }
+        else if (segment.data.annotations == null) {
+          this.setState({
+            errorUnsavedMessagePrevious:
+              'There regions without a label! You can\'t leave yet! If you are sure, click "force previous"',
           });
           success = false;
         }
@@ -368,6 +376,7 @@ class Annotate extends React.Component {
       isSegmentSaving,
       errorMessage,
       errorUnsavedMessage,
+      errorUnsavedMessagePrevious,
       successMessage,
       isRendering,
       original_filename,
@@ -505,7 +514,7 @@ class Annotate extends React.Component {
                 </div>
               </div>
 
-              {errorUnsavedMessage && (
+              {(errorUnsavedMessage && (
                 <div
                   className="buttons-container-item"
                   style={{ margin: 'auto', marginBottom: '2%' }}
@@ -514,12 +523,26 @@ class Annotate extends React.Component {
                     size="lg"
                     type="danger"
                     disabled={isSegmentSaving}
-                    onClick={() => this.handleNextClip(true)}
+                    onClick={() => handleNextClip(true)}
                     isSubmitting={isSegmentSaving}
                     text="Force Next"
                   />
                 </div>
-              )}
+              )) || (errorUnsavedMessagePrevious) && (
+                <div
+                className="buttons-container-item"
+                style={{ margin: 'auto', marginBottom: '2%' }}
+                >
+                  <Button
+                    size="large"
+                    type="danger"
+                    disabled={isSegmentSaving}
+                    onClick={(e) => handlePreviousClip(true)}
+                    isSubmitting={isSegmentSaving}
+                    text="Force Previous"
+                  />
+                  </div>
+                )}
               <NavButton save={this.handleAllSegmentSave} annotate={this} />
             </div>
           </div>
