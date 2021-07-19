@@ -105,7 +105,11 @@ class Annotate extends React.Component {
       });
 
     const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state });
-    const navButton = new NavButton({ annotate: this, state: this.state, save: this.handleAllSegmentSave});
+    const navButton = new NavButton({
+      annotate: this,
+      state: this.state,
+      save: this.handleAllSegmentSave
+    });
     const wavesurfer = wavesurferMethods.loadWavesurfer();
     axios
       .all([axios.get(labelsUrl), axios.get(dataUrl)])
@@ -316,7 +320,7 @@ class Annotate extends React.Component {
       successMessage: '',
       errorMessage: '',
       errorUnsavedMessage: '',
-      errorUnsavedMessagePrevious: '',
+      errorUnsavedMessagePrevious: ''
     });
   }
 
@@ -339,12 +343,11 @@ class Annotate extends React.Component {
             errorUnsavedMessagePrevious: ''
           });
           success = false;
-        }
-        else if (segment.data.annotations == null) {
+        } else if (segment.data.annotations == null) {
           this.setState({
             errorUnsavedMessage: '',
             errorUnsavedMessagePrevious:
-              'There regions without a label! You can\'t leave yet! If you are sure, click "force previous"',
+              'There regions without a label! You can\'t leave yet! If you are sure, click "force previous"'
           });
           success = false;
         }
@@ -401,7 +404,7 @@ class Annotate extends React.Component {
           <div className="h-100 mt-5 text-center">
             {errorUnsavedMessage
               ? this.renderAlerts('danger', errorUnsavedMessage)
-              :errorUnsavedMessagePrevious
+              : errorUnsavedMessagePrevious
               ? this.renderAlerts('danger', errorUnsavedMessagePrevious)
               : errorMessage
               ? this.renderAlerts('danger', errorMessage)
@@ -523,36 +526,37 @@ class Annotate extends React.Component {
                 </div>
               </div>
 
-              {navButton && ( errorUnsavedMessage ? (
-                <div
-                  className="buttons-container-item"
-                  style={{ margin: 'auto', marginBottom: '2%' }}
-                >
-                  <Button
-                    size="lg"
-                    type="danger"
-                    disabled={isSegmentSaving}
-                    onClick={() => navButton.handleNextClip(true)}
-                    isSubmitting={isSegmentSaving}
-                    text="Force Next"
-                  />
-                </div>
-              ) : errorUnsavedMessagePrevious ? (
-                <div
-                className="buttons-container-item"
-                style={{ margin: 'auto', marginBottom: '2%' }}
-                >
-                  <Button
-                    size="lg"
-                    type="danger"
-                    disabled={isSegmentSaving}
-                    onClick={(e) => navButton.handlePreviousClip(true)}
-                    isSubmitting={isSegmentSaving}
-                    text="Force Previous"
-                  />
-                  </div>)
-                : null)}
-              {navButton && navButton.render({state: this.state})}
+              {navButton &&
+                (errorUnsavedMessage ? (
+                  <div
+                    className="buttons-container-item"
+                    style={{ margin: 'auto', marginBottom: '2%' }}
+                  >
+                    <Button
+                      size="lg"
+                      type="danger"
+                      disabled={isSegmentSaving}
+                      onClick={() => navButton.handleNextClip(true)}
+                      isSubmitting={isSegmentSaving}
+                      text="Force Next"
+                    />
+                  </div>
+                ) : errorUnsavedMessagePrevious ? (
+                  <div
+                    className="buttons-container-item"
+                    style={{ margin: 'auto', marginBottom: '2%' }}
+                  >
+                    <Button
+                      size="lg"
+                      type="danger"
+                      disabled={isSegmentSaving}
+                      onClick={() => navButton.handlePreviousClip(true)}
+                      isSubmitting={isSegmentSaving}
+                      text="Force Previous"
+                    />
+                  </div>
+                ) : null)}
+              {navButton && navButton.render({ state: this.state })}
             </div>
           </div>
         </div>

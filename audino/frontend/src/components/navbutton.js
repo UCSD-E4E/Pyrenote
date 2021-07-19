@@ -3,12 +3,12 @@ import { Button } from './button';
 
 class NavButton {
   constructor(props) {
-    this.state = props.state
-    this.annotate = props.annotate
-    this.save = props.save
+    this.state = props.state;
+    this.annotate = props.annotate;
+    this.save = props.save;
   }
 
-  handleNextClip (forceNext = false) {
+  handleNextClip(forceNext = false) {
     this.save(this.annotate);
     const {
       previous_pages,
@@ -55,9 +55,9 @@ class NavButton {
         }
       }
     });
-  };
+  }
 
-  handlePreviousClip (forceNext = false) {
+  handlePreviousClip(forceNext = false) {
     this.save(this.annotate);
     const { previous_pages, num_of_prev } = this.state;
     let success = true;
@@ -74,9 +74,9 @@ class NavButton {
         console.warn('You have hit the end of the clips you have last seen');
       }
     }
-  };
+  }
 
-  renderNavButton (className, callback) {
+  renderNavButton(className, callback) {
     const { isSegmentSaving } = this.state;
     return (
       <div className="buttons-container-item">
@@ -91,10 +91,10 @@ class NavButton {
         </div>
       </div>
     );
-  };
+  }
 
   render(props) {
-    this.state = props.state
+    this.state = props.state;
     return (
       <div className="buttons-container">
         {this.renderNavButton('previous', () => this.handlePreviousClip())}
