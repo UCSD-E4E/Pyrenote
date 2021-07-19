@@ -4,6 +4,7 @@ import {
   faUserPlus,
   faTags,
   faDownload,
+  faList,
   faTrash,
   faUpload
 } from '@fortawesome/free-solid-svg-icons';
@@ -61,9 +62,7 @@ class AdminHandleFormProjects extends React.Component {
   }
 
   handleFeatureToggle(e, projectName, projectId, api_key) {
-    console.log(api_key, "hi")
-    this.setModalShow(true);
-    this.setState({
+    this.showModal({
       formType: "FEATURE_FORM",
       title: `Toggle Features on or off for ${projectName}`,
       projectId,
@@ -127,9 +126,9 @@ class AdminHandleFormProjects extends React.Component {
           onClick={(e) =>
             this.handleFeatureToggle(
               e,
-              project["name"],
-              project["project_id"],
-              project["api_key"]
+              this.project.name,
+              this.project.project_id,
+              this.project.api_key
             )
           }
         />
