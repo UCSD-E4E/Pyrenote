@@ -1,15 +1,12 @@
 import React from 'react';
 import { Button } from './button';
 
-class NavButton {
-  constructor(props) {
-    this.state = props.state;
-    this.annotate = props.annotate;
-    this.save = props.save;
-  }
+const NavButton = props => {
+  const { annotate } = props;
 
-  handleNextClip(forceNext = false) {
-    this.save(this.annotate);
+  // Go to the next audio recording
+  const handleNextClip = (forceNext = false) => {
+    annotate.handleAllSegmentSave();
     const {
       previous_pages,
       num_of_prev,
@@ -19,10 +16,10 @@ class NavButton {
       next_data_id,
       next_data_url,
       path
-    } = this.state;
+    } = annotate.state;
 
     let success = true;
-    success = this.annotate.checkForSave(success, forceNext);
+    success = annotate.checkForSave(success, forceNext, 'next');
     if (!success) {
       return;
     }
@@ -55,13 +52,14 @@ class NavButton {
         }
       }
     });
-  }
+  };
 
-  handlePreviousClip(forceNext = false) {
-    this.save(this.annotate);
-    const { previous_pages, num_of_prev } = this.state;
+  // Go to previous audio recording
+  const handlePreviousClip = (forcePrev = false) => {
+    annotate.handleAllSegmentSave();
+    const { previous_pages, num_of_prev } = annotate.state;
     let success = true;
-    success = this.annotate.checkForSave(success, forceNext, false);
+    success = annotate.checkForSave(success, forcePrev, 'previous');
     if (success) {
       if (num_of_prev > 0) {
         const page_num = num_of_prev - 1;
@@ -74,10 +72,10 @@ class NavButton {
         console.warn('You have hit the end of the clips you have last seen');
       }
     }
-  }
+  };
 
-  renderNavButton(className, callback) {
-    const { isSegmentSaving } = this.state;
+  const renderNavButtons = (className, callback) => {
+    const { isSegmentSaving } = annotate.state;
     return (
       <div className="buttons-container-item">
         <div className={className}>
@@ -91,17 +89,45 @@ class NavButton {
         </div>
       </div>
     );
-  }
+  };
 
-  render(props) {
-    this.state = props.state;
-    return (
-      <div className="buttons-container">
-        {this.renderNavButton('previous', () => this.handlePreviousClip())}
-        {this.renderNavButton('next', () => this.handleNextClip())}
-      </div>
-    );
-  }
-}
+  const checkForce = () => {
+    const unsaved = annotate.state.errorUnsavedMessage;
+    const dir = annotate.state.direction;
+    let func;
+    let text;
+    if (dir === 'next') {
+      func = handleNextClip;
+      text = 'Force Next';
+    }
+    if (dir === 'previous') {
+      func = handlePreviousClip;
+      text = 'Force Prev';
+    }
+    if (unsaved) {
+      return (
+        <div className="buttons-container-item" style={{ margin: 'auto', marginBottom: '2%' }}>
+          <Button
+            size="lg"
+            type="danger"
+            disabled={annotate.state.isSegmentSaving}
+            onClick={() => func(true)}
+            isSubmitting={annotate.state.isSegmentSaving}
+            text={text}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="buttons-container">
+      {checkForce()}
+      {renderNavButtons('previous', () => handlePreviousClip())}
+      {renderNavButtons('next', () => handleNextClip())}
+    </div>
+  );
+};
 
 export default NavButton;
