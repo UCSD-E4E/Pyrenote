@@ -6,7 +6,7 @@ const NavButton = props => {
 
   // Go to the next audio recording
   const handleNextClip = (forceNext = false) => {
-    props.save(annotate);
+    annotate.handleAllSegmentSave();
     const {
       previous_pages,
       num_of_prev,
@@ -19,7 +19,7 @@ const NavButton = props => {
     } = annotate.state;
 
     let success = true;
-    success = annotate.checkForSave(success, forceNext);
+    success = annotate.checkForSave(success, forceNext, 'next');
     if (!success) {
       return;
     }
@@ -55,11 +55,11 @@ const NavButton = props => {
   };
 
   // Go to previous audio recording
-  const handlePreviousClip = (forceNext = false) => {
+  const handlePreviousClip = (forcePrev = false) => {
     annotate.handleAllSegmentSave();
     const { previous_pages, num_of_prev } = annotate.state;
     let success = true;
-    success = annotate.checkForSave(success, forceNext);
+    success = annotate.checkForSave(success, forcePrev, 'previous');
     if (success) {
       if (num_of_prev > 0) {
         const page_num = num_of_prev - 1;
@@ -91,10 +91,48 @@ const NavButton = props => {
     );
   };
 
+  const checkForce = () => {
+    const unsaved = annotate.state.errorUnsavedMessage;
+    const dir = annotate.state.direction;
+    let func;
+    let text;
+    if (dir === 'next') {
+      func = handleNextClip;
+      text = 'Force Next';
+    }
+    if (dir === 'previous') {
+      func = handlePreviousClip;
+      text = 'Force Prev';
+    }
+    if (unsaved) {
+      return (
+        <div className="buttons-container-item" style={{ margin: 'auto', marginBottom: '2%' }}>
+          <Button
+            size="lg"
+            type="danger"
+            disabled={annotate.state.isSegmentSaving}
+            onClick={() => func(true)}
+            isSubmitting={annotate.state.isSegmentSaving}
+            text={text}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="buttons-container">
-      {renderNavButtons('previous', () => handlePreviousClip())}
-      {renderNavButtons('next', () => handleNextClip())}
+    <div>
+      <div className="buttons-container">
+        {renderNavButtons('previous', () => handlePreviousClip())}
+        {renderNavButtons('next', () => handleNextClip())}
+      </div>
+      <div
+        className="buttons-container"
+        // style={{ margin: 'auto', marginBottom: '2%' }}
+      >
+        {checkForce()}
+      </div>
     </div>
   );
 };
