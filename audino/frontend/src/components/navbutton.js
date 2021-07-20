@@ -122,11 +122,19 @@ const NavButton = props => {
   };
 
   return (
-    <div className="buttons-container">
-      {checkForce()}
-      {renderNavButtons('previous', () => handlePreviousClip())}
-      {renderNavButtons('next', () => handleNextClip())}
+    <div>
+      <div className="buttons-container">
+        {renderNavButtons('previous', () => handlePreviousClip())}
+        {renderNavButtons('next', () => handleNextClip())}
+      </div>
+      <div
+        className="buttons-container"
+        //style={{ margin: 'auto', marginBottom: '2%' }}
+      >
+        {checkForce()}
+      </div>
     </div>
+    
   );
 };
 
