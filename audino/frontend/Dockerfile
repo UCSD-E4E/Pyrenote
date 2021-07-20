@@ -17,4 +17,4 @@ RUN chmod +x /test.sh
 
 COPY test.sh /usr/local/bin/
 
-ENTRYPOINT ["test.sh"]
+ENTRYPOINT ["/test.sh"]
