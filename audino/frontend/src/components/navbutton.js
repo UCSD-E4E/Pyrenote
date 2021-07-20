@@ -129,12 +129,11 @@ const NavButton = props => {
       </div>
       <div
         className="buttons-container"
-        //style={{ margin: 'auto', marginBottom: '2%' }}
+        // style={{ margin: 'auto', marginBottom: '2%' }}
       >
         {checkForce()}
       </div>
     </div>
-    
   );
 };
 
