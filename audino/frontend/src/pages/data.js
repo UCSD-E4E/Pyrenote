@@ -226,6 +226,16 @@ class Data extends React.Component {
             ) : null}
             </div>*/}
         </div>
+        <div 
+              className="button-container"
+              style={{position: "absolute", justifyItems: "center", left: "50%", paddingBottom: "50px"}}
+            >
+              {nextPage ? (
+                  <Loader />
+              ): (
+                  <text><b>End Of Data</b></text>
+              )}
+          </div>
       </div>
     );
   }
