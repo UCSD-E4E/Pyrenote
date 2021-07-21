@@ -32,8 +32,8 @@ export default class Region {
     this.top =
       (Number(params.top) - this.maxFrequency) * (-this.maxHeight / this.maxFrequency) || 0;
     this.bot = Number(params.bot) * (this.maxHeight / this.maxFrequency) || 0;
-    this.regionTopFrequency = Number(params.top) || null;
-    this.regionBotFrequency = Number(params.bot) || null;
+    this.regionTopFrequency = Number(params.top) || -1;
+    this.regionBotFrequency = Number(params.bot) || -1;
 
     this.resize = params.resize === undefined ? true : Boolean(params.resize);
     this.drag = params.drag === undefined ? true : Boolean(params.drag);
@@ -95,6 +95,7 @@ export default class Region {
 
     this.formatTimeCallback = params.formatTimeCallback;
     this.edgeScrollWidth = params.edgeScrollWidth;
+    this.boundingBox = params.boundingBox || false;
     this.bindInOut();
     this.render();
     this.wavesurfer.on('zoom', this._onRedraw);
@@ -240,21 +241,27 @@ export default class Region {
     if (this.resize) {
       this.handleLeftEl = regionEl.appendChild(document.createElement('handle'));
       this.handleRightEl = regionEl.appendChild(document.createElement('handle'));
-      this.handleTopE1 = regionEl.appendChild(document.createElement('handle'));
-      this.handleBotE1 = regionEl.appendChild(document.createElement('handle'));
-      this.handleTopRightE1 = regionEl.appendChild(document.createElement('handle'));
-      this.handleTopLeftE1 = regionEl.appendChild(document.createElement('handle'));
-      this.handleBottomRightE1 = regionEl.appendChild(document.createElement('handle'));
-      this.handleBottomLeftE1 = regionEl.appendChild(document.createElement('handle'));
 
       this.handleLeftEl.className = 'wavesurfer-handle wavesurfer-handle-start';
       this.handleRightEl.className = 'wavesurfer-handle wavesurfer-handle-end';
-      this.handleTopE1.className = 'wavesurfer-handle wavesurfer-handle-top';
-      this.handleBotE1.className = 'wavesurfer-handle wavesurfer-handle-bottom';
-      this.handleTopRightE1.className = 'wavesurfer-handle wavesurfer-handle-top-right';
-      this.handleTopLeftE1.className = 'wavesurfer-handle wavesurfer-handle-top-left';
-      this.handleBottomRightE1.className = 'wavesurfer-handle wavesurfer-handle-bottom-right';
-      this.handleBottomLeftE1.className = 'wavesurfer-handle wavesurfer-handle-bottom-left';
+
+      if (this.boundingBox) {
+        this.handleTopE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleBotE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleTopRightE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleTopLeftE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleBottomRightE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleBottomLeftE1 = regionEl.appendChild(document.createElement('handle'));
+
+
+        this.handleTopE1.className = 'wavesurfer-handle wavesurfer-handle-top';
+        this.handleBotE1.className = 'wavesurfer-handle wavesurfer-handle-bottom';
+        this.handleTopRightE1.className = 'wavesurfer-handle wavesurfer-handle-top-right';
+        this.handleTopLeftE1.className = 'wavesurfer-handle wavesurfer-handle-top-left';
+        this.handleBottomRightE1.className = 'wavesurfer-handle wavesurfer-handle-bottom-right';
+        this.handleBottomLeftE1.className = 'wavesurfer-handle wavesurfer-handle-bottom-left';
+      }
+
 
       // Default CSS properties for both handles.
       const css = {
@@ -316,6 +323,8 @@ export default class Region {
           ? { bottom: '-1px', left: '-1px', ...corner_css, ...this.handleStyle.bot }
           : null;
 
+      console.log(handleTopCss && this.boundingBox)
+
       if (handleLeftCss) {
         this.style(this.handleLeftEl, handleLeftCss);
       }
@@ -323,22 +332,22 @@ export default class Region {
       if (handleRightCss) {
         this.style(this.handleRightEl, handleRightCss);
       }
-      if (handleTopCss) {
+      if (handleTopCss && this.boundingBox) {
         this.style(this.handleTopE1, handleTopCss);
       }
-      if (handleBotCss) {
+      if (handleBotCss && this.boundingBox) {
         this.style(this.handleBotE1, handleBotCss);
       }
-      if (handleTopRightCss) {
+      if (handleTopRightCss && this.boundingBox) {
         this.style(this.handleTopRightE1, handleTopRightCss);
       }
-      if (handleTopLeftCss) {
+      if (handleTopLeftCss && this.boundingBox) {
         this.style(this.handleTopLeftE1, handleTopLeftCss);
       }
-      if (handleTopRightCss) {
+      if (handleTopRightCss && this.boundingBox) {
         this.style(this.handleBottomRightE1, handleBottomRightCss);
       }
-      if (handleTopLeftCss) {
+      if (handleTopLeftCss && this.boundingBox) {
         this.style(this.handleBottomLeftE1, handleBottomLeftCss);
       }
     }

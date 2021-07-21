@@ -42,7 +42,8 @@ class Annotate extends React.Component {
       previous_pages: [],
       num_of_prev: 0,
       numpage: 5,
-      path: window.location.href.substring(0, index)
+      path: window.location.href.substring(0, index),
+      boundingBox: true
     };
     this.lastTime = 0;
     this.labelRef = {};
@@ -117,17 +118,30 @@ class Annotate extends React.Component {
           response[1].data;
 
         const regions = segmentations.map(segmentation => {
+          if (this.boundingBox) {
+            return {
+              start: segmentation.start_time,
+              end: segmentation.end_time,
+              top: segmentation.max_freq,
+              bot: segmentation.min_freq,
+              saved: true,
+              color: 'rgba(0, 0, 0, 0.7)',
+              data: {
+                segmentation_id: segmentation.segmentation_id,
+                annotations: segmentation.annotations
+              }
+            };
+          }
           return {
             start: segmentation.start_time,
             end: segmentation.end_time,
-            top: segmentation.max_freq,
-            bot: segmentation.min_freq,
             saved: true,
             color: 'rgba(0, 0, 0, 0.7)',
             data: {
               segmentation_id: segmentation.segmentation_id,
               annotations: segmentation.annotations
-            }
+            },
+            boundingBox: this.boundingBox
           };
         });
 
@@ -211,7 +225,12 @@ class Annotate extends React.Component {
     Object.values(wavesurfer.regions.list).forEach(segment => {
       if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
         try {
-          const { start, end, regionTopFrequency, regionBotFrequency } = segment;
+          let { regionTopFrequency, regionBotFrequency } = segment;
+          const { start, end } = segment
+          if (!this.boundingBox) {
+            regionTopFrequency = -1;
+            regionBotFrequency = -1;
+          }
           const { annotations = '', segmentation_id = null } = segment.data;
           annotate.setState({ isSegmentSaving: true });
           const now = Date.now();

@@ -560,7 +560,6 @@ def get_segmentations_for_data(project_id, data_id):
                 "end_time": segment.end_time,
                 "max_freq": segment.max_freq,
                 "min_freq": segment.min_freq,
-                "transcription": segment.transcription,
             }
 
             values = dict()
@@ -665,10 +664,10 @@ def add_segmentations(project_id, data_id, seg_id=None):
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400
 
-    start_time = request.json.get("start", None)
-    end_time = request.json.get("end", None)
-    max_freq = request.json.get("regionTopFrequency", None)
-    min_freq = request.json.get("regionBotFrequency", None)
+    start_time = float(request.json.get("start", None))
+    end_time = float(request.json.get("end", None))
+    max_freq = float(request.json.get("regionTopFrequency", None))
+    min_freq = float(request.json.get("regionBotFrequency", None))
 
     if start_time is None or end_time is None:
         return (

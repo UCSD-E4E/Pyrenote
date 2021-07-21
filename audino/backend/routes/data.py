@@ -31,8 +31,7 @@ def validate_segmentation(segment):
     Validate the segmentation before accepting the annotation's upload
     from users
     """
-    required_key = {"start_time", "end_time", "max_freq", "min_freq",
-                    "transcription"}
+    required_key = {"start_time", "end_time", "max_freq", "min_freq"}
 
     if set(required_key).issubset(segment.keys()):
         return True

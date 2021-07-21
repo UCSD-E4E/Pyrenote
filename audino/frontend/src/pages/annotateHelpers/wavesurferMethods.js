@@ -35,6 +35,7 @@ class WavesurferMethods {
   }
 
   loadWavesurfer() {
+    const { boundingBox } = this.state;
     const spectrogramColorMap = colormap({
       colormap: 'hot',
       nshades: 256,
@@ -66,7 +67,9 @@ class WavesurferMethods {
           scrollParent: true,
           colorMap: spectrogramColorMap
         }),
-        RegionsPlugin.create()
+        RegionsPlugin.create({
+          boundingBox
+        })
       ]
     });
     const { history } = this.annotate.props;

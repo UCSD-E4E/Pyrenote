@@ -21,12 +21,6 @@ parser.add_argument(
     help="Path to audio file which is to be annotated (wav, mp3, ogg only)",
     default=False,
 )
-parser.add_argument(
-    "--reference_transcription",
-    type=str,
-    help="Reference transcription associated with the data",
-    default=None,
-)
 parser.add_argument("--host", type=str, help="Host of service", default=None)
 parser.add_argument(
     "--is_marked_for_review",
@@ -69,7 +63,6 @@ for filename in os.listdir(directory):
         rate = wave_file.getframerate()
         clip_duration = frames / float(rate)
 
-    reference_transcription = args.reference_transcription
     username = args.username.split('.')
     print(username)
     username_dict = {}
@@ -79,7 +72,6 @@ for filename in os.listdir(directory):
     file = {"audio_file": (audio_filename, audio_obj)}
 
     values = {
-        "reference_transcription": reference_transcription,
         "username": username,
         "segmentations": segmentations,
         "is_marked_for_review": is_marked_for_review,

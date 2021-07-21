@@ -125,6 +125,8 @@ export default class RegionsPlugin {
     });
     this.wavesurfer.Region = Region;
 
+    this.boundingBox = params.boundingBox || false;
+
     this._onBackendCreated = () => {
       this.wrapper = this.wavesurfer.drawer.wrapper;
       if (this.params.regions) {
@@ -185,7 +187,9 @@ export default class RegionsPlugin {
     if (this.wouldExceedMaxRegions()) return null;
 
     if (!params.minLength && this.regionsMinLength) {
-      params = { ...params, minLength: this.regionsMinLength };
+      params = { ...params, minLength: this.regionsMinLength, boundingBox: this.boundingBox };
+    } else {
+      params = { ...params, boundingBox: this.boundingBox };
     }
 
     const region = new this.wavesurfer.Region(params, this.util, this.wavesurfer);
@@ -335,12 +339,19 @@ export default class RegionsPlugin {
         this.wavesurfer.drawer.handleEventVertical(e, false, max_Height) * max_Height
       );
       const bottomUpdate = this.wavesurfer.regions.util.getRegionSnapToGridValue(top * max_Height);
-      region.update({
-        start: Math.min(endUpdate, startUpdate),
-        end: Math.max(endUpdate, startUpdate),
-        top: Math.min(topUpdate, bottomUpdate),
-        bot: max_Height - Math.max(topUpdate, bottomUpdate)
-      });
+      if (this.boundingBox) {
+        region.update({
+          start: Math.min(endUpdate, startUpdate),
+          end: Math.max(endUpdate, startUpdate),
+          top: Math.min(topUpdate, bottomUpdate),
+          bot: max_Height - Math.max(topUpdate, bottomUpdate)
+        });
+      } else {
+        region.update({
+          start: Math.min(endUpdate, startUpdate),
+          end: Math.max(endUpdate, startUpdate)
+        });
+      }
 
       // If scrolling is enabled
       if (scroll && container.clientWidth < this.wrapper.scrollWidth) {

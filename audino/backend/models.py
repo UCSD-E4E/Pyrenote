@@ -315,10 +315,12 @@ class Segmentation(db.Model):
         self.time_spent = time_spent
 
     def set_max_freq(self, max_freq):
-        self.max_freq = max_freq
+        if (max_freq != -1.0):
+            self.max_freq = max_freq
 
     def set_min_freq(self, min_freq):
-        self.min_freq = min_freq
+        if (min_freq != -1.0):
+            self.min_freq = min_freq
 
     def to_dict(self):
         return {
