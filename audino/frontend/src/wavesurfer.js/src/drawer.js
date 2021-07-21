@@ -73,21 +73,19 @@ export default class Drawer extends util.Observer {
         overflowY: 'hidden'
       });
     }
-}
+  }
 
-/**
-     * Handle click event
-     *
-     * @param {Event} e Click event
-     * @param {?boolean} noPrevent Set to true to not call `e.preventDefault()`
-     * @return {number} Playback position from 0 to 1
-     */
- handleEvent(e, noPrevent) {
+  /**
+   * Handle click event
+   *
+   * @param {Event} e Click event
+   * @param {?boolean} noPrevent Set to true to not call `e.preventDefault()`
+   * @return {number} Playback position from 0 to 1
+   */
+  handleEvent(e, noPrevent) {
     !noPrevent && e.preventDefault();
 
-    const clientX = e.targetTouches
-        ? e.targetTouches[0].clientX
-        : e.clientX;
+    const clientX = e.targetTouches ? e.targetTouches[0].clientX : e.clientX;
     const bbox = this.wrapper.getBoundingClientRect();
 
     const nominalWidth = this.width;
@@ -95,37 +93,32 @@ export default class Drawer extends util.Observer {
 
     let progress;
     if (!this.params.fillParent && nominalWidth < parentWidth) {
-        progress =
-            (this.params.rtl ? bbox.right - clientX : clientX - bbox.left) *
-                (this.params.pixelRatio / nominalWidth) || 0;
+      progress =
+        (this.params.rtl ? bbox.right - clientX : clientX - bbox.left) *
+          (this.params.pixelRatio / nominalWidth) || 0;
     } else {
-        progress =
-            ((this.params.rtl
-                ? bbox.right - clientX
-                : clientX - bbox.left) +
-                this.wrapper.scrollLeft) /
-                this.wrapper.scrollWidth || 0;
+      progress =
+        ((this.params.rtl ? bbox.right - clientX : clientX - bbox.left) + this.wrapper.scrollLeft) /
+          this.wrapper.scrollWidth || 0;
     }
 
     return util.clamp(progress, 0, 1);
-}
+  }
 
-/**
- * Handle click event
- *
- * @param {Event} e Click event
- * @param {?boolean} noPrevent Set to true to not call `e.preventDefault()`
- * @return {number} frequency position from 0 to 1
- */
-handleEventVertical(e, noPrevent, height=null) {
+  /**
+   * Handle click event
+   *
+   * @param {Event} e Click event
+   * @param {?boolean} noPrevent Set to true to not call `e.preventDefault()`
+   * @return {number} frequency position from 0 to 1
+   */
+  handleEventVertical(e, noPrevent, height = null) {
     if (!height) {
-        height = this.wrapper.scrollHeight
+      height = this.wrapper.scrollHeight;
     }
     !noPrevent && e.preventDefault();
 
-    const clientY = e.targetTouches
-        ? e.targetTouches[0].clientY
-        : e.clientY;
+    const clientY = e.targetTouches ? e.targetTouches[0].clientY : e.clientY;
     const bbox = this.wrapper.getBoundingClientRect();
 
     const nominalHeight = this.height;
@@ -133,13 +126,12 @@ handleEventVertical(e, noPrevent, height=null) {
 
     let frequency;
     if (!this.params.fillParent && nominalHeight < parentHeight) {
-        console.log(this.params.rtl ? bbox.bottom - clientY : clientY - bbox.top)
-        frequency =
-            (this.params.rtl ? bbox.bottom - clientY : clientY - bbox.top) *
-                (this.params.pixelRatio / nominalHeight) || 0;
+      frequency =
+        (this.params.rtl ? bbox.bottom - clientY : clientY - bbox.top) *
+          (this.params.pixelRatio / nominalHeight) || 0;
     } else {
-        frequency = (clientY - bbox.top) / height || 0;
-        /**
+      frequency = (clientY - bbox.top) / height || 0;
+      /**
          *  frequency =
             ((this.params.rtl
                 ? bbox.bottom - clientY
@@ -148,42 +140,6 @@ handleEventVertical(e, noPrevent, height=null) {
          */
     }
     return util.clamp(frequency, 0, 1);
-}
-
-    setupWrapperEvents() {
-        this.wrapper.addEventListener('click', e => {
-            const scrollbarHeight =
-                this.wrapper.offsetHeight - this.wrapper.clientHeight;
-            if (scrollbarHeight !== 0) {
-                // scrollbar is visible.  Check if click was on it
-                const bbox = this.wrapper.getBoundingClientRect();
-                if (e.clientY >= bbox.bottom - scrollbarHeight) {
-                    // ignore mousedown as it was on the scrollbar
-                    return;
-                }
-            }
-
-            if (this.params.interact) {
-                this.fireEvent('click', e, this.handleEvent(e));
-            }
-        });
-
-        this.wrapper.addEventListener('dblclick', e => {
-            if (this.params.interact) {
-                this.fireEvent('dblclick', e, this.handleEvent(e));
-            }
-        });
-
-        this.wrapper.addEventListener('scroll', e =>
-            this.fireEvent('scroll', e)
-        );
-    }
-
-  getProgressPixels(wrapperBbox, clientX) {
-    if (this.params.rtl) {
-      return wrapperBbox.right - clientX;
-    }
-    return clientX - wrapperBbox.left;
   }
 
   setupWrapperEvents() {
@@ -211,6 +167,13 @@ handleEventVertical(e, noPrevent, height=null) {
     });
 
     this.wrapper.addEventListener('scroll', e => this.fireEvent('scroll', e));
+  }
+
+  getProgressPixels(wrapperBbox, clientX) {
+    if (this.params.rtl) {
+      return wrapperBbox.right - clientX;
+    }
+    return clientX - wrapperBbox.left;
   }
 
   /**
@@ -286,7 +249,6 @@ handleEventVertical(e, noPrevent, height=null) {
       // set rate at which waveform is centered
       let rate = this.params.autoCenterRate;
 
-
       // make rate depend on width of view and length of waveform
       rate /= half;
       rate *= maxScroll;
@@ -305,21 +267,23 @@ handleEventVertical(e, noPrevent, height=null) {
 
   getHeight() {
     return Math.round(this.container.clientHeight * this.params.pixelRatio);
-}
+  }
 
-/**
- * Set the width of the container
- *
- * @param {number} width The new width of the container
- * @return {boolean} Whether the width of the container was updated or not
- */
-setWidth(width) {
-    if (this.width == width) {
-        return false;
+  /**
+   * Set the width of the container
+   *
+   * @param {number} width The new width of the container
+   * @return {boolean} Whether the width of the container was updated or not
+   */
+  /*
+  setWidth(width) {
+    if (this.width === width) {
+      return false;
     }
 
     this.width = width;
-}
+  }
+  */
 
   /**
    * Get the current scroll position in pixels
