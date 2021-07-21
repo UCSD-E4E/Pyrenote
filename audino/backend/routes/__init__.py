@@ -53,6 +53,7 @@ from .data import (
     validate_segmentation,
     generate_segmentation,
     add_data,
-    add_data_from_site
+    add_data_from_site,
+    set_confident_check_data
 )
 from .audios import send_audio_file

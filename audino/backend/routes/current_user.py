@@ -83,6 +83,11 @@ def fetch_data_for_project(project_id):
             is_marked_for_review=True,
         ).order_by(Data.last_modified.desc())
 
+        data["not_confident"] = Data.query.filter_by(
+            project_id=project_id,
+            confident_check=False,
+        ).filter(Data.id.in_(segmentations)).order_by(Data.last_modified.desc())
+        app.logger.info("hello")
         data["all"] = Data.query.filter_by(
             project_id=project_id
         ).order_by(Data.last_modified.desc())

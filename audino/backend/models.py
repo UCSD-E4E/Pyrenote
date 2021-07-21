@@ -99,11 +99,16 @@ class Data(db.Model):
 
     segmentations = db.relationship("Segmentation", backref="Data")
 
+    confident_check = db.Column("confident_check", db.Boolean(), default=False)
+
     def update_marked_review(self, marked_review):
         self.is_marked_for_review = marked_review
 
     def set_segmentations(self, segmentations):
         self.segmentations = segmentations
+
+    def set_confident_check(self, confident_check):
+        self.confident_check = confident_check
 
     def to_dict(self):
         return {
@@ -116,6 +121,7 @@ class Data(db.Model):
             "assigned_users": self.assigned_user_id,
             "sampling_rate": self.sampling_rate,
             "clip_length": self.clip_length,
+            "confident_check": self.confident_check,
         }
 
 
