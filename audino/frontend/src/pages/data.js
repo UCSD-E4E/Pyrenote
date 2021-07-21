@@ -42,6 +42,17 @@ class Data extends React.Component {
     return `/projects/${projectId}/data?page=${page}&active=${active}`;
   }
 
+  isScrollLessThanWindow() {
+    let yMax = document.body.scrollHeight - document.body.clientHeight
+    return 0 >= yMax;
+  }
+
+  isBottom() {
+    //https://stackoverflow.com/questions/17688595/finding-the-maximum-scroll-position-of-a-page
+    let yMax = document.body.scrollHeight - document.body.clientHeight
+    return window.pageYOffset >= yMax || yMax == 1;
+  }
+
   getData(next=false) {
     let { apiUrl, page, active, data } = this.state;
     page += 1;
@@ -72,7 +83,7 @@ class Data extends React.Component {
           prevPage: prev_page,
           isDataLoading: false
         });
-        if (next_page) {this.getData()}
+        if (next_page && this.isScrollLessThanWindow()) {this.getData()}
         //this.getData()
         //if (!next) {
         //  let yMax = document.body.scrollHeight - document.body.clientHeight
@@ -99,13 +110,6 @@ class Data extends React.Component {
     this.getData()
     window.addEventListener('scroll', this.trackScrolling);
   }
-
-  isBottom() {
-    //https://stackoverflow.com/questions/17688595/finding-the-maximum-scroll-position-of-a-page
-    let yMax = document.body.scrollHeight - document.body.clientHeight
-    console.log(yMax)
-    return window.pageYOffset >= yMax || yMax == 1;
-  }
   
   componentWillUnmount() {
     window.removeEventListener('scroll', this.trackScrolling);
@@ -113,6 +117,7 @@ class Data extends React.Component {
   
   trackScrolling = () => {
     const {nextPage} = this.state
+    console.log(this.isBottom(), nextPage)
     if (this.isBottom() && nextPage) {
       //this.setState({ isDataLoading: true });
       this.getData(true)
