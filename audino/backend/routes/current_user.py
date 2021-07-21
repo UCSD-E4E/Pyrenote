@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 import uuid
-
+from random import randint
 from flask import jsonify, flash, redirect, url_for, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.urls import url_parse
@@ -488,3 +488,196 @@ def get_all():
         ),
         200,
     )
+
+@api.route("/current_user/unknown/projects/<int:project_id>/data/<int:data_value>", methods=["GET"])
+@jwt_required
+def get_next_data_unknown(project_id, data_value):
+    identity = get_jwt_identity()
+
+    #page = request.args.get("page", 1, type=int)
+    active = request.args.get("active", "completed", type=str)
+
+    try:
+        request_user = User.query.filter_by(username=identity["username"]).first()
+        project = Project.query.get(project_id)
+        project = Project.query.get(project_id)
+
+        if request_user not in project.users:
+            return jsonify(message="Unauthorized access!"), 401
+
+        segmentations = db.session.query(Segmentation.data_id).distinct().subquery()
+        #Lets set big id to the {username.idenity, username.id}
+        #this would make it fast but aslo render serval data points
+        data = {}
+        big_key = identity["username"]
+        #print(Data.assigned_user_id)
+        #for key in Data.assigned_user_id:
+        #    if request_user.id == Data.assigned_user_id[key]:
+        #        big_key = key
+        #        print(big_key, key)
+        data["pending"] = (
+            db.session.query(Data)
+            .filter(Data.project_id == project_id)
+            .filter(Data.id.notin_(segmentations))
+            .distinct()
+            .order_by(Data.last_modified.desc())
+        )
+
+        data["completed"] = (
+            db.session.query(Data)
+            .filter(Data.project_id == project_id)
+            .filter(Data.id.in_(segmentations))
+            .distinct()
+            .order_by(Data.last_modified.desc())
+        )
+
+        #paginated_data_pending = data["pending"].paginate(1, 10, False)
+        #paginated_data_complet = data["completed"].paginate(1, 10, False)
+        #paginated_data = paginated_data_pending
+        active = "unknown"
+        if (active != "pending"):
+            for data_pt in data["completed"]:
+                if data_pt.id == data_value:
+                    active = "completed"
+                    break
+            if (active == "unknown"):
+                active = "pending"
+            app.logger.info(active)
+
+        page = -1
+        test_page = 1
+        while (page == -1):
+            paginated_data = data[active].paginate(test_page, 10, False)
+            next_page = paginated_data.next_num if paginated_data.has_next else None
+            prev_page = paginated_data.prev_num if paginated_data.has_prev else None
+            for data_point in paginated_data.items:
+                if (data_point.id == data_value):
+                    response = list(
+                        [
+                            {
+                                "data_id": data_point.id,
+                                "filename": data_point.filename,
+                                "original_filename": data_point.original_filename,
+                                "created_on": data_point.created_at.strftime("%B %d, %Y"),
+                                "is_marked_for_review": data_point.is_marked_for_review,
+                                "number_of_segmentations": len(data_point.segmentations),
+                                "sampling_rate": data_point.sampling_rate,
+                                "clip_length": data_point.clip_length,
+                            }
+                            for data_point in paginated_data.items
+                        ]
+                    )
+                    
+                    return (
+                        jsonify(
+                            data=response,
+                            next_page=next_page,
+                            prev_page=prev_page,
+                            page=test_page,
+                            active=active,
+                        ),
+                        200,
+                    )
+            if (next_page is not None):
+                test_page += 1
+            #else:
+            #    app.logger.log("data doesn't exist")
+            #    raise "Data Doesn't Exist"
+    except Exception as e:
+        message = "Error fetching all data points"
+        app.logger.error(message)
+        app.logger.error(e)
+        return jsonify(message=message), 501
+
+    return (
+        jsonify(
+            data=response,
+            count=count_data,
+            next_page=next_page,
+            prev_page=prev_page,
+            page=page,
+            active=active,
+        ),
+        200,
+    )
+
+@api.route("/current_user/rec/projects/<int:project_id>/data/<int:data_id>", methods=["GET"])
+def getNextReccomendedData(project_id, data_id):
+    #identity = get_jwt_identity()
+
+    #page = request.args.get("page", 1, type=int)
+    active = "pending"
+
+    try:
+        #request_user = User.query.filter_by(username=identity["username"]).first()
+        project = Project.query.get(project_id)
+        project = Project.query.get(project_id)
+
+        #if request_user not in project.users:
+        #    return jsonify(message="Unauthorized access!"), 401
+
+        segmentations = db.session.query(Segmentation.data_id).distinct().subquery()
+        #Lets set big id to the {username.idenity, username.id}
+        #this would make it fast but aslo render serval data points
+        data = None
+
+        #print(Data.assigned_user_id)
+        #for key in Data.assigned_user_id:
+        #    if request_user.id == Data.assigned_user_id[key]:
+        #        big_key = key
+        #        print(big_key, key)
+        dataPending = (
+            db.session.query(Data)
+            .filter(Data.project_id == project_id)
+            .filter(Data.id != data_id)
+            .filter(Data.id.notin_(segmentations))
+            .distinct()
+            .first()
+        )
+
+        dataReview = (
+                db.session.query(Data)
+                .filter(Data.project_id == project_id)
+                .filter(Data.id != data_id)
+                .filter(Data.is_marked_for_review == True)
+                .distinct()
+                .first()
+            )
+
+        if (dataPending == None and dataReview == None):
+            return (405)
+        elif ((dataPending == None or randint(0, 5) == 0) and dataReview != None):
+            data = dataReview
+            active = "marked_review"
+        else:
+            data = dataPending
+        
+
+        response = list(
+            [
+                {
+                    "data_id": data.id,
+                    "filename": data.filename,
+                    "original_filename": data.original_filename,
+                    "created_on": data.created_at.strftime("%B %d, %Y"),
+                    "is_marked_for_review": data.is_marked_for_review,
+                    "number_of_segmentations": len(data.segmentations),
+                    "sampling_rate": data.sampling_rate,
+                    "clip_length": data.clip_length,
+                }
+            ]
+        )
+            
+        return (
+            jsonify(
+                data=response,
+                active=active,
+            ),
+            200,
+        )
+    except Exception as e:
+        message = "Error fetching all data points"
+        app.logger.error(message)
+        app.logger.error(e)
+        return jsonify(message=message), 501
+
