@@ -11,7 +11,7 @@ class DeleteLabelForm extends React.Component {
   constructor(props) {
     super(props);
     const { labelId } = this.props;
-
+    this.onDelete = () => props.onDelete()
     this.initialState = {
       labelId,
       errorMessage: null,
@@ -40,7 +40,7 @@ class DeleteLabelForm extends React.Component {
             errorMessage: null
           });
           /* eslint-disable */
-          this.props.onDelete();
+          this.onDelete() 
           /* eslint-enable */
         }
       })

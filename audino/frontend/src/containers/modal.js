@@ -59,10 +59,10 @@ const FormModal = props => {
           <EditLabelValueForm labelId={labelId} labelValueId={labelValueId} />
         ) : null}
         {formType === 'DELETE_LABEL_VALUE' ? (
-          <DeleteLabelValueForm labelId={labelId} labelValueId={labelValueId} />
+          <DeleteLabelValueForm labelId={labelId} labelValueId={labelValueId} onDelete={onExited}/>
         ) : null}
         {formType === 'DELETE_LABEL' ? (
-          <DeleteLabelForm labelId={labelId} projectId={projectId} />
+          <DeleteLabelForm labelId={labelId} projectId={projectId} onDelete={onExited}/>
         ) : null}
         {formType === 'UPLOAD_DATA' ? (
           <UploadDataForm projectId={projectId} projectName={projectName} apiKey={api_key} />
