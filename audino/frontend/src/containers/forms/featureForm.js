@@ -3,6 +3,7 @@ import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
+import Alert from '../../components/alert';
 import FeatureChecklist from '../../components/checklist';
 
 class FeatureForm extends React.Component {
@@ -46,9 +47,9 @@ class FeatureForm extends React.Component {
       })
       .catch(error => {
         console.error(error)
-        /*this.setState({
+        this.setState({
           errorMessage: error.response.data.message
-        });*/
+        });
       });
   }
 
@@ -85,6 +86,7 @@ class FeatureForm extends React.Component {
   }
 
   renderFeatureCols(start, end, feature_list) {
+    const { errorMessage,  successMessage} = this.state;
     return (
       <div>
         <form
@@ -93,6 +95,8 @@ class FeatureForm extends React.Component {
             width: '25%'
           }}
         >
+          {errorMessage ? <Alert type="danger" message={errorMessage} /> : null}
+          {successMessage ? <Alert type="success" message={successMessage} /> : null}
           {feature_list.slice(start, end).map(([key, value]) => {
             return (
               <FeatureChecklist
