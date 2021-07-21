@@ -1,15 +1,14 @@
-/* eslint-disable no-restricted-syntax, guard-for-in  */
 /**
  *  @since 4.0.0
  *
  * (Single) Region plugin class
- *
+ *fdsfasd
  * Must be turned into an observer before instantiating. This is done in
  * `RegionsPlugin` (main plugin class).
  *
  * @extends {Observer}
  */
-export class Region {
+ export default class Region {
     constructor(params, regionsUtils, ws) {
         this.wavesurfer = ws;
         this.wrapper = ws.drawer.wrapper;
@@ -75,8 +74,8 @@ export class Region {
         this.scroll = params.scroll !== false && ws.params.scrollParent;
         this.scrollSpeed = params.scrollSpeed || 1;
         this.scrollThreshold = params.scrollThreshold || 10;
-        
-        
+
+
         // Determines whether the context menu is prevented from being opened.
         this.preventContextMenu =
             params.preventContextMenu === undefined
@@ -111,6 +110,10 @@ export class Region {
         this.saved = false;
         this._onSave = () => this.save();
         this._onUnSave = () => this.unsave();
+        this.lastTime = 0;
+        this.setLastTime = time => {
+            this.lastTime = time;
+        };
     }
 
     /* Update region params. */
@@ -449,7 +452,7 @@ export class Region {
             // frequency = 24000 - 24000/254x
             this.regionTopFrequency = this.maxFrequency - this.top * pixelToFrequency;
             this.regionBotFrequency = this.maxFrequency - (this.top + regionHeight) * pixelToFrequency;
-            
+
 
             for (const attrname in this.attributes) {
                 this.element.setAttribute(
@@ -462,190 +465,91 @@ export class Region {
         }
     }
 
-  /* set region as saved */
-  save() {
-    this.saved = true;
-  }
+    /* Bind audio events. */
+    bindInOut() {
+        this.firedIn = false;
+        this.firedOut = false;
 
-  /* set region as unsaved */
-  unsave() {
-    this.saved = false;
-  }
+        const onProcess = (time) => {
+            let start = this.start;//Math.round(this.start * 10) / 10;
+            let end = this.end;//Math.round(this.end * 10) / 10;
+            time = this.wavesurfer.getCurrentTime();// Math.round(time * 10) / 10;
 
-  /* Remove a single region. */
-  remove() {
-    if (this.element) {
-      this.wrapper.removeChild(this.element.domElement);
-      this.element = null;
-      this.fireEvent('remove');
-      this.wavesurfer.un('zoom', this._onRedraw);
-      this.wavesurfer.un('redraw', this._onRedraw);
-      this.wavesurfer.fireEvent('region-removed', this);
-    }
-  }
+            if (
+                !this.firedOut &&
+                this.firedIn &&
+                (start > time || end < time)
+            ) {
+                this.firedOut = true;
+                this.firedIn = false;
+                this.fireEvent('out');
+                this.wavesurfer.fireEvent('region-out', this);
+            }
+            if (!this.firedIn && start <= time && end > time) {
+                this.firedIn = true;
+                this.firedOut = false;
+                this.fireEvent('in');
+                this.wavesurfer.fireEvent('region-in', this);
+            }
+        };
 
-  /**
-   * Play the audio region.
-   * @param {number} start Optional offset to start playing at
-   */
-  play(start) {
-    const s = start || this.start;
-    this.wavesurfer.play(s, this.end);
-    this.fireEvent('play');
-    this.wavesurfer.fireEvent('region-play', this);
-  }
+        this.wavesurfer.backend.on('audioprocess', onProcess);
 
-  /**
-   * Play the audio region in a loop.
-   * @param {number} start Optional offset to start playing at
-   * */
-  playLoop(start) {
-    this.loop = true;
-    this.play(start);
-  }
+        this.on('remove', () => {
+            this.wavesurfer.backend.un('audioprocess', onProcess);
+        });
 
-  /**
-   * Set looping on/off.
-   * @param {boolean} loop True if should play in loop
-   */
-  setLoop(loop) {
-    this.loop = loop;
-  }
-
-  /* Render a region as a DOM element. */
-  render() {
-    this.element = this.util.withOrientation(
-      this.wrapper.appendChild(document.createElement('region')),
-      this.vertical
-    );
-
-    this.element.className = 'wavesurfer-region';
-    if (this.showTooltip) {
-      this.element.title = this.formatTime(this.start, this.end);
-    }
-    this.element.setAttribute('data-id', this.id);
-
-    for (const attrname in this.attributes) {
-      this.element.setAttribute(`data-region-${attrname}`, this.attributes[attrname]);
+        /* Loop playback. */
+        this.on('out', () => {
+            if (this.loop) {
+                const realTime = this.wavesurfer.getCurrentTime();
+                if (realTime >= this.start && realTime <= this.end) {
+                    this.wavesurfer.play(this.start);
+                }
+            }
+        });
     }
 
-    this.style(this.element, {
-      position: 'absolute',
-      zIndex: 2,
-      height: this.regionHeight,
-      top: this.marginTop
-    });
+    /* Bind DOM events. */
+    bindEvents() {
+        const preventContextMenu = this.preventContextMenu;
 
-    /* Resize handles */
-    if (this.resize) {
-      this.handleLeftEl = this.util.withOrientation(
-        this.element.appendChild(document.createElement('handle')),
-        this.vertical
-      );
-      this.handleRightEl = this.util.withOrientation(
-        this.element.appendChild(document.createElement('handle')),
-        this.vertical
-      );
+        this.element.addEventListener('mouseenter', (e) => {
+            this.fireEvent('mouseenter', e);
+            this.wavesurfer.fireEvent('region-mouseenter', this, e);
+        });
 
-      this.handleLeftEl.className = 'wavesurfer-handle wavesurfer-handle-start';
-      this.handleRightEl.className = 'wavesurfer-handle wavesurfer-handle-end';
+        this.element.addEventListener('mouseleave', (e) => {
+            this.fireEvent('mouseleave', e);
+            this.wavesurfer.fireEvent('region-mouseleave', this, e);
+        });
 
-      // Default CSS properties for both handles.
-      const css = {
-        cursor: this.vertical ? 'row-resize' : 'col-resize',
-        position: 'absolute',
-        top: '0px',
-        width: '2px',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 1)'
-      };
+        this.element.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.fireEvent('click', e);
+            this.wavesurfer.fireEvent('region-click', this, e);
+        });
 
-      // Merge CSS properties per handle.
-      const handleLeftCss =
-        this.handleStyle.left !== 'none' ? { left: '0px', ...css, ...this.handleStyle.left } : null;
-      const handleRightCss =
-        this.handleStyle.right !== 'none'
-          ? { right: '0px', ...css, ...this.handleStyle.right }
-          : null;
+        this.element.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            this.fireEvent('dblclick', e);
+            this.wavesurfer.fireEvent('region-dblclick', this, e);
+        });
 
-      if (handleLeftCss) {
-        this.style(this.handleLeftEl, handleLeftCss);
-      }
+        this.element.addEventListener('contextmenu', (e) => {
+            if (preventContextMenu) {
+                e.preventDefault();
+            }
+            this.fireEvent('contextmenu', e);
+            this.wavesurfer.fireEvent('region-contextmenu', this, e);
+        });
 
-      if (handleRightCss) {
-        this.style(this.handleRightEl, handleRightCss);
-      }
+        /* Drag or resize on mousemove. */
+        if (this.drag || this.resize) {
+            this.bindDragEvents();
+        }
     }
-
-    this.updateRender();
-    this.bindEvents();
-  }
-
-  formatTime(start, end) {
-    if (this.formatTimeCallback) {
-      return this.formatTimeCallback(start, end);
-    }
-    return (start === end ? [start] : [start, end])
-      .map(time =>
-        [
-          Math.floor((time % 3600) / 60), // minutes
-          `00${Math.floor(time % 60)}`.slice(-2) // seconds
-        ].join(':')
-      )
-      .join('-');
-  }
-
-  getWidth() {
-    return this.wavesurfer.drawer.width / this.wavesurfer.params.pixelRatio;
-  }
-
-  /* Update element's position, width, color. */
-  updateRender(color = this.color) {
-    // duration varies during loading process, so don't overwrite important data
-    const dur = this.wavesurfer.getDuration();
-    const width = this.getWidth();
-
-    let startLimited = this.start;
-    let endLimited = this.end;
-    if (startLimited < 0) {
-      startLimited = 0;
-      endLimited -= startLimited;
-    }
-    if (endLimited > dur) {
-      endLimited = dur;
-      startLimited = dur - (endLimited - startLimited);
-    }
-
-    if (this.minLength != null) {
-      endLimited = Math.max(startLimited + this.minLength, endLimited);
-    }
-
-    if (this.maxLength != null) {
-      endLimited = Math.min(startLimited + this.maxLength, endLimited);
-    }
-
-    if (this.element != null) {
-      // Calculate the left and width values of the region such that
-      // no gaps appear between regions.
-      const left = Math.round((startLimited / dur) * width);
-      const regionWidth = Math.round((endLimited / dur) * width) - left;
-
-      this.style(this.element, {
-        left: `${left}px`,
-        width: `${regionWidth}px`,
-        backgroundColor: color,
-        cursor: this.drag ? 'move' : 'default'
-      });
-
-      for (const attrname in this.attributes) {
-        this.element.setAttribute(`data-region-${attrname}`, this.attributes[attrname]);
-      }
-
-      if (this.showTooltip) {
-        this.element.title = this.formatTime(this.start, this.end);
-      }
-    }
-  }
 
     bindDragEvents() {
         const container = this.wavesurfer.drawer.container;
@@ -1090,14 +994,6 @@ export class Region {
         });
     }
 
-  updateHandlesResize(resize) {
-    let cursorStyle;
-    if (resize) {
-      cursorStyle = this.vertical ? 'row-resize' : 'col-resize';
-    } else {
-      cursorStyle = 'auto';
-    }
-}
     /**
      * @example
      * onResize(-5, 'start') // Moves the start point 5 seconds back
@@ -1252,7 +1148,6 @@ export class Region {
             });
         }
     }
-
 
     updateHandlesResize(resize) {
         const cursorStyle = resize ? 'col-resize' : 'auto';

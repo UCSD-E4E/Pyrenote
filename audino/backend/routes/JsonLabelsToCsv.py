@@ -49,9 +49,10 @@ def JsonToText(data):
     text = ""
     csv = []
     text = write_row(text, ['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION',
-                            'MAX FREQ', 'MIN FREQ', 'SAMPLING RATE', 'LABEL'])
+                            'MAX FREQ', 'MIN FREQ', 'SAMPLING RATE', 'LABEL'
+                            'TIME_SPENT'])
     csv.append(['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION', 'MAX FREQ',
-                'MIN FREQ', 'SAMPLING RATE', 'LABEL'])
+                'MIN FREQ', 'SAMPLING RATE', 'LABEL', 'TIME_SPENT'])
     for audio in data:
         sampling_rate = audio['sampling_rate']
         clip_length = audio['clip_length']
@@ -67,10 +68,12 @@ def JsonToText(data):
             if len(region['annotations']) == 0:
                 label = "NO LABEL"
                 text = write_row(text, [original_filename, clip_length, start,
-                                 round((end-start), 4),  sampling_rate, label,
+                                 round((end-start), 4),  max_freq, min_freq,
+                                 sampling_rate, label,
                                  time_spent])
                 csv.append([original_filename, clip_length, start,
-                            round((end-start), 4),  sampling_rate, label,
+                            round((end-start), 4),  max_freq, min_freq,
+                            sampling_rate, label,
                             time_spent])
             else:
                 for labelCate in region['annotations'].values():
@@ -83,20 +86,23 @@ def JsonToText(data):
                             text = write_row(text, [original_filename,
                                              clip_length, start,
                                              round((end-start), 4),
+                                             max_freq, min_freq,
                                              sampling_rate, label,
                                              time_spent])
                             csv.append([original_filename, clip_length, start,
-                                        round((end-start), 4),  sampling_rate,
+                                        round((end-start), 4),
+                                        max_freq, min_freq,  sampling_rate,
                                         label, time_spent])
                     except Exception as e:
                         label = values['value']
                         text = write_row(text, [original_filename, clip_length,
                                                 start, round((end-start), 4),
                                                 max_freq, min_freq,
-                                                sampling_rate, label])
+                                                sampling_rate, label,
+                                                time_spent])
                         csv.append([original_filename, clip_length, start,
                                     round((end-start), 4), max_freq, min_freq,
-                                    sampling_rate, label])
+                                    sampling_rate, label, time_spent])
     return text, csv
 
 

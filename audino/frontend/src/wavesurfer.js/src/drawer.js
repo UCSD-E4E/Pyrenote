@@ -75,45 +75,80 @@ export default class Drawer extends util.Observer {
     }
 }
 
-    /**
+/**
      * Handle click event
      *
      * @param {Event} e Click event
      * @param {?boolean} noPrevent Set to true to not call `e.preventDefault()`
-     * @return {number} frequency position from 0 to 1
+     * @return {number} Playback position from 0 to 1
      */
-    handleEventVertical(e, noPrevent, height=null) {
-        if (!height) {
-            height = this.wrapper.scrollHeight
-        }
-        !noPrevent && e.preventDefault();
+ handleEvent(e, noPrevent) {
+    !noPrevent && e.preventDefault();
 
-        const clientY = e.targetTouches
-            ? e.targetTouches[0].clientY
-            : e.clientY;
-        const bbox = this.wrapper.getBoundingClientRect();
+    const clientX = e.targetTouches
+        ? e.targetTouches[0].clientX
+        : e.clientX;
+    const bbox = this.wrapper.getBoundingClientRect();
 
-        const nominalHeight = this.height;
-        const parentHeight = this.getHeight();
+    const nominalWidth = this.width;
+    const parentWidth = this.getWidth();
 
-        let frequency;
-        if (!this.params.fillParent && nominalHeight < parentHeight) {
-            console.log(this.params.rtl ? bbox.bottom - clientY : clientY - bbox.top)
-            frequency =
-                (this.params.rtl ? bbox.bottom - clientY : clientY - bbox.top) *
-                    (this.params.pixelRatio / nominalHeight) || 0;
-        } else {
-            frequency = (clientY - bbox.top) / height || 0;
-            /**
-             *  frequency =
-                ((this.params.rtl
-                    ? bbox.bottom - clientY
-                    : clientY - bbox.top)) /
-                    height || 0;
-             */
-        }
-        return util.clamp(frequency, 0, 1);
+    let progress;
+    if (!this.params.fillParent && nominalWidth < parentWidth) {
+        progress =
+            (this.params.rtl ? bbox.right - clientX : clientX - bbox.left) *
+                (this.params.pixelRatio / nominalWidth) || 0;
+    } else {
+        progress =
+            ((this.params.rtl
+                ? bbox.right - clientX
+                : clientX - bbox.left) +
+                this.wrapper.scrollLeft) /
+                this.wrapper.scrollWidth || 0;
     }
+
+    return util.clamp(progress, 0, 1);
+}
+
+/**
+ * Handle click event
+ *
+ * @param {Event} e Click event
+ * @param {?boolean} noPrevent Set to true to not call `e.preventDefault()`
+ * @return {number} frequency position from 0 to 1
+ */
+handleEventVertical(e, noPrevent, height=null) {
+    if (!height) {
+        height = this.wrapper.scrollHeight
+    }
+    !noPrevent && e.preventDefault();
+
+    const clientY = e.targetTouches
+        ? e.targetTouches[0].clientY
+        : e.clientY;
+    const bbox = this.wrapper.getBoundingClientRect();
+
+    const nominalHeight = this.height;
+    const parentHeight = this.getHeight();
+
+    let frequency;
+    if (!this.params.fillParent && nominalHeight < parentHeight) {
+        console.log(this.params.rtl ? bbox.bottom - clientY : clientY - bbox.top)
+        frequency =
+            (this.params.rtl ? bbox.bottom - clientY : clientY - bbox.top) *
+                (this.params.pixelRatio / nominalHeight) || 0;
+    } else {
+        frequency = (clientY - bbox.top) / height || 0;
+        /**
+         *  frequency =
+            ((this.params.rtl
+                ? bbox.bottom - clientY
+                : clientY - bbox.top)) /
+                height || 0;
+         */
+    }
+    return util.clamp(frequency, 0, 1);
+}
 
     setupWrapperEvents() {
         this.wrapper.addEventListener('click', e => {
@@ -142,9 +177,7 @@ export default class Drawer extends util.Observer {
         this.wrapper.addEventListener('scroll', e =>
             this.fireEvent('scroll', e)
         );
-
-    return util.clamp(progress, 0, 1);
-  }
+    }
 
   getProgressPixels(wrapperBbox, clientX) {
     if (this.params.rtl) {
