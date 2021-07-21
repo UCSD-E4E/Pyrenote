@@ -18,7 +18,7 @@ class Data extends React.Component {
       projectId,
       data: [],
       active: params.get("active") || "pending",
-      page:  1,
+      page:  0,
       count: {
         pending: 0,
         completed: 0,
@@ -44,8 +44,8 @@ class Data extends React.Component {
 
   getData(next=false) {
     let { apiUrl, page, active, data } = this.state;
+    page += 1;
     apiUrl = `${apiUrl}?page=${page}&active=${active}`;
-    if (next) {page += 1;}
     console.log(page)
     axios({
       method: 'get',
@@ -72,16 +72,17 @@ class Data extends React.Component {
           prevPage: prev_page,
           isDataLoading: false
         });
-
-        if (!next) {
-          let yMax = document.body.scrollHeight - document.body.clientHeight
-          console.log(yMax)
-          //TODO: Test on long monitor to deterimine if this is smart
-          //Basically, if user has big monitor, add another set of data to hit scroll limit
-          if (yMax == 0) {
-            this.getData(true)
-          }
-        } 
+        if (next_page) {this.getData()}
+        //this.getData()
+        //if (!next) {
+        //  let yMax = document.body.scrollHeight - document.body.clientHeight
+        //  console.log(yMax)
+        //  //TODO: Test on long monitor to deterimine if this is smart
+        //  //Basically, if user has big monitor, add another set of data to hit scroll limit
+        //  if (yMax == 0) {
+        //    this.getData(true)
+        //  }
+        //} 
       })
       .catch(error => {
         console.error(error);
