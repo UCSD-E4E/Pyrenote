@@ -3,10 +3,10 @@ import csv
 from pprint import pprint
 
 
-def fileWrapperForJson(filename):
+def test(filename):
     with open(filename, 'r') as f:
         data = json.load(f)
-        text = JsonToCsv(data)
+        text = JsonToRaven(data)
         print("===================================================")
         print(text)
 
@@ -104,6 +104,51 @@ def JsonToText(data):
                                     round((end-start), 4), max_freq, min_freq,
                                     sampling_rate, label, time_spent])
     return text, csv
+
+
+def JsonToRaven(data):
+    allLabels = []
+
+    for audio in data:
+        sampling_rate = audio['sampling_rate']
+        clip_length = audio['clip_length']
+        original_filename = audio['original_filename']
+        segments = audio['segmentations']
+        count = 1
+        text = ""
+        text = write_row(text, ['Selection', 'View', 'Begin Time (s)',
+                                'End Time (s)', 'Low Freq (Hz)',
+                                'High Freq (Hz)', 'Species'])
+        for region in segments:
+            end = region['end_time']
+            start = region['start_time']
+            time_spent = region['time_spent']
+            if len(region['annotations']) == 0:
+                label = "NO LABEL"
+                text = write_row(text, [count, 'Spectrogram 1', '1',
+                                 start,  end, '100.0', '200000.0', label])
+            else:
+                for labelCate in region['annotations'].values():
+                    print(labelCate)
+                    values = labelCate["values"]
+                    try:
+                        for label in values:
+                            print(label)
+                            label = label['value']
+                            text = write_row(text, [count, 'Spectrogram 1',
+                                             '1', start,  end, '100.0',
+                                                           '200000.0', label])
+                    except Exception as e:
+                        label = values['value']
+                        text = write_row(text, [count, 'Spectrogram 1', '1',
+                                         start,  end, '100.0', '200000.0',
+                                         label])
+            count += 1
+            allLabels.append({
+                "txtName": original_filename,
+                "textContents": text
+            })
+    return allLabels
 
 
 def write_row(text, row):
