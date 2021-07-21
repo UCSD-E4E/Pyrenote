@@ -151,14 +151,14 @@ class Annotate extends React.Component {
       });
 
     axios({
-      method: "get",
-      url: "/api/projects/" + projectId + "/toggled",
+      method: 'get',
+      url: `/api/projects/${projectId}/toggled`
     })
-      .then((response) => {
-        //take all the current values of featuresList, include the new ones defined at the line 27
+      .then(response => {
+        // take all the current values of featuresList, include the new ones defined at the line 27
         this.setState({
-          navButtonsEnabled: response.data.features_list["next button"]
-        })
+          navButtonsEnabled: response.data.features_list['next button']
+        });
       })
       .catch(error => {
         console.error(error);
