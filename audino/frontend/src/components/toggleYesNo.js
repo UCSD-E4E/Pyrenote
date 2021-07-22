@@ -31,9 +31,12 @@ class ToggleYesNo extends React.Component {
   
   render() {
     const {yes, no} = this.state
+    let msg = ": "
+    if (yes) msg = ": yes"
+    else msg = ": no"
     return(
       <div>
-      <text> <b>Feeling Confident In your labels?</b></text>
+      <text> <b>Feeling Confident In your labels?</b> {msg}</text>
         <div className="row justify-content-center my-4">
         
           <div className="col-4">
