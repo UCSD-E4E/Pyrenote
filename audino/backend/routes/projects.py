@@ -959,6 +959,11 @@ def get_project_annotations(project_id):
         app.logger.info(f'{type(text)}, {text}')
         annotations_to_download = csv
         app.logger.info("here: ", annotations_to_download)
+    elif ((download_csv) == "raven"):
+        text = JsonLabelsToCsv.JsonToRaven(annotations)
+        app.logger.info(f'{type(text)}, {text}')
+        annotations_to_download = text
+        app.logger.info("here: ", annotations_to_download)
     else:
         annotations_to_download = annotations
         app.logger.info("here: ", annotations_to_download)

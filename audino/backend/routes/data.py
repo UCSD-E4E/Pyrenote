@@ -178,6 +178,7 @@ def add_data():
             clip_length=clip_length,
         )
     except Exception as e:
+        app.logger.info(e)
         raise BadRequest(description="username_id is bad ")
     print("HELLLO THERE ERROR MESSAGE")
     db.session.flush()

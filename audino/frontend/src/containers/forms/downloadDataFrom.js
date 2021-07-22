@@ -54,36 +54,7 @@ class DownloadDataForm extends React.Component {
               const dataString = infoArray.join(',');
               csvContent += index < data.length ? `${dataString}\n` : dataString;
             });
-            const download = (content, fileName, mimeType) => {
-              const a = document.createElement('a');
-              mimeType = mimeType || 'application/octet-stream';
-
-              if (navigator.msSaveBlob) {
-                // IE10
-                navigator.msSaveBlob(
-                  new Blob([content], {
-                    type: mimeType
-                  }),
-                  fileName
-                );
-              } else if (URL && 'download' in a) {
-                // html5 A[download]
-                a.href = URL.createObjectURL(
-                  new Blob([content], {
-                    type: mimeType
-                  })
-                );
-                a.setAttribute('download', fileName);
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-              } else {
-                window.location.href = `data:application/octet-stream,${encodeURIComponent(
-                  content
-                )}`; // only this mime type is supported
-              }
-            };
-            download(csvContent, `${projectName}.csv`, 'text/csv;encoding:utf-8');
+            this.download(csvContent, `${projectName}.csv`, 'text/csv;encoding:utf-8');
           } catch (c) {
             errorLogger.sendLog(c.response.data.message)
             console.error(c);
@@ -94,6 +65,30 @@ class DownloadDataForm extends React.Component {
       })
       .catch(error => {
         errorLogger.sendLog(error.response.data.message)
+        this.setState({
+          errorMessage: error.response.data.message
+        });
+      });
+  }
+
+  handleDownloadAnnotationsRaven(e, projectName, projectId) {
+    axios({
+      method: 'get',
+      url: `/api/projects/${projectId}/annotations`,
+      headers: {
+        csv: 'raven'
+      }
+    })
+      .then(response => {
+        const { annotations } = response.data;
+        if (annotations) {
+          const data = annotations; // JSON.stringify(annotations, null, 2)
+          this.download(data, `${projectName}.txt`, 'text/csv;encoding:utf-8');
+        } else {
+          console.warn('No annotations found');
+        }
+      })
+      .catch(error => {
         this.setState({
           errorMessage: error.response.data.message
         });
@@ -171,6 +166,36 @@ class DownloadDataForm extends React.Component {
     }
   }
 
+  download(content, fileName, mimeType)  {
+    const a = document.createElement('a');
+    mimeType = mimeType || 'application/octet-stream';
+
+    if (navigator.msSaveBlob) {
+      // IE10
+      navigator.msSaveBlob(
+        new Blob([content], {
+          type: mimeType
+        }),
+        fileName
+      );
+    } else if (URL && 'download' in a) {
+      // html5 A[download]
+      a.href = URL.createObjectURL(
+        new Blob([content], {
+          type: mimeType
+        })
+      );
+      a.setAttribute('download', fileName);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else {
+      window.location.href = `data:application/octet-stream,${encodeURIComponent(
+        content
+      )}`; // only this mime type is supported
+    }
+  };
+
   resetState() {
     this.setState(this.initialState);
   }
@@ -191,7 +216,7 @@ class DownloadDataForm extends React.Component {
           <div
             style={{
               float: 'left',
-              width: '50%'
+              width: '30%'
             }}
           >
             <text>DOWNLOAD JSON</text>
@@ -205,15 +230,29 @@ class DownloadDataForm extends React.Component {
           <div
             style={{
               float: 'left',
-              width: '50%'
+              width: '30%'
             }}
           >
-            <text>DOWNLOAD CSV </text>
+            <text>DOWNLOAD CSV it has changed</text>
             <IconButton
               icon={faDownload}
               size="lg"
               title="Download Annotations - CSV"
               onClick={e => this.handleDownloadAnnotationsCSV(e, projectName, projectId)}
+            />
+          </div>
+          <div
+            style={{
+              float: 'right',
+              width: '30%'
+            }}
+          >
+            <text>DOWNLOAD RAVEN </text>
+            <IconButton
+              icon={faDownload}
+              size="lg"
+              title="Download Annotations - RAVEN"
+              onClick={e => this.handleDownloadAnnotationsRaven(e, projectName, projectId)}
             />
           </div>
         </div>
@@ -222,4 +261,4 @@ class DownloadDataForm extends React.Component {
   }
 }
 
-export default withStore(withRouter(DownloadDataForm));
+export default DownloadDataForm;

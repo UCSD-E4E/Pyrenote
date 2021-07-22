@@ -1,6 +1,7 @@
 import json
 import csv
 from pprint import pprint
+from backend import app
 
 
 def test(filename):
@@ -107,18 +108,23 @@ def JsonToText(data):
 
 
 def JsonToRaven(data):
-    allLabels = []
-
-    for audio in data:
-        sampling_rate = audio['sampling_rate']
-        clip_length = audio['clip_length']
-        original_filename = audio['original_filename']
-        segments = audio['segmentations']
-        count = 1
-        text = ""
-        text = write_row(text, ['Selection', 'View', 'Begin Time (s)',
+    text = ""
+    app.logger.info(data)
+    text = write_row(text, ['Selection', 'View', 'Begin Time (s)',
                                 'End Time (s)', 'Low Freq (Hz)',
                                 'High Freq (Hz)', 'Species'])
+    for audio in data:
+        original_filename = audio['original_filename']
+        sampling_rate = audio['sampling_rate']
+        clip_length = audio['clip_length']
+        segments = audio['segmentations']
+        count = 1
+
+        text = text + "========================="
+        text = text + "\n" + original_filename
+        text = text + "\n ========================= \n"
+       
+        
         for region in segments:
             end = region['end_time']
             start = region['start_time']
@@ -143,12 +149,8 @@ def JsonToRaven(data):
                         text = write_row(text, [count, 'Spectrogram 1', '1',
                                          start,  end, '100.0', '200000.0',
                                          label])
-            count += 1
-            allLabels.append({
-                "txtName": original_filename,
-                "textContents": text
-            })
-    return allLabels
+                    count += 1
+    return text
 
 
 def write_row(text, row):
