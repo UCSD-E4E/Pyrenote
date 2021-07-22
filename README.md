@@ -2,7 +2,7 @@
 
 This project, Pyrenote, creates moment to moment or strong labels for audio data. Pyrenote and much of this README are based on heavily on [Audino](https://github.com/midas-research/audino) as well as [Wavesufer.js](https://github.com/katspaugh/wavesurfer.js). The name is a combination of Py, Lyrebird, and note (such as making a note on a label).
 
- If you want to use Pyrenote, use the fallowing to get started!
+ If you want to use Pyrenote, use the following to get started!
 
 **NOTE** Before making any changes to the code, make sure to create a branch to safetly make changes. Never commit directly to main.
 **Read github_procedures.md for more detailed information before contributing to the repo** 
