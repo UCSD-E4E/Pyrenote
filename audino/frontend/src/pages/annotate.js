@@ -48,6 +48,7 @@ class Annotate extends React.Component {
     };
     this.lastTime = 0;
     this.labelRef = {};
+    this.UnsavedButton = null;
   }
 
   componentDidMount() {
@@ -120,6 +121,8 @@ class Annotate extends React.Component {
 
     const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state, boundingBox: boundingBox });
     const wavesurfer = wavesurferMethods.loadWavesurfer();
+    this.UnsavedButton = unsavedButton;
+    console.log(this.UnsavedButton)
     axios
       .all([axios.get(labelsUrl), axios.get(dataUrl)])
       .then(response => {
@@ -171,6 +174,7 @@ class Annotate extends React.Component {
 
         this.setState({ wavesurfer, wavesurferMethods });
         this.loadRegions(regions);
+        
       })
       .catch(error => {
         console.error(error);
@@ -285,6 +289,7 @@ class Annotate extends React.Component {
                 });
                 wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
                 segment._onSave();
+                this.UnsavedButton.removeSaved(segment)
               })
               .catch(error => {
                 console.error(error);
@@ -315,6 +320,7 @@ class Annotate extends React.Component {
                 });
                 wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
                 segment._onSave();
+                this.UnsavedButton.removeSaved(segment)
               })
               .catch(error => {
                 console.error(error);
@@ -351,6 +357,7 @@ class Annotate extends React.Component {
     }
     wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
     selectedSegment._onUnSave();
+    this.UnsavedButton.addUnsaved(selectedSegment)
     this.setState({ selectedSegment });
   }
 
@@ -365,6 +372,10 @@ class Annotate extends React.Component {
 
   removeSegment(wavesurfer, selectedSegment) {
     wavesurfer.regions.list[selectedSegment.id].remove();
+    
+    if (!selectedSegment.saved)
+      this.UnsavedButton.removeSaved(selectedSegment)
+
     this.setState({
       selectedSegment: null,
       isSegmentDeleting: false
@@ -551,6 +562,7 @@ class Annotate extends React.Component {
                 </div>
               </div>
               {navButtonsEnabled && <NavButton save={this.handleAllSegmentSave} annotate={this} />}
+              {this.UnsavedButton ? this.UnsavedButton.render() : null}
             </div>
           </div>
         </div>
