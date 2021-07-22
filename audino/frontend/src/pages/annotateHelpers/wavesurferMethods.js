@@ -37,6 +37,7 @@ class WavesurferMethods {
 
   loadWavesurfer() {
     const boundingBox = this.boundingBox
+    const { active } = this.state
     const spectrogramColorMap = colormap({
       colormap: 'hot',
       nshades: 256,
@@ -74,7 +75,7 @@ class WavesurferMethods {
       ]
     });
     const { history } = this.annotate.props;
-    const unsavedButton = new UnsavedButton(wavesurfer)
+    const unsavedButton = new UnsavedButton(wavesurfer, active)
     history.listen(() => {
       wavesurfer.stop();
     });
@@ -92,8 +93,9 @@ class WavesurferMethods {
     wavesurfer.on('region-updated', region => {
       this.handlePause();
       this.styleRegionColor(region, 'rgba(0, 102, 255, 0.3)');
-      region._onUnSave();
       this.annotate.UnsavedButton.addUnsaved(region)
+      region._onUnSave();
+      
     });
 
     wavesurfer.on('region-created', region => {
@@ -101,7 +103,8 @@ class WavesurferMethods {
       this.setState({
         selectedSegment: region
       });
-      this.annotate.UnsavedButton.addUnsaved(region)
+      console.log(region)
+      this.annotate.UnsavedButton.addUnsaved(region, !region.saved)
     });
 
     wavesurfer.on('region-click', (r, e) => {

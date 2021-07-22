@@ -2,16 +2,20 @@ import React from 'react';
 import { Button } from './button';
 
 class UnsavedButton {
-  constructor(ws) {
+  constructor(ws, active) {
     this.regions = {}
     this.currRegion = null
     this.selectedRegion = null
     this.count = 0
     this.pos = 0
     this.wavesurfer = ws
+    this.active = active
   }
   
-  addUnsaved(region) {
+  addUnsaved(region, ignore = false) {
+    if (!region.saved && !ignore) {
+      return;
+    }
     let id = region.id
     let item = [region, null, null]
 
@@ -36,8 +40,21 @@ class UnsavedButton {
     let id = region.id
     let item = this.regions[id]
     //close gap
-    this.regions[item[2]][1] = this.regions[id][1]  
-    this.regions[item[1]][2] = this.regions[id][2]  
+    try{
+      this.regions[item[2]][1] = this.regions[id][1] 
+    }
+    catch(e) {
+      console.log("no region ahead")
+    }
+
+    try{
+      this.regions[item[1]][2] = this.regions[id][2]  
+    }
+    catch(e) {
+      console.log("no region previous")
+    }
+
+    
 
     if (this.selectedRegion === id) {
       this.selectedRegion = null
@@ -55,37 +72,58 @@ class UnsavedButton {
 
   ifSelectedRegionNull() {
     if (this.selectedRegion === null) {
-      this.regions.forEach(region => {
-        this.selectedRegion = region[1]
-        return false;
+      let success = true;
+      Object.keys(this.regions).forEach(region => {
+        if (success) {
+          this.selectedRegion = region
+          console.log(this.selectedRegion)
+          success = false;
+        }
       })
     }
-    return this.selectedRegion !== null
+    return this.selectedRegion !== null 
   }
 
   iteratePos() {
+    console.log("hello?",     this.selectedRegion)
+
+    if (!this.ifSelectedRegionNull()) {
+      return;
+    } 
+    console.log("hello!")
+    let start = this.regions[this.selectedRegion][0].start
+    const duration = this.wavesurfer.getDuration()
+    this.wavesurfer.seekAndCenter((start / duration))
+    this.selectedRegion = this.regions[this.selectedRegion][2]
+
+    //if hit end of list, pull from frist entry and set it to that
+    this.ifSelectedRegionNull() 
+    /*
     let success = this.ifSelectedRegionNull()
     
     if (success) {
       this.selectedRegion = this.regions[this.selectedRegion][2]
     } 
     success = this.ifSelectedRegionNull()
-    if (this.selectedRegion === null) {
+    if (this.selectedRegion !== null) {
       let start = this.regions[this.selectedRegion][0].start
       this.wavesurfer.seekAndCenter(start)
-    }
+    }*/
   }
 
   render() {
     let msg = this.count + " Unsaved Left"
-    console.log(msg)
+    if (this.active !== "pending") {
+      msg = this.count + " Left to Review"
+    }
+    
     return(
       <div>
         <Button
          text={msg}
          size='lg'
          type='primary'
-         onClick={() => this.iteratePos}
+         onClick={() => this.iteratePos()}
         />
       </div>
     )

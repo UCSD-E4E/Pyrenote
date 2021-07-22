@@ -356,8 +356,8 @@ class Annotate extends React.Component {
       };
     }
     wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
-    selectedSegment._onUnSave();
     this.UnsavedButton.addUnsaved(selectedSegment)
+    selectedSegment._onUnSave();
     this.setState({ selectedSegment });
   }
 
@@ -401,6 +401,7 @@ class Annotate extends React.Component {
   loadRegions(regions) {
     const { wavesurfer } = this.state;
     regions.forEach(region => {
+      region.saved = true;
       wavesurfer.addRegion(region);
     });
   }
