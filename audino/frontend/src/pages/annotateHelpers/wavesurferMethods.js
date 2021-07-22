@@ -9,7 +9,7 @@ import WaveSurfer from '../../wavesurfer.js/src/wavesurfer.js';
 import RegionsPlugin from '../../wavesurfer.js/src/plugin/regions/index.js';
 import SpectrogramPlugin from '../../wavesurfer.js/src/plugin/spectrogram/index.js';
 import { IconButton } from '../../components/button';
-
+import UnsavedButton from '../../components/next_unsaved_button';
 const colormap = require('colormap');
 
 /**
@@ -70,6 +70,7 @@ class WavesurferMethods {
       ]
     });
     const { history } = this.annotate.props;
+    const unsavedButton = new UnsavedButton(wavesurfer)
     history.listen(() => {
       wavesurfer.stop();
     });
@@ -88,6 +89,7 @@ class WavesurferMethods {
       this.handlePause();
       this.styleRegionColor(region, 'rgba(0, 102, 255, 0.3)');
       region._onUnSave();
+      this.annotate.UnsavedButton.addUnsaved(region)
     });
 
     wavesurfer.on('region-created', region => {
@@ -95,6 +97,7 @@ class WavesurferMethods {
       this.setState({
         selectedSegment: region
       });
+      this.annotate.UnsavedButton.addUnsaved(region)
     });
 
     wavesurfer.on('region-click', (r, e) => {
@@ -109,7 +112,7 @@ class WavesurferMethods {
       this.setState({ isPlaying: false });
     });
 
-    return wavesurfer;
+    return {wavesurfer, unsavedButton};
   }
 
   handlePlay() {
