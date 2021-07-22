@@ -226,7 +226,7 @@ class Annotate extends React.Component {
       if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
         try {
           let { regionTopFrequency, regionBotFrequency } = segment;
-          const { start, end } = segment
+          const { start, end } = segment;
           if (!this.boundingBox) {
             regionTopFrequency = -1;
             regionBotFrequency = -1;
