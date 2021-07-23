@@ -15,7 +15,8 @@ class EditProjectForm extends React.Component {
       errorMessage: '',
       successMessage: '',
       isSubmitting: false,
-      url: `/api/projects/${projectId}`
+      url: `/api/projects/${projectId}`,
+      isMarkedExample: false,
     };
 
     this.state = { ...this.initialState };
@@ -29,8 +30,9 @@ class EditProjectForm extends React.Component {
     })
       .then(response => {
         if (response.status === 200) {
-          const { name } = response.data;
-          this.setState({ name });
+          const { name, is_example } = response.data;
+          console.log(is_example)
+          this.setState({ name, isMarkedExample: is_example });
         }
       })
       .catch(error => {
@@ -45,35 +47,27 @@ class EditProjectForm extends React.Component {
     this.setState({ name: e.target.value });
   }
 
+  handleMarkedExampleChange(e) {
+    this.setState({isMarkedExample: e.target.value})
+  }
+
   handleProjectCreation(e) {
     e.preventDefault();
 
     this.setState({ isSubmitting: true });
 
-    const { name, url } = this.state;
-
-    if (!name || name === '') {
-      this.setState({
-        isSubmitting: false,
-        errorMessage: 'Please enter a valid project name!',
-        successMessage: null
-      });
-      return;
-    }
+    const { name, url, isMarkedExample } = this.state;
 
     axios({
       method: 'patch',
       url,
       data: {
-        name
+        name,
+        is_example: isMarkedExample
       }
     })
       .then(response => {
-        this.resetState();
-        this.form.reset();
-        if (response.status === 201) {
-          this.setState({ successMessage: response.data.message });
-        }
+          this.setState({ successMessage: response.data.message, isSubmitting: false, });
       })
       .catch(error => {
         console.error(error.response);
@@ -90,7 +84,7 @@ class EditProjectForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, projectId } = this.state;
+    const { isSubmitting, errorMessage, successMessage, projectId, isMarkedExample, name } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
@@ -107,22 +101,26 @@ class EditProjectForm extends React.Component {
               <input
                 type="text"
                 className="form-control"
-                id="username"
-                placeholder=""
-                value={projectId}
-                autoFocus
-                required
-                disabled
-              />
-              <input
-                type="text"
-                className="form-control"
                 id="project_name"
-                placeholder="Project Name"
+                placeholder={name}
                 autoFocus
                 required
                 onChange={e => this.handleProjectNameChange(e)}
               />
+            </div>
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="isExample"
+                value
+                checked={isMarkedExample}
+                onChange={e => this.handleMarkedExampleChange(e)}
+                //disabled={isMarkedForReviewLoading}
+              />
+              <label className="form-check-label" htmlFor="isMarkedForReview">
+                Mark is Example Project
+              </label>
             </div>
             <div className="form-row">
               <div className="form-group col">

@@ -229,12 +229,20 @@ class Project(db.Model):
         onupdate=db.func.utc_timestamp(),
     )
 
+    is_example = db.Column(
+        "is_example", db.Boolean(), nullable=True, default=False
+    )
+
     users = db.relationship(
         "User", secondary=user_project_table, back_populates="projects"
     )
     data = db.relationship("Data", backref="Project")
     labels = db.relationship("Label", backref="Project")
     creator_user = db.relationship("User")
+
+    def set_is_example(self, is_example):
+        self.is_example = is_example
+        app.logger.info(self.is_example)
 
     def set_name(self, newUsername):
         self.name = newUsername
