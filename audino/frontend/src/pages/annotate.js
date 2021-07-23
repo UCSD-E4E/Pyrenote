@@ -43,7 +43,8 @@ class Annotate extends React.Component {
       num_of_prev: 0,
       numpage: 5,
       path: window.location.href.substring(0, index),
-      boundingBox: true
+      boundingBox: true,
+      direction: null
     };
     this.lastTime = 0;
     this.labelRef = {};
@@ -350,14 +351,14 @@ class Annotate extends React.Component {
     });
   }
 
-  checkForSave(success, forceNext) {
+  checkForSave(success, forceClip, dir) {
     const { wavesurfer } = this.state;
+    this.setState({ direction: dir });
     Object.values(wavesurfer.regions.list).forEach(segment => {
-      if (segment.saved === false && !forceNext) {
+      if (segment.saved === false && !forceClip) {
         if (segment.data.annotations == null) {
           this.setState({
-            errorUnsavedMessage:
-              'There regions without a label! You can\'t leave yet! If you are sure, click "force next"'
+            errorUnsavedMessage: `There are regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
           });
           success = false;
         }
@@ -529,22 +530,6 @@ class Annotate extends React.Component {
                   </label>
                 </div>
               </div>
-
-              {errorUnsavedMessage && (
-                <div
-                  className="buttons-container-item"
-                  style={{ margin: 'auto', marginBottom: '2%' }}
-                >
-                  <Button
-                    size="lg"
-                    type="danger"
-                    disabled={isSegmentSaving}
-                    onClick={() => this.handleNextClip(true)}
-                    isSubmitting={isSegmentSaving}
-                    text="Force Next"
-                  />
-                </div>
-              )}
               <NavButton save={this.handleAllSegmentSave} annotate={this} />
             </div>
           </div>

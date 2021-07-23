@@ -121,7 +121,7 @@ To access the site, sign in with the username of **admin** and password of **pas
 After creating a project, get the api key by returning to the admin portal. You can use the api key to add data to a project. Create a new terminal (while docker is running the severs) and cd into audino/backend/scripts. Here use the fallowing command:
 
 ```
-python upload_mass.py  --username admin.test  --is_marked_for_review True --audio_file C:\REPLACE\THIS\WITH\FOLDER\PATH\TO\AUDIO\DATA --host localhost 
+python upload_mass.py  --username admin  --is_marked_for_review True --audio_file C:\REPLACE\THIS\WITH\FOLDER\PATH\TO\AUDIO\DATA --host localhost 
 --port 5000 --api_key REPLACE_THIS_WITH_API_KEY
 ```
 Make sure to have a folder with the audio data ready to be added. For testing purposes, get a folder with about 20 clips. 
