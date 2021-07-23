@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 from werkzeug.urls import url_parse
 
 from backend import app, db, redis_client
-from backend.models import User
+from backend.models import User, Role
 
 from . import api
 
@@ -286,27 +286,15 @@ def delete_user(user_id):
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400
 
-    role_id = request.json.get("role", None)
-
-    if not role_id:
-        return (jsonify(message="Please provide your role!",
-                type="ROLE_MISSING"), 400)
-
-    role_id = int(role_id)
-
-    if role_id not in [1, 2]:
-        return (
-            jsonify(message="Please assign correct role!",
-                    type="ROLE_INCORRECT"),
-            400,
-        )
-
     try:
-        users = db.session.query(User).filter_by(role_id=1).all()
+        # Below code may not be doing anything
+        # if user cannot delete self, then one admin will always exist,
+        # themselves
+        users = db.session.query(User).filter(User.id != request_user.id).all()
 
-        if len(users) == 1 and users[0].id == user_id and role_id == 2:
-            return jsonify(message="Atleast one admin should exist"), 400
-
+        if len(users) == 1 and users[0].role.id != 2:
+            return jsonify(message="Atleast one admin should exist"), 500
+        # above code no work?
         user = User.query.get(user_id)
         if (request_user == user):
             return jsonify(message="CANNOT DELETE YOUR OWN USER"), 600
@@ -315,7 +303,7 @@ def delete_user(user_id):
     except Exception as e:
         app.logger.error("No user found")
         app.logger.error(e)
-        # return jsonify(message="No user found!"), 404
+        return jsonify(message="No user found!"), 404
 
     return (
         jsonify(
