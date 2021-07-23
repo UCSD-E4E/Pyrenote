@@ -7,5 +7,5 @@ import Home from './home';
 import Labels from './labels';
 import LabelValues from './labelValues';
 import CreateUser from './createUser';
-
-export { Admin, Dashboard, Error, Home, Labels, LabelValues, Data, Annotate, CreateUser };
+import Access_Token_Handle from './access_token_handler'
+export { Admin, Dashboard, Error, Home, Labels, LabelValues, Data, Annotate, CreateUser, Access_Token_Handle };
