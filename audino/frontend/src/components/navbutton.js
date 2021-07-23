@@ -69,7 +69,7 @@ const NavButton = props => {
         localStorage.setItem('count', JSON.stringify(page_num));
         window.location.href = previous;
       } else {
-        annotate.setState({errorMessage: "no more previous clips"})
+        console.warn('You have hit the end of the clips you have last seen');
       }
     }
   };
