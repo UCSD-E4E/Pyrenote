@@ -8,4 +8,4 @@ import Labels from './labels';
 import LabelValues from './labelValues';
 import CreateUser from './createUser';
 import Access_Token_Handle from './access_token_handler'
-export { Admin, Dashboard, Error, Home, Labels, LabelValues, Data, Annotate, CreateUser, Access_Token_Handle };
+export { Admin, Dashboard, Error, Home, Labels, LabelValues, Data, Annotate, CreateUser};
