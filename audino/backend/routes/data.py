@@ -58,6 +58,7 @@ def generate_segmentation(
             start_time=start_time,
             end_time=end_time,
             time_spent=time_spent,
+            created_by=username
         )
     else:
         # segmentation updated for existing data

@@ -324,7 +324,10 @@ class Segmentation(db.Model):
         self.time_spent = time_spent
 
     def append_modifers(self, newUser):
-        self.last_modified_by[newUser] = datetime.now()
+        if (self.last_modified_by is None):
+            self.last_modified_by = {}
+        date = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        self.last_modified_by[newUser] = date
 
     def to_dict(self):
         return {
