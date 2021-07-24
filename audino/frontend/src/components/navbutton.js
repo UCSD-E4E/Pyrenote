@@ -42,10 +42,12 @@ const NavButton = props => {
           newPageData = data[key + 1];
           const url = `/projects/${projectId}/data/${newPageData.data_id}/annotate`;
           /// projects
-          window.location.href = path + url;
+          annotate.nextPage(newPageData.data_id)
+          //window.location.href = path + url;
         } catch (z) {
           if (next_data_id && data[0].data_id !== next_data_id) {
-            window.location.href = next_data_url;
+            annotate.nextPage(next_data_id)
+            //window.location.href = next_data_url;
           } else {
             window.location.href = `${path}/projects/${projectId}/data`;
           }

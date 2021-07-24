@@ -17,7 +17,7 @@ class Annotate extends React.Component {
     const dataId = Number(match.params.dataid);
     const index = window.location.href.indexOf('/projects');
 
-    this.state = {
+    this.initalState = {
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -45,6 +45,7 @@ class Annotate extends React.Component {
       path: window.location.href.substring(0, index),
       direction: null
     };
+    this.state = this.initalState;
     this.lastTime = 0;
     this.labelRef = {};
   }
@@ -65,7 +66,7 @@ class Annotate extends React.Component {
     this.setState({ previous_pages: linksArray, num_of_prev: count });
     const { labelsUrl, dataUrl } = this.state;
     const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
-
+    console.log(dataId, "rebuild")
     axios({
       method: 'get',
       url: apiUrl
@@ -88,7 +89,9 @@ class Annotate extends React.Component {
             const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
             this.setState({
               next_data_url,
-              next_data_id: data[0].data_id
+              next_data_id: data[0].data_id,
+              active,
+              next_page
             });
           })
           .catch(error => {
@@ -149,6 +152,7 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
+      console.log(this.state)
   }
 
   handleIsMarkedForReview(e) {
@@ -355,6 +359,20 @@ class Annotate extends React.Component {
         <Alert type={type} message={message} overlay onClose={e => this.handleAlertDismiss(e)} />
       </div>
     );
+  }
+
+  nextPage(nextDataId) {
+    const {wavesurfer, projectId} = this.state
+    wavesurfer.destroy()
+    console.log(nextDataId)
+    this.setState()
+    let newState =  this.initalState
+    newState["labelsUrl"] =  `/api/projects/${projectId}/labels`
+    newState["dataUrl"] = `/api/projects/${projectId}/data/${nextDataId}`
+    newState["segmentationUrl"] =  `/api/projects/${projectId}/data/${nextDataId}/segmentations`
+    newState["dataId"] = nextDataId
+    this.setState(newState)
+    this.componentDidMount()
   }
 
   render() {
