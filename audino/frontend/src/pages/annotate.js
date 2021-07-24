@@ -66,7 +66,6 @@ class Annotate extends React.Component {
     this.setState({ previous_pages: linksArray, num_of_prev: count });
     const { labelsUrl, dataUrl } = this.state;
     const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
-    console.log(dataId, "rebuild")
     axios({
       method: 'get',
       url: apiUrl
@@ -363,16 +362,17 @@ class Annotate extends React.Component {
 
   nextPage(nextDataId) {
     const {wavesurfer, projectId} = this.state
-    wavesurfer.destroy()
     console.log(nextDataId)
-    this.setState()
     let newState =  this.initalState
     newState["labelsUrl"] =  `/api/projects/${projectId}/labels`
     newState["dataUrl"] = `/api/projects/${projectId}/data/${nextDataId}`
     newState["segmentationUrl"] =  `/api/projects/${projectId}/data/${nextDataId}/segmentations`
     newState["dataId"] = nextDataId
-    this.setState(newState)
-    this.componentDidMount()
+    console.log(newState)
+    this.setState(newState, () => {
+      wavesurfer.destroy()
+      this.componentDidMount()
+    })
   }
 
   render() {

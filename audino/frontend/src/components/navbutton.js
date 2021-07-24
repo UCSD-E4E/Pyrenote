@@ -27,10 +27,10 @@ const NavButton = props => {
 
     if (num_of_prev < previous_pages.length - 1) {
       localStorage.setItem('count', JSON.stringify(next_page_num));
-      window.location.href = previous_pages[next_page_num];
+      annotate.nextPage(previous_pages[next_page_num])
       return;
     }
-    previous_pages[num_of_prev] = window.location.href;
+    previous_pages[num_of_prev] = dataId;
     localStorage.setItem('previous_links', JSON.stringify(previous_pages));
     localStorage.setItem('count', JSON.stringify(next_page_num));
 
@@ -40,8 +40,7 @@ const NavButton = props => {
       if (data[key].data_id === dataId) {
         try {
           newPageData = data[key + 1];
-          const url = `/projects/${projectId}/data/${newPageData.data_id}/annotate`;
-          /// projects
+          console.log(data[key], data[key + 1])
           annotate.nextPage(newPageData.data_id)
           //window.location.href = path + url;
         } catch (z) {
@@ -59,17 +58,17 @@ const NavButton = props => {
   // Go to previous audio recording
   const handlePreviousClip = (forcePrev = false) => {
     annotate.handleAllSegmentSave();
-    const { previous_pages, num_of_prev } = annotate.state;
+    const { previous_pages, num_of_prev, dataId } = annotate.state;
     let success = true;
     success = annotate.checkForSave(success, forcePrev, 'previous');
     if (success) {
       if (num_of_prev > 0) {
         const page_num = num_of_prev - 1;
         const previous = previous_pages[page_num];
-        previous_pages[num_of_prev] = window.location.href;
+        previous_pages[num_of_prev] = dataId;
         localStorage.setItem('previous_links', JSON.stringify(previous_pages));
         localStorage.setItem('count', JSON.stringify(page_num));
-        window.location.href = previous;
+        annotate.nextPage(previous)
       } else {
         console.warn('You have hit the end of the clips you have last seen');
       }
