@@ -23,7 +23,7 @@ class Annotate extends React.Component {
     const dataId = Number(match.params.dataid);
     const index = window.location.href.indexOf('/projects');
 
-    this.state = {
+    this.initalState = {
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -57,6 +57,7 @@ class Annotate extends React.Component {
       boundingBox: true,
       initWavesurfer: false
     };
+    this.state = this.initalState;
     this.lastTime = 0;
     this.labelRef = {};
     this.UnsavedButton = null;
@@ -124,6 +125,7 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
+      console.log(this.state)
   }
 
   handleAlertDismiss(e) {
@@ -235,6 +237,20 @@ class Annotate extends React.Component {
           errorMessage: error.message.data.message
         });
       });
+  }
+
+  nextPage(nextDataId) {
+    const {wavesurfer, projectId} = this.state
+    wavesurfer.destroy()
+    console.log(nextDataId)
+    this.setState()
+    let newState =  this.initalState
+    newState["labelsUrl"] =  `/api/projects/${projectId}/labels`
+    newState["dataUrl"] = `/api/projects/${projectId}/data/${nextDataId}`
+    newState["segmentationUrl"] =  `/api/projects/${projectId}/data/${nextDataId}/segmentations`
+    newState["dataId"] = nextDataId
+    this.setState(newState)
+    this.componentDidMount()
   }
 
   render() {
