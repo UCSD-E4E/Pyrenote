@@ -241,16 +241,17 @@ class Annotate extends React.Component {
 
   nextPage(nextDataId) {
     const {wavesurfer, projectId} = this.state
-    wavesurfer.destroy()
     console.log(nextDataId)
-    this.setState()
     let newState =  this.initalState
     newState["labelsUrl"] =  `/api/projects/${projectId}/labels`
     newState["dataUrl"] = `/api/projects/${projectId}/data/${nextDataId}`
     newState["segmentationUrl"] =  `/api/projects/${projectId}/data/${nextDataId}/segmentations`
     newState["dataId"] = nextDataId
-    this.setState(newState)
-    this.componentDidMount()
+    console.log(newState)
+    this.setState(newState, () => {
+      wavesurfer.destroy()
+      this.componentDidMount()
+    })
   }
 
   render() {
