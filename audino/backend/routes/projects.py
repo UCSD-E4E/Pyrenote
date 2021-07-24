@@ -706,7 +706,8 @@ def add_segmentations(project_id, data_id, seg_id=None):
             start_time=start_time,
             annotations=annotations,
             time_spent=time_spent,
-            segmentation_id=segmentation_id,
+            username=username,
+            segmentation_id=segmentation_id
         )
         db.session.add(segmentation)
         db.session.commit()

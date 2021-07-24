@@ -46,6 +46,7 @@ def generate_segmentation(
     end_time,
     data_id,
     time_spent,
+    username,
     segmentation_id=None,
 ):
     """Generate a Segmentation from the required segment information
@@ -67,6 +68,7 @@ def generate_segmentation(
         segmentation.set_end_time(end_time)
         segmentation.set_time_spent(time_spent)
 
+    segmentation.append_modifers(username)
     db.session.add(segmentation)
     db.session.flush()
 
