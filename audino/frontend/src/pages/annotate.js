@@ -464,30 +464,29 @@ class Annotate extends React.Component {
                       );
                     })}
                   </div>
-
-                  <div className="row justify-content-center my-4">
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="danger"
-                        disabled={isSegmentDeleting}
-                        isSubmitting={isSegmentDeleting}
-                        onClick={e => this.handleSegmentDelete(e)}
-                        text="Delete"
-                      />
-                    </div>
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="primary"
-                        isSubmitting={isSegmentSaving}
-                        onClick={() => this.handleAllSegmentSave()}
-                        text="Save All"
-                      />
-                    </div>
-                  </div>
                 </div>
               ) : null}
+              <div className="row justify-content-center my-4">
+                {selectedSegment ? (<div className="col-4">
+                  <Button
+                    size="lg"
+                    type="danger"
+                    disabled={isSegmentDeleting}
+                    isSubmitting={isSegmentDeleting}
+                    onClick={e => this.handleSegmentDelete(e)}
+                    text="Delete"
+                  />
+                </div> ) : null}
+                <div className="col-4">
+                  <Button
+                    size="lg"
+                    type="primary"
+                    isSubmitting={isSegmentSaving}
+                    onClick={() => this.handleAllSegmentSave()}
+                    text="Save All"
+                  />
+                </div>
+              </div>
               <div className="row justify-content-center my-4">
                 <div className="form-check">
                   <input
