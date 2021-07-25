@@ -17,8 +17,8 @@ class Data extends React.Component {
     this.state = {
       projectId,
       data: [],
-      active: params.get('active') || 'pending',
-      page: params.get('page') || 1,
+      active: params.get("active") || "pending",
+      page:  0,
       count: {
         pending: 0,
         completed: 0,
@@ -38,20 +38,42 @@ class Data extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.setState({ isDataLoading: true });
-    let { apiUrl } = this.state;
-    let { page, active } = this.state;
-    apiUrl = `${apiUrl}?page=${page}&active=${active}`;
+  prepareUrl(projectId, page, active) {
+    return `/projects/${projectId}/data?page=${page}&active=${active}`;
+  }
 
+  isScrollLessThanWindow() {
+    let yMax = document.body.scrollHeight - document.body.clientHeight
+    return 0 >= yMax;
+  }
+
+  isBottom() {
+    //https://stackoverflow.com/questions/17688595/finding-the-maximum-scroll-position-of-a-page
+    let yMax = document.body.scrollHeight - document.body.clientHeight
+    return window.pageYOffset >= yMax || yMax == 1;
+  }
+
+  getData(next=false) {
+    let { apiUrl, page, active, data } = this.state;
+    page += 1;
+    apiUrl = `${apiUrl}?page=${page}&active=${active}`;
+    console.log(page)
     axios({
       method: 'get',
       url: apiUrl
     })
-      .then(response => {
-        const { data, count, next_page, prev_page } = response.data;
-        page = response.data.page;
-        active = response.data.active;
+      .then((response) => {
+        const {
+          count,
+          active,
+          next_page,
+          prev_page,
+        } = response.data;
+        let next_page_data = response.data.data;
+        console.log(next_page_data)
+        data = next_page_data.concat(data)
+        console.log(data)
+        
         this.setState({
           data,
           count,
@@ -61,6 +83,17 @@ class Data extends React.Component {
           prevPage: prev_page,
           isDataLoading: false
         });
+        if (next_page && this.isScrollLessThanWindow()) {this.getData()}
+        //this.getData()
+        //if (!next) {
+        //  let yMax = document.body.scrollHeight - document.body.clientHeight
+        //  console.log(yMax)
+        //  //TODO: Test on long monitor to deterimine if this is smart
+        //  //Basically, if user has big monitor, add another set of data to hit scroll limit
+        //  if (yMax == 0) {
+        //    this.getData(true)
+        //  }
+        //} 
       })
       .catch(error => {
         console.error(error);
@@ -70,15 +103,26 @@ class Data extends React.Component {
       });
   }
 
-  getNextPage() {
-    const { projectId, data } = this.state;
-
-    return { projectId, data };
+  //code below from
+  //https://stackoverflow.com/questions/45585542/detecting-when-user-scrolls-to-bottom-of-div-with-react-js 
+  componentDidMount() {
+    this.setState({ isDataLoading: true });
+    this.getData()
+    window.addEventListener('scroll', this.trackScrolling);
   }
-
-  prepareUrl(projectId, page, active) {
-    return `/projects/${projectId}/data?page=${page}&active=${active}`;
+  
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.trackScrolling);
   }
+  
+  trackScrolling = () => {
+    const {nextPage} = this.state
+    console.log(this.isBottom(), nextPage)
+    if (this.isBottom() && nextPage) {
+      //this.setState({ isDataLoading: true });
+      this.getData(true)
+    }
+  };
 
   render() {
     localStorage.setItem('previous_links', JSON.stringify([]));
@@ -173,7 +217,7 @@ class Data extends React.Component {
               <div className="font-weight-bold">No data exists!</div>
             ) : null}
           </div>
-          <div className="col-12 my-4 justify-content-center align-items-center text-center">
+          {/*<div className="col-12 my-4 justify-content-center align-items-center text-center">
             {prevPage ? (
               <a className="col" href={prevPageUrl}>
                 Previous
@@ -186,15 +230,22 @@ class Data extends React.Component {
                 Next
               </a>
             ) : null}
-          </div>
+            </div>*/}
         </div>
+        <div 
+              className="button-container"
+              style={{position: "absolute", justifyItems: "center", left: "50%", paddingBottom: "50px"}}
+            >
+              {nextPage ? (
+                  <Loader />
+              ): (
+                  <text><b>End Of Data</b></text>
+              )}
+          </div>
       </div>
     );
   }
 }
 
 export default withRouter(Data);
-export function getData() {
-  Data.getNextPage();
-}
-export const dataLinks = datas;
+export let dataLinks = datas;
