@@ -45,7 +45,7 @@ const NavButton = props => {
       const next_data = response.data.data[0] 
       console.log(next_data)
       const url = `/projects/${projectId}/data/${next_data.data_id}/annotate`;
-      window.location.href = path + url;
+      annotate.nextPage(next_data.data_id)
     } 
     ).catch(error => {
       console.error(error)
