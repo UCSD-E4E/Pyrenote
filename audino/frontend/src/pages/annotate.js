@@ -17,7 +17,7 @@ class Annotate extends React.Component {
     const dataId = Number(match.params.dataid);
     const index = window.location.href.indexOf('/projects');
 
-    this.state = {
+    this.initalState = {
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -45,6 +45,7 @@ class Annotate extends React.Component {
       path: window.location.href.substring(0, index),
       direction: null
     };
+    this.state = this.initalState;
     this.lastTime = 0;
     this.labelRef = {};
     this.UnsavedButton = null;
@@ -66,7 +67,6 @@ class Annotate extends React.Component {
     this.setState({ previous_pages: linksArray, num_of_prev: count });
     const { labelsUrl, dataUrl } = this.state;
     const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
-
     axios({
       method: 'get',
       url: apiUrl
@@ -89,7 +89,9 @@ class Annotate extends React.Component {
             const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
             this.setState({
               next_data_url,
-              next_data_id: data[0].data_id
+              next_data_id: data[0].data_id,
+              active,
+              next_page
             });
           })
           .catch(error => {
@@ -153,6 +155,7 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
+      console.log(this.state)
   }
 
   handleIsMarkedForReview(e) {
@@ -344,7 +347,7 @@ class Annotate extends React.Component {
       if (segment.saved === false && !forceClip) {
         if (segment.data.annotations == null) {
           this.setState({
-            errorUnsavedMessage: `There regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
+            errorUnsavedMessage: `There are regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
           });
           success = false;
         }
@@ -367,6 +370,21 @@ class Annotate extends React.Component {
         <Alert type={type} message={message} overlay onClose={e => this.handleAlertDismiss(e)} />
       </div>
     );
+  }
+
+  nextPage(nextDataId) {
+    const {wavesurfer, projectId} = this.state
+    console.log(nextDataId)
+    let newState =  this.initalState
+    newState["labelsUrl"] =  `/api/projects/${projectId}/labels`
+    newState["dataUrl"] = `/api/projects/${projectId}/data/${nextDataId}`
+    newState["segmentationUrl"] =  `/api/projects/${projectId}/data/${nextDataId}/segmentations`
+    newState["dataId"] = nextDataId
+    console.log(newState)
+    this.setState(newState, () => {
+      wavesurfer.destroy()
+      this.componentDidMount()
+    })
   }
 
   render() {
@@ -477,30 +495,29 @@ class Annotate extends React.Component {
                       );
                     })}
                   </div>
-
-                  <div className="row justify-content-center my-4">
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="danger"
-                        disabled={isSegmentDeleting}
-                        isSubmitting={isSegmentDeleting}
-                        onClick={e => this.handleSegmentDelete(e)}
-                        text="Delete"
-                      />
-                    </div>
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="primary"
-                        isSubmitting={isSegmentSaving}
-                        onClick={() => this.handleAllSegmentSave()}
-                        text="Save All"
-                      />
-                    </div>
-                  </div>
                 </div>
               ) : null}
+              <div className="row justify-content-center my-4">
+                {selectedSegment ? (<div className="col-4">
+                  <Button
+                    size="lg"
+                    type="danger"
+                    disabled={isSegmentDeleting}
+                    isSubmitting={isSegmentDeleting}
+                    onClick={e => this.handleSegmentDelete(e)}
+                    text="Delete"
+                  />
+                </div> ) : null}
+                <div className="col-4">
+                  <Button
+                    size="lg"
+                    type="primary"
+                    isSubmitting={isSegmentSaving}
+                    onClick={() => this.handleAllSegmentSave()}
+                    text="Save All"
+                  />
+                </div>
+              </div>
               <div className="row justify-content-center my-4">
                 <div className="form-check">
                   <input
