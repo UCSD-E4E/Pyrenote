@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from './button';
+import axios from 'axios';
 
 const NavButton = props => {
   const { annotate } = props;
@@ -25,6 +26,7 @@ const NavButton = props => {
     }
     const next_page_num = num_of_prev + 1;
 
+    //STORE CURRENT LINK OR NAVIGATE UP LIST OF PREVIOUS LINKS
     if (num_of_prev < previous_pages.length - 1) {
       localStorage.setItem('count', JSON.stringify(next_page_num));
       annotate.nextPage(previous_pages[next_page_num])
@@ -34,6 +36,22 @@ const NavButton = props => {
     localStorage.setItem('previous_links', JSON.stringify(previous_pages));
     localStorage.setItem('count', JSON.stringify(next_page_num));
 
+    //GO INTO NEW DATA
+    const url = "/api/current_user/rec/projects/" + projectId + "/data/" + dataId;
+    axios({
+      url: url,
+      method: "get"
+    }).then(response => {
+      const next_data = response.data.data[0] 
+      console.log(next_data)
+      const url = `/projects/${projectId}/data/${next_data.data_id}/annotate`;
+      window.location.href = path + url;
+    } 
+    ).catch(error => {
+      console.error(error)
+    })
+
+    /*
     let newPageData = data[0];
     Object.keys(data).forEach(key => {
       key = parseInt(key, 10);
@@ -52,7 +70,7 @@ const NavButton = props => {
           }
         }
       }
-    });
+    });*/
   };
 
   // Go to previous audio recording

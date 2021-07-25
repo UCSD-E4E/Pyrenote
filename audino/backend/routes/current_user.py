@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 import uuid
-
+from random import randint
 from flask import jsonify, flash, redirect, url_for, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.urls import url_parse
@@ -403,7 +403,7 @@ def get_next_data_unknown(project_id, data_value):
                         ),
                         200,
                     )
-            if (next_page is not None):
+            if (next is not None):
                 test_page += 1
     except Exception as e:
         message = "Error fetching all data points"
@@ -488,3 +488,75 @@ def get_all():
         ),
         200,
     )
+
+
+@api.route("/current_user/rec/projects/<int:project_id>/data/<int:data_id>",
+           methods=["GET"])
+def getNextReccomendedData(project_id, data_id):
+    #TODO: Generalize to other systems active = request.args.get("active", "completed", type=str)
+    #TODO: if the user is looking in All / completed / or Marked_for_review intentionally, then they should stay there.
+    active = "pending"
+
+    try:
+
+        segmentations = db.session.query(Segmentation.data_id
+                                         ).distinct().subquery()
+        data = None
+
+        dataPending = (
+            db.session.query(Data)
+            .filter(Data.project_id == project_id)
+            .filter(Data.id != data_id)
+            .filter(Data.id.notin_(segmentations))
+            .distinct()
+            .first()
+        )
+
+        # TODO: Make sure the user isn't reviewing stuff they have already
+        # done, so like create a last touched feature and see if user
+        # has already touched it previously
+        dataReview = (
+                db.session.query(Data)
+                .filter(Data.project_id == project_id)
+                .filter(Data.is_marked_for_review)
+                .filter(Data.id.in_(segmentations))
+                .filter(Data.id != data_id)
+                .distinct()
+                .first()
+            )
+
+        review_chance = (dataPending is None or randint(0, 5) == 0)
+        app.logger.info(dataReview)
+        if (dataPending is None and dataReview is None):
+            return (405)
+        elif (review_chance and dataReview is not None):
+            data = dataReview
+            active = "marked_review"
+        else:
+            data = dataPending
+        response = list(
+            [
+                {
+                    "data_id": data.id,
+                    "filename": data.filename,
+                    "original_filename": data.original_filename,
+                    "created_on": data.created_at.strftime("%B %d, %Y"),
+                    "is_marked_for_review": data.is_marked_for_review,
+                    "number_of_segmentations": len(data.segmentations),
+                    "sampling_rate": data.sampling_rate,
+                    "clip_length": data.clip_length,
+                }
+            ]
+        )
+        return (
+            jsonify(
+                data=response,
+                active=active,
+            ),
+            200,
+        )
+    except Exception as e:
+        message = "Error fetching all data points"
+        app.logger.error(message)
+        app.logger.error(e)
+        return jsonify(message=message), 501
