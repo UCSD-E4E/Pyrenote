@@ -8,6 +8,7 @@ import { Button } from '../components/button';
 import Loader from '../components/loader';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
 import NavButton from '../components/navbutton';
+import { Refrence, RefrenceWindow} from '../components/refrence';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -396,7 +397,7 @@ class Annotate extends React.Component {
       wavesurferMethods.updateState(this.state);
     }
     return (
-      <div>
+      <div  style={{overflow: "hidden"}}>
         <Helmet>
           <title>Annotate</title>
         </Helmet>
@@ -522,7 +523,8 @@ class Annotate extends React.Component {
                   </label>
                 </div>
               </div>
-              {navButtonsEnabled && <NavButton save={this.handleAllSegmentSave} annotate={this} />}
+              <NavButton save={this.handleAllSegmentSave} annotate={this} />
+              <RefrenceWindow annotate={this}/>
             </div>
           </div>
         </div>

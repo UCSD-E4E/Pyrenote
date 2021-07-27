@@ -51,3 +51,63 @@ body,
 .hidden {
   visibility: hidden;
 }
+
+#refrence-window-container {
+  width: 20%;
+  height: 90%;
+  z-index: 100;
+  position: absolute;
+  left: 80%;
+  top: 0%;
+  align-items: left;
+  padding: 0px;
+  justify-content: left;
+}
+
+#refrence-window-left {
+  animation: slide-left 0.6s ease-in-out;
+  left: 0%;
+  
+  top: 5%;
+  width: 100%;
+  height: 100%;
+  background-color: aqua;
+  z-index: 100;
+  position: absolute;
+  overflow: scroll;
+}
+
+#refrence-window-right {
+  animation: slide-right 0.6s ease-in-out;
+  left: 0%;
+
+  width: 100%;
+  height: 0%;
+  z-index: 100;
+  position: absolute;
+  opacity: 0;
+  top: 5%;
+  background-color: aqua;
+}
+
+@keyframes slide-left {
+  from {
+      left: 150%;
+      opacity: 0;
+  }
+  to {
+      left: 0%;
+      opacity: 1;
+  }
+}
+
+@keyframes slide-right {
+  from {
+    left: 0%;  
+    opacity: 1;
+  }
+  to {
+    left: 150%;
+    opacity: 0;
+  }
+}
