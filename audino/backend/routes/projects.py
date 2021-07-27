@@ -268,6 +268,7 @@ def set_toggled_features():
     app.logger.info(features)
 
     project = Project.query.get(project_id)
+
     project.set_features(features)
     db.session.add(project)
     db.session.commit()

@@ -1,20 +1,21 @@
-import React from "react";
-import Modal from "react-bootstrap/Modal";
-import UploadDataForm from "./forms/uploadDataForm";
-import CreateUserForm from "./forms/createUserForm";
-import EditUserForm from "./forms/editUserForm";
-import CreateProjectForm from "./forms/createProjectForm";
-import CreateLabelForm from "./forms/createLabelForm";
-import EditLabelForm from "./forms/editLabelForm";
-import ManageUsersProjectForm from "./forms/manageUsersProjectForm";
-import CreateLabelValueForm from "./forms/createLabelValuelForm";
-import EditLabelValueForm from "./forms/editLabelValueForm";
-import DeleteLabelValueForm from "./forms/deleteLabelValueFrom";
-import DeleteUserForm from "./forms/deleteUser";
-import DeleteLabelForm from "./forms/deleteLabelFrom"
-import EditProjectForm from "./forms/editProjectForm"
-import DownloadDataForm from "./forms/downloadDataFrom";
-import FeatureForm from "./forms/featureForm";
+
+import React from 'react';
+import Modal from 'react-bootstrap/Modal';
+import UploadDataForm from './forms/uploadDataForm';
+import CreateUserForm from './forms/createUserForm';
+import EditUserForm from './forms/editUserForm';
+import CreateProjectForm from './forms/createProjectForm';
+import CreateLabelForm from './forms/createLabelForm';
+import EditLabelForm from './forms/editLabelForm';
+import ManageUsersProjectForm from './forms/manageUsersProjectForm';
+import CreateLabelValueForm from './forms/createLabelValuelForm';
+import EditLabelValueForm from './forms/editLabelValueForm';
+import DeleteLabelValueForm from './forms/deleteLabelValueFrom';
+import DeleteUserForm from './forms/deleteUser';
+import DeleteLabelForm from './forms/deleteLabelFrom';
+import EditProjectForm from './forms/editProjectForm';
+import DownloadDataForm from './forms/downloadDataFrom';
+import FeatureForm from './forms/featureForm';
 
 const FormModal = props => {
   const {
@@ -71,12 +72,8 @@ const FormModal = props => {
         {formType === 'DOWNLOAD_DATA' ? (
           <DownloadDataForm projectId={projectId} projectName={projectName} apiKey={api_key} />
         ) : null}
-        {props.formType === "FEATURE_FORM" ? (
-          <FeatureForm
-            projectId={props.projectId}
-            projectName={props.projectName}
-            apiKey={props.api_key}
-          />
+        {formType === 'FEATURE_FORM' ? (
+          <FeatureForm projectId={projectId} projectName={projectName} apiKey={api_key} />
         ) : null}
       </Modal.Body>
     </Modal>

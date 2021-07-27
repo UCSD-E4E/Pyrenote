@@ -42,7 +42,8 @@ class Annotate extends React.Component {
       previous_pages: [],
       num_of_prev: 0,
       numpage: 5,
-      path: window.location.href.substring(0, index)
+      path: window.location.href.substring(0, index),
+      direction: null
     };
     this.lastTime = 0;
     this.labelRef = {};
@@ -141,6 +142,23 @@ class Annotate extends React.Component {
 
         this.setState({ wavesurfer, wavesurferMethods });
         this.loadRegions(regions);
+      })
+      .catch(error => {
+        console.error(error);
+        this.setState({
+          isDataLoading: false
+        });
+      });
+
+    axios({
+      method: 'get',
+      url: `/api/projects/${projectId}/toggled`
+    })
+      .then(response => {
+        // take all the current values of featuresList, include the new ones defined at the line 27
+        this.setState({
+          navButtonsEnabled: response.data.features_list['next button']
+        });
       })
       .catch(error => {
         console.error(error);
@@ -325,14 +343,14 @@ class Annotate extends React.Component {
     });
   }
 
-  checkForSave(success, forceNext) {
+  checkForSave(success, forceClip, dir) {
     const { wavesurfer } = this.state;
+    this.setState({ direction: dir });
     Object.values(wavesurfer.regions.list).forEach(segment => {
-      if (segment.saved === false && !forceNext) {
+      if (segment.saved === false && !forceClip) {
         if (segment.data.annotations == null) {
           this.setState({
-            errorUnsavedMessage:
-              'There regions without a label! You can\'t leave yet! If you are sure, click "force next"'
+            errorUnsavedMessage: `There are regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
           });
           success = false;
         }
@@ -371,7 +389,8 @@ class Annotate extends React.Component {
       successMessage,
       isRendering,
       original_filename,
-      wavesurferMethods
+      wavesurferMethods,
+      navButtonsEnabled
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -464,30 +483,29 @@ class Annotate extends React.Component {
                       );
                     })}
                   </div>
-
-                  <div className="row justify-content-center my-4">
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="danger"
-                        disabled={isSegmentDeleting}
-                        isSubmitting={isSegmentDeleting}
-                        onClick={e => this.handleSegmentDelete(e)}
-                        text="Delete"
-                      />
-                    </div>
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="primary"
-                        isSubmitting={isSegmentSaving}
-                        onClick={() => this.handleAllSegmentSave()}
-                        text="Save All"
-                      />
-                    </div>
-                  </div>
                 </div>
               ) : null}
+              <div className="row justify-content-center my-4">
+                {selectedSegment ? (<div className="col-4">
+                  <Button
+                    size="lg"
+                    type="danger"
+                    disabled={isSegmentDeleting}
+                    isSubmitting={isSegmentDeleting}
+                    onClick={e => this.handleSegmentDelete(e)}
+                    text="Delete"
+                  />
+                </div> ) : null}
+                <div className="col-4">
+                  <Button
+                    size="lg"
+                    type="primary"
+                    isSubmitting={isSegmentSaving}
+                    onClick={() => this.handleAllSegmentSave()}
+                    text="Save All"
+                  />
+                </div>
+              </div>
               <div className="row justify-content-center my-4">
                 <div className="form-check">
                   <input
@@ -504,23 +522,7 @@ class Annotate extends React.Component {
                   </label>
                 </div>
               </div>
-
-              {errorUnsavedMessage && (
-                <div
-                  className="buttons-container-item"
-                  style={{ margin: 'auto', marginBottom: '2%' }}
-                >
-                  <Button
-                    size="lg"
-                    type="danger"
-                    disabled={isSegmentSaving}
-                    onClick={() => this.handleNextClip(true)}
-                    isSubmitting={isSegmentSaving}
-                    text="Force Next"
-                  />
-                </div>
-              )}
-              <NavButton save={this.handleAllSegmentSave} annotate={this} />
+              {navButtonsEnabled && <NavButton save={this.handleAllSegmentSave} annotate={this} />}
             </div>
           </div>
         </div>
