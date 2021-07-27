@@ -350,7 +350,6 @@ class Annotate extends React.Component {
       if (segment.saved === false && !forceClip) {
         if (segment.data.annotations == null) {
           this.setState({
-            errorUnsavedMessage: `There regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
             errorUnsavedMessage: `There are regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
           });
           success = false;
