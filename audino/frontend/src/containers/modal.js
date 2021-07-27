@@ -14,6 +14,7 @@ import DeleteUserForm from './forms/deleteUser';
 import DeleteLabelForm from './forms/deleteLabelFrom';
 import EditProjectForm from './forms/editProjectForm';
 import DownloadDataForm from './forms/downloadDataFrom';
+import FeatureForm from './forms/featureForm';
 
 const FormModal = props => {
   const {
@@ -69,6 +70,9 @@ const FormModal = props => {
         ) : null}
         {formType === 'DOWNLOAD_DATA' ? (
           <DownloadDataForm projectId={projectId} projectName={projectName} apiKey={api_key} />
+        ) : null}
+        {formType === 'FEATURE_FORM' ? (
+          <FeatureForm projectId={projectId} projectName={projectName} apiKey={api_key} />
         ) : null}
       </Modal.Body>
     </Modal>

@@ -4,6 +4,7 @@ import {
   faUserPlus,
   faTags,
   faDownload,
+  faList,
   faTrash,
   faUpload
 } from '@fortawesome/free-solid-svg-icons';
@@ -60,6 +61,16 @@ class AdminHandleFormProjects extends React.Component {
     });
   }
 
+  handleFeatureToggle(e, projectName, projectId, api_key) {
+    this.showModal({
+      formType: 'FEATURE_FORM',
+      title: `Toggle Features on or off for ${projectName}`,
+      projectId,
+      projectName,
+      api_key
+    });
+  }
+
   render() {
     return (
       <td className="align-middle">
@@ -101,6 +112,19 @@ class AdminHandleFormProjects extends React.Component {
           title="Download Data"
           onClick={e =>
             this.handleDownloadDataToProject(
+              e,
+              this.project.name,
+              this.project.project_id,
+              this.project.api_key
+            )
+          }
+        />
+        <IconButton
+          icon={faList}
+          size="sm"
+          title="Turn on or Off Annotation Features"
+          onClick={e =>
+            this.handleFeatureToggle(
               e,
               this.project.name,
               this.project.project_id,
