@@ -10,6 +10,7 @@ import RegionsPlugin from '../wavesurfer.js/src/plugin/regions/index.js';
 import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
 import { Button, IconButton } from '../components/button';
 import axios from 'axios';
+import { Children } from 'react';
 const colormap = require('colormap');
 const uuid = require("uuid");
 
@@ -192,6 +193,25 @@ class RefrenceWindow extends React.Component {
       });
   }
 
+  handleDropdown(e) {
+    //https://www.w3schools.com/howto/howto_js_collapsible.asp
+    const id=e.currentTarget.id
+    const elementList = document.getElementsByName(id)
+    const content = elementList.item(0)
+    console.log(content)
+    console.log(content.style)
+    try{
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    } catch (e) {
+      console.warn("data has not loaded yet", e)
+    }
+    
+  }
+
   render() {
     const {end} = this.state
     const labels = this.labels  
@@ -216,16 +236,19 @@ class RefrenceWindow extends React.Component {
         <div id={thingy} >
           {labels? 
             Object.entries(labels).map(([key, value]) => {
+              const id = uuid.v4()
               return(
                 <div>
-                <text>{key}</text>
-                {
-                  value.map((item) => {
-                    return(
-                      <Refrence filename={item} annotate={this.annotate}/>
-                    )
-                  })
-                }
+                  <button id={id} type="button" className="collapsible" onClick={e => this.handleDropdown(e)}>{key}</button>
+                  <div name={id} className="content">
+                    {
+                      value.map((item) => {
+                        return(
+                          <Refrence filename={item} annotate={this.annotate}/>
+                        )
+                      })
+                    }
+                    </div>
                 </div>
               )
             })
