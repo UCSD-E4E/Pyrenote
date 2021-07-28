@@ -11,6 +11,7 @@ class DeleteUserForm extends React.Component {
   constructor(props) {
     super(props);
     const { userId } = this.props;
+    this.onDelete = () => props.onDelete()
     this.initialState = {
       userId: Number(userId),
       role: '-1',
@@ -71,11 +72,12 @@ class DeleteUserForm extends React.Component {
             successMessage: 'User has been deleted',
             errorMessage: null
           });
+          this.onDelete()
         }
       })
       .catch(error => {
         this.setState({
-          errorMessage: error.response.data.message,
+          errorMessage: error,
           successMessage: null,
           isSubmitting: false
         });
