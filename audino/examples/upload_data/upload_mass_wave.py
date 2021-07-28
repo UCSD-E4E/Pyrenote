@@ -4,7 +4,7 @@ import sys
 import requests
 import json
 import wave
-import mutagen
+
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Upload sample data to project")
@@ -40,11 +40,9 @@ parser.add_argument(
     help="List of segmentations for the audio",
     default=[],
 )
-parser.add_argument("--port", type=int, help="Port to make request to",
-                    default=80)
+parser.add_argument("--port", type=int, help="Port to make request to", default=80)
 
-parser.add_argument("--api_key", type=str, help="Port to make request to",
-                    default=80)
+parser.add_argument("--api_key", type=str, help="Port to make request to", default=80)
 
 args = parser.parse_args()
 
@@ -55,7 +53,7 @@ directory = os.path.normcase(args.audio_file)
 for filename in os.listdir(directory):
     print(os.path.join(directory, filename))
     audio_path = Path(os.path.join(directory, filename))
-    # audio_path = os.path.join(directory, filename)
+    #audio_path = os.path.join(directory, filename)
     audio_filename = audio_path.name
     if audio_path.is_file():
         audio_obj = open(audio_path.resolve(), "rb")
@@ -63,9 +61,11 @@ for filename in os.listdir(directory):
         print("Audio file does not exist")
         continue
 
-    metadata = mutagen.File(audio_path.as_posix()).info
-    frame_rate = metadata.sample_rate
-    clip_duration = metadata.length
+    with wave.open(str(audio_path), "rb") as wave_file:
+        frame_rate = wave_file.getframerate()
+        frames = wave_file.getnframes()
+        rate = wave_file.getframerate()
+        clip_duration = frames / float(rate)
 
     reference_transcription = args.reference_transcription
     username = args.username.split('.')
@@ -87,8 +87,7 @@ for filename in os.listdir(directory):
 
     print("Creating datapoint")
     response = requests.post(
-        f"http://{args.host}:{args.port}/api/data", files=file, data=values,
-        headers=headers
+        f"http://{args.host}:{args.port}/api/data", files=file, data=values, headers=headers
     )
 
     if response.status_code == 201:
