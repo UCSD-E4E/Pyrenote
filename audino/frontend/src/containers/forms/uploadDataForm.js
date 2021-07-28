@@ -89,10 +89,15 @@ class UploadDataForm extends React.Component {
     this.setState({ files});
     let text = "{\n"
     Array.prototype.forEach.call(files, file => {
-      text = text + " " + file.name + ": \n"
+      text = text + " \"" + file.name + "\":           , \n"
     })
     text = text + "}"
     this.setState({ files, value: text});
+
+    /*const jsonEditor = document.getElementById("json_editor");
+    console.log(jsonEditor, jsonEditor.style.height, jsonEditor.scrollHeight)
+    jsonEditor.style.height = jsonEditor.scrollHeight + "px"*/
+
   }
 
   handleChangeText(e) {
@@ -150,13 +155,12 @@ class UploadDataForm extends React.Component {
             </div>
           </div>
         </div>
+        <div className="row h-100 justify-content-center align-items-center">
         {isSample? 
-        <div>
-        <label>
-          Essay:
-          <textarea value={value} onChange={e => this. handleChangeText(e)} />
-        </label>
-        </div> : null }
+        <label style={{width: "200%"}}>
+          <textarea id="json_editor" value={value} onChange={e => this. handleChangeText(e)} style={{width: "100%", height: "200px"}} />
+        </label> : null }
+        </div>
       </div>
     );
   }
