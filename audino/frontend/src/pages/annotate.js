@@ -165,6 +165,23 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
+
+    axios({
+      method: 'get',
+      url: `/api/projects/${projectId}/toggled`
+    })
+      .then(response => {
+        // take all the current values of featuresList, include the new ones defined at the line 27
+        this.setState({
+          navButtonsEnabled: response.data.features_list['next button']
+        });
+      })
+      .catch(error => {
+        console.error(error);
+        this.setState({
+          isDataLoading: false
+        });
+      });
   }
 
   handleIsMarkedForReview(e) {
@@ -397,7 +414,8 @@ class Annotate extends React.Component {
       successMessage,
       isRendering,
       original_filename,
-      wavesurferMethods
+      wavesurferMethods,
+      navButtonsEnabled
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -490,30 +508,29 @@ class Annotate extends React.Component {
                       );
                     })}
                   </div>
-
-                  <div className="row justify-content-center my-4">
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="danger"
-                        disabled={isSegmentDeleting}
-                        isSubmitting={isSegmentDeleting}
-                        onClick={e => this.handleSegmentDelete(e)}
-                        text="Delete"
-                      />
-                    </div>
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="primary"
-                        isSubmitting={isSegmentSaving}
-                        onClick={() => this.handleAllSegmentSave()}
-                        text="Save All"
-                      />
-                    </div>
-                  </div>
                 </div>
               ) : null}
+              <div className="row justify-content-center my-4">
+                {selectedSegment ? (<div className="col-4">
+                  <Button
+                    size="lg"
+                    type="danger"
+                    disabled={isSegmentDeleting}
+                    isSubmitting={isSegmentDeleting}
+                    onClick={e => this.handleSegmentDelete(e)}
+                    text="Delete"
+                  />
+                </div> ) : null}
+                <div className="col-4">
+                  <Button
+                    size="lg"
+                    type="primary"
+                    isSubmitting={isSegmentSaving}
+                    onClick={() => this.handleAllSegmentSave()}
+                    text="Save All"
+                  />
+                </div>
+              </div>
               <div className="row justify-content-center my-4">
                 <div className="form-check">
                   <input
@@ -530,7 +547,7 @@ class Annotate extends React.Component {
                   </label>
                 </div>
               </div>
-              <NavButton save={this.handleAllSegmentSave} annotate={this} />
+              {navButtonsEnabled && <NavButton save={this.handleAllSegmentSave} annotate={this} />}
             </div>
           </div>
         </div>

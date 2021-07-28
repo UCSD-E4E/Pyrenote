@@ -49,10 +49,10 @@ def JsonToText(data):
     text = ""
     csv = []
     text = write_row(text, ['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION',
-                            'MAX FREQ', 'MIN FREQ', 'SAMPLING RATE', 'LABEL'
+                            'MAX FREQ', 'MIN FREQ', 'SAMPLE RATE', 'MANUAL ID'
                             'TIME_SPENT'])
     csv.append(['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION', 'MAX FREQ',
-                'MIN FREQ', 'SAMPLING RATE', 'LABEL', 'TIME_SPENT'])
+                'MIN FREQ', 'SAMPLE RATE', 'MANUAL ID', 'TIME_SPENT'])
     for audio in data:
         sampling_rate = audio['sampling_rate']
         clip_length = audio['clip_length']
