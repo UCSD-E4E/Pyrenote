@@ -391,7 +391,8 @@ class Annotate extends React.Component {
       isRendering,
       original_filename,
       wavesurferMethods,
-      navButtonsEnabled
+      navButtonsEnabled,
+      projectId
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -524,7 +525,7 @@ class Annotate extends React.Component {
                 </div>
               </div>
               <NavButton save={this.handleAllSegmentSave} annotate={this} />
-              <RefrenceWindow annotate={this}/>
+              <RefrenceWindow annotate={this} projectId={projectId}/>
             </div>
           </div>
         </div>

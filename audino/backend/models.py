@@ -1,3 +1,4 @@
+from sqlalchemy.orm import defaultload
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from backend import app, db
@@ -51,6 +52,9 @@ class Data(db.Model):
     __tablename__ = "data"
 
     id = db.Column("id", db.Integer(), primary_key=True)
+
+    sample = db.Column("sample", db.Boolean(), nullable=True,
+                       default=False)
 
     project_id = db.Column(
         "project_id", db.Integer(), db.ForeignKey("project.id"), nullable=False
@@ -217,7 +221,8 @@ class Project(db.Model):
 
     api_key = db.Column("api_key", db.String(32), nullable=False, unique=True)
 
-    features_list = db.Column("features_list", db.JSON(), nullable=True, default={})
+    features_list = db.Column("features_list", db.JSON(), nullable=True,
+                              default={})
 
     created_at = db.Column(
         "created_at", db.DateTime(), nullable=False, default=db.func.now()

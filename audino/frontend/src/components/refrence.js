@@ -9,6 +9,7 @@ import WaveSurfer from '../wavesurfer.js/src/wavesurfer.js';
 import RegionsPlugin from '../wavesurfer.js/src/plugin/regions/index.js';
 import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
 import { Button, IconButton } from '../components/button';
+import axios from 'axios';
 const colormap = require('colormap');
 const uuid = require("uuid");
 
@@ -155,15 +156,31 @@ class RefrenceWindow extends React.Component {
   constructor(props) {
     super(props)
     this.state = {end: false}
-    this.filenames = null
+    this.filenames = []
     this.annotate = props.annotate
+    this.projectId = props.projectId
   }
 
   componentDidMount() {
     // TODO: replace hardcoding with api call?
-    this.filenames = ["21ec275b37a347538408b140fb1b0940.wav", "21ec275b37a347538408b140fb1b0940.wav", "21ec275b37a347538408b140fb1b0940.wav"]
+    const url = "/api/current_user/projects/" + this.projectId + "/sample"
+    axios({
+      method: 'get',
+      url: url
+    })
+      .then(response => {
+        const { data} = response.data;
+        console.log(data)
+        data.forEach((sample) => { this.filenames.push(sample["filename"])})
+        this.setState({filenames: this.filenames})
+      })
+      .catch(error => {
+        console.error(error);
+        this.setState({
+          isDataLoading: false
+        });
+      });
   }
-
 
   render() {
     const {end} = this.state
@@ -183,7 +200,7 @@ class RefrenceWindow extends React.Component {
         type="primary"
         title = 'test'
         size = 'sm'
-        onClick={() => {this.setState({end: !end}); console.log("hello")}}
+        onClick={() => {this.setState({end: !end})}}
         /> 
         </div>
         <div id={thingy} >

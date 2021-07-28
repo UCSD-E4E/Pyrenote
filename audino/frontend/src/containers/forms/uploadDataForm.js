@@ -21,6 +21,7 @@ class UploadDataForm extends React.Component {
       successMessage: '',
       isLoading: false,
       isSubmitting: false,
+      isSample: false,
       projectUrl: `/api/projects/${projectId}`,
       getUsersUrl: '/api/users',
       uploadUrl: 'api/data/admin_portal',
@@ -31,7 +32,7 @@ class UploadDataForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
-  handleUpload() {
+  handleUpload(sample=false) {
     const { uploadUrl, apiKey, files } = this.state;
     const formData = new FormData();
 
@@ -43,6 +44,7 @@ class UploadDataForm extends React.Component {
     formData.append('apiKey', apiKey);
     formData.append('username', ['admin', 'admin']);
     formData.append('file_length', files.length);
+    formData.append('sample', sample);
     this.setState({ isLoading: true });
     fetch(uploadUrl, {
       method: 'POST',
@@ -87,7 +89,7 @@ class UploadDataForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, isLoading } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isLoading, isSample } = this.state;
     return (
       <div className="container h-75 text-center">
         <div>
@@ -114,11 +116,18 @@ class UploadDataForm extends React.Component {
           />
           <div className="form-row">
             <div className="form-group col">
+            <Button
+                size="lg"
+                type="primary"
+                disabled={isSubmitting}
+                onClick={() => this.setState({isSample: !isSample})}
+                text={isSample? "This is a sample data uplaod" : "not a sample data upload" }
+              />
               <Button
                 size="lg"
                 type="primary"
                 disabled={isSubmitting}
-                onClick={e => this.handleUpload(e)}
+                onClick={() => this.handleUpload(isSample)}
                 isSubmitting={isSubmitting}
                 alt="Uploading"
                 text="Upload"

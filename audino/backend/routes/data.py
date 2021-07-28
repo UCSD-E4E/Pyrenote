@@ -239,6 +239,10 @@ def add_data_from_site():
     app.logger.info("also made it to asdfasdfasdfhere!")
     is_marked_for_review = True
     app.logger.info("made it to here!")
+    is_sample = request.form.get("sample", 'False')
+    is_sample = is_sample == 'true'
+    err = "no label value with id `{is_sample}` in }`"
+    app.logger.info(err)
     file_length = request.form.get("file_length", None)
     audio_files = []
     for n in range(int(file_length)):
@@ -275,6 +279,7 @@ def add_data_from_site():
                 assigned_user_id=username_id,
                 sampling_rate=frame_rate,
                 clip_length=clip_duration,
+                sample=is_sample
             )
             app.logger.info(filename)
         except Exception as e:
