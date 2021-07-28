@@ -225,15 +225,16 @@ class RefrenceWindow extends React.Component {
       <div id={"refrence-window-container"}>
          <div className="col justify-content-left my-4">
         <Button
-        style={{zIndex: 101}}
-        text="test"
+        style={{zIndex: 100}}
+        text={end? "hide smaples" : "show samples"}
         type="primary"
-        title = 'test'
+        title = {end? "hide smaples" : "show samples"}
         size = 'sm'
         onClick={() => {this.setState({end: !end})}}
         /> 
         </div>
         <div id={thingy} >
+          <text>Samples for comparision</text>
           {labels? 
             Object.entries(labels).map(([key, value]) => {
               const id = uuid.v4()
