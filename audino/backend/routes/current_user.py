@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.sql.expression import false, true
 import uuid
 
 from flask import jsonify, flash, redirect, url_for, request
@@ -60,7 +61,7 @@ def fetch_data_for_project(project_id):
         data = {}
         data["pending"] = (
             db.session.query(Data)
-            .filter_by(sample=False)
+            .filter(Data.sample != true())
             .filter(Data.project_id == project_id)
             .filter(Data.id.notin_(segmentations))
             .distinct()
@@ -69,7 +70,7 @@ def fetch_data_for_project(project_id):
 
         data["completed"] = (
             db.session.query(Data)
-            .filter_by(sample=False)
+            .filter(Data.sample != true())
             .filter(Data.project_id == project_id)
             .filter(Data.id.in_(segmentations))
             .distinct()
@@ -158,7 +159,7 @@ def get_next_data(project_id, data_value):
         #        print(big_key, key)
         data["pending"] = (
             db.session.query(Data)
-            .filter_by(sample=False)
+            .filter(Data.sample != true())
             .filter(request_user.id == Data.assigned_user_id[big_key])
             .filter(Data.project_id == project_id)
             .filter(Data.id.notin_(segmentations))
@@ -168,7 +169,7 @@ def get_next_data(project_id, data_value):
 
         data["completed"] = (
             db.session.query(Data)
-            .filter_by(sample=False)
+            .filter(Data.sample != true())
             .filter(request_user.id == Data.assigned_user_id[big_key])
             .filter(Data.project_id == project_id)
             .filter(Data.id.in_(segmentations))
@@ -259,7 +260,7 @@ def get_next_data2(project_id, dv, page_data):
         #        print(big_key, key)
         data["pending"] = (
             db.session.query(Data)
-            .filter_by(sample=False)
+            .filter(Data.sample != true())
             .filter(request_user.id == Data.assigned_user_id[big_key])
             .filter(Data.project_id == project_id)
             .filter(Data.id.notin_(segmentations))
@@ -269,7 +270,7 @@ def get_next_data2(project_id, dv, page_data):
 
         data["completed"] = (
             db.session.query(Data)
-            .filter_by(sample=False)
+            .filter(Data.sample != true())
             .filter(request_user.id == Data.assigned_user_id[big_key])
             .filter(Data.project_id == project_id)
             .filter(Data.id.in_(segmentations))
@@ -359,7 +360,7 @@ def get_next_data_unknown(project_id, data_value):
         #        print(big_key, key)
         data["pending"] = (
             db.session.query(Data)
-            .filter_by(sample=False)
+            .filter(Data.sample != true())
             .filter(Data.project_id == project_id)
             .filter(Data.id.notin_(segmentations))
             .distinct()
@@ -368,7 +369,7 @@ def get_next_data_unknown(project_id, data_value):
 
         data["completed"] = (
             db.session.query(Data)
-            .filter_by(sample=False)
+            .filter(Data.sample != true())
             .filter(Data.project_id == project_id)
             .filter(Data.id.in_(segmentations))
             .distinct()
@@ -453,7 +454,7 @@ def get_all():
         app.logger.info("made it this far")
         data["pending"] = (
             db.session.query(Data)
-            .filter_by(sample=False)
+            .filter(Data.sample != true())
             .distinct()
             .order_by(Data.last_modified.desc())
             .all()
