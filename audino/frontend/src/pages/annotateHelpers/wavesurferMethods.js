@@ -92,6 +92,10 @@ class WavesurferMethods {
 
     wavesurfer.on('region-created', region => {
       this.handlePause();
+      const {storedAnnotations, applyPreviousAnnotations} = this.state
+      if (applyPreviousAnnotations) {
+        region.data.annotations = storedAnnotations
+      }
       this.setState({
         selectedSegment: region
       });

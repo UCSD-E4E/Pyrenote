@@ -43,7 +43,9 @@ class Annotate extends React.Component {
       num_of_prev: 0,
       numpage: 5,
       path: window.location.href.substring(0, index),
-      direction: null
+      direction: null,
+      storedAnnotations: null,
+      applyPreviousAnnotations: false,
     };
     this.lastTime = 0;
     this.labelRef = {};
@@ -321,9 +323,10 @@ class Annotate extends React.Component {
         values: e.target.value
       };
     }
+    let storedAnnotations = selectedSegment.data.annotations
     wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
     selectedSegment._onUnSave();
-    this.setState({ selectedSegment });
+    this.setState({ selectedSegment, storedAnnotations });
   }
 
   handleAlertDismiss(e) {
@@ -390,7 +393,8 @@ class Annotate extends React.Component {
       isRendering,
       original_filename,
       wavesurferMethods,
-      navButtonsEnabled
+      navButtonsEnabled,
+      applyPreviousAnnotations
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -410,6 +414,14 @@ class Annotate extends React.Component {
               ? this.renderAlerts('success', successMessage)
               : null}
             <div>{original_filename}</div>
+            <div className="col-4">
+                  <Button
+                    size="lg"
+                    type="primary"
+                    onClick={() => this.setState({applyPreviousAnnotations: !applyPreviousAnnotations})}
+                    text={applyPreviousAnnotations? "apply previous annotations enabled" : "apply previous annotations disabled"}
+                  />
+                </div>
             {isRendering && (
               <div className="row justify-content-md-center my-4">
                 <div
