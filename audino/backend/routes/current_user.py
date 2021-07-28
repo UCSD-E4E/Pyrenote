@@ -327,7 +327,6 @@ def get_next_data2(project_id, dv, page_data):
 @jwt_required
 def get_next_data_unknown(project_id, data_value):
     identity = get_jwt_identity()
-
     # page = request.args.get("page", 1, type=int)
     active = request.args.get("active", "completed", type=str)
 
@@ -403,7 +402,7 @@ def get_next_data_unknown(project_id, data_value):
                         ),
                         200,
                     )
-            if (next_page is not None):
+            if (next is not None):
                 test_page += 1
     except Exception as e:
         message = "Error fetching all data points"
