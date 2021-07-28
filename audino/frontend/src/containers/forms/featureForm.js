@@ -16,7 +16,7 @@ class FeatureForm extends React.Component {
       successMessage: '',
       featuresEnabled: {
         'next button': true,
-        example: false,
+        '2D Labels': false,
         'example 2': false,
         'example 3': false
       }

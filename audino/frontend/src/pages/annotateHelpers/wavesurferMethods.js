@@ -24,6 +24,7 @@ class WavesurferMethods {
   constructor(props) {
     this.state = props.state;
     this.annotate = props.annotate;
+    this.boundingBox = props.boundingBox
   }
 
   updateState(state) {
@@ -35,7 +36,7 @@ class WavesurferMethods {
   }
 
   loadWavesurfer() {
-    const { boundingBox } = this.state;
+    const boundingBox = this.boundingBox
     const spectrogramColorMap = colormap({
       colormap: 'hot',
       nshades: 256,

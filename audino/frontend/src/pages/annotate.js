@@ -67,6 +67,19 @@ class Annotate extends React.Component {
     const { labelsUrl, dataUrl } = this.state;
     const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
 
+    let boundingBox = null
+    axios({
+      method: 'get',
+      url: `/api/projects/${projectId}/toggled`
+    })
+      .then(response => {
+        // take all the current values of featuresList, include the new ones defined at the line 27
+        boundingBox = response.data.features_list['2D Labels']
+        this.setState({
+          navButtonsEnabled: response.data.features_list['next button']
+        });
+     
+
     axios({
       method: 'get',
       url: apiUrl
@@ -105,7 +118,7 @@ class Annotate extends React.Component {
         });
       });
 
-    const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state });
+    const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state, boundingBox: boundingBox });
     const wavesurfer = wavesurferMethods.loadWavesurfer();
     axios
       .all([axios.get(labelsUrl), axios.get(dataUrl)])
@@ -119,7 +132,7 @@ class Annotate extends React.Component {
           response[1].data;
 
         const regions = segmentations.map(segmentation => {
-          if (this.boundingBox) {
+          if (boundingBox) {
             return {
               start: segmentation.start_time,
               end: segmentation.end_time,
@@ -142,7 +155,7 @@ class Annotate extends React.Component {
               segmentation_id: segmentation.segmentation_id,
               annotations: segmentation.annotations
             },
-            boundingBox: this.boundingBox
+            boundingBox: boundingBox
           };
         });
 
@@ -165,23 +178,13 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
-
-    axios({
-      method: 'get',
-      url: `/api/projects/${projectId}/toggled`
     })
-      .then(response => {
-        // take all the current values of featuresList, include the new ones defined at the line 27
-        this.setState({
-          navButtonsEnabled: response.data.features_list['next button']
-        });
-      })
-      .catch(error => {
-        console.error(error);
-        this.setState({
-          isDataLoading: false
-        });
+    .catch(error => {
+      console.error(error);
+      this.setState({
+        isDataLoading: false
       });
+    });
   }
 
   handleIsMarkedForReview(e) {
@@ -239,13 +242,13 @@ class Annotate extends React.Component {
 
   // MOVING TO FUNCTIONS FILE
   handleAllSegmentSave(annotate = this) {
-    const { segmentationUrl, wavesurfer, wavesurferMethods } = annotate.state;
+    const { segmentationUrl, wavesurfer, wavesurferMethods, boundingBox } = annotate.state;
     Object.values(wavesurfer.regions.list).forEach(segment => {
       if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
         try {
           let { regionTopFrequency, regionBotFrequency } = segment;
           const { start, end } = segment;
-          if (!this.boundingBox) {
+          if (!boundingBox) {
             regionTopFrequency = -1;
             regionBotFrequency = -1;
           }
