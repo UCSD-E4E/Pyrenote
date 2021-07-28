@@ -157,6 +157,7 @@ class RefrenceWindow extends React.Component {
     super(props)
     this.state = {end: false}
     this.filenames = []
+    this.labels = {}
     this.annotate = props.annotate
     this.projectId = props.projectId
   }
@@ -170,9 +171,18 @@ class RefrenceWindow extends React.Component {
     })
       .then(response => {
         const { data} = response.data;
-        console.log(data)
-        data.forEach((sample) => { this.filenames.push(sample["filename"])})
-        this.setState({filenames: this.filenames})
+        data.forEach((sample) => { 
+          console.log(sample)
+          let sampleLabel = sample["sample_label"]
+          if (sampleLabel == null) {
+            sampleLabel = "null string"
+          }
+          if (this.labels[sampleLabel] == null) {
+            this.labels[sampleLabel] = []
+          }
+          this.labels[sampleLabel].push(sample["filename"])
+        })
+        console.log(this.labels)
       })
       .catch(error => {
         console.error(error);
@@ -184,7 +194,7 @@ class RefrenceWindow extends React.Component {
 
   render() {
     const {end} = this.state
-    const filenames = this.filenames
+    const labels = this.labels  
     var thingy = ""
     if (end) {
       thingy = "refrence-window-left"
@@ -204,11 +214,22 @@ class RefrenceWindow extends React.Component {
         /> 
         </div>
         <div id={thingy} >
-          {filenames && filenames.map((item, index) => {
-            console.log(item) 
-             return (<Refrence filename={filenames[index]}
-             annotate={this.annotate}/>)
-          })}
+          {labels? 
+            Object.entries(labels).map(([key, value]) => {
+              return(
+                <div>
+                <text>{key}</text>
+                {
+                  value.map((item) => {
+                    return(
+                      <Refrence filename={item} annotate={this.annotate}/>
+                    )
+                  })
+                }
+                </div>
+              )
+            })
+          : null}
         </div>
       </div>
     )

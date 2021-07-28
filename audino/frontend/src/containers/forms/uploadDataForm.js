@@ -5,6 +5,7 @@ import { withStore } from '@spyna/react-store';
 import Alert from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
+import { text } from '@fortawesome/fontawesome-svg-core';
 
 class UploadDataForm extends React.Component {
   constructor(props) {
@@ -26,6 +27,7 @@ class UploadDataForm extends React.Component {
       getUsersUrl: '/api/users',
       uploadUrl: 'api/data/admin_portal',
       updateUsersProject: `/api/projects/${projectId}/users`,
+      value: "",
       files: {}
     };
 
@@ -33,7 +35,7 @@ class UploadDataForm extends React.Component {
   }
 
   handleUpload(sample=false) {
-    const { uploadUrl, apiKey, files } = this.state;
+    const { uploadUrl, apiKey, files, value } = this.state;
     const formData = new FormData();
 
     for (let i = 0; i < files.length; i++) {
@@ -45,6 +47,7 @@ class UploadDataForm extends React.Component {
     formData.append('username', ['admin', 'admin']);
     formData.append('file_length', files.length);
     formData.append('sample', sample);
+    formData.append('sampleJson', value);
     this.setState({ isLoading: true });
     fetch(uploadUrl, {
       method: 'POST',
@@ -81,7 +84,19 @@ class UploadDataForm extends React.Component {
   }
 
   onChangeHandler(e) {
-    this.setState({ files: e.target.files });
+    let files = e.target.files
+    console.log(files, typeof(files))
+    this.setState({ files});
+    let text = "{\n"
+    Array.prototype.forEach.call(files, file => {
+      text = text + " " + file.name + ": \n"
+    })
+    text = text + "}"
+    this.setState({ files, value: text});
+  }
+
+  handleChangeText(e) {
+    this.setState({value: e.target.value});
   }
 
   resetState() {
@@ -89,7 +104,7 @@ class UploadDataForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, isLoading, isSample } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isLoading, isSample, value } = this.state;
     return (
       <div className="container h-75 text-center">
         <div>
@@ -135,6 +150,13 @@ class UploadDataForm extends React.Component {
             </div>
           </div>
         </div>
+        {isSample? 
+        <div>
+        <label>
+          Essay:
+          <textarea value={value} onChange={e => this. handleChangeText(e)} />
+        </label>
+        </div> : null }
       </div>
     );
   }

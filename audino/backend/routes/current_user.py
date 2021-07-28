@@ -552,6 +552,7 @@ def fetch_sample_for_project(project_id):
                     "number_of_segmentations": len(data_point.segmentations),
                     "sampling_rate": data_point.sampling_rate,
                     "clip_length": data_point.clip_length,
+                    "sample_label": data_point.sample_label,
                 }
             response.append(new_data)
     except Exception as e:
