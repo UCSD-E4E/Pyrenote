@@ -267,6 +267,7 @@ class Annotate extends React.Component {
       referenceWindowOn,
       projectId,
       toUnsavedClipOn,
+      spectrogram
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -277,6 +278,12 @@ class Annotate extends React.Component {
           <title>Annotate</title>
         </Helmet>
         <div className="container h-100">
+        <Button
+            size="lg"
+            type="danger"
+            onClick={e => spectrogram.invert()}
+            text="test"
+          />
           <div className="h-100 mt-5 text-center">
             <AlertSection
               messages={[
