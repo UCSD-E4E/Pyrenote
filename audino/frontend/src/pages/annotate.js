@@ -43,6 +43,7 @@ class Annotate extends React.Component {
       num_of_prev: 0,
       numpage: 5,
       path: window.location.href.substring(0, index),
+      boundingBox: true,
       direction: null
     };
     this.lastTime = 0;
@@ -65,6 +66,19 @@ class Annotate extends React.Component {
     this.setState({ previous_pages: linksArray, num_of_prev: count });
     const { labelsUrl, dataUrl } = this.state;
     const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
+
+    let boundingBox = null
+    axios({
+      method: 'get',
+      url: `/api/projects/${projectId}/toggled`
+    })
+      .then(response => {
+        // take all the current values of featuresList, include the new ones defined at the line 27
+        boundingBox = response.data.features_list['2D Labels']
+        this.setState({
+          navButtonsEnabled: response.data.features_list['next button']
+        });
+     
 
     axios({
       method: 'get',
@@ -104,7 +118,7 @@ class Annotate extends React.Component {
         });
       });
 
-    const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state });
+    const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state, boundingBox: boundingBox });
     const wavesurfer = wavesurferMethods.loadWavesurfer();
     axios
       .all([axios.get(labelsUrl), axios.get(dataUrl)])
@@ -118,6 +132,20 @@ class Annotate extends React.Component {
           response[1].data;
 
         const regions = segmentations.map(segmentation => {
+          if (boundingBox) {
+            return {
+              start: segmentation.start_time,
+              end: segmentation.end_time,
+              top: segmentation.max_freq,
+              bot: segmentation.min_freq,
+              saved: true,
+              color: 'rgba(0, 0, 0, 0.7)',
+              data: {
+                segmentation_id: segmentation.segmentation_id,
+                annotations: segmentation.annotations
+              }
+            };
+          }
           return {
             start: segmentation.start_time,
             end: segmentation.end_time,
@@ -126,7 +154,8 @@ class Annotate extends React.Component {
             data: {
               segmentation_id: segmentation.segmentation_id,
               annotations: segmentation.annotations
-            }
+            },
+            boundingBox: boundingBox
           };
         });
 
@@ -149,23 +178,13 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
-
-    axios({
-      method: 'get',
-      url: `/api/projects/${projectId}/toggled`
     })
-      .then(response => {
-        // take all the current values of featuresList, include the new ones defined at the line 27
-        this.setState({
-          navButtonsEnabled: response.data.features_list['next button']
-        });
-      })
-      .catch(error => {
-        console.error(error);
-        this.setState({
-          isDataLoading: false
-        });
+    .catch(error => {
+      console.error(error);
+      this.setState({
+        isDataLoading: false
       });
+    });
   }
 
   handleIsMarkedForReview(e) {
@@ -223,11 +242,16 @@ class Annotate extends React.Component {
 
   // MOVING TO FUNCTIONS FILE
   handleAllSegmentSave(annotate = this) {
-    const { segmentationUrl, wavesurfer, wavesurferMethods } = annotate.state;
+    const { segmentationUrl, wavesurfer, wavesurferMethods, boundingBox } = annotate.state;
     Object.values(wavesurfer.regions.list).forEach(segment => {
       if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
         try {
+          let { regionTopFrequency, regionBotFrequency } = segment;
           const { start, end } = segment;
+          if (!boundingBox) {
+            regionTopFrequency = -1;
+            regionBotFrequency = -1;
+          }
           const { annotations = '', segmentation_id = null } = segment.data;
           annotate.setState({ isSegmentSaving: true });
           const now = Date.now();
@@ -245,6 +269,8 @@ class Annotate extends React.Component {
               data: {
                 start,
                 end,
+                regionTopFrequency,
+                regionBotFrequency,
                 annotations,
                 time_spent
               }
@@ -275,6 +301,8 @@ class Annotate extends React.Component {
               data: {
                 start,
                 end,
+                regionTopFrequency,
+                regionBotFrequency,
                 annotations,
                 time_spent
               }

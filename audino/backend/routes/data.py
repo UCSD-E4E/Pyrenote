@@ -31,7 +31,7 @@ def validate_segmentation(segment):
     Validate the segmentation before accepting the annotation's upload
     from users
     """
-    required_key = {"start_time", "end_time"}
+    required_key = {"start_time", "end_time", "max_freq", "min_freq"}
 
     if set(required_key).issubset(segment.keys()):
         return True
@@ -44,6 +44,8 @@ def generate_segmentation(
     project_id,
     start_time,
     end_time,
+    max_freq,
+    min_freq,
     data_id,
     time_spent,
     segmentation_id=None,
@@ -57,6 +59,8 @@ def generate_segmentation(
             start_time=start_time,
             end_time=end_time,
             time_spent=time_spent,
+            max_freq=max_freq,
+            min_freq=min_freq,
         )
     else:
         # segmentation updated for existing data
@@ -66,6 +70,8 @@ def generate_segmentation(
         segmentation.set_start_time(start_time)
         segmentation.set_end_time(end_time)
         segmentation.set_time_spent(time_spent)
+        segmentation.set_min_freq(min_freq)
+        segmentation.set_max_freq(max_freq)
 
     db.session.add(segmentation)
     db.session.flush()
@@ -188,6 +194,8 @@ def add_data():
             project_id=project.id,
             end_time=segment["end_time"],
             start_time=segment["start_time"],
+            max_freq=segment["max_freq"],
+            min_freq=segment["min_freq"],
             annotations=segment.get("annotations", {}),
         )
 
