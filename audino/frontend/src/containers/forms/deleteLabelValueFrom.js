@@ -13,6 +13,7 @@ class DeleteLabelValueForm extends React.Component {
 
     const { labelValueId } = this.props;
     const { labelId } = this.props;
+    this.onDelete = () => props.onDelete()
 
     this.initialState = {
       labelValueId,
@@ -42,6 +43,7 @@ class DeleteLabelValueForm extends React.Component {
             successMessage: 'Label value has been DELETED',
             errorMessage: null
           });
+          this.onDelete()
         }
       })
       .catch(error => {

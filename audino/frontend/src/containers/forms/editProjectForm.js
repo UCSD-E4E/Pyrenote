@@ -68,6 +68,12 @@ class EditProjectForm extends React.Component {
     })
       .then(response => {
           this.setState({ successMessage: response.data.message, isSubmitting: false, });
+        // TODO: Decide if addition response is needed
+       /* if (response.status === 200) {
+          this.resetState();
+          this.form.reset();
+          this.setState({ successMessage: 'Successfully changed name' });
+        }*/
       })
       .catch(error => {
         console.error(error.response);
