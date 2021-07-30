@@ -159,7 +159,8 @@ class Annotate extends React.Component {
       .then(response => {
         // take all the current values of featuresList, include the new ones defined at the line 27
         this.setState({
-          navButtonsEnabled: response.data.features_list['next button']
+          navButtonsEnabled: response.data.features_list['next button'],
+          applyPreviousAnnotations: response.data.features_list['auto annotate'],
         });
       })
       .catch(error => {
@@ -414,14 +415,16 @@ class Annotate extends React.Component {
               ? this.renderAlerts('success', successMessage)
               : null}
             <div>{original_filename}</div>
-            <div className="col-4">
-                  <Button
-                    size="lg"
-                    type="primary"
-                    onClick={() => this.setState({applyPreviousAnnotations: !applyPreviousAnnotations})}
-                    text={applyPreviousAnnotations? "apply previous annotations enabled" : "apply previous annotations disabled"}
-                  />
-                </div>
+            {applyPreviousAnnotations?
+              <div className="col-4">
+                <Button
+                  size="lg"
+                  type="primary"
+                  onClick={() => this.setState({applyPreviousAnnotations: !applyPreviousAnnotations})}
+                  text={applyPreviousAnnotations? "apply previous annotations enabled" : "apply previous annotations disabled"}
+                />
+              </div>
+            : null}
             {isRendering && (
               <div className="row justify-content-md-center my-4">
                 <div
