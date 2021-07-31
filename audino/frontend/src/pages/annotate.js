@@ -77,7 +77,8 @@ class Annotate extends React.Component {
         // take all the current values of featuresList, include the new ones defined at the line 27
         boundingBox = response.data.features_list['2D Labels']
         this.setState({
-          navButtonsEnabled: response.data.features_list['next button']
+          navButtonsEnabled: response.data.features_list['next button'],
+          toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
         });
      
 
@@ -120,7 +121,7 @@ class Annotate extends React.Component {
       });
 
     const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state, boundingBox: boundingBox });
-    const wavesurfer = wavesurferMethods.loadWavesurfer();
+    const {wavesurfer, unsavedButton} = wavesurferMethods.loadWavesurfer();
     this.UnsavedButton = unsavedButton;
     console.log(this.UnsavedButton)
     axios
@@ -430,7 +431,8 @@ class Annotate extends React.Component {
       isRendering,
       original_filename,
       wavesurferMethods,
-      navButtonsEnabled
+      navButtonsEnabled,
+      toUnsavedClipOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -564,7 +566,7 @@ class Annotate extends React.Component {
                 </div>
               </div>
               {navButtonsEnabled && <NavButton save={this.handleAllSegmentSave} annotate={this} />}
-              {this.UnsavedButton ? this.UnsavedButton.render() : null}
+              {toUnsavedClipOn && this.UnsavedButton? this.UnsavedButton.render() : null}
             </div>
           </div>
         </div>

@@ -18,7 +18,7 @@ class FeatureForm extends React.Component {
       featuresEnabled: {
         'next button': true,
         '2D Labels': false,
-        'example 2': false,
+        'to unsaved cliped': false,
         'example 3': false
       }
     };
