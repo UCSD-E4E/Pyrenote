@@ -44,7 +44,8 @@ class Annotate extends React.Component {
       num_of_prev: 0,
       numpage: 5,
       path: window.location.href.substring(0, index),
-      direction: null
+      direction: null,
+      refrenceWindowOn: false,
     };
     this.lastTime = 0;
     this.labelRef = {};
@@ -158,7 +159,9 @@ class Annotate extends React.Component {
       .then(response => {
         // take all the current values of featuresList, include the new ones defined at the line 27
         this.setState({
-          navButtonsEnabled: response.data.features_list['next button']
+          navButtonsEnabled: response.data.features_list['next button'],
+          refrenceWindowOn: response.data.features_list['refrence window'],
+         
         });
       })
       .catch(error => {
@@ -392,6 +395,7 @@ class Annotate extends React.Component {
       original_filename,
       wavesurferMethods,
       navButtonsEnabled,
+      refrenceWindowOn,
       projectId
     } = this.state;
     if (wavesurferMethods) {
@@ -525,7 +529,7 @@ class Annotate extends React.Component {
                 </div>
               </div>
               <NavButton save={this.handleAllSegmentSave} annotate={this} />
-              <RefrenceWindow annotate={this} projectId={projectId}/>
+              {refrenceWindowOn? <RefrenceWindow annotate={this} projectId={projectId}/> : console.log("no render")}
             </div>
           </div>
         </div>
