@@ -23,3 +23,58 @@ def check_admin_permissions(identity):
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400, request_user
     return None, None, request_user
+
+
+def retrieve_database(project_id, segmentations, categories, request_user=None,
+                      big_key=None):
+    data = {}
+    if ("pending" in categories):
+        if (request_user is not None):
+            data["pending"] = (
+                db.session.query(Data)
+                .filter(request_user.id == Data.assigned_user_id[big_key])
+                .filter(Data.project_id == project_id)
+                .filter(Data.id.notin_(segmentations))
+                .distinct()
+                .order_by(Data.last_modified.desc())
+            )
+        else:
+            data["pending"] = (
+                db.session.query(Data)
+                .filter(Data.project_id == project_id)
+                .filter(Data.id.notin_(segmentations))
+                .distinct()
+                .order_by(Data.last_modified.desc())
+            )
+
+    if ("completed" in categories):
+        if (request_user is not None):
+            data["completed"] = (
+                db.session.query(Data)
+                .filter(Data.project_id == project_id)
+                .filter(Data.id.in_(segmentations))
+                .distinct()
+                .order_by(Data.last_modified.desc())
+            )
+        else:
+            data["completed"] = (
+                db.session.query(Data)
+                .filter(request_user.id == Data.assigned_user_id[big_key])
+                .filter(Data.project_id == project_id)
+                .filter(Data.id.in_(segmentations))
+                .distinct()
+                .order_by(Data.last_modified.desc())
+            )
+
+    if ("marked_review") in categories:
+        data["marked_review"] = Data.query.filter_by(
+            project_id=project_id,
+            is_marked_for_review=True,
+        ).order_by(Data.last_modified.desc())
+
+    if ("all") in categories:
+        data["all"] = Data.query.filter_by(
+            project_id=project_id
+        ).order_by(Data.last_modified.desc())
+
+    return data

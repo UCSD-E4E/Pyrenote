@@ -9,7 +9,7 @@ from werkzeug.urls import url_parse
 from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
-
+from .helper_functions import retrieve_database
 from . import api
 
 
@@ -60,33 +60,8 @@ def fetch_data_for_project(project_id):
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
 
-        data = {}
-        data["pending"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.notin_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
-
-        data["completed"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.in_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
-
-        data["marked_review"] = Data.query.filter_by(
-            project_id=project_id,
-            is_marked_for_review=True,
-        ).order_by(Data.last_modified.desc())
-
-        data["all"] = Data.query.filter_by(
-            project_id=project_id
-        ).order_by(Data.last_modified.desc())
+        categories = ["pending", "completed", "marked_review", "all"]
+        data = retrieve_database(project_id, segmentations, categories)
 
         paginate_data = data[active].paginate(page, 10, False)
 
@@ -151,34 +126,12 @@ def get_next_data(project_id, data_value):
 
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
-        # Lets set big id to the {username.idenity, username.id}
-        # this would make it fast but aslo render serval data points
+
         data = {}
         big_key = identity["username"]
-        # print(Data.assigned_user_id)
-        # for key in Data.assigned_user_id:
-        #    if request_user.id == Data.assigned_user_id[key]:
-        #        big_key = key
-        #        print(big_key, key)
-        data["pending"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(request_user.id == Data.assigned_user_id[big_key])
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.notin_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
-
-        data["completed"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(request_user.id == Data.assigned_user_id[big_key])
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.in_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
+        categories = ["pending", "completed"]
+        data = retrieve_database(project_id, segmentations, categories,
+                                 request_user, big_key)
 
         paginated_data_pending = data["pending"].paginate(page, 10, False)
         paginated_data_complet = data["completed"].paginate(page, 10, False)
@@ -252,34 +205,12 @@ def get_next_data2(project_id, dv, page_data):
 
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
-        # Lets set big id to the {username.idenity, username.id}
-        # this would make it fast but aslo render serval data points
+
         data = {}
         big_key = identity["username"]
-        # print(Data.assigned_user_id)
-        # for key in Data.assigned_user_id:
-        #    if request_user.id == Data.assigned_user_id[key]:
-        #        big_key = key
-        #        print(big_key, key)
-        data["pending"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(request_user.id == Data.assigned_user_id[big_key])
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.notin_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
-
-        data["completed"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(request_user.id == Data.assigned_user_id[big_key])
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.in_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
+        categories = ["pending", "completed"]
+        data = retrieve_database(project_id, segmentations, categories,
+                                 request_user, big_key)
 
         paginated_data_pending = data["pending"].paginate(page, 10, False)
         paginated_data_complet = data["completed"].paginate(page, 10, False)
@@ -351,32 +282,9 @@ def get_next_data_unknown(project_id, data_value):
 
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
-        # Lets set big id to the {username.idenity, username.id}
-        # this would make it fast but aslo render serval data points
         data = {}
-        big_key = identity["username"]
-        # print(Data.assigned_user_id)
-        # for key in Data.assigned_user_id:
-        #    if request_user.id == Data.assigned_user_id[key]:
-        #        big_key = key
-        #        print(big_key, key)
-        data["pending"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.notin_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
-
-        data["completed"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.in_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
+        categories = ["pending", "completed"]
+        data = retrieve_database(project_id, segmentations, categories)
 
         active = "unknown"
         if (active != "pending"):
@@ -435,24 +343,7 @@ def get_all():
     # active = request.args.get("active", "completed", type=str)
 
     try:
-        request_user = User.query.filter_by(username=identity["username"]
-                                            ).first()
-
-        # debug to improve secuiuty
-        # if request_user not in project.users:
-        #    return jsonify(message="Unauthorized access!"), 401
-
-        segmentations = db.session.query(Segmentation.data_id
-                                         ).distinct().subquery()
-        # Lets set big id to the {username.idenity, username.id}
-        # this would make it fast but aslo render serval data points
         data = {}
-        big_key = identity["username"]
-        # print(Data.assigned_user_id)
-        # for key in Data.assigned_user_id:
-        #    if request_user.id == Data.assigned_user_id[key]:
-        #        big_key = key
-        #        print(big_key, key)
         app.logger.info("made it this far")
         data["pending"] = (
             db.session.query(Data)
