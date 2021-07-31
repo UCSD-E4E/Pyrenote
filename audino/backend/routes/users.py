@@ -78,7 +78,7 @@ def create_user():
         db.session.refresh(user)
     except Exception as e:
         if type(e) == sa.exc.IntegrityError:
-            app.logger.info(f"User {username} already exists!")
+            app.logger.error(f"User {username} already exists!")
             return (jsonify(message="User already exists!",
                     type="DUPLICATE_USER"), 409)
         app.logger.error("Error creating user")
@@ -91,11 +91,6 @@ def create_user():
 @api.route("/users/no_auth", methods=["POST"])
 def create_user_no_auth():
     authNeeded = request.json.get("authNeeded", None)
-    dont_make_admin = False
-    if (not authNeeded):
-        dont_make_admin = True
-    app.logger.info("this far")
-    print("hello?")
 
     identity = get_jwt_identity()
     if (identity is None):
@@ -113,12 +108,9 @@ def create_user_no_auth():
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400
 
-    app.logger.info("this far")
-
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     role_id = "2"
-    app.logger.info(role_id)
 
     if not username:
         return (
@@ -133,8 +125,6 @@ def create_user_no_auth():
             400,
         )
 
-    app.logger.info("this far")
-
     if not role_id:
         return (jsonify(message="Please provide your role!",
                 type="ROLE_MISSING"), 400)
@@ -142,7 +132,7 @@ def create_user_no_auth():
     result = check_role(int(role_id))
     if result is not None:
         return result
-    app.logger.info("this far")
+
     try:
         user = User(username=username, role_id=role_id)
         user.set_password(password)
@@ -151,7 +141,7 @@ def create_user_no_auth():
         db.session.refresh(user)
     except Exception as e:
         if type(e) == sa.exc.IntegrityError:
-            app.logger.info(f"User {username} already exists!")
+            app.logger.error(f"User {username} already exists!")
             return (jsonify(message="User already exists!",
                     type="DUPLICATE_USER"), 409)
         app.logger.error("Error creating user")
@@ -231,12 +221,9 @@ def update_user(user_id):
         user.set_username(newUserName)
         db.session.commit()
         if (request_user.id == user_id):
-            app.logger.info(request_user, user)
             is_admin = True if user.role.role == "admin" else False
-            app.logger.info(user.id)
             data = {"username": newUserName, "is_admin": is_admin,
                     "user_id": user.id}
-            app.logger.info(data)
             try:
                 access_token = create_access_token(
                     identity=data,
@@ -249,7 +236,6 @@ def update_user(user_id):
                 app.logger.error(e)
                 app.logger.error(e.with_traceback)
                 return jsonify(message=message), 450
-            app.logger.info("here")
             access_jti = get_jti(encoded_token=access_token)
 
             redis_client.set(access_jti, "false",

@@ -84,3 +84,22 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
         ).order_by(Data.last_modified.desc())
 
     return data
+
+def check_login(username, password, role_id):
+    if not username:
+        return (
+            jsonify(message="Please provide your username!",
+                    type="USERNAME_MISSING"),
+            400,
+        )
+    if not password:
+        return (
+            jsonify(message="Please provide your password!",
+                    type="PASSWORD_MISSING"),
+            400,
+        )
+
+    if not role_id:
+        return (jsonify(message="Please provide your role!",
+                type="ROLE_MISSING"), 400)
+    return None, None
