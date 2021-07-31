@@ -300,6 +300,7 @@ def add_data_from_site():
         201,
     )
 
+
 @api.route("/projects/<int:project_id>/data/<int:data_id>", methods=["PATCH"])
 @jwt_required
 def update_data(project_id, data_id):

@@ -35,6 +35,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
                       big_key=None):
     data = {}
     if ("pending" in categories):
+        app.logger.info("made it here")
         if (request_user is not None):
             data["pending"] = (
                 db.session.query(Data)
@@ -45,6 +46,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
                 .order_by(Data.last_modified.desc())
             )
         else:
+            app.logger.info("made it here")
             data["pending"] = (
                 db.session.query(Data)
                 .filter(Data.project_id == project_id)
@@ -55,14 +57,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
 
     if ("completed" in categories):
         if (request_user is not None):
-            data["completed"] = (
-                db.session.query(Data)
-                .filter(Data.project_id == project_id)
-                .filter(Data.id.in_(segmentations))
-                .distinct()
-                .order_by(Data.last_modified.desc())
-            )
-        else:
+            app.logger.info("made it here")
             data["completed"] = (
                 db.session.query(Data)
                 .filter(request_user.id == Data.assigned_user_id[big_key])
@@ -71,18 +66,28 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
                 .distinct()
                 .order_by(Data.last_modified.desc())
             )
+        else:
+            data["completed"] = (
+                db.session.query(Data)
+                .filter(Data.project_id == project_id)
+                .filter(Data.id.in_(segmentations))
+                .distinct()
+                .order_by(Data.last_modified.desc())
+            )
 
     if ("marked_review") in categories:
+        app.logger.info("made it here")
         data["marked_review"] = Data.query.filter_by(
             project_id=project_id,
             is_marked_for_review=True,
         ).order_by(Data.last_modified.desc())
 
     if ("all") in categories:
+        app.logger.info("made it here")
         data["all"] = Data.query.filter_by(
             project_id=project_id
         ).order_by(Data.last_modified.desc())
-
+    app.logger.info(data)
     return data
 
 

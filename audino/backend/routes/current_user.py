@@ -62,7 +62,7 @@ def fetch_data_for_project(project_id):
 
         categories = ["pending", "completed", "marked_review", "all"]
         data = retrieve_database(project_id, segmentations, categories)
-
+        app.logger.info(data)
         paginate_data = data[active].paginate(page, 10, False)
 
         next_page = paginate_data.next_num if paginate_data.has_next else None
