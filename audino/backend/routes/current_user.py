@@ -143,7 +143,6 @@ def get_next_data(project_id, data_value):
                     active = "completed"
                     paginate_data = paginated_data_complet
                     break
-            app.logger.info(active)
 
         next_page = paginate_data.next_num if paginate_data.has_next else None
         prev_page = paginate_data.prev_num if paginate_data.has_prev else None
@@ -222,7 +221,6 @@ def get_next_data2(project_id, dv, page_data):
                     active = "completed"
                     paginate_data = paginated_data_complet
                     break
-            app.logger.info(active)
 
         next_page = paginate_data.next_num if paginate_data.has_next else None
         prev_page = paginate_data.prev_num if paginate_data.has_prev else None
@@ -294,7 +292,6 @@ def get_next_data_unknown(project_id, data_value):
                     break
             if (active == "unknown"):
                 active = "pending"
-            app.logger.info(active)
 
         page = -1
         test_page = 1
@@ -337,14 +334,8 @@ def get_next_data_unknown(project_id, data_value):
 @api.route("/current_user/projects/get_all", methods=["GET"])
 @jwt_required
 def get_all():
-    identity = get_jwt_identity()
-    app.logger.info("made it this far")
-    # page = request.args.get("page", 1, type=int)
-    # active = request.args.get("active", "completed", type=str)
-
     try:
         data = {}
-        app.logger.info("made it this far")
         data["pending"] = (
             db.session.query(Data)
             .filter(or_(Data.sample != true(), Data.sample == null()))
@@ -352,7 +343,6 @@ def get_all():
             .order_by(Data.last_modified.desc())
             .all()
         )
-        app.logger.info("made it this far")
         paginated_data = data["pending"]
         response = []
         for data_point in paginated_data:
@@ -372,7 +362,6 @@ def get_all():
                     "clip_length": data_point.clip_length,
                 }
             response.append(new_data)
-        app.logger.info("made it this far")
         count_data = {}
         count = 0
         for key in data:

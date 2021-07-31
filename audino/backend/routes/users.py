@@ -98,7 +98,6 @@ def create_user_no_auth():
     print("hello?")
 
     identity = get_jwt_identity()
-    app.logger.info(identity)
     if (identity is None):
         if (authNeeded):
             return jsonify(message="Unauthorized access!"), 401

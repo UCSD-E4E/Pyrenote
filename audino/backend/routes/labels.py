@@ -7,22 +7,16 @@ from werkzeug.urls import url_parse
 
 from backend import app, db
 from backend.models import User, Label, LabelValue, Project
-
+from .helper_functions import check_admin, check_admin_permissions
 from . import api
 
 
 @api.route("/labels/<int:label_id>/values", methods=["POST"])
 @jwt_required
 def add_value_to_label(label_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
-
-    if not request.is_json:
-        return jsonify(message="Missing JSON in request"), 400
+    msg, status, request_user = check_admin_permissions(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     value = request.json.get("value", None)
 
@@ -40,8 +34,7 @@ def add_value_to_label(label_id):
         db.session.refresh(label_value)
     except Exception as e:
         if type(e) == sa.exc.IntegrityError:
-            app.logger.info(f"Label Value: {value} already exists!")
-            app.logger.info(e)
+            app.logger.error(e)
             return (
                 jsonify(
                     message=f"Label Value: {value} already exists!",
@@ -72,12 +65,9 @@ def add_value_to_label(label_id):
 @api.route("/labels/<int:label_id>/values", methods=["GET"])
 @jwt_required
 def get_values_for_label(label_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     try:
         values = LabelValue.query.filter_by(label_id=label_id).all()
@@ -102,12 +92,9 @@ def get_values_for_label(label_id):
            methods=["GET"])
 @jwt_required
 def fetch_label_value(label_id, label_value_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     try:
         value = LabelValue.query.get(label_value_id)
@@ -133,12 +120,9 @@ def fetch_label_value(label_id, label_value_id):
            methods=["DELETE"])
 @jwt_required
 def delete_label_value(label_id, label_value_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     try:
         value = LabelValue.query.get(label_value_id)
@@ -166,15 +150,9 @@ def delete_label_value(label_id, label_value_id):
            methods=["PATCH"])
 @jwt_required
 def update_value_for_label(label_id, label_value_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
-
-    if not request.is_json:
-        return jsonify(message="Missing JSON in request"), 400
+    msg, status, request_user = check_admin_permissions(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     value = request.json.get("value", None)
 
@@ -191,7 +169,7 @@ def update_value_for_label(label_id, label_value_id):
         db.session.commit()
     except Exception as e:
         if type(e) == sa.exc.IntegrityError:
-            app.logger.info(f"Label Value: {value} already exists!")
+            app.logger.error(f"Label Value: {value} already exists! {e}")
             return (
                 jsonify(
                     message=f"Label Value: {value} already exists!",
@@ -222,14 +200,9 @@ def update_value_for_label(label_id, label_value_id):
            methods=["DELETE"])
 @jwt_required
 def delete_label(label_id, project_id):
-    app.logger.info("============================")
-    app.logger.info(label_id)
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     try:
         LabelCat = Label.query.get(label_id)

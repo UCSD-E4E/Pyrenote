@@ -51,9 +51,9 @@ def generate_segmentation(
     username,
     segmentation_id=None,
 ):
-    """Generate a Segmentation from the required segment information
     """
-    app.logger.info(time_spent)
+    Generate a Segmentation from the required segment information
+    """
     if segmentation_id is None:
         segmentation = Segmentation(
             data_id=data_id,
@@ -221,10 +221,7 @@ def add_data():
 
 @api.route("/data/admin_portal", methods=["POST"])
 def add_data_from_site():
-    app.logger.info(request.files)
-    app.logger.info(request.form)
     api_key = request.form.get("apiKey", None)
-    app.logger.info("also made it to asdfasdfasdfhere!")
 
     if not api_key:
         description = "API Key missing from `Authorization` Header"
@@ -235,19 +232,15 @@ def add_data_from_site():
     if not project:
         raise NotFound(description="No project exist with given API Key")
 
-    app.logger.info("also made it to asdfasdfasdfhere!")
     username_txt = request.form.get("username", None)
     username = username_txt.split(",")
     username_id = {}
     for name in username:
-        app.logger.info(name)
         user = User.query.first()
-        app.logger.info(user)
         if not user:
             raise NotFound(description="No user found with given username")
 
         username_id[name] = user.id
-    app.logger.info("also made it to asdfasdfasdfhere!")
     is_marked_for_review = True
     app.logger.info("made it to here!")
     is_sample = request.form.get("sample", 'False')
@@ -261,11 +254,7 @@ def add_data_from_site():
     for n in range(int(file_length)):
         audio_files.append(request.files.get(str(n)))
 
-    app.logger.info(audio_files)
-    app.logger.info(audio_files)
-    app.logger.info("also made it to here!")
     for file in audio_files:
-        app.logger.info(file)
         original_filename = secure_filename(file.filename)
 
         sample_label = None
@@ -296,7 +285,6 @@ def add_data_from_site():
                 sample=is_sample,
                 sample_label=sample_label
             )
-            app.logger.info(filename)
         except Exception as e:
             raise BadRequest(description="username_id is bad ")
         db.session.add(data)

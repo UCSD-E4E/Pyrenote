@@ -255,15 +255,12 @@ def set_toggled_features():
     features = request.json.get("featuresEnabled", {})
     project_id = request.json.get("projectId", None)
 
-    app.logger.info(features)
-
     project = Project.query.get(project_id)
 
     project.set_features(features)
     db.session.add(project)
     db.session.commit()
     db.session.refresh(project)
-    app.logger.info("hello")
 
     try:
         project = Project.query.get(project_id)
@@ -323,15 +320,13 @@ def give_users_examples(user_id):
     for project in find_example_projects():
         try:
             if project is None:
-                app.logger.info(f"{project} is null")
                 continue
             final_users = [user for user in project.users]
-            user = User.query.filter_by(id=user_id).first()
+            user = User.query.filter_by(username=user_id).first()
             if user not in project.users:
                 final_users.append(user)
 
             project.users = final_users
-            app.logger.info(f"{final_users}")
             db.session.add(project)
             db.session.commit()
         except Exception as e:
@@ -406,7 +401,6 @@ def add_label_to_project(project_id):
 
     try:
         if (len(LabelType.query.all()) == 0):
-            app.logger.info("Creating labelTypes")
             select = LabelType(id=1, type='Select')
 
             mutliselect = LabelType(id=2, type='Multi-select')
@@ -417,7 +411,6 @@ def add_label_to_project(project_id):
 
     try:
         project = Project.query.get(project_id)
-        app.logger.info(f"Label: {LabelType.query.all()} AT 0")
         label_id = 1
         if len(Label.query.all()) > 0:
             last_label = Label.query.all()[len(Label.query.all())-1]
@@ -429,8 +422,7 @@ def add_label_to_project(project_id):
         db.session.refresh(label)
     except Exception as e:
         if type(e) == sa.exc.IntegrityError:
-            app.logger.info(e)
-            app.logger.info(f"Label: {label_name} already exists!")
+            app.logger.error(e)
             return (
                 jsonify(
                     message=f"Label: {label_name} already exists!",
@@ -610,9 +602,8 @@ def get_segmentations_for_data(project_id, data_id):
         project = Project.query.get(project_id)
 
         if request_user not in project.users:
-            app.logger.info(project.users.id)
-            app.logger.info(request_user.id)
-            return jsonify(message="Unauthorized access!"), 401
+            msg = "Unauthorized access! User not in project users"
+            return jsonify(message=msg), 401
 
         data = Data.query.filter_by(id=data_id, project_id=project_id).first()
 
@@ -761,7 +752,6 @@ def add_segmentations(project_id, data_id, seg_id=None):
     annotations = request.json.get("annotations", dict())
     # miliseconds to seconds
     time_spent = request.json.get("time_spent", 0) / 1000
-    app.logger.info(time_spent)
     start_time = round(start_time, 4)
     end_time = round(end_time, 4)
     username = identity["username"]
@@ -873,7 +863,6 @@ def delete_segmentations(project_id, data_id, seg_id):
 @jwt_required
 def get_project_annotations(project_id):
     identity = get_jwt_identity()
-    app.logger.info(request.headers["Csv"])
     download_csv = request.headers["Csv"]
     try:
         request_user = User.query.filter_by(username=identity["username"]
@@ -893,7 +882,6 @@ def get_project_annotations(project_id):
 
             for segmentation in data.segmentations:
                 segmentation_dict = segmentation.to_dict()
-                app.logger.info(segmentation_dict)
 
                 values = dict()
                 for value in segmentation.values:
@@ -919,7 +907,6 @@ def get_project_annotations(project_id):
 
                 data_dict["segmentations"].append(segmentation_dict)
             annotations.append(data_dict)
-        app.logger.info("could do this, error isn't here")
     except Exception as e:
         message = "Error fetching annotations for project"
         app.logger.error(message)
@@ -927,12 +914,9 @@ def get_project_annotations(project_id):
         return jsonify(message=message, type="FETCH_ANNOTATIONS_FAILED"), 500
     if ((download_csv) == "true"):
         text, csv = JsonLabelsToCsv.JsonToText(annotations)
-        app.logger.info(f'{type(text)}, {text}')
         annotations_to_download = csv
-        app.logger.info("here: ", annotations_to_download)
     else:
         annotations_to_download = annotations
-        app.logger.info("here: ", annotations_to_download)
     return (
         jsonify(
             message="Annotations fetched successfully",

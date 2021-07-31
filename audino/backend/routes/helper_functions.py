@@ -14,11 +14,17 @@ from .data import generate_segmentation
 from backend.routes import JsonLabelsToCsv
 
 
-def check_admin_permissions(identity):
+def check_admin(identity):
     request_user = User.query.filter_by(username=identity["username"]).first()
     is_admin = True if request_user.role.role == "admin" else False
     if is_admin is False:
         return jsonify(message="Unauthorized access!"), 401, request_user
+
+
+def check_admin_permissions(identity):
+    msg, status, request_user = check_admin(identity)
+    if msg is not None:
+        return msg, status
 
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400, request_user
