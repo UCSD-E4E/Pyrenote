@@ -1,4 +1,4 @@
-from audino.backend.routes.helper_functions import check_admin
+from .helper_functions import check_admin
 import sqlalchemy as sa
 
 from flask import jsonify, flash, redirect, url_for, request

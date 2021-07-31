@@ -21,14 +21,7 @@ from .projects import (
     fetch_project,
     edit_project,
     update_project_users,
-    give_users_examples_json,
-    add_label_to_project,
-    get_label_for_project,
-    update_label_for_project,
-    get_labels_for_project,
-    
-    update_data,
-    
+    give_users_examples,
     get_project_annotations
 )
 
@@ -43,7 +36,7 @@ from .project_labels import (
     get_label_for_project,
     update_label_for_project,
     get_labels_for_project,
-    
+
 )
 
 from .labels import (
@@ -67,6 +60,7 @@ from .data import (
     validate_segmentation,
     generate_segmentation,
     add_data,
-    add_data_from_site
+    add_data_from_site,
+    update_data
 )
 from .audios import send_audio_file

@@ -299,3 +299,53 @@ def add_data_from_site():
         ),
         201,
     )
+
+@api.route("/projects/<int:project_id>/data/<int:data_id>", methods=["PATCH"])
+@jwt_required
+def update_data(project_id, data_id):
+    identity = get_jwt_identity()
+
+    if not request.is_json:
+        return jsonify(message="Missing JSON in request"), 400
+
+    is_marked_for_review = bool(
+                                request.json.get("is_marked_for_review", False)
+    )
+
+    try:
+        request_user = User.query.filter_by(
+                                            username=identity["username"]
+        ).first()
+        project = Project.query.get(project_id)
+
+        if request_user not in project.users:
+            return jsonify(message="Unauthorized access!"), 401
+
+        data = Data.query.filter_by(id=data_id, project_id=project_id).first()
+
+        # if request_user.username not in  data.assigned_user_id:
+        #    return jsonify(message="Unauthorized access!"), 401
+
+        data.update_marked_review(is_marked_for_review)
+
+        db.session.add(data)
+        db.session.commit()
+        db.session.refresh(data)
+    except Exception as e:
+        app.logger.error(f"Error updating data")
+        app.logger.error(e)
+        return (
+            jsonify(message=f"Error updating data",
+                    type="DATA_UPDATION_FAILED"),
+            500,
+        )
+
+    return (
+        jsonify(
+            data_id=data.id,
+            is_marked_for_review=data.is_marked_for_review,
+            message=f"Data updated",
+            type="DATA_UPDATED",
+        ),
+        200,
+    )
