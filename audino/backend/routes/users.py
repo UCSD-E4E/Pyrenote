@@ -1,3 +1,4 @@
+from audino.backend.routes.helper_functions import check_admin
 import sqlalchemy as sa
 
 from flask import jsonify, flash, redirect, url_for, request
@@ -12,7 +13,7 @@ from werkzeug.urls import url_parse
 
 from backend import app, db, redis_client
 from backend.models import User, Role
-
+from .helper_functions import check_admin_permissions, check_admin, check_login
 from . import api
 
 
@@ -35,36 +36,17 @@ def check_role(role_id):
 @api.route("/users", methods=["POST"])
 @jwt_required
 def create_user():
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
-
-    if not request.is_json:
-        return jsonify(message="Missing JSON in request"), 400
+    msg, status, request_user = check_admin_permissions(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     role_id = request.json.get("role", None)
 
-    if not username:
-        return (
-            jsonify(message="Please provide your username!",
-                    type="USERNAME_MISSING"),
-            400,
-        )
-    if not password:
-        return (
-            jsonify(message="Please provide your password!",
-                    type="PASSWORD_MISSING"),
-            400,
-        )
-
-    if not role_id:
-        return (jsonify(message="Please provide your role!",
-                type="ROLE_MISSING"), 400)
+    msg, status = check_login(username, password, role_id)
+    if msg is not None:
+        return msg, status
 
     result = check_role(int(role_id))
     if result is not None:
@@ -112,22 +94,9 @@ def create_user_no_auth():
     password = request.json.get("password", None)
     role_id = "2"
 
-    if not username:
-        return (
-            jsonify(message="Please provide your username!",
-                    type="USERNAME_MISSING"),
-            400,
-        )
-    if not password:
-        return (
-            jsonify(message="Please provide your password!",
-                    type="PASSWORD_MISSING"),
-            400,
-        )
-
-    if not role_id:
-        return (jsonify(message="Please provide your role!",
-                type="ROLE_MISSING"), 400)
+    msg, status = check_login(username, password, role_id)
+    if msg is not None:
+        return msg, status
 
     result = check_role(int(role_id))
     if result is not None:
@@ -154,12 +123,9 @@ def create_user_no_auth():
 @api.route("/users/<int:user_id>", methods=["GET"])
 @jwt_required
 def fetch_user(user_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     try:
         user = User.query.get(user_id)
@@ -186,15 +152,9 @@ def fetch_user(user_id):
 @api.route("/users/<int:user_id>", methods=["PATCH"])
 @jwt_required
 def update_user(user_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
-
-    if not request.is_json:
-        return jsonify(message="Missing JSON in request"), 400
+    msg, status, request_user = check_admin_permissions(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     role_id = request.json.get("role", None)
     newUserName = request.json.get("newUserName", None)
@@ -269,15 +229,9 @@ def update_user(user_id):
 @api.route("/users/<int:user_id>", methods=["DELETE"])
 @jwt_required
 def delete_user(user_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
-
-    if not request.is_json:
-        return jsonify(message="Missing JSON in request"), 400
+    msg, status, request_user = check_admin_permissions(get_jwt_identity())
+    if msg is not None:
+        return msg, status
 
     try:
         # Below code may not be doing anything

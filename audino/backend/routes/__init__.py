@@ -26,12 +26,26 @@ from .projects import (
     get_label_for_project,
     update_label_for_project,
     get_labels_for_project,
-    get_segmentations_for_data,
+    
     update_data,
-    add_segmentations,
-    delete_segmentations,
+    
     get_project_annotations
 )
+
+from .project_segmentations import (
+    get_segmentations_for_data,
+    add_segmentations,
+    delete_segmentations,
+)
+
+from .project_labels import (
+    add_label_to_project,
+    get_label_for_project,
+    update_label_for_project,
+    get_labels_for_project,
+    
+)
+
 from .labels import (
     add_value_to_label,
     get_values_for_label,

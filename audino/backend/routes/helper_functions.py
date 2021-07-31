@@ -85,6 +85,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
 
     return data
 
+
 def check_login(username, password, role_id):
     if not username:
         return (
