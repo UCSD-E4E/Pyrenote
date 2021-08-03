@@ -535,7 +535,9 @@ def update_label_for_project(project_id, label_id):
         )
 
     label_type_id = int(label_type_id)
-    if label_type_id not in [1, 2]:
+    all_label_types = [label_type.id for label_type in LabelType.query.all()]
+
+    if label_type_id not in all_label_types:
         return (
             jsonify(
                 message="Please assign correct label type!",
