@@ -14,6 +14,23 @@ from .data import generate_segmentation
 from backend.routes import JsonLabelsToCsv
 
 
+"""return and log an error message that is not a specific error"""
+
+
+def general_error(custom_message, error, type="error"):
+    message = custom_message + error
+    app.logger.error(message)
+    app.logger.error(error)
+    return jsonify(message=message, type=type), 500
+
+
+"""No values to return"""
+
+
+def general_success(message, type="success"):
+    return (jsonify(message=message, type=type), 200)
+
+
 def check_admin(identity):
     request_user = User.query.filter_by(username=identity["username"]).first()
     is_admin = True if request_user.role.role == "admin" else False

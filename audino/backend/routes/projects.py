@@ -14,7 +14,11 @@ from .data import generate_segmentation
 
 from backend.routes import JsonLabelsToCsv
 
-from .helper_functions import check_admin_permissions
+from .helper_functions import (
+    check_admin_permissions,
+    check_admin,
+    general_error
+)
 
 
 def generate_api_key():
@@ -55,9 +59,7 @@ def create_project():
                         type="DUPLICATE_PROJECT"),
                 409,
             )
-        app.logger.error("Error creating project")
-        app.logger.error(e)
-        return jsonify(message="Error creating project!"), 500
+        return general_error("Error creating project!", e)
 
     return jsonify(project_id=project.id,
                    message="Project has been created!"), 201
@@ -66,12 +68,9 @@ def create_project():
 @api.route("/projects", methods=["GET"])
 @jwt_required
 def fetch_all_projects():
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if (msg is not None):
+        return msg, status
     try:
         projects = Project.query.all()
         response = list(
@@ -87,10 +86,7 @@ def fetch_all_projects():
             ]
         )
     except Exception as e:
-        message = "Error fetching all projects"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 500
+        return general_error("Error fetching all projects", e)
 
     return jsonify(projects=response), 200
 
@@ -98,12 +94,9 @@ def fetch_all_projects():
 @api.route("/projects/<int:project_id>", methods=["GET"])
 @jwt_required
 def fetch_project(project_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if (msg is not None):
+        return msg, status
 
     try:
         project = Project.query.get(project_id)
@@ -225,15 +218,9 @@ def update_project_users(project_id):
         db.session.add(project)
         db.session.commit()
     except Exception as e:
-        app.logger.error(f"Error adding users to project: {project_id}")
-        app.logger.error(e)
-        return (
-            jsonify(
-                message=f"Error adding users to project: {project_id}",
-                type="USERS_ASSIGNMENT_FAILED",
-            ),
-            500,
-        )
+        message = f"Error adding users to project: {project_id}"
+        type = "USERS_ASSIGNMENT_FAILED"
+        return general_error(message, e, type=type)
 
     return (
         jsonify(
@@ -269,15 +256,10 @@ def set_toggled_features():
         db.session.commit()
         db.session.refresh(project)
     except Exception as e:
-        app.logger.error(f"Error adding features to project: {project_id}")
-        app.logger.error(e)
-        return (
-            jsonify(
-                message=f"Error adding features to project: {project_id}",
-                type="USERS_ASSIGNMENT_FAILED",
-            ),
-            500,
-        )
+        message = f"Error adding features to project: {project_id}",
+        type = "USERS_ASSIGNMENT_FAILED",
+        return general_error(message, e, type=type)
+
     return (
         jsonify(
             project_id=-1,
@@ -330,17 +312,9 @@ def give_users_examples(user_id):
             db.session.add(project)
             db.session.commit()
         except Exception as e:
-            app.logger.error(
-                f"Error adding users to project:{User.query.all()[0].id}"
-            )
-            app.logger.error(e)
-            return (
-                jsonify(
-                    message=f"Error adding users to project: {project.id}",
-                    type="USERS_ASSIGNMENT_FAILED",
-                ),
-                500,
-            )
+            msg = f"Error adding: {User.query.all()[0].id}, to {project.id}"
+            type = "USERS_ASSIGNMENT_FAILED",
+            return general_error(msg, e, type=type)
 
     return (
         jsonify(
@@ -355,18 +329,12 @@ def give_users_examples(user_id):
 @api.route("/projects/<int:project_id>/annotations", methods=["GET"])
 @jwt_required
 def get_project_annotations(project_id):
-    identity = get_jwt_identity()
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if (msg is not None):
+        return msg, status
     download_csv = request.headers["Csv"]
     try:
-        request_user = User.query.filter_by(username=identity["username"]
-                                            ).first()
         project = Project.query.get(project_id)
-        is_admin = True if request_user.role.role == "admin" else False
-        if is_admin is False:
-            return jsonify(message="Unauthorized access!"), 401
-        # if request_user not in project.users:
-        #    return jsonify(message="Unauthorized access!"), 401
-
         annotations = []
 
         for data in project.data:
@@ -402,9 +370,8 @@ def get_project_annotations(project_id):
             annotations.append(data_dict)
     except Exception as e:
         message = "Error fetching annotations for project"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message, type="FETCH_ANNOTATIONS_FAILED"), 500
+        return general_error(message, e, type="FETCH_ANNOTATIONS_FAILED")
+
     if (download_csv == "true"):
         text, csv = JsonLabelsToCsv.JsonToText(annotations)
         annotations_to_download = csv

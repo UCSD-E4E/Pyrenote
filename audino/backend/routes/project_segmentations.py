@@ -14,7 +14,7 @@ from .data import generate_segmentation
 
 from backend.routes import JsonLabelsToCsv
 
-from .helper_functions import check_admin_permissions
+from .helper_functions import check_admin_permissions, general_error
 
 
 @api.route(
@@ -45,15 +45,8 @@ def delete_segmentations(project_id, data_id, seg_id):
         db.session.delete(segmentation)
         db.session.commit()
     except Exception as e:
-        app.logger.error(f"Could not delete segmentation")
-        app.logger.error(e)
-        return (
-            jsonify(
-                message=f"Could not delete segmentation",
-                type="SEGMENTATION_DELETION_FAILED",
-            ),
-            500,
-        )
+        msg = f"Could not delete segmentation"
+        return general_error(msg, e, type="SEGMENTATION_DELETION_FAILED")
 
     return (
         jsonify(
@@ -147,15 +140,8 @@ def add_segmentations(project_id, data_id, seg_id=None):
         db.session.commit()
         db.session.refresh(segmentation)
     except Exception as e:
-        app.logger.error(f"Could not create segmentation")
-        app.logger.error(e)
-        return (
-            jsonify(
-                message=f"Could not create segmentation",
-                type="SEGMENTATION_CREATION_FAILED",
-            ),
-            500,
-        )
+        msg = f"Could not create segmentation"
+        return general_error(msg, e, type="USERS_ASSIGNMENT_FAILED")
 
     if request.method == "POST":
         message = "Segmentation created"

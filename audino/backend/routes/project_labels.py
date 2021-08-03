@@ -14,7 +14,11 @@ from .data import generate_segmentation
 
 from backend.routes import JsonLabelsToCsv
 
-from .helper_functions import check_admin_permissions
+from .helper_functions import (
+    check_admin,
+    check_admin_permissions,
+    general_error
+)
 
 
 @api.route("/projects/<int:project_id>/labels", methods=["POST"])
@@ -85,15 +89,8 @@ def add_label_to_project(project_id):
                 ),
                 409,
             )
-        app.logger.error(f"Error adding label to project: {project_id}")
-        app.logger.error(e)
-        return (
-            jsonify(
-                message=f"Error adding label to project: {project_id}",
-                type="LABEL_CREATION_FAILED",
-            ),
-            500,
-        )
+        msg = f"Error adding label to project: {project_id}"
+        return general_error(msg, e, type="LABEL_CREATION_FAILED")
 
     return (
         jsonify(
@@ -109,12 +106,11 @@ def add_label_to_project(project_id):
 @api.route("/projects/<int:project_id>/labels/<int:label_id>", methods=["GET"])
 @jwt_required
 def get_label_for_project(project_id, label_id):
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if (msg is not None):
+        return msg, status
+
     p_id = project_id
-    if is_admin is False:
-        return jsonify(message="Unauthorized access!"), 401
     err_msg = f"No label exists w/ Label ID: {label_id} Project ID: {p_id}"
     try:
         label = Label.query.filter_by(

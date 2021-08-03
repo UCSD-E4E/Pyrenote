@@ -13,7 +13,12 @@ from werkzeug.urls import url_parse
 
 from backend import app, db, redis_client
 from backend.models import User, Role
-from .helper_functions import check_admin_permissions, check_admin, check_login
+from .helper_functions import (
+    check_admin_permissions,
+    check_admin,
+    general_error,
+    check_login
+)
 from . import api
 
 
@@ -63,9 +68,7 @@ def create_user():
             app.logger.error(f"User {username} already exists!")
             return (jsonify(message="User already exists!",
                     type="DUPLICATE_USER"), 409)
-        app.logger.error("Error creating user")
-        app.logger.error(e)
-        return jsonify(message="Error creating user!"), 500
+        return general_error("Error creating user", e)
 
     return jsonify(user_id=user.id, message="User has been created!"), 201
 
@@ -287,9 +290,7 @@ def fetch_all_users():
             ]
         )
     except Exception as e:
-        message = "Error fetching all users"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 500
+        msg = "Error fetching all users"
+        return general_error(msg, e, type="SEGMENTATION_DELETION_FAILED")
 
     return jsonify(users=response), 200

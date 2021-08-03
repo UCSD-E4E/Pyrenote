@@ -9,7 +9,7 @@ from werkzeug.urls import url_parse
 from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
-from .helper_functions import retrieve_database
+from .helper_functions import retrieve_database, general_error
 from . import api
 
 
@@ -34,10 +34,7 @@ def fetch_current_user_projects():
             ]
         )
     except Exception as e:
-        message = "Error fetching all projects"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 500
+        return general_error("Error fetching all projects", e)
 
     return jsonify(projects=response), 200
 
@@ -88,10 +85,7 @@ def fetch_data_for_project(project_id):
         count_data = {key: value.count() for key, value in data.items()}
         app.logger.info("HELLO")
     except Exception as e:
-        message = "Error fetching all data points"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 500
+        return general_error("Error fetching all projects", e)
 
     return (
         jsonify(
@@ -163,10 +157,7 @@ def get_next_data(project_id, data_value):
         )
         count_data = {key: value.count() for key, value in data.items()}
     except Exception as e:
-        message = "Error fetching all data points"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 501
+        return general_error("Error fetching all projects", e)
 
     return (
         jsonify(
@@ -241,10 +232,7 @@ def get_next_data2(project_id, dv, page_data):
         )
         count_data = {key: value.count() for key, value in data.items()}
     except Exception as e:
-        message = "Error fetching all data points"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 501
+        return general_error("Error fetching all projects", e)
 
     return (
         jsonify(
@@ -322,10 +310,8 @@ def get_next_data_unknown(project_id, data_value):
             if (next is not None):
                 test_page += 1
     except Exception as e:
-        message = "Error fetching all data points"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 501
+        return general_error("Error fetching all projects", e)
+
     message = f"Error data value `{data_value}` not in project"
     app.logger.error(message)
     return jsonify(message=message), 404
@@ -368,10 +354,7 @@ def get_all():
             count += 1
             count_data[key] = count
     except Exception as e:
-        message = "Error fetching all data points"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 501
+        return general_error("Error fetching all projects", e)
 
     return (
         jsonify(

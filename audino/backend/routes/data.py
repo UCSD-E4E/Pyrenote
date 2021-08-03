@@ -15,6 +15,7 @@ from backend import app, db
 from backend.models import Data, Project, User, Segmentation, Label, LabelValue
 import mutagen
 import wave
+from .helper_functions import general_error
 from . import api
 
 ALLOWED_EXTENSIONS = ["wav", "mp3", "ogg"]
@@ -333,13 +334,8 @@ def update_data(project_id, data_id):
         db.session.commit()
         db.session.refresh(data)
     except Exception as e:
-        app.logger.error(f"Error updating data")
-        app.logger.error(e)
-        return (
-            jsonify(message=f"Error updating data",
-                    type="DATA_UPDATION_FAILED"),
-            500,
-        )
+        type = "DATA_UPDATION_FAILED"
+        return general_error(f"Error updating data", e, type=type)
 
     return (
         jsonify(

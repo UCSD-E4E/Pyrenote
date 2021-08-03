@@ -7,7 +7,11 @@ from werkzeug.urls import url_parse
 
 from backend import app, db
 from backend.models import User, Label, LabelValue, Project
-from .helper_functions import check_admin, check_admin_permissions
+from .helper_functions import (
+    check_admin,
+    check_admin_permissions,
+    general_error
+)
 from . import api
 
 
@@ -42,15 +46,8 @@ def add_value_to_label(label_id):
                 ),
                 409,
             )
-        app.logger.error(f"Error adding value to label")
-        app.logger.error(e)
-        return (
-            jsonify(
-                message=f"Error adding value to label",
-                type="VALUE_CREATION_FAILED"
-            ),
-            500,
-        )
+        msg = f"Error adding value to label"
+        return general_error(msg, e, type="VALUE_CREATION_FAILED")
 
     return (
         jsonify(
