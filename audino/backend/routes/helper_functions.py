@@ -1,7 +1,7 @@
 from flask import jsonify, request
 
 from backend import app, db
-from backend.models import User, Data, Role
+from backend.models import User, Data
 
 
 """return and log an error message that is not a specific error"""

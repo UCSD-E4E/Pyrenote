@@ -1,19 +1,12 @@
-import re
 import sqlalchemy as sa
-import uuid
 
-from flask import jsonify, flash, redirect, url_for, request
+from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.urls import url_parse
 
 from backend import app, db
-from backend.models import Project, User, Label, Data, Segmentation
-from backend.models import LabelValue, LabelType
+from backend.models import Project, User, Label
+from backend.models import LabelType
 from . import api
-from .data import generate_segmentation
-
-from backend.routes import JsonLabelsToCsv
-
 from .helper_functions import (
     check_admin,
     check_admin_permissions,

@@ -4,17 +4,15 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from flask import jsonify, flash, redirect, url_for, request
+from flask import jsonify, request
 from flask import send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
-from werkzeug.exceptions import BadRequest, NotFound, InternalServerError
+from werkzeug.exceptions import BadRequest, NotFound
 
 from backend import app, db
 from backend.models import Data, Project, User, Segmentation, Label, LabelValue
 import mutagen
-import wave
 from .helper_functions import general_error
 from . import api
 

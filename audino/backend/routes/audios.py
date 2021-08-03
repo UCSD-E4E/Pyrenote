@@ -1,10 +1,5 @@
-import os
-
 from flask import send_from_directory, jsonify
-
 from backend import app
-
-from backend.models import Data
 
 
 @app.route("/audios/<path:file_name>")

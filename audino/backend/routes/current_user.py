@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from sqlalchemy.sql.expression import false, true, null
 import uuid
 
-from flask import jsonify, flash, redirect, url_for, request
+from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.urls import url_parse
 from .projects import give_users_examples
