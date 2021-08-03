@@ -1,15 +1,13 @@
 from .helper_functions import check_admin
 import sqlalchemy as sa
 
-from flask import jsonify, flash, redirect, url_for, request
+from flask import jsonify, request
 from flask_jwt_extended import (
     jwt_required,
     create_access_token,
     get_jwt_identity,
     get_jti,
-    get_raw_jwt,
 )
-from werkzeug.urls import url_parse
 
 from backend import app, db, redis_client
 from backend.models import User, Role
@@ -22,18 +20,15 @@ from .helper_functions import (
 from . import api
 
 
-def check_role(role_id):
+def check_role(role_id, message="Please assign correct role!",
+               type="ROLE_INCORRECT"):
     # Get all roles from role table
     roles = []
     for role in Role.query.all():
         roles.append(role.id)
 
     if role_id not in roles:
-        return (
-            jsonify(message="Please assign correct role!",
-                    type="ROLE_INCORRECT"),
-            400,
-        )
+        return (jsonify(message=message, type=type), 400)
     else:
         return None
 
@@ -159,17 +154,12 @@ def update_user(user_id):
     if msg is not None:
         return msg, status
 
-    role_id = request.json.get("role", None)
+    role_id = int(request.json.get("role", None))
     newUserName = request.json.get("newUserName", None)
 
-    if not role_id:
-        return (jsonify(message="Please provide your role!",
-                type="ROLE_MISSING"), 400)
-
-    role_id = int(role_id)
-
     # Get all roles from role table
-    result = check_role(role_id)
+    result = check_role(role_id, message="Please provide your role!",
+                        type="ROLE_MISSING")
     if result is not None:
         return result
 
@@ -269,12 +259,9 @@ def delete_user(user_id):
 @api.route("/users", methods=["GET"])
 @jwt_required
 def fetch_all_users():
-    identity = get_jwt_identity()
-    request_user = User.query.filter_by(username=identity["username"]).first()
-    is_admin = True if request_user.role.role == "admin" else False
-
-    if is_admin is False:
-        return jsonify(message="Unauthorized access"), 401
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if (msg is not None):
+        return msg, status
 
     try:
         users = User.query.all()

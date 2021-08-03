@@ -1,17 +1,7 @@
-import sqlalchemy as sa
-import uuid
-
-from flask import jsonify, flash, redirect, url_for, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.urls import url_parse
+from flask import jsonify, request
 
 from backend import app, db
-from backend.models import Project, User, Label, Data, Segmentation
-from backend.models import LabelValue, LabelType
-from . import api
-from .data import generate_segmentation
-
-from backend.routes import JsonLabelsToCsv
+from backend.models import User, Data, Role
 
 
 """return and log an error message that is not a specific error"""
@@ -24,18 +14,12 @@ def general_error(custom_message, error, type="error"):
     return jsonify(message=message, type=type), 500
 
 
-"""No values to return"""
-
-
-def general_success(message, type="success"):
-    return (jsonify(message=message, type=type), 200)
-
-
 def check_admin(identity):
     request_user = User.query.filter_by(username=identity["username"]).first()
     is_admin = True if request_user.role.role == "admin" else False
     if is_admin is False:
         return jsonify(message="Unauthorized access!"), 401, request_user
+    return None, None, request_user
 
 
 def check_admin_permissions(identity):
@@ -52,7 +36,6 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
                       big_key=None):
     data = {}
     if ("pending" in categories):
-        app.logger.info("made it here")
         if (request_user is not None):
             data["pending"] = (
                 db.session.query(Data)
@@ -63,7 +46,6 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
                 .order_by(Data.last_modified.desc())
             )
         else:
-            app.logger.info("made it here")
             data["pending"] = (
                 db.session.query(Data)
                 .filter(Data.project_id == project_id)
@@ -74,7 +56,6 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
 
     if ("completed" in categories):
         if (request_user is not None):
-            app.logger.info("made it here")
             data["completed"] = (
                 db.session.query(Data)
                 .filter(request_user.id == Data.assigned_user_id[big_key])

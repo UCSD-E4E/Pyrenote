@@ -219,8 +219,7 @@ def update_project_users(project_id):
         db.session.commit()
     except Exception as e:
         message = f"Error adding users to project: {project_id}"
-        type = "USERS_ASSIGNMENT_FAILED"
-        return general_error(message, e, type=type)
+        return general_error(message, e, type="USERS_ASSIGNMENT_FAILED")
 
     return (
         jsonify(
