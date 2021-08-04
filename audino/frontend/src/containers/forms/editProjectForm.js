@@ -3,7 +3,7 @@ import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
-import Alert from '../../components/alert';
+import {FormAlerts} from '../../components/alert';
 import { Button } from '../../components/button';
 
 class EditProjectForm extends React.Component {
@@ -107,8 +107,11 @@ class EditProjectForm extends React.Component {
               this.form = el;
             }}
           >
-            {errorMessage ? <Alert type="danger" message={errorMessage} /> : null}
-            {successMessage ? <Alert type="success" message={successMessage} /> : null}
+             <FormAlerts 
+              errorMessage={errorMessage} 
+              successMessage={successMessage}
+              callback={e => this.handleAlertDismiss(e)}
+            />
             <div className="form-group text-left">
               <input
                 type="text"

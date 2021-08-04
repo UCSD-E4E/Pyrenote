@@ -66,5 +66,23 @@ AlertSection.defaultProps = {
   callback: () => {}
 };
 
-export default Alert
-export {Alert, AlertSection};
+const FormAlerts = ({errorMessage, successMessage, callback}) => {
+  return (
+    <AlertSection messages={[
+        {"message": errorMessage, type: 'danger'},
+        {"message": successMessage, type: 'success'},
+      ]}
+      callback={e => callback(e)}
+    />
+  )
+}
+
+FormAlerts.defaultProps = {
+  errorMessage: null,
+  successMessage: null,
+  callback: () => {}
+};
+
+
+export default FormAlerts
+export {Alert, AlertSection, FormAlerts};

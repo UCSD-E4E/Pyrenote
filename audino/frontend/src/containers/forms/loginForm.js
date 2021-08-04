@@ -3,7 +3,7 @@ import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
-import Alert from '../../components/alert';
+import {FormAlerts} from '../../components/alert';
 import { Button } from '../../components/button';
 
 import setAuthorizationToken from '../../utils';
@@ -87,16 +87,11 @@ class LoginForm extends React.Component {
     const { isSigningIn, successMessage, errorMessage } = this.state;
     return (
       <form className="col-4" name="login">
-        {errorMessage ? (
-          <Alert type="danger" message={errorMessage} onClose={e => this.handleAlertDismiss(e)} />
-        ) : null}
-        {successMessage ? (
-          <Alert
-            type="success"
-            message={successMessage}
-            onClose={e => this.handleAlertDismiss(e)}
-          />
-        ) : null}
+         <FormAlerts 
+          errorMessage={errorMessage} 
+          successMessage={successMessage}
+          callback={e => this.handleAlertDismiss(e)}
+        />
         <h1 className="h3 mb-3 font-weight-normal">Sign in</h1>
         <div className="form-group">
           <input

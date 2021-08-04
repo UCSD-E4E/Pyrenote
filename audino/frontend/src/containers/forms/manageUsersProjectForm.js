@@ -3,7 +3,7 @@ import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
-import {AlertSection} from '../../components/alert';
+import {FormAlerts} from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
@@ -127,12 +127,11 @@ class ManageUsersProjectForm extends React.Component {
             }}
           >
             {isLoading ? <Loader /> : null}
-            <AlertSection messages={[
-                {"message": errorMessage, type: 'danger'},
-                {"message": successMessage, type: 'success'},
-              ]}
+            <FormAlerts 
+              errorMessage={errorMessage} 
+              successMessage={successMessage}
               callback={e => this.handleAlertDismiss(e)}
-          />
+            />
             {!isLoading ? (
               <div>
                 <div className="form-group text-left font-weight-bold">
