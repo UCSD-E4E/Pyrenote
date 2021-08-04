@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button } from './button';
 
-class UnsavedButton {
-  constructor(ws, active) {
+class UnsavedButton extends React.Component{
+  constructor(ws, active, props) {
+    super(props)
     this.regions = {}
     this.currRegion = null
     this.selectedRegion = null
@@ -10,6 +11,7 @@ class UnsavedButton {
     this.pos = 0
     this.wavesurfer = ws
     this.active = active
+    this.state = {count: this.count}
   }
   
   addUnsaved(region, ignore = false) {
@@ -34,6 +36,7 @@ class UnsavedButton {
     } 
     this.regions[id] = item
     this.count += 1
+    this.setState({count: this.count})
   }
 
   removeSaved(region) {
@@ -67,6 +70,7 @@ class UnsavedButton {
 
     delete this.regions[id]
     this.count -= 1
+    this.setState({count: this.count})
     
   }
 
@@ -112,6 +116,7 @@ class UnsavedButton {
   }
 
   render() {
+    const {count} = this.state
     let msg = this.count + " Unsaved Left"
     if (this.active !== "pending") {
       msg = this.count + " Left to Review"

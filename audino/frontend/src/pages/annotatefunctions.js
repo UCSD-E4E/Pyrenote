@@ -39,6 +39,7 @@ const handleAllSegmentSave = annotate => {
               });
               wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
               segment._onSave();
+              annotate.UnsavedButton.removeSaved(segment)
             })
             .catch(error => {
               console.error(error);
@@ -69,6 +70,7 @@ const handleAllSegmentSave = annotate => {
               });
               wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
               segment._onSave();
+              annotate.UnsavedButton.removeSaved(segment)
             })
             .catch(error => {
               console.error(error);
@@ -88,6 +90,7 @@ const handleAllSegmentSave = annotate => {
 
 const removeSegment = (wavesurfer, selectedSegment, annotate) => {
   wavesurfer.regions.list[selectedSegment.id].remove();
+  annotate.UnsavedButton.removeSaved(selectedSegment)
   annotate.setState({
     selectedSegment: null,
     isSegmentDeleting: false
