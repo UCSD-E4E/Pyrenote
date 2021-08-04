@@ -24,7 +24,6 @@ def add_value_to_label(label_id):
     value = request.json.get("value", None)
 
     if not value:
-        return missing_data("Please provide a label value!")
         return (
             jsonify(message="Please provide a label value!",
                     type="VALUE_MISSING"),
