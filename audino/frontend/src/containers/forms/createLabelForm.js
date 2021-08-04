@@ -4,7 +4,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
-import Alert from '../../components/alert';
+import {AlertSection} from '../../components/alert';
 import { Button } from '../../components/button';
 import LabelValues from '../../pages/labelValues';
 
@@ -111,20 +111,12 @@ class CreateLabelForm extends React.Component {
                 this.form = el;
               }}
             >
-              {errorMessage ? (
-                <Alert
-                  type="danger"
-                  message={errorMessage}
-                  onClose={e => this.handleAlertDismiss(e)}
-                />
-              ) : null}
-              {successMessage ? (
-                <Alert
-                  type="success"
-                  message={successMessage}
-                  onClose={e => this.handleAlertDismiss(e)}
-                />
-              ) : null}
+              <AlertSection messages={[
+                {"message": errorMessage, type: 'danger'},
+                {"message": successMessage, type: 'success'},
+              ]}
+              callback={e => this.handleAlertDismiss(e)}
+            />
               <div className="form-group">
                 <input
                   type="text"

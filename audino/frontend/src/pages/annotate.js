@@ -3,11 +3,14 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
-import Alert from '../components/alert';
-import { Button } from '../components/button';
-import Loader from '../components/loader';
+import {AlertSection, Alert} from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import NavButton from '../components/navbutton';
+import NavButton from '../components/annotate/navbutton';
+import Spectrogram from '../components/annotate/spectrogram';
+import LabelSection from '../components/annotate/labelsSection';
+import LabelButton from '../components/annotate/labelButtons';
+import RenderingMsg from '../components/annotate/renderingMsg';
+import MarkedForReview from '../components/annotate/markedForReview';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -48,7 +51,8 @@ class Annotate extends React.Component {
       storedAnnotations: null,
       applyPreviousAnnotations: false,
       boundingBox: true,
-      direction: null
+      direction: null,
+      initWavesurfer: false,
     };
     this.lastTime = 0;
     this.labelRef = {};
@@ -56,6 +60,7 @@ class Annotate extends React.Component {
   }
 
   componentDidMount() {
+    console.log("THIS RAN FRIST")
     this.lastTime = Date.now();
     let linksArray = [];
     let count = 0;
@@ -290,7 +295,8 @@ class Annotate extends React.Component {
                   isSegmentSaving: false,
                   selectedSegment: segment,
                   successMessage: 'Segment saved',
-                  errorMessage: null
+                  errorMessage: null,
+                  errorUnsavedMessage: null,
                 });
                 wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
                 segment._onSave();
@@ -444,10 +450,10 @@ class Annotate extends React.Component {
       original_filename,
       wavesurferMethods,
       navButtonsEnabled,
-      applyPreviousAnnotations
-      toUnsavedClipOn
+      applyPreviousAnnotations,
+      toUnsavedClipOn,
       playbackRate,
-      playbackOn
+      playbackOn,
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -459,15 +465,8 @@ class Annotate extends React.Component {
         </Helmet>
         <div className="container h-100">
           <div className="h-100 mt-5 text-center">
-            {errorUnsavedMessage
-              ? this.renderAlerts('danger', errorUnsavedMessage)
-              : errorMessage
-              ? this.renderAlerts('danger', errorMessage)
-              : successMessage
-              ? this.renderAlerts('success', successMessage)
-              : null}
-            <div>{original_filename}</div>
-            {applyPreviousAnnotations?
+           
+          {applyPreviousAnnotations?
               <div className="col-4">
                 <Button
                   size="lg"
@@ -475,132 +474,43 @@ class Annotate extends React.Component {
                   onClick={() => this.setState({applyPreviousAnnotations: !applyPreviousAnnotations})}
                   text={applyPreviousAnnotations? "apply previous annotations enabled" : "apply previous annotations disabled"}
                 />
-              </div>
+              </div> : null}
+           <AlertSection messages={[
+                {"message": errorUnsavedMessage, type: 'danger'},
+                {"message": errorMessage, type: 'danger'},
+                {"message": successMessage, type: 'success'},
+              ]}
+              overlay={true}
+              callback={e => this.handleAlertDismiss(e)}
+            />
+            {!isRendering && <div>{original_filename}</div>}
+
+            <RenderingMsg isRendering={isRendering}/>
+            <Spectrogram isRendering={isRendering}/>
+
+            {!isRendering? 
+              <div>
+                <LabelSection 
+                  state={this.state} 
+                  handleLabelChange={(key, e) => this.handleLabelChange(key, e)}
+                  labelRef={this.labelRef} 
+                />
+                <div className={isDataLoading ? 'hidden' : ''}>
+                    <LabelButton state={this.state} annotate={this}/>
+                    <MarkedForReview state={this.state} annotate={this}/>
+                    {playbackOn? 
+                    <input
+                        type="range"
+                        min="1"
+                        max="200"
+                        value={playbackRate}
+                        onChange={(e) => this.changePlayback(e)}
+                      />: null }
+                    {navButtonsEnabled && <NavButton save={this.handleAllSegmentSave} annotate={this}/>}
+                    {toUnsavedClipOn && this.UnsavedButton? this.UnsavedButton.render() : null}
+                </div> 
+              </div> 
             : null}
-            {isRendering && (
-              <div className="row justify-content-md-center my-4">
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
-                  }}
-                >
-                  <text style={{ marginBottom: '2%' }}>
-                    Please wait while spectrogram renders &nbsp;
-                  </text>
-                  <Loader />
-                </div>
-              </div>
-            )}
-            <div
-              className="row justify-content-md-center my-4 mx-3"
-              style={{ display: isRendering ? 'none' : '' }}
-            >
-              <div id="waveform-labels" style={{ float: 'left' }} />
-              <div id="wavegraph" style={{ float: 'left' }} />
-              <div id="waveform" style={{ float: 'left' }} />
-              <div id="timeline" />
-            </div>
-
-            <div className={isDataLoading ? 'hidden' : ''}>
-              {/* this renders play and skip buttons */}
-              {wavesurferMethods && wavesurferMethods.renderButtons(isPlaying)}
-
-              {selectedSegment ? (
-                <div>
-                  <div className="row justify-content-center my-4">
-                    {Object.entries(labels).map(([key, value], index) => {
-                      if (!value.values.length) {
-                        return null;
-                      }
-                      return (
-                        <div className="col-3 text-left" key={index}>
-                          <label htmlFor={key} className="font-weight-bold">
-                            {key}
-                          </label>
-                          <select
-                            className="form-control"
-                            name={key}
-                            multiple={value.type === 'Multi-select'}
-                            value={
-                              (selectedSegment &&
-                                selectedSegment.data.annotations &&
-                                selectedSegment.data.annotations[key] &&
-                                selectedSegment.data.annotations[key].values) ||
-                              (value.type === 'Multi-select' ? [] : '')
-                            }
-                            onChange={e => this.handleLabelChange(key, e)}
-                            ref={el => {
-                              this.labelRef[key] = el;
-                            }}
-                          >
-                            {value.type !== 'Multi-select' ? (
-                              <option value="-1">Choose Label Type</option>
-                            ) : null}
-                            {value.values.map(val => {
-                              return (
-                                <option key={val.value_id} value={`${val.value_id}`}>
-                                  {val.value}
-                                </option>
-                              );
-                            })}
-                          </select>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="row justify-content-center my-4">
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="danger"
-                        disabled={isSegmentDeleting}
-                        isSubmitting={isSegmentDeleting}
-                        onClick={e => this.handleSegmentDelete(e)}
-                        text="Delete"
-                      />
-                    </div>
-                    <div className="col-4">
-                      <Button
-                        size="lg"
-                        type="primary"
-                        isSubmitting={isSegmentSaving}
-                        onClick={() => this.handleAllSegmentSave()}
-                        text="Save All"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-              <div className="row justify-content-center my-4">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="isMarkedForReview"
-                    value
-                    checked={isMarkedForReview}
-                    onChange={e => this.handleIsMarkedForReview(e)}
-                    disabled={isMarkedForReviewLoading}
-                  />
-                  {playbackOn? 
-                  <input
-                      type="range"
-                      min="1"
-                      max="200"
-                      value={playbackRate}
-                      onChange={(e) => this.changePlayback(e)}
-                    />: null }
-                  <label className="form-check-label" htmlFor="isMarkedForReview">
-                    Mark for review
-                  </label>
-                </div>
-              </div>
-              {navButtonsEnabled && <NavButton save={this.handleAllSegmentSave} annotate={this} />}
-              {toUnsavedClipOn && this.UnsavedButton? this.UnsavedButton.render() : null}
-            </div>
           </div>
         </div>
       </div>

@@ -31,4 +31,40 @@ Alert.defaultProps = {
   onClick: () => {}
 };
 
-export default Alert;
+
+const AlertSection = ({ messages, callback, overlay }) => {
+  let oneAlertRendered = false;
+  console.log(messages)
+  const renderAlerts = (type, message, overlay=true, callback=((e) => {})) => {
+    return (
+      <div>
+        <Alert type={type} message={message} overlay={overlay} onClose={e => callback(e)} />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {messages.map((data) => {
+       const type = data["type"]
+       const message = data["message"]
+       if (oneAlertRendered && overlay) {
+          return(null)
+       }
+       else if (message && message !== '') {
+         oneAlertRendered = true;
+         return (message && renderAlerts(type, message, overlay, callback)) 
+       }
+      })}
+    </div>
+  )
+}
+
+AlertSection.defaultProps = {
+  messages: [],
+  overlay: false,
+  callback: () => {}
+};
+
+export default Alert
+export {Alert, AlertSection};
