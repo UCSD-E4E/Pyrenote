@@ -1,3 +1,2 @@
-0 */6 * * * mysqldump -u root --password=root audino > /mnt/backup/`date +\%Y\%m\%d-\%H:\%M`.sql 
-@reboot bash /start.sh > /var/log/cron.log
+0 */6 * * * mysqldump -u root --password=root --all-databases > /mnt/backup/`date +\%Y\%m\%d-\%H:\%M`.sql 2>&1
 #emptyline required for cron to run properly

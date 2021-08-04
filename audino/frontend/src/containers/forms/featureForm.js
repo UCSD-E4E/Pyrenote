@@ -19,6 +19,9 @@ class FeatureForm extends React.Component {
         'next button': true,
         "auto annotate": false,
         'example 2': false,
+        '2D Labels': false,
+        'to unsaved cliped': false,
+        'playbackOn': false,
         'example 3': false
       }
     };
