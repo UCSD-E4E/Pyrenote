@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from './button';
+import { Button } from '../../button';
 
 class UnsavedButton extends React.Component{
   constructor(ws, active, props) {

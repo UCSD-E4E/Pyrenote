@@ -11,6 +11,7 @@ import LabelSection from '../components/annotate/labelsSection';
 import LabelButton from '../components/annotate/labelButtons';
 import RenderingMsg from '../components/annotate/renderingMsg';
 import MarkedForReview from '../components/annotate/markedForReview';
+import PreviousAnnotationButton from '../components/annotate/extraFeatures/previousAnnotationButton';
 import { Button } from '../components/button';
 
 class Annotate extends React.Component {
@@ -267,16 +268,6 @@ class Annotate extends React.Component {
         </Helmet>
         <div className="container h-100">
           <div className="h-100 mt-5 text-center">
-           
-          {applyPreviousAnnotations?
-              <div className="col-4">
-                <Button
-                  size="lg"
-                  type="primary"
-                  onClick={() => this.setState({applyPreviousAnnotations: !applyPreviousAnnotations})}
-                  text={applyPreviousAnnotations? "apply previous annotations enabled" : "apply previous annotations disabled"}
-                />
-              </div> : null}
            <AlertSection messages={[
                 {"message": errorUnsavedMessage, type: 'danger'},
                 {"message": errorMessage, type: 'danger'},
@@ -305,6 +296,7 @@ class Annotate extends React.Component {
                         onChange={(e) => this.changePlayback(e)}
                       />: null }
                       {navButtonsEnabled && <NavButton annotate={this}/>}
+                      <PreviousAnnotationButton annotate={this} />
                     {toUnsavedClipOn && this.UnsavedButton? this.UnsavedButton.render() : null}
                 </div> 
               </div>

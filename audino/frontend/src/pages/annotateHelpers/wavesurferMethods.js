@@ -9,7 +9,7 @@ import WaveSurfer from '../../wavesurfer.js/src/wavesurfer.js';
 import RegionsPlugin from '../../wavesurfer.js/src/plugin/regions/index.js';
 import SpectrogramPlugin from '../../wavesurfer.js/src/plugin/spectrogram/index.js';
 import { IconButton } from '../../components/button';
-import UnsavedButton from '../../components/next_unsaved_button';
+import UnsavedButton from '../../components/annotate/extraFeatures/next_unsaved_button';
 const colormap = require('colormap');
 
 /**
@@ -101,9 +101,11 @@ class WavesurferMethods {
 
     wavesurfer.on('region-created', region => {
       this.handlePause();
-      const {storedAnnotations, applyPreviousAnnotations} = this.state
+      const {storedAnnotations, applyPreviousAnnotations} = this.annotate.state
       if (applyPreviousAnnotations) {
+        console.log(storedAnnotations, applyPreviousAnnotations, "HELLO")
         region.data.annotations = storedAnnotations
+        console.log(region.data.annotations)
       }
       this.setState({
         selectedSegment: region
