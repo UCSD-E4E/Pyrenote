@@ -32,7 +32,7 @@ const NavButton = props => {
       projectId,
       next_data_id,
       next_data_url,
-      path,
+      path
     } = annotate.state;
 
     let success = true;

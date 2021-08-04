@@ -12,7 +12,7 @@ import LabelButton from '../components/annotate/labelButtons';
 import RenderingMsg from '../components/annotate/renderingMsg';
 import MarkedForReview from '../components/annotate/markedForReview';
 import PreviousAnnotationButton from '../components/annotate/extraFeatures/previousAnnotationButton';
-import { Button } from '../components/button';
+import ChangePlayback from '../components/annotate/extraFeatures/changePlayback';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -53,7 +53,6 @@ class Annotate extends React.Component {
       storedAnnotations: null,
       applyPreviousAnnotations: false,
       boundingBox: true,
-      direction: null,
       initWavesurfer: false
     };
     this.lastTime = 0;
@@ -80,7 +79,7 @@ class Annotate extends React.Component {
           navButtonsEnabled: response.data.features_list['next button'],
           applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
-          playbackOn: response.data.features_list['playbackOn'],
+          playbackOn: response.data.features_list.playbackOn
         });
 
         axios({
@@ -102,8 +101,8 @@ class Annotate extends React.Component {
           state: this.state,
           boundingBox
         });
-        const {wavesurfer, unsavedButton} = wavesurferMethods.loadWavesurfer();
-        this.UnsavedButton = unsavedButton
+        const { wavesurfer, unsavedButton } = wavesurferMethods.loadWavesurfer();
+        this.UnsavedButton = unsavedButton;
         axios
           .all([axios.get(labelsUrl), axios.get(dataUrl)])
           .then(response => {
@@ -131,14 +130,6 @@ class Annotate extends React.Component {
       errorMessage: '',
       errorUnsavedMessage: ''
     });
-  }
-
- 
-  changePlayback(e) {
-    console.log(e.target.value); 
-    this.state.wavesurfer.setPlaybackRate((e.target.value / 100))
-    this.setState({playbackRate: e.target.value, isPlaying: true})
-    console.log(this.state.isPlaying); 
   }
 
   loadRegions(regions) {
@@ -253,10 +244,7 @@ class Annotate extends React.Component {
       original_filename,
       wavesurferMethods,
       navButtonsEnabled,
-      applyPreviousAnnotations,
-      toUnsavedClipOn,
-      playbackRate,
-      playbackOn,
+      toUnsavedClipOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -268,10 +256,11 @@ class Annotate extends React.Component {
         </Helmet>
         <div className="container h-100">
           <div className="h-100 mt-5 text-center">
-           <AlertSection messages={[
-                {"message": errorUnsavedMessage, type: 'danger'},
-                {"message": errorMessage, type: 'danger'},
-                {"message": successMessage, type: 'success'},
+            <AlertSection
+              messages={[
+                { message: errorUnsavedMessage, type: 'danger' },
+                { message: errorMessage, type: 'danger' },
+                { message: successMessage, type: 'success' }
               ]}
               overlay
               callback={e => this.handleAlertDismiss(e)}
@@ -281,26 +270,19 @@ class Annotate extends React.Component {
             <RenderingMsg isRendering={isRendering} />
             <Spectrogram isRendering={isRendering} />
 
-            {!isRendering ? 
+            {!isRendering ? (
               <div>
                 <LabelSection state={this.state} annotate={this} labelRef={this.labelRef} />
                 <div className={isDataLoading ? 'hidden' : ''}>
-                    <LabelButton state={this.state} annotate={this}/>
-                    <MarkedForReview state={this.state} annotate={this}/>
-                    {playbackOn? 
-                    <input
-                        type="range"
-                        min="1"
-                        max="200"
-                        value={playbackRate}
-                        onChange={(e) => this.changePlayback(e)}
-                      />: null }
-                      {navButtonsEnabled && <NavButton annotate={this}/>}
-                      <PreviousAnnotationButton annotate={this} />
-                    {toUnsavedClipOn && this.UnsavedButton? this.UnsavedButton.render() : null}
-                </div> 
+                  <LabelButton state={this.state} annotate={this} />
+                  <MarkedForReview state={this.state} annotate={this} />
+                  <ChangePlayback annotate={this} />
+                  {navButtonsEnabled && <NavButton annotate={this} />}
+                  <PreviousAnnotationButton annotate={this} />
+                  {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
+                </div>
               </div>
-            : null} 
+            ) : null}
           </div>
         </div>
       </div>

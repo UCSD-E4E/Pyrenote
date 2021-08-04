@@ -16,7 +16,7 @@ class EditProjectForm extends React.Component {
       successMessage: '',
       isSubmitting: false,
       url: `/api/projects/${projectId}`,
-      isMarkedExample: false,
+      isMarkedExample: false
     };
 
     this.state = { ...this.initialState };
@@ -31,7 +31,6 @@ class EditProjectForm extends React.Component {
       .then(response => {
         if (response.status === 200) {
           const { name, is_example } = response.data;
-          console.log(is_example)
           this.setState({ name, isMarkedExample: is_example });
         }
       })
@@ -48,7 +47,7 @@ class EditProjectForm extends React.Component {
   }
 
   handleMarkedExampleChange(e) {
-    this.setState({isMarkedExample: !e.target.value})
+    this.setState({ isMarkedExample: !e.target.value });
   }
 
   handleProjectCreation(e) {
@@ -67,13 +66,13 @@ class EditProjectForm extends React.Component {
       }
     })
       .then(response => {
-          this.setState({ successMessage: response.data.message, isSubmitting: false, });
+        this.setState({ successMessage: response.data.message, isSubmitting: false });
         // TODO: Decide if addition response is needed
-       /* if (response.status === 200) {
+        /* if (response.status === 200) {
           this.resetState();
           this.form.reset();
           this.setState({ successMessage: 'Successfully changed name' });
-        }*/
+        } */
       })
       .catch(error => {
         console.error(error.response);
@@ -86,8 +85,8 @@ class EditProjectForm extends React.Component {
   }
 
   handleEnter(e) {
-    if(e.key === 'Enter') {
-      this.handleProjectCreation(e)        
+    if (e.key === 'Enter') {
+      this.handleProjectCreation(e);
     }
   }
 
@@ -96,7 +95,7 @@ class EditProjectForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, projectId, isMarkedExample, name } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isMarkedExample, name } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
@@ -132,7 +131,7 @@ class EditProjectForm extends React.Component {
                 value
                 checked={isMarkedExample}
                 onChange={e => this.handleMarkedExampleChange(e)}
-                //disabled={isMarkedForReviewLoading}
+                // disabled={isMarkedForReviewLoading}
               />
               <label className="form-check-label" htmlFor="isMarkedForReview">
                 Mark is Example Project
