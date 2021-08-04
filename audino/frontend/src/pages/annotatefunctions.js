@@ -55,6 +55,8 @@ const handleAllSegmentSave = annotate => {
             data: {
               start,
               end,
+              regionTopFrequency,
+              regionBotFrequency,
               annotations,
               time_spent
             }
