@@ -9,7 +9,7 @@ from werkzeug.urls import url_parse
 from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
-from .helper_functions import retrieve_database, general_error
+from .helper_functions import retrieve_database, general_error, missing_data
 from . import api
 
 
@@ -311,10 +311,7 @@ def get_next_data_unknown(project_id, data_value):
                 test_page += 1
     except Exception as e:
         return general_error("Error fetching all projects", e)
-
-    message = f"Error data value `{data_value}` not in project"
-    app.logger.error(message)
-    return jsonify(message=message), 404
+    return missing_data(f"Error data value `{data_value}` not in project")
 
 
 @api.route("/current_user/projects/get_all", methods=["GET"])

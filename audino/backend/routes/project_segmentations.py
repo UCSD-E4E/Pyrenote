@@ -5,7 +5,7 @@ from backend import app, db
 from backend.models import Project, User, Data, Segmentation
 from . import api
 from .data import generate_segmentation
-from .helper_functions import general_error
+from .helper_functions import general_error, missing_data
 
 
 @api.route(
@@ -206,8 +206,7 @@ def get_segmentations_for_data(project_id, data_id):
         }
 
     except Exception as e:
-        app.logger.error("Error fetching datapoint with given id")
-        app.logger.error(e)
-        return (jsonify(message="Error fetching datapoint with given id"), 404)
+        message = "Error fetching datapoint with given id"
+        return missing_data(message, additional_log=e)
 
     return (jsonify(response), 200)

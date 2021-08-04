@@ -3,6 +3,7 @@ import uuid
 
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.orm import query
 from backend import app, db
 from backend.models import Project, User
 from . import api
@@ -10,7 +11,8 @@ from backend.routes import JsonLabelsToCsv
 from .helper_functions import (
     check_admin_permissions,
     check_admin,
-    general_error
+    general_error,
+    missing_data
 )
 
 
@@ -107,16 +109,9 @@ def fetch_project(project_id):
             for label in project.labels
         ]
     except Exception as e:
-        app.logger.error(f"No project exists with Project ID: {project_id}")
-        app.logger.error(e)
-        return (
-            jsonify(
-                message="No project exists with given project_id",
-                project_id=project_id
-            ),
-            404,
-        )
-    app.logger.info(project.is_example)
+        message = "No project exists with given project_id"
+        return missing_data(message, additional_log=e, query=project_id)
+
     return (
         jsonify(
             project_id=project.id,
@@ -155,15 +150,8 @@ def edit_project(project_id):
         db.session.commit()
 
     except Exception as e:
-        app.logger.error(f"No project exists with Project ID: {project_id}")
-        app.logger.error(e)
-        return (
-            jsonify(
-                message="No project exists with given project_id",
-                project_id=project_id
-            ),
-            404,
-        )
+        message = " No project exists with given project_id"
+        return missing_data(message, additional_log=e, query=project_id)
 
     return (
         jsonify(
@@ -268,15 +256,8 @@ def get_features(project_id):
         project = Project.query.get(project_id)
 
     except Exception as e:
-        app.logger.error(f"No project exists with Project ID: {project_id}")
-        app.logger.error(e)
-        return (
-            jsonify(
-                message="No project exists with given project_id",
-                project_id=project_id
-            ),
-            404,
-        )
+        message = " No project exists with given project_id"
+        return missing_data(message, additional_log=e, query=project_id)
 
     return (
         jsonify(

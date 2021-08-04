@@ -10,7 +10,8 @@ from . import api
 from .helper_functions import (
     check_admin,
     check_admin_permissions,
-    general_error
+    general_error,
+    missing_data
 )
 
 
@@ -111,14 +112,7 @@ def get_label_for_project(project_id, label_id):
                                       project_id=project_id
         ).first()
     except Exception as e:
-        app.logger.error(err_msg)
-        app.logger.error(e)
-        return (
-            jsonify(
-                message=err_msg
-            ),
-            404,
-        )
+        return missing_data(err_msg, additional_log=e)
 
     return (
         jsonify(
@@ -174,12 +168,7 @@ def update_label_for_project(project_id, label_id):
         label.set_label_name(label_name)
         db.session.commit()
     except Exception as e:
-        # TODO: Check for errors here
-        app.logger.error(err_msg)
-        app.logger.error(e)
-        return (
-            jsonify(err_msg), 404,
-        )
+        return missing_data(err_msg, additional_log=e)
 
     return (
         jsonify(
@@ -225,8 +214,6 @@ def get_labels_for_project(project_id):
             }
 
     except Exception as e:
-        app.logger.error("Error fetching all labels")
-        app.logger.error(e)
-        return (jsonify(message="Error fetching all labels"), 404)
+        return missing_data("Error fetching all labels", additional_log=e)
 
     return (jsonify(response), 200)

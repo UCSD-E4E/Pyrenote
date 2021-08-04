@@ -14,6 +14,15 @@ def general_error(custom_message, error, type="error"):
     return jsonify(message=message, type=type), 500
 
 
+def missing_data(custom_message, query=None, additional_log=""):
+    msg = custom_message
+    app.logger.error(msg)
+    app.logger.error(additional_log)
+    if (query is None):
+        return jsonify(message=msg, type="NOT_IN_DATABASE"), 400
+    return jsonify(message=msg, mssing_data=query, type="NOT_IN_DATABASE"), 400
+
+
 def check_admin(identity):
     request_user = User.query.filter_by(username=identity["username"]).first()
     is_admin = True if request_user.role.role == "admin" else False

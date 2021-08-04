@@ -15,6 +15,7 @@ from .helper_functions import (
     check_admin_permissions,
     check_admin,
     general_error,
+    missing_data,
     check_login
 )
 from . import api
@@ -128,13 +129,8 @@ def fetch_user(user_id):
     try:
         user = User.query.get(user_id)
     except Exception as e:
-        app.logger.error(f"No user exists with user_id: {user_id}")
-        app.logger.error(e)
-        return (
-            jsonify(message="No user exists with given user_id",
-                    user_id=user_id),
-            404,
-        )
+        return missing_data("No user exists with given user_id", query=user_id,
+                            additional_log=e)
 
     return (
         jsonify(
@@ -204,9 +200,7 @@ def update_user(user_id):
                 200,
             )
     except Exception as e:
-        app.logger.error("No user found")
-        app.logger.error(e)
-        return jsonify(message="No user found!"), 404
+        return missing_data("No user found")
 
     return (
         jsonify(
@@ -244,16 +238,9 @@ def delete_user(user_id):
         db.session.delete(user)
         db.session.commit()
     except Exception as e:
-        app.logger.error("No user found")
-        app.logger.error(e)
-        return jsonify(message="No user found!"), 404
+        return missing_data("No user found", additional_log=e)
 
-    return (
-        jsonify(
-            message="User has been deleted!",
-        ),
-        200,
-    )
+    return (jsonify(message="User has been deleted!"), 200)
 
 
 @api.route("/users", methods=["GET"])

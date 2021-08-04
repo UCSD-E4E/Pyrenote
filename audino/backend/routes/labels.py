@@ -8,7 +8,8 @@ from backend.models import Label, LabelValue, Project
 from .helper_functions import (
     check_admin,
     check_admin_permissions,
-    general_error
+    general_error,
+    missing_data
 )
 from . import api
 
@@ -23,6 +24,7 @@ def add_value_to_label(label_id):
     value = request.json.get("value", None)
 
     if not value:
+        return missing_data("Please provide a label value!")
         return (
             jsonify(message="Please provide a label value!",
                     type="VALUE_MISSING"),
@@ -75,10 +77,8 @@ def get_values_for_label(label_id):
             for value in values
         ]
     except Exception as e:
-        error = f"No values exists for label with id: {label_id}"
-        app.logger.error(error)
-        app.logger.error(e)
-        return (jsonify(message=error), 404)
+        return missing_data(f"No values exists for label with id: {label_id}",
+                            additional_log=e)
 
     return (jsonify(values=response), 200)
 
@@ -94,10 +94,8 @@ def fetch_label_value(label_id, label_value_id):
     try:
         value = LabelValue.query.get(label_value_id)
     except Exception as e:
-        error = f"No value found with value id: {label_value_id}"
-        app.logger.error(error)
-        app.logger.error(e)
-        return (jsonify(message=error), 404)
+        return missing_data(f"No values exists for label with id: {label_id}",
+                            additional_log=e)
 
     return (
         jsonify(
@@ -124,10 +122,8 @@ def delete_label_value(label_id, label_value_id):
         db.session.delete(value)
         db.session.commit()
     except Exception as e:
-        error_msg = f"No value found with value id: {label_value_id}"
-        app.logger.error(error_msg)
-        app.logger.error(e)
-        return (jsonify(message=error_msg), 404)
+        return missing_data(f"No values exists for value: {label_value_id}",
+                            additional_log=e)
 
     return (
         jsonify(
@@ -172,14 +168,7 @@ def update_value_for_label(label_id, label_value_id):
                 ),
                 409,
             )
-        app.logger.error(err)
-        app.logger.error(e)
-        return (
-            jsonify(
-                message=err
-            ),
-            404,
-        )
+        return missing_data(err, additional_log=e)
 
     return (
         jsonify(
@@ -213,9 +202,8 @@ def delete_label(label_id, project_id):
         db.session.commit()
 
     except Exception as e:
-        app.logger.error(e)
-        return (jsonify(message=f"No value found with value id: {LabelCat}"),
-                404)
+        message = f"No value found with value id: {LabelCat}"
+        return missing_data(message, additional_log=e)
 
     return (
         jsonify(
