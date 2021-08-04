@@ -74,7 +74,7 @@ const NavButton = props => {
   // Go to previous audio recording
   const handlePreviousClip = (forcePrev = false) => {
     handleAllSegmentSave(annotate);
-    const { previous_pages, num_of_prev } = annotate.state;
+    const { previous_pages, num_of_prev, path, projectId } = annotate.state;
     let success = true;
     success = checkForSave(success, forcePrev, 'previous');
     if (success) {

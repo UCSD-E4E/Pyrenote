@@ -25,6 +25,7 @@ class WavesurferMethods {
     this.state = props.state;
     this.annotate = props.annotate;
     this.boundingBox = props.boundingBox;
+    this.unsavedButton = null
   }
 
   updateState(state) {
@@ -93,7 +94,7 @@ class WavesurferMethods {
     wavesurfer.on('region-updated', region => {
       this.handlePause();
       this.styleRegionColor(region, 'rgba(0, 102, 255, 0.3)');
-      this.annotate.UnsavedButton.addUnsaved(region)
+      unsavedButton.addUnsaved(region)
       region._onUnSave();
       
     });
@@ -108,7 +109,7 @@ class WavesurferMethods {
         selectedSegment: region
       });
       console.log(region)
-      this.annotate.UnsavedButton.addUnsaved(region, !region.saved)
+      unsavedButton.addUnsaved(region, !region.saved)
     });
 
     wavesurfer.on('region-click', (r, e) => {
@@ -123,6 +124,7 @@ class WavesurferMethods {
       this.setState({ isPlaying: false });
     });
 
+    this.unsavedButton = unsavedButton
     return {wavesurfer, unsavedButton};
   }
 

@@ -11,6 +11,7 @@ import LabelSection from '../components/annotate/labelsSection';
 import LabelButton from '../components/annotate/labelButtons';
 import RenderingMsg from '../components/annotate/renderingMsg';
 import MarkedForReview from '../components/annotate/markedForReview';
+import { Button } from '../components/button';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -100,7 +101,8 @@ class Annotate extends React.Component {
           state: this.state,
           boundingBox
         });
-        const wavesurfer = wavesurferMethods.loadWavesurfer();
+        const {wavesurfer, unsavedButton} = wavesurferMethods.loadWavesurfer();
+        this.UnsavedButton = unsavedButton
         axios
           .all([axios.get(labelsUrl), axios.get(dataUrl)])
           .then(response => {
@@ -288,7 +290,7 @@ class Annotate extends React.Component {
             <RenderingMsg isRendering={isRendering} />
             <Spectrogram isRendering={isRendering} />
 
-            {!isRendering ? (
+            {!isRendering ? 
               <div>
                 <LabelSection state={this.state} annotate={this} labelRef={this.labelRef} />
                 <div className={isDataLoading ? 'hidden' : ''}>
@@ -305,8 +307,8 @@ class Annotate extends React.Component {
                       {navButtonsEnabled && <NavButton annotate={this}/>}
                     {toUnsavedClipOn && this.UnsavedButton? this.UnsavedButton.render() : null}
                 </div> 
-              </div> 
-            : null}
+              </div>
+            : null} 
           </div>
         </div>
       </div>

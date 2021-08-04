@@ -1,7 +1,7 @@
 /* eslint "jsx-a11y/no-noninteractive-element-interactions": "off" */
 import React from 'react';
 import PropTypes from 'prop-types';
-// import BootstrapAlert from 'react-bootstrap/Alert';
+import BootstrapAlert from 'react-bootstrap/Alert';
 
 const Alert = ({ type, message, overlay, onClose }) => {
   return (
