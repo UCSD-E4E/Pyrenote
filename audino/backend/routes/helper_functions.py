@@ -19,8 +19,8 @@ def missing_data(custom_message, query=None, additional_log=""):
     app.logger.error(msg)
     app.logger.error(additional_log)
     if (query is None):
-        return jsonify(message=msg, type="NOT_IN_DATABASE"), 400
-    return jsonify(message=msg, mssing_data=query, type="NOT_IN_DATABASE"), 400
+        return jsonify(message=msg, type="NOT_IN_DATABASE"), 404
+    return jsonify(message=msg, mssing_data=query, type="NOT_IN_DATABASE"), 404
 
 
 def check_admin(identity):
