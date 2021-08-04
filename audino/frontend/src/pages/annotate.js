@@ -44,6 +44,9 @@ class Annotate extends React.Component {
       num_of_prev: 0,
       numpage: 5,
       path: window.location.href.substring(0, index),
+      direction: null,
+      storedAnnotations: null,
+      applyPreviousAnnotations: false,
       boundingBox: true,
       direction: null
     };
@@ -79,6 +82,7 @@ class Annotate extends React.Component {
         boundingBox = response.data.features_list['2D Labels']
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
+          applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           playbackOn: response.data.features_list['playbackOn'],
         });
@@ -356,10 +360,11 @@ class Annotate extends React.Component {
         values: e.target.value
       };
     }
+    let storedAnnotations = selectedSegment.data.annotations
     wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
     this.UnsavedButton.addUnsaved(selectedSegment)
     selectedSegment._onUnSave();
-    this.setState({ selectedSegment });
+    this.setState({ selectedSegment, storedAnnotations });
   }
 
   handleAlertDismiss(e) {
@@ -439,6 +444,7 @@ class Annotate extends React.Component {
       original_filename,
       wavesurferMethods,
       navButtonsEnabled,
+      applyPreviousAnnotations
       toUnsavedClipOn
       playbackRate,
       playbackOn
@@ -461,6 +467,16 @@ class Annotate extends React.Component {
               ? this.renderAlerts('success', successMessage)
               : null}
             <div>{original_filename}</div>
+            {applyPreviousAnnotations?
+              <div className="col-4">
+                <Button
+                  size="lg"
+                  type="primary"
+                  onClick={() => this.setState({applyPreviousAnnotations: !applyPreviousAnnotations})}
+                  text={applyPreviousAnnotations? "apply previous annotations enabled" : "apply previous annotations disabled"}
+                />
+              </div>
+            : null}
             {isRendering && (
               <div className="row justify-content-md-center my-4">
                 <div
