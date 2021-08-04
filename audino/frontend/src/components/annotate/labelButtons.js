@@ -1,5 +1,7 @@
 import React from 'react';
 import { Button } from '../button';
+import { handleAllSegmentSave, handleSegmentDelete } from '../../pages/annotatefunctions';
+
 const LabelButton = props => {
   const {isSegmentDeleting, selectedSegment, isSegmentSaving, labels} = props.state;
   const annotate = props.annotate
@@ -11,7 +13,7 @@ const LabelButton = props => {
           type="danger"
           disabled={isSegmentDeleting}
           isSubmitting={isSegmentDeleting}
-          onClick={e => annotate.handleSegmentDelete(e)}
+          onClick={() => handleSegmentDelete(annotate)}
           text="Delete"
         />
       </div> ) : null}
@@ -20,7 +22,7 @@ const LabelButton = props => {
           size="lg"
           type="primary"
           isSubmitting={isSegmentSaving}
-          onClick={() => annotate.handleAllSegmentSave()}
+          onClick={() => handleAllSegmentSave(annotate)}
           text="Save All"
         />
       </div>

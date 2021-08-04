@@ -1,8 +1,41 @@
 import React from 'react';
+import axios from 'axios';
+
 
 const MarkedForReview = props => {
   const {isMarkedForReview, isMarkedForReviewLoading} = props.state
   const annotate = props.annotate
+
+  const handleIsMarkedForReview = (e) => {
+    const { dataUrl } = annotate.state;
+    const isMarkedForReview = e.target.checked;
+    annotate.setState({ isMarkedForReviewLoading: true });
+
+    axios({
+      method: 'patch',
+      url: dataUrl,
+      data: {
+        is_marked_for_review: isMarkedForReview
+      }
+    })
+      .then(response => {
+        annotate.setState({
+          isMarkedForReviewLoading: false,
+          isMarkedForReview: response.data.is_marked_for_review,
+          errorMessage: null,
+          successMessage: 'Marked for review status changed'
+        });
+      })
+      .catch(error => {
+        console.error(error);
+        annotate.setState({
+          isDataLoading: false,
+          errorMessage: 'Error changing review status',
+          successMessage: null
+        });
+      });
+  }
+
   return (
     <div className="row justify-content-center my-4">
       <div className="form-check">
@@ -12,7 +45,7 @@ const MarkedForReview = props => {
           id="isMarkedForReview"
           value
           checked={isMarkedForReview}
-          onChange={e => annotate.handleIsMarkedForReview(e)}
+          onChange={e => handleIsMarkedForReview(e)}
           disabled={isMarkedForReviewLoading}
         />
         <label className="form-check-label" htmlFor="isMarkedForReview">

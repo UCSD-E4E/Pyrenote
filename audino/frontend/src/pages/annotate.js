@@ -12,6 +12,7 @@ import LabelButton from '../components/annotate/labelButtons';
 import RenderingMsg from '../components/annotate/renderingMsg';
 import MarkedForReview from '../components/annotate/markedForReview';
 
+
 class Annotate extends React.Component {
   constructor(props) {
     super(props);
@@ -201,154 +202,6 @@ class Annotate extends React.Component {
     });
   }
 
-  handleIsMarkedForReview(e) {
-    const { dataUrl } = this.state;
-    const isMarkedForReview = e.target.checked;
-    this.setState({ isMarkedForReviewLoading: true });
-
-    axios({
-      method: 'patch',
-      url: dataUrl,
-      data: {
-        is_marked_for_review: isMarkedForReview
-      }
-    })
-      .then(response => {
-        this.setState({
-          isMarkedForReviewLoading: false,
-          isMarkedForReview: response.data.is_marked_for_review,
-          errorMessage: null,
-          successMessage: 'Marked for review status changed'
-        });
-      })
-      .catch(error => {
-        console.error(error);
-        this.setState({
-          isDataLoading: false,
-          errorMessage: 'Error changing review status',
-          successMessage: null
-        });
-      });
-  }
-
-  // MOVING TO FUNCTIONS FILE
-  handleSegmentDelete() {
-    const { wavesurfer, selectedSegment, segmentationUrl } = this.state;
-    this.setState({ isSegmentDeleting: true });
-    if (selectedSegment.data.segmentation_id) {
-      axios({
-        method: 'delete',
-        url: `${segmentationUrl}/${selectedSegment.data.segmentation_id}`
-      })
-        .then(() => {
-          this.removeSegment(wavesurfer, selectedSegment);
-        })
-        .catch(error => {
-          console.error(error);
-          this.setState({
-            isSegmentDeleting: false
-          });
-        });
-    } else {
-      this.removeSegment(wavesurfer, selectedSegment);
-    }
-  }
-
-  // MOVING TO FUNCTIONS FILE
-  handleAllSegmentSave(annotate = this) {
-    const { segmentationUrl, wavesurfer, wavesurferMethods, boundingBox } = annotate.state;
-    Object.values(wavesurfer.regions.list).forEach(segment => {
-      if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
-        try {
-          let { regionTopFrequency, regionBotFrequency } = segment;
-          const { start, end } = segment;
-          if (!boundingBox) {
-            regionTopFrequency = -1;
-            regionBotFrequency = -1;
-          }
-          const { annotations = '', segmentation_id = null } = segment.data;
-          annotate.setState({ isSegmentSaving: true });
-          const now = Date.now();
-          let time_spent = 0;
-          if (segment.lastTime === 0) {
-            time_spent = now - this.lastTime;
-          } else {
-            time_spent = now - segment.lastTime;
-          }
-          segment.setLastTime(now);
-          if (segmentation_id === null) {
-            axios({
-              method: 'post',
-              url: segmentationUrl,
-              data: {
-                start,
-                end,
-                regionTopFrequency,
-                regionBotFrequency,
-                annotations,
-                time_spent
-              }
-            })
-              .then(response => {
-                segment.data.segmentation_id = response.data.segmentation_id;
-                annotate.setState({
-                  isSegmentSaving: false,
-                  selectedSegment: segment,
-                  successMessage: 'Segment saved',
-                  errorMessage: null,
-                  errorUnsavedMessage: null,
-                });
-                wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
-                segment._onSave();
-                this.UnsavedButton.removeSaved(segment)
-              })
-              .catch(error => {
-                console.error(error);
-                annotate.setState({
-                  isSegmentSaving: false,
-                  errorMessage: 'Error saving segment',
-                  successMessage: null
-                });
-              });
-          } else {
-            axios({
-              method: 'put',
-              url: `${segmentationUrl}/${segmentation_id}`,
-              data: {
-                start,
-                end,
-                regionTopFrequency,
-                regionBotFrequency,
-                annotations,
-                time_spent
-              }
-            })
-              .then(() => {
-                annotate.setState({
-                  isSegmentSaving: false,
-                  successMessage: 'Segment saved',
-                  errorMessage: null
-                });
-                wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
-                segment._onSave();
-                this.UnsavedButton.removeSaved(segment)
-              })
-              .catch(error => {
-                console.error(error);
-                annotate.setState({
-                  isSegmentSaving: false,
-                  errorMessage: 'Error saving segment',
-                  successMessage: null
-                });
-              });
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    });
-  }
-
   handleLabelChange(key, e) {
     const { selectedSegment, labels, wavesurferMethods } = this.state;
     selectedSegment.data.annotations = selectedSegment.data.annotations || {};
@@ -394,22 +247,6 @@ class Annotate extends React.Component {
     });
   }
 
-  checkForSave(success, forceClip, dir) {
-    const { wavesurfer } = this.state;
-    this.setState({ direction: dir });
-    Object.values(wavesurfer.regions.list).forEach(segment => {
-      if (segment.saved === false && !forceClip) {
-        if (segment.data.annotations == null) {
-          this.setState({
-            errorUnsavedMessage: `There regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
-          });
-          success = false;
-        }
-      }
-    });
-    return success;
-  }
-
   changePlayback(e) {
     console.log(e.target.value); 
     this.state.wavesurfer.setPlaybackRate((e.target.value / 100))
@@ -435,14 +272,7 @@ class Annotate extends React.Component {
 
   render() {
     const {
-      isPlaying,
-      labels,
       isDataLoading,
-      isMarkedForReview,
-      isMarkedForReviewLoading,
-      selectedSegment,
-      isSegmentDeleting,
-      isSegmentSaving,
       errorMessage,
       errorUnsavedMessage,
       successMessage,
@@ -506,7 +336,7 @@ class Annotate extends React.Component {
                         value={playbackRate}
                         onChange={(e) => this.changePlayback(e)}
                       />: null }
-                    {navButtonsEnabled && <NavButton save={this.handleAllSegmentSave} annotate={this}/>}
+                      {navButtonsEnabled && <NavButton annotate={this}/>}
                     {toUnsavedClipOn && this.UnsavedButton? this.UnsavedButton.render() : null}
                 </div> 
               </div> 

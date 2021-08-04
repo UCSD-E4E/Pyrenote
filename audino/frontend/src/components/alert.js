@@ -34,7 +34,7 @@ Alert.defaultProps = {
 
 const AlertSection = ({ messages, callback, overlay }) => {
   let oneAlertRendered = false;
-  console.log(messages)
+
   const renderAlerts = (type, message, overlay=true, callback=((e) => {})) => {
     return (
       <div>

@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-export const handleAllSegmentSave = annotate => {
+const handleAllSegmentSave = (annotate) => {
   const { segmentationUrl, wavesurfer, wavesurferMethods } = annotate.state;
   Object.values(wavesurfer.regions.list).forEach(segment => {
     if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
       try {
-        const { start, end } = segment;
+        const { start, end, regionTopFrequency, regionBotFrequency } = segment;
         const { annotations = '', segmentation_id = null } = segment.data;
         annotate.setState({ isSegmentSaving: true });
         const now = Date.now();
@@ -23,6 +23,8 @@ export const handleAllSegmentSave = annotate => {
             data: {
               start,
               end,
+              regionTopFrequency,
+              regionBotFrequency,
               annotations,
               time_spent
             }
@@ -82,7 +84,7 @@ export const handleAllSegmentSave = annotate => {
   });
 };
 
-export const handleSegmentDelete = annotate => {
+const handleSegmentDelete = annotate => {
   const { wavesurfer, selectedSegment, segmentationUrl } = annotate.state;
   annotate.setState({ isSegmentDeleting: true });
   if (selectedSegment.data.segmentation_id) {
@@ -103,3 +105,5 @@ export const handleSegmentDelete = annotate => {
     annotate.removeSegment(wavesurfer, selectedSegment);
   }
 };
+
+export {handleAllSegmentSave, handleSegmentDelete}

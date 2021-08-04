@@ -1,12 +1,29 @@
 import React from 'react';
 import { Button } from '../button';
+import { handleAllSegmentSave } from '../../pages/annotatefunctions';
 
 const NavButton = props => {
   const { annotate } = props;
 
+  const checkForSave = (success, forceClip, dir) => {
+    const { wavesurfer } = annotate.state;
+    annotate.setState({ direction: dir });
+    Object.values(wavesurfer.regions.list).forEach(segment => {
+      if (segment.saved === false && !forceClip) {
+        if (segment.data.annotations == null) {
+          annotate.setState({
+            errorUnsavedMessage: `There are regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
+          });
+          success = false;
+        }
+      }
+    });
+    return success;
+  }
+
   // Go to the next audio recording
   const handleNextClip = (forceNext = false) => {
-    annotate.handleAllSegmentSave();
+    handleAllSegmentSave(annotate);
     const {
       previous_pages,
       num_of_prev,
@@ -19,7 +36,7 @@ const NavButton = props => {
     } = annotate.state;
 
     let success = true;
-    success = annotate.checkForSave(success, forceNext, 'next');
+    success = checkForSave(success, forceNext, 'next');
     if (!success) {
       return;
     }
@@ -56,10 +73,10 @@ const NavButton = props => {
 
   // Go to previous audio recording
   const handlePreviousClip = (forcePrev = false) => {
-    annotate.handleAllSegmentSave();
-    const { previous_pages, num_of_prev, path, projectId } = annotate.state;
+    handleAllSegmentSave(annotate);
+    const { previous_pages, num_of_prev } = annotate.state;
     let success = true;
-    success = annotate.checkForSave(success, forcePrev, 'previous');
+    success = checkForSave(success, forcePrev, 'previous');
     if (success) {
       if (num_of_prev > 0) {
         const page_num = num_of_prev - 1;
