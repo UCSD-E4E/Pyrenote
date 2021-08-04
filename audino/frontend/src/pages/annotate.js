@@ -49,6 +49,7 @@ class Annotate extends React.Component {
     };
     this.lastTime = 0;
     this.labelRef = {};
+    this.UnsavedButton = null;
   }
 
   componentDidMount() {
@@ -78,6 +79,7 @@ class Annotate extends React.Component {
         boundingBox = response.data.features_list['2D Labels']
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
+          toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           playbackOn: response.data.features_list['playbackOn'],
         });
     axios({
@@ -119,7 +121,9 @@ class Annotate extends React.Component {
       });
 
     const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state, boundingBox: boundingBox });
-    const wavesurfer = wavesurferMethods.loadWavesurfer();
+    const {wavesurfer, unsavedButton} = wavesurferMethods.loadWavesurfer();
+    this.UnsavedButton = unsavedButton;
+    console.log(this.UnsavedButton)
     axios
       .all([axios.get(labelsUrl), axios.get(dataUrl)])
       .then(response => {
@@ -171,6 +175,7 @@ class Annotate extends React.Component {
 
         this.setState({ wavesurfer, wavesurferMethods });
         this.loadRegions(regions);
+        
       })
       .catch(error => {
         console.error(error);
@@ -285,6 +290,7 @@ class Annotate extends React.Component {
                 });
                 wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
                 segment._onSave();
+                this.UnsavedButton.removeSaved(segment)
               })
               .catch(error => {
                 console.error(error);
@@ -315,6 +321,7 @@ class Annotate extends React.Component {
                 });
                 wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
                 segment._onSave();
+                this.UnsavedButton.removeSaved(segment)
               })
               .catch(error => {
                 console.error(error);
@@ -350,6 +357,7 @@ class Annotate extends React.Component {
       };
     }
     wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
+    this.UnsavedButton.addUnsaved(selectedSegment)
     selectedSegment._onUnSave();
     this.setState({ selectedSegment });
   }
@@ -365,6 +373,10 @@ class Annotate extends React.Component {
 
   removeSegment(wavesurfer, selectedSegment) {
     wavesurfer.regions.list[selectedSegment.id].remove();
+    
+    if (!selectedSegment.saved)
+      this.UnsavedButton.removeSaved(selectedSegment)
+
     this.setState({
       selectedSegment: null,
       isSegmentDeleting: false
@@ -378,7 +390,7 @@ class Annotate extends React.Component {
       if (segment.saved === false && !forceClip) {
         if (segment.data.annotations == null) {
           this.setState({
-            errorUnsavedMessage: `There are regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
+            errorUnsavedMessage: `There regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
           });
           success = false;
         }
@@ -397,6 +409,7 @@ class Annotate extends React.Component {
   loadRegions(regions) {
     const { wavesurfer } = this.state;
     regions.forEach(region => {
+      region.saved = true;
       wavesurfer.addRegion(region);
     });
   }
@@ -426,6 +439,7 @@ class Annotate extends React.Component {
       original_filename,
       wavesurferMethods,
       navButtonsEnabled,
+      toUnsavedClipOn
       playbackRate,
       playbackOn
     } = this.state;
@@ -520,29 +534,30 @@ class Annotate extends React.Component {
                       );
                     })}
                   </div>
+
+                  <div className="row justify-content-center my-4">
+                    <div className="col-4">
+                      <Button
+                        size="lg"
+                        type="danger"
+                        disabled={isSegmentDeleting}
+                        isSubmitting={isSegmentDeleting}
+                        onClick={e => this.handleSegmentDelete(e)}
+                        text="Delete"
+                      />
+                    </div>
+                    <div className="col-4">
+                      <Button
+                        size="lg"
+                        type="primary"
+                        isSubmitting={isSegmentSaving}
+                        onClick={() => this.handleAllSegmentSave()}
+                        text="Save All"
+                      />
+                    </div>
+                  </div>
                 </div>
               ) : null}
-              <div className="row justify-content-center my-4">
-                {selectedSegment ? (<div className="col-4">
-                  <Button
-                    size="lg"
-                    type="danger"
-                    disabled={isSegmentDeleting}
-                    isSubmitting={isSegmentDeleting}
-                    onClick={e => this.handleSegmentDelete(e)}
-                    text="Delete"
-                  />
-                </div> ) : null}
-                <div className="col-4">
-                  <Button
-                    size="lg"
-                    type="primary"
-                    isSubmitting={isSegmentSaving}
-                    onClick={() => this.handleAllSegmentSave()}
-                    text="Save All"
-                  />
-                </div>
-              </div>
               <div className="row justify-content-center my-4">
                 <div className="form-check">
                   <input
@@ -568,6 +583,7 @@ class Annotate extends React.Component {
                 </div>
               </div>
               {navButtonsEnabled && <NavButton save={this.handleAllSegmentSave} annotate={this} />}
+              {toUnsavedClipOn && this.UnsavedButton? this.UnsavedButton.render() : null}
             </div>
           </div>
         </div>

@@ -54,6 +54,7 @@ const NavButton = props => {
     });
   };
 
+  // Go to previous audio recording
   const handlePreviousClip = (forcePrev = false) => {
     annotate.handleAllSegmentSave();
     const { previous_pages, num_of_prev, path, projectId } = annotate.state;
