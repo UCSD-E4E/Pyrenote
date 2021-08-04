@@ -15,7 +15,7 @@ const NavButton = props => {
       projectId,
       next_data_id,
       next_data_url,
-      path
+      path,
     } = annotate.state;
 
     let success = true;
@@ -57,7 +57,7 @@ const NavButton = props => {
   // Go to previous audio recording
   const handlePreviousClip = (forcePrev = false) => {
     annotate.handleAllSegmentSave();
-    const { previous_pages, num_of_prev } = annotate.state;
+    const { previous_pages, num_of_prev, path, projectId } = annotate.state;
     let success = true;
     success = annotate.checkForSave(success, forcePrev, 'previous');
     if (success) {
@@ -70,6 +70,7 @@ const NavButton = props => {
         window.location.href = previous;
       } else {
         console.warn('You have hit the end of the clips you have last seen');
+        window.location.href = `${path}/projects/${projectId}/data`;
       }
     }
   };

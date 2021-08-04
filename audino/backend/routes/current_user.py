@@ -4,7 +4,7 @@ import uuid
 from flask import jsonify, flash, redirect, url_for, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.urls import url_parse
-
+from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
 
@@ -19,6 +19,7 @@ def fetch_current_user_projects():
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
+        give_users_examples(request_user.id)
         response = list(
             [
                 {

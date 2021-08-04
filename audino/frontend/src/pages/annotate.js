@@ -30,6 +30,7 @@ class Annotate extends React.Component {
       isDataLoading: false,
       wavesurfer: null,
       zoom: 100,
+      playbackRate: 100,
       isMarkedForReview: false,
       isMarkedForReviewLoading: false,
       selectedSegment: null,
@@ -79,9 +80,8 @@ class Annotate extends React.Component {
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
+          playbackOn: response.data.features_list['playbackOn'],
         });
-     
-
     axios({
       method: 'get',
       url: apiUrl
@@ -399,6 +399,13 @@ class Annotate extends React.Component {
     return success;
   }
 
+  changePlayback(e) {
+    console.log(e.target.value); 
+    this.state.wavesurfer.setPlaybackRate((e.target.value / 100))
+    this.setState({playbackRate: e.target.value, isPlaying: true})
+    console.log(this.state.isPlaying); 
+  }
+
   loadRegions(regions) {
     const { wavesurfer } = this.state;
     regions.forEach(region => {
@@ -433,6 +440,8 @@ class Annotate extends React.Component {
       wavesurferMethods,
       navButtonsEnabled,
       toUnsavedClipOn
+      playbackRate,
+      playbackOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -560,6 +569,14 @@ class Annotate extends React.Component {
                     onChange={e => this.handleIsMarkedForReview(e)}
                     disabled={isMarkedForReviewLoading}
                   />
+                  {playbackOn? 
+                  <input
+                      type="range"
+                      min="1"
+                      max="200"
+                      value={playbackRate}
+                      onChange={(e) => this.changePlayback(e)}
+                    />: null }
                   <label className="form-check-label" htmlFor="isMarkedForReview">
                     Mark for review
                   </label>
