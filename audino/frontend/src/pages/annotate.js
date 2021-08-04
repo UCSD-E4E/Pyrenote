@@ -62,18 +62,9 @@ class Annotate extends React.Component {
 
   componentDidMount() {
     this.lastTime = Date.now();
-    let linksArray = [];
-    let count = 0;
-    const links = localStorage.getItem('previous_links');
-    const { num_of_prev, dataId, projectId, path } = this.state;
-    if (!links) {
-      localStorage.setItem('previous_links', JSON.stringify(linksArray));
-      localStorage.setItem('count', JSON.stringify(num_of_prev));
-    } else {
-      linksArray = JSON.parse(localStorage.getItem('previous_links'));
-      count = JSON.parse(localStorage.getItem('count'));
-    }
-    this.setState({ previous_pages: linksArray, num_of_prev: count });
+    this.savePrevious()
+    
+    const { dataId, projectId, path } = this.state;
     const { labelsUrl, dataUrl } = this.state;
     const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
 
@@ -91,108 +82,35 @@ class Annotate extends React.Component {
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           playbackOn: response.data.features_list['playbackOn'],
         });
-    axios({
-      method: 'get',
-      url: apiUrl
-    })
-      .then(response => {
-        const { active, next_page } = response.data;
-        this.setState({
-          data: response.data.data
-        });
-
-        let apiUrl2 = `/api/current_user/projects/${projectId}/data`;
-        apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
 
         axios({
           method: 'get',
-          url: apiUrl2
+          url: apiUrl
         })
-          .then(message => {
-            const { data } = message.data;
-            const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
-            this.setState({
-              next_data_url,
-              next_data_id: data[0].data_id
-            });
+          .then(response => {
+            this.loadNextData(response)
           })
-          .catch(error => {
-            this.setState({
-              errorMessage: error.message.data.message
-            });
+        .catch(error => {
+          this.setState({
+            errorMessage: error.response.data.message,
+            isDataLoading: false
           });
+        });
+
+        const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state, boundingBox: boundingBox });
+        const wavesurfer = wavesurferMethods.loadWavesurfer();
+        axios
+        .all([axios.get(labelsUrl), axios.get(dataUrl)])
+        .then(response => {
+          this.loadFileMetadata(response, boundingBox, wavesurfer, wavesurferMethods)
+        })
+        .catch(error => {
+          console.error(error);
+          this.setState({
+            isDataLoading: false
+          });
+        });
       })
-      .catch(error => {
-        this.setState({
-          errorMessage: error.response.data.message,
-          isDataLoading: false
-        });
-      });
-
-    const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state, boundingBox: boundingBox });
-    const {wavesurfer, unsavedButton} = wavesurferMethods.loadWavesurfer();
-    this.UnsavedButton = unsavedButton;
-    console.log(this.UnsavedButton)
-    axios
-      .all([axios.get(labelsUrl), axios.get(dataUrl)])
-      .then(response => {
-        this.setState({
-          isDataLoading: false,
-          labels: response[0].data
-        });
-
-        const { is_marked_for_review, segmentations, filename, original_filename } =
-          response[1].data;
-
-        const regions = segmentations.map(segmentation => {
-          if (boundingBox) {
-            return {
-              start: segmentation.start_time,
-              end: segmentation.end_time,
-              top: segmentation.max_freq,
-              bot: segmentation.min_freq,
-              saved: true,
-              color: 'rgba(0, 0, 0, 0.7)',
-              data: {
-                segmentation_id: segmentation.segmentation_id,
-                annotations: segmentation.annotations
-              }
-            };
-          }
-          return {
-            start: segmentation.start_time,
-            end: segmentation.end_time,
-            saved: true,
-            color: 'rgba(0, 0, 0, 0.7)',
-            data: {
-              segmentation_id: segmentation.segmentation_id,
-              annotations: segmentation.annotations
-            },
-            boundingBox: boundingBox
-          };
-        });
-
-        this.setState({
-          isDataLoading: false,
-          isMarkedForReview: is_marked_for_review,
-          original_filename
-        });
-
-        wavesurfer.load(`/audios/${filename}`);
-        const { zoom } = this.state;
-        wavesurfer.zoom(zoom);
-
-        this.setState({ wavesurfer, wavesurferMethods });
-        this.loadRegions(regions);
-        
-      })
-      .catch(error => {
-        console.error(error);
-        this.setState({
-          isDataLoading: false
-        });
-      });
-    })
     .catch(error => {
       console.error(error);
       this.setState({
@@ -224,6 +142,101 @@ class Annotate extends React.Component {
       region.saved = true;
       wavesurfer.addRegion(region);
     });
+  }
+
+  savePrevious() {
+    let linksArray = [];
+    let count = 0;
+    const links = localStorage.getItem('previous_links');
+    const { num_of_prev } = this.state;
+    if (!links) {
+      localStorage.setItem('previous_links', JSON.stringify(linksArray));
+      localStorage.setItem('count', JSON.stringify(num_of_prev));
+    } else {
+      linksArray = JSON.parse(localStorage.getItem('previous_links'));
+      count = JSON.parse(localStorage.getItem('count'));
+    }
+    this.setState({ previous_pages: linksArray, num_of_prev: count });
+  }
+
+  loadFileMetadata(response, boundingBox, wavesurfer, wavesurferMethods) {
+    this.setState({
+      isDataLoading: false,
+      labels: response[0].data
+    });
+
+    const { is_marked_for_review, segmentations, filename, original_filename } =
+      response[1].data;
+
+    const regions = segmentations.map(segmentation => {
+      if (boundingBox) {
+        return {
+          start: segmentation.start_time,
+          end: segmentation.end_time,
+          top: segmentation.max_freq,
+          bot: segmentation.min_freq,
+          saved: true,
+          color: 'rgba(0, 0, 0, 0.7)',
+          data: {
+            segmentation_id: segmentation.segmentation_id,
+            annotations: segmentation.annotations
+          }
+        };
+      }
+      return {
+        start: segmentation.start_time,
+        end: segmentation.end_time,
+        saved: true,
+        color: 'rgba(0, 0, 0, 0.7)',
+        data: {
+          segmentation_id: segmentation.segmentation_id,
+          annotations: segmentation.annotations
+        },
+        boundingBox: boundingBox
+      };
+    });
+
+    this.setState({
+      isDataLoading: false,
+      isMarkedForReview: is_marked_for_review,
+      original_filename
+    });
+
+    wavesurfer.load(`/audios/${filename}`);
+    const { zoom } = this.state;
+    wavesurfer.zoom(zoom);
+
+    this.setState({ wavesurfer, wavesurferMethods });
+    this.loadRegions(regions);
+  }
+
+  loadNextData(response) {
+    const { projectId, path } = this.state;
+    const { active, next_page } = response.data;
+    this.setState({
+      data: response.data.data
+    });
+
+    let apiUrl2 = `/api/current_user/projects/${projectId}/data`;
+    apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
+
+    axios({
+      method: 'get',
+      url: apiUrl2
+    })
+      .then(message => {
+        const { data } = message.data;
+        const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
+        this.setState({
+          next_data_url,
+          next_data_id: data[0].data_id
+        });
+      })
+      .catch(error => {
+        this.setState({
+          errorMessage: error.message.data.message
+        });
+      });
   }
 
   render() {
