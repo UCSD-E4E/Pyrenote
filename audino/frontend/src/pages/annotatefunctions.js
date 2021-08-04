@@ -84,6 +84,15 @@ const handleAllSegmentSave = (annotate) => {
   });
 };
 
+const removeSegment = (wavesurfer, selectedSegment, annotate) => {
+  wavesurfer.regions.list[selectedSegment.id].remove();
+  annotate.setState({
+    selectedSegment: null,
+    isSegmentDeleting: false
+  });
+}
+
+
 const handleSegmentDelete = annotate => {
   const { wavesurfer, selectedSegment, segmentationUrl } = annotate.state;
   annotate.setState({ isSegmentDeleting: true });
@@ -93,7 +102,7 @@ const handleSegmentDelete = annotate => {
       url: `${segmentationUrl}/${selectedSegment.data.segmentation_id}`
     })
       .then(() => {
-        annotate.removeSegment(wavesurfer, selectedSegment);
+        removeSegment(wavesurfer, selectedSegment, annotate);
       })
       .catch(error => {
         console.error(error);
@@ -102,7 +111,7 @@ const handleSegmentDelete = annotate => {
         });
       });
   } else {
-    annotate.removeSegment(wavesurfer, selectedSegment);
+    removeSegment(wavesurfer, selectedSegment, annotate);
   }
 };
 

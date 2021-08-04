@@ -61,7 +61,6 @@ class Annotate extends React.Component {
   }
 
   componentDidMount() {
-    console.log("THIS RAN FRIST")
     this.lastTime = Date.now();
     let linksArray = [];
     let count = 0;
@@ -202,30 +201,6 @@ class Annotate extends React.Component {
     });
   }
 
-  handleLabelChange(key, e) {
-    const { selectedSegment, labels, wavesurferMethods } = this.state;
-    selectedSegment.data.annotations = selectedSegment.data.annotations || {};
-    if (e.target.value === '-1') {
-      return;
-    }
-    if (labels[key].type === 'Multi-select') {
-      selectedSegment.data.annotations[key] = {
-        label_id: labels[key].label_id,
-        values: Array.from(e.target.selectedOptions, option => option.value)
-      };
-    } else {
-      selectedSegment.data.annotations[key] = {
-        label_id: labels[key].label_id,
-        values: e.target.value
-      };
-    }
-    let storedAnnotations = selectedSegment.data.annotations
-    wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
-    this.UnsavedButton.addUnsaved(selectedSegment)
-    selectedSegment._onUnSave();
-    this.setState({ selectedSegment, storedAnnotations });
-  }
-
   handleAlertDismiss(e) {
     e.preventDefault(e);
     this.setState({
@@ -235,18 +210,7 @@ class Annotate extends React.Component {
     });
   }
 
-  removeSegment(wavesurfer, selectedSegment) {
-    wavesurfer.regions.list[selectedSegment.id].remove();
-    
-    if (!selectedSegment.saved)
-      this.UnsavedButton.removeSaved(selectedSegment)
-
-    this.setState({
-      selectedSegment: null,
-      isSegmentDeleting: false
-    });
-  }
-
+ 
   changePlayback(e) {
     console.log(e.target.value); 
     this.state.wavesurfer.setPlaybackRate((e.target.value / 100))
@@ -260,14 +224,6 @@ class Annotate extends React.Component {
       region.saved = true;
       wavesurfer.addRegion(region);
     });
-  }
-
-  renderAlerts(type, message) {
-    return (
-      <div>
-        <Alert type={type} message={message} overlay onClose={e => this.handleAlertDismiss(e)} />
-      </div>
-    );
   }
 
   render() {
@@ -321,8 +277,8 @@ class Annotate extends React.Component {
             {!isRendering? 
               <div>
                 <LabelSection 
-                  state={this.state} 
-                  handleLabelChange={(key, e) => this.handleLabelChange(key, e)}
+                  state={this.state}
+                  annotate={this} 
                   labelRef={this.labelRef} 
                 />
                 <div className={isDataLoading ? 'hidden' : ''}>

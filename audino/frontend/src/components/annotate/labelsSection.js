@@ -2,6 +2,30 @@ import React from 'react';
 
 const LabelSection = props => {
   const {wavesurferMethods, selectedSegment, isPlaying, labels} = props.state;
+
+  const handleLabelChange = (key, e) => {
+    const {annotate} = props
+    const { selectedSegment, labels, wavesurferMethods } = annotate.state;
+    selectedSegment.data.annotations = selectedSegment.data.annotations || {};
+    if (e.target.value === '-1') {
+      return;
+    }
+    if (labels[key].type === 'Multi-select') {
+      selectedSegment.data.annotations[key] = {
+        label_id: labels[key].label_id,
+        values: Array.from(e.target.selectedOptions, option => option.value)
+      };
+    } else {
+      selectedSegment.data.annotations[key] = {
+        label_id: labels[key].label_id,
+        values: e.target.value
+      };
+    }
+    wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
+    selectedSegment._onUnSave();
+    annotate.setState({ selectedSegment });
+  }
+
   return (
     <div>
       {/* this renders play and skip buttons */}
@@ -30,7 +54,7 @@ const LabelSection = props => {
                         selectedSegment.data.annotations[key].values) ||
                       (value.type === 'Multi-select' ? [] : '')
                     }
-                    onChange={e => props.handleLabelChange(key, e)}
+                    onChange={e => handleLabelChange(key, e)}
                     ref={el => {
                       props.labelRef[key] = el;
                     }}
