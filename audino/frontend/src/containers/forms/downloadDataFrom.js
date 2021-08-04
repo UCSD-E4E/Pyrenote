@@ -4,7 +4,7 @@ import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from '../../components/button';
-import {FormAlerts} from '../../components/alert';
+import { FormAlerts } from '../../components/alert';
 
 import Loader from '../../components/loader';
 
@@ -177,8 +177,8 @@ class DownloadDataForm extends React.Component {
       <div className="container h-75 text-center">
         <div>
           {isLoading ? <Loader /> : null}
-          <FormAlerts 
-            errorMessage={errorMessage} 
+          <FormAlerts
+            errorMessage={errorMessage}
             successMessage={successMessage}
             callback={e => this.handleAlertDismiss(e)}
           />

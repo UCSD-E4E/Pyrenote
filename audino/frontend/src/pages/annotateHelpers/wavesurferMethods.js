@@ -24,7 +24,7 @@ class WavesurferMethods {
   constructor(props) {
     this.state = props.state;
     this.annotate = props.annotate;
-    this.boundingBox = props.boundingBox
+    this.boundingBox = props.boundingBox;
   }
 
   updateState(state) {

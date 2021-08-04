@@ -1,10 +1,11 @@
 import React from 'react';
 
 const LabelSection = props => {
-  const {wavesurferMethods, selectedSegment, isPlaying, labels} = props.state;
+  const { state } = props;
+  const { wavesurferMethods, selectedSegment, isPlaying, labels } = state;
 
   const handleLabelChange = (key, e) => {
-    const {annotate} = props
+    const { annotate } = props;
     const { selectedSegment, labels, wavesurferMethods } = annotate.state;
     selectedSegment.data.annotations = selectedSegment.data.annotations || {};
     if (e.target.value === '-1') {
@@ -24,7 +25,7 @@ const LabelSection = props => {
     wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
     selectedSegment._onUnSave();
     annotate.setState({ selectedSegment });
-  }
+  };
 
   return (
     <div>
@@ -77,7 +78,7 @@ const LabelSection = props => {
         </div>
       ) : null}
     </div>
-  )
-}
+  );
+};
 
-export default LabelSection
+export default LabelSection;

@@ -3,20 +3,23 @@ import { Button } from '../button';
 import { handleAllSegmentSave, handleSegmentDelete } from '../../pages/annotatefunctions';
 
 const LabelButton = props => {
-  const {isSegmentDeleting, selectedSegment, isSegmentSaving, labels} = props.state;
-  const annotate = props.annotate
+  const { state, annotate } = props;
+  const { isSegmentDeleting, selectedSegment, isSegmentSaving } = state;
+
   return (
     <div className="row justify-content-center my-4">
-      {selectedSegment ? (<div className="col-4">
-        <Button
-          size="lg"
-          type="danger"
-          disabled={isSegmentDeleting}
-          isSubmitting={isSegmentDeleting}
-          onClick={() => handleSegmentDelete(annotate)}
-          text="Delete"
-        />
-      </div> ) : null}
+      {selectedSegment ? (
+        <div className="col-4">
+          <Button
+            size="lg"
+            type="danger"
+            disabled={isSegmentDeleting}
+            isSubmitting={isSegmentDeleting}
+            onClick={() => handleSegmentDelete(annotate)}
+            text="Delete"
+          />
+        </div>
+      ) : null}
       <div className="col-4">
         <Button
           size="lg"
@@ -27,7 +30,7 @@ const LabelButton = props => {
         />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LabelButton
+export default LabelButton;

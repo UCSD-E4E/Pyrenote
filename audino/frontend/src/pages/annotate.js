@@ -3,7 +3,7 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
-import {AlertSection, Alert} from '../components/alert';
+import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
 import NavButton from '../components/annotate/navbutton';
 import Spectrogram from '../components/annotate/spectrogram';
@@ -11,7 +11,6 @@ import LabelSection from '../components/annotate/labelsSection';
 import LabelButton from '../components/annotate/labelButtons';
 import RenderingMsg from '../components/annotate/renderingMsg';
 import MarkedForReview from '../components/annotate/markedForReview';
-
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -53,7 +52,7 @@ class Annotate extends React.Component {
       applyPreviousAnnotations: false,
       boundingBox: true,
       direction: null,
-      initWavesurfer: false,
+      initWavesurfer: false
     };
     this.lastTime = 0;
     this.labelRef = {};
@@ -62,20 +61,19 @@ class Annotate extends React.Component {
 
   componentDidMount() {
     this.lastTime = Date.now();
-    this.savePrevious()
-    
-    const { dataId, projectId, path } = this.state;
-    const { labelsUrl, dataUrl } = this.state;
+    this.savePrevious();
+
+    const { dataId, projectId, labelsUrl, dataUrl } = this.state;
     const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
 
-    let boundingBox = null
+    let boundingBox = null;
     axios({
       method: 'get',
       url: `/api/projects/${projectId}/toggled`
     })
       .then(response => {
         // take all the current values of featuresList, include the new ones defined at the line 27
-        boundingBox = response.data.features_list['2D Labels']
+        boundingBox = response.data.features_list['2D Labels'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
           applyPreviousAnnotations: response.data.features_list['auto annotate'],
@@ -88,35 +86,39 @@ class Annotate extends React.Component {
           url: apiUrl
         })
           .then(response => {
-            this.loadNextData(response)
+            this.loadNextData(response);
           })
-        .catch(error => {
-          this.setState({
-            errorMessage: error.response.data.message,
-            isDataLoading: false
+          .catch(error => {
+            this.setState({
+              errorMessage: error.response.data.message,
+              isDataLoading: false
+            });
           });
-        });
 
-        const wavesurferMethods = new WavesurferMethods({ annotate: this, state: this.state, boundingBox: boundingBox });
+        const wavesurferMethods = new WavesurferMethods({
+          annotate: this,
+          state: this.state,
+          boundingBox
+        });
         const wavesurfer = wavesurferMethods.loadWavesurfer();
         axios
-        .all([axios.get(labelsUrl), axios.get(dataUrl)])
-        .then(response => {
-          this.loadFileMetadata(response, boundingBox, wavesurfer, wavesurferMethods)
-        })
-        .catch(error => {
-          console.error(error);
-          this.setState({
-            isDataLoading: false
+          .all([axios.get(labelsUrl), axios.get(dataUrl)])
+          .then(response => {
+            this.loadFileMetadata(response, boundingBox, wavesurfer, wavesurferMethods);
+          })
+          .catch(error => {
+            console.error(error);
+            this.setState({
+              isDataLoading: false
+            });
           });
-        });
       })
-    .catch(error => {
-      console.error(error);
-      this.setState({
-        isDataLoading: false
+      .catch(error => {
+        console.error(error);
+        this.setState({
+          isDataLoading: false
+        });
       });
-    });
   }
 
   handleAlertDismiss(e) {
@@ -165,8 +167,7 @@ class Annotate extends React.Component {
       labels: response[0].data
     });
 
-    const { is_marked_for_review, segmentations, filename, original_filename } =
-      response[1].data;
+    const { is_marked_for_review, segmentations, filename, original_filename } = response[1].data;
 
     const regions = segmentations.map(segmentation => {
       if (boundingBox) {
@@ -192,7 +193,7 @@ class Annotate extends React.Component {
           segmentation_id: segmentation.segmentation_id,
           annotations: segmentation.annotations
         },
-        boundingBox: boundingBox
+        boundingBox
       };
     });
 
@@ -279,21 +280,17 @@ class Annotate extends React.Component {
                 {"message": errorMessage, type: 'danger'},
                 {"message": successMessage, type: 'success'},
               ]}
-              overlay={true}
+              overlay
               callback={e => this.handleAlertDismiss(e)}
             />
             {!isRendering && <div>{original_filename}</div>}
 
-            <RenderingMsg isRendering={isRendering}/>
-            <Spectrogram isRendering={isRendering}/>
+            <RenderingMsg isRendering={isRendering} />
+            <Spectrogram isRendering={isRendering} />
 
-            {!isRendering? 
+            {!isRendering ? (
               <div>
-                <LabelSection 
-                  state={this.state}
-                  annotate={this} 
-                  labelRef={this.labelRef} 
-                />
+                <LabelSection state={this.state} annotate={this} labelRef={this.labelRef} />
                 <div className={isDataLoading ? 'hidden' : ''}>
                     <LabelButton state={this.state} annotate={this}/>
                     <MarkedForReview state={this.state} annotate={this}/>

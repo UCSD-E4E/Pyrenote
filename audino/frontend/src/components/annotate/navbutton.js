@@ -19,7 +19,7 @@ const NavButton = props => {
       }
     });
     return success;
-  }
+  };
 
   // Go to the next audio recording
   const handleNextClip = (forceNext = false) => {

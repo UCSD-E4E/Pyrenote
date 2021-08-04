@@ -3,7 +3,7 @@ import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
-import {FormAlerts} from '../../components/alert';
+import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 
 class CreateProjectForm extends React.Component {
@@ -25,8 +25,8 @@ class CreateProjectForm extends React.Component {
   }
 
   handleEnter(e) {
-    if(e.key === 'Enter') {
-      this.handleProjectCreation(e)        
+    if (e.key === 'Enter') {
+      this.handleProjectCreation(e);
     }
   }
 
@@ -85,8 +85,8 @@ class CreateProjectForm extends React.Component {
               this.form = el;
             }}
           >
-            <FormAlerts 
-              errorMessage={errorMessage} 
+            <FormAlerts
+              errorMessage={errorMessage}
               successMessage={successMessage}
               callback={e => this.handleAlertDismiss(e)}
             />
@@ -96,7 +96,7 @@ class CreateProjectForm extends React.Component {
                 className="form-control"
                 id="project_name"
                 placeholder="Project Name"
-                //autoFocus
+                // autoFocus
                 required
                 onChange={e => this.handleProjectNameChange(e)}
                 onKeyDown={e => this.handleEnter(e)}

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
-import {FormAlerts} from '../../components/alert';
+import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
@@ -11,7 +11,7 @@ class DeleteUserForm extends React.Component {
   constructor(props) {
     super(props);
     const { userId } = this.props;
-    this.onDelete = () => props.onDelete()
+    this.onDelete = () => props.onDelete();
     this.initialState = {
       userId: Number(userId),
       role: '-1',
@@ -72,7 +72,7 @@ class DeleteUserForm extends React.Component {
             successMessage: 'User has been deleted',
             errorMessage: null
           });
-          this.onDelete()
+          this.onDelete();
         }
       })
       .catch(error => {
@@ -113,8 +113,8 @@ class DeleteUserForm extends React.Component {
             }}
           >
             {isLoading ? <Loader /> : null}
-            <FormAlerts 
-              errorMessage={errorMessage} 
+            <FormAlerts
+              errorMessage={errorMessage}
               successMessage={successMessage}
               callback={e => this.handleAlertDismiss(e)}
             />

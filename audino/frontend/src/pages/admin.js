@@ -86,7 +86,6 @@ const Admin = props => {
   };
 
   const updatePage = () => {
-    console.log("MADE IT")
     fetchProjects();
     fetchUsers();
     setModalState({ ...modalState, modalShow: false });

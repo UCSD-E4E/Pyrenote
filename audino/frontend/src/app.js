@@ -104,7 +104,7 @@ class App extends React.Component {
             }
           }
           if (error.response.status === 422) {
-            localStorage.removeItem('access_token')
+            localStorage.removeItem('access_token');
             history.push('/');
             store.set('isUserLoggedIn', false);
             store.set('isUserCreatingAccount', false);

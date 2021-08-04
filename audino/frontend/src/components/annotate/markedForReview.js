@@ -1,12 +1,11 @@
 import React from 'react';
 import axios from 'axios';
 
-
 const MarkedForReview = props => {
-  const {isMarkedForReview, isMarkedForReviewLoading} = props.state
-  const annotate = props.annotate
+  const { annotate, state } = props;
+  const { isMarkedForReview, isMarkedForReviewLoading } = state;
 
-  const handleIsMarkedForReview = (e) => {
+  const handleIsMarkedForReview = e => {
     const { dataUrl } = annotate.state;
     const isMarkedForReview = e.target.checked;
     annotate.setState({ isMarkedForReviewLoading: true });
@@ -34,7 +33,7 @@ const MarkedForReview = props => {
           successMessage: null
         });
       });
-  }
+  };
 
   return (
     <div className="row justify-content-center my-4">
@@ -53,12 +52,7 @@ const MarkedForReview = props => {
         </label>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MarkedForReview
-
-
-
-
-
+export default MarkedForReview;

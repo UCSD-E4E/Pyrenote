@@ -4,7 +4,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
-import {FormAlerts} from '../../components/alert';
+import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 
 class CreateLabelValueForm extends React.Component {
@@ -95,8 +95,8 @@ class CreateLabelValueForm extends React.Component {
               this.form = el;
             }}
           >
-            <FormAlerts 
-              errorMessage={errorMessage} 
+            <FormAlerts
+              errorMessage={errorMessage}
               successMessage={successMessage}
               callback={e => this.handleAlertDismiss(e)}
             />

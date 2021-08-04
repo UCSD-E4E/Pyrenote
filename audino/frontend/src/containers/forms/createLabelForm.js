@@ -5,7 +5,7 @@ import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 import { Button } from '../../components/button';
 import LabelValues from '../../pages/labelValues';
-import FormAlerts from '../../components/alert';
+import { FormAlerts } from '../../components/alert';
 
 class CreateLabelForm extends React.Component {
   constructor(props) {
@@ -103,11 +103,11 @@ class CreateLabelForm extends React.Component {
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
-        <FormAlerts 
-          errorMessage={errorMessage} 
-          successMessage={successMessage}
-          callback={e => this.handleAlertDismiss(e)}
-        />
+          <FormAlerts
+            errorMessage={errorMessage}
+            successMessage={successMessage}
+            callback={e => this.handleAlertDismiss(e)}
+          />
           {previousLabelId === -1 ? (
             <form
               name="new_user"
