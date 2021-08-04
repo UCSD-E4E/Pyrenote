@@ -21,7 +21,7 @@ from .projects import (
     fetch_project,
     edit_project,
     update_project_users,
-    give_users_examples,
+    give_users_examples_json,
     add_label_to_project,
     get_label_for_project,
     update_label_for_project,

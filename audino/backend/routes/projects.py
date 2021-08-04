@@ -138,6 +138,7 @@ def fetch_project(project_id):
         jsonify(
             project_id=project.id,
             name=project.name,
+            is_example=project.is_example,
             users=users,
             labels=labels,
             api_key=project.api_key,
@@ -151,7 +152,6 @@ def fetch_project(project_id):
 @api.route("/projects/<int:project_id>", methods=["PATCH"])
 @jwt_required
 def edit_project(project_id):
-    app.logger.info("hello")
     identity = get_jwt_identity()
     request_user = User.query.filter_by(username=identity["username"]).first()
     is_admin = True if request_user.role.role == "admin" else False
@@ -162,7 +162,13 @@ def edit_project(project_id):
     try:
         project = Project.query.get(project_id)
         newUserName = request.json.get("name", None)
-        project.set_name(newUserName)
+        is_example = request.json.get("is_example", None)
+        if (newUserName is not None or newUserName == ''):
+            project.set_name(newUserName)
+
+        if (is_example is not None):
+            app.logger.info(is_example == 'true')
+            project.set_is_example(is_example == 'true')
         # user = User.query.get(user_id)
         # user.set_role(role_id)
         # user.set_username(newUserName)
@@ -183,6 +189,7 @@ def edit_project(project_id):
         jsonify(
             project_id=project.id,
             name=project.name,
+            message="Successful edit"
         ),
         200,
     )
@@ -248,6 +255,7 @@ def update_project_users(project_id):
         ),
         200,
     )
+
 
 
 @api.route("/projects/toggled", methods=["PATCH"])
@@ -325,21 +333,18 @@ def get_features(project_id):
     )
 
 
-@api.route("/projects/example", methods=["PATCH"])
-def give_users_examples():
-    user_id = request.json.get("users")
-    app.logger.info(f"{user_id}")
-    for project_id in [3, 4, 5]:
+def find_example_projects():
+    return Project.query.filter(Project.is_example == (True)).all()
+
+
+def give_users_examples(user_id):
+    for project in find_example_projects():
         try:
-            project = Project.query.get(project_id)
-            # TODO: Decide whether to give creator of project access
-            # project.users.append(request_user)
             if project is None:
-                app.logger.info(f"{project_id} is null")
+                app.logger.info(f"{project} is null")
                 continue
             final_users = [user for user in project.users]
-            user = User.query.filter_by(username=user_id).first()
-            app.logger.info(f"{user.username}")
+            user = User.query.filter_by(id=user_id).first()
             if user not in project.users:
                 final_users.append(user)
 
@@ -354,7 +359,7 @@ def give_users_examples():
             app.logger.error(e)
             return (
                 jsonify(
-                    message=f"Error adding users to project: {project_id}",
+                    message=f"Error adding users to project: {project.id}",
                     type="USERS_ASSIGNMENT_FAILED",
                 ),
                 500,
@@ -368,6 +373,14 @@ def give_users_examples():
         ),
         200,
     )
+
+
+@api.route("/projects/example", methods=["PATCH"])
+def give_users_examples_json():
+    user_id = request.json.get("users")
+    user = User.query.filter_by(username=user_id).first()
+    app.logger.info(f"{user_id}")
+    return give_users_examples(user.id)
 
 
 @api.route("/projects/<int:project_id>/labels", methods=["POST"])
