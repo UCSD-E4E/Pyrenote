@@ -85,6 +85,12 @@ class EditProjectForm extends React.Component {
       });
   }
 
+  handleEnter(e) {
+    if(e.key === 'Enter') {
+      this.handleProjectCreation(e)        
+    }
+  }
+
   resetState() {
     this.setState(this.initialState);
   }
@@ -112,6 +118,7 @@ class EditProjectForm extends React.Component {
                 autoFocus
                 required
                 onChange={e => this.handleProjectNameChange(e)}
+                onKeyDown={e => this.handleEnter(e)}
               />
             </div>
             <div className="form-check">
