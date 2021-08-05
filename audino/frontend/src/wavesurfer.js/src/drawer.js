@@ -74,8 +74,6 @@ export default class Drawer extends util.Observer {
         overflowY: 'hidden'
       });
     }
-
-    this.setupWrapperEvents();
   }
 
   /**
@@ -88,31 +86,61 @@ export default class Drawer extends util.Observer {
   handleEvent(e, noPrevent) {
     !noPrevent && e.preventDefault();
 
-    const { clientX } = util.withOrientation(
-      e.targetTouches ? e.targetTouches[0] : e,
-      this.params.vertical
-    );
+    const clientX = e.targetTouches ? e.targetTouches[0].clientX : e.clientX;
     const bbox = this.wrapper.getBoundingClientRect();
 
     const nominalWidth = this.width;
     const parentWidth = this.getWidth();
-    const progressPixels = this.getProgressPixels(bbox, clientX);
 
     let progress;
     if (!this.params.fillParent && nominalWidth < parentWidth) {
-      progress = progressPixels * (this.params.pixelRatio / nominalWidth) || 0;
+      progress =
+        (this.params.rtl ? bbox.right - clientX : clientX - bbox.left) *
+          (this.params.pixelRatio / nominalWidth) || 0;
     } else {
-      progress = (progressPixels + this.wrapper.scrollLeft) / this.wrapper.scrollWidth || 0;
+      progress =
+        ((this.params.rtl ? bbox.right - clientX : clientX - bbox.left) + this.wrapper.scrollLeft) /
+          this.wrapper.scrollWidth || 0;
     }
 
     return util.clamp(progress, 0, 1);
   }
 
-  getProgressPixels(wrapperBbox, clientX) {
-    if (this.params.rtl) {
-      return wrapperBbox.right - clientX;
+  /**
+   * Handle click event
+   *
+   * @param {Event} e Click event
+   * @param {?boolean} noPrevent Set to true to not call `e.preventDefault()`
+   * @return {number} frequency position from 0 to 1
+   */
+  handleEventVertical(e, noPrevent, height = null) {
+    if (!height) {
+      height = this.wrapper.scrollHeight;
     }
-    return clientX - wrapperBbox.left;
+    !noPrevent && e.preventDefault();
+
+    const clientY = e.targetTouches ? e.targetTouches[0].clientY : e.clientY;
+    const bbox = this.wrapper.getBoundingClientRect();
+
+    const nominalHeight = this.height;
+    const parentHeight = this.getHeight();
+
+    let frequency;
+    if (!this.params.fillParent && nominalHeight < parentHeight) {
+      frequency =
+        (this.params.rtl ? bbox.bottom - clientY : clientY - bbox.top) *
+          (this.params.pixelRatio / nominalHeight) || 0;
+    } else {
+      frequency = (clientY - bbox.top) / height || 0;
+      /**
+         *  frequency =
+            ((this.params.rtl
+                ? bbox.bottom - clientY
+                : clientY - bbox.top)) /
+                height || 0;
+         */
+    }
+    return util.clamp(frequency, 0, 1);
   }
 
   setupWrapperEvents() {
@@ -140,6 +168,13 @@ export default class Drawer extends util.Observer {
     });
 
     this.wrapper.addEventListener('scroll', e => this.fireEvent('scroll', e));
+  }
+
+  getProgressPixels(wrapperBbox, clientX) {
+    if (this.params.rtl) {
+      return wrapperBbox.right - clientX;
+    }
+    return clientX - wrapperBbox.left;
   }
 
   /**
@@ -230,6 +265,26 @@ export default class Drawer extends util.Observer {
       this.wrapper.scrollLeft = target;
     }
   }
+
+  getHeight() {
+    return Math.round(this.container.clientHeight * this.params.pixelRatio);
+  }
+
+  /**
+   * Set the width of the container
+   *
+   * @param {number} width The new width of the container
+   * @return {boolean} Whether the width of the container was updated or not
+   */
+  /*
+  setWidth(width) {
+    if (this.width === width) {
+      return false;
+    }
+
+    this.width = width;
+  }
+  */
 
   /**
    * Get the current scroll position in pixels

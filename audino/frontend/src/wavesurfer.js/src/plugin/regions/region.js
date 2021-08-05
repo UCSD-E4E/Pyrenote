@@ -1,30 +1,40 @@
-/* eslint-disable no-restricted-syntax, guard-for-in  */
 /**
  *  @since 4.0.0
  *
  * (Single) Region plugin class
- *
+ *fdsfasd
  * Must be turned into an observer before instantiating. This is done in
  * `RegionsPlugin` (main plugin class).
  *
  * @extends {Observer}
  */
-class Region {
+export default class Region {
   constructor(params, regionsUtils, ws) {
     this.wavesurfer = ws;
     this.wrapper = ws.drawer.wrapper;
     this.util = ws.util;
     this.style = this.util.style;
     this.regionsUtil = regionsUtils;
-    this.vertical = ws.drawer.params.vertical;
-
+    // It assumes the minLength parameter value, or the regionsMinLength parameter value, if the first one not provided
+    this.minLength = params.minLength;
     this.id = params.id == null ? ws.util.getId() : params.id;
+
+    this.maxFrequency = params.maxFrequency || 24000;
+    this.maxHeight = 254;
+
     this.start = Number(params.start) || 0;
     this.end =
       params.end == null
         ? // small marker-like region
           this.start + (4 / this.wrapper.scrollWidth) * this.wavesurfer.getDuration()
         : Number(params.end);
+
+    this.top =
+      (Number(params.top) - this.maxFrequency) * (-this.maxHeight / this.maxFrequency) || 0;
+    this.bot = Number(params.bot) * (this.maxHeight / this.maxFrequency) || 0;
+    this.regionTopFrequency = Number(params.top) || -1;
+    this.regionBotFrequency = Number(params.bot) || -1;
+
     this.resize = params.resize === undefined ? true : Boolean(params.resize);
     this.drag = params.drag === undefined ? true : Boolean(params.drag);
     // reflect resize and drag state of region for region-updated listener
@@ -36,22 +46,33 @@ class Region {
     // no styling or can be assigned an object containing CSS properties.
     this.handleStyle = params.handleStyle || {
       left: {},
-      right: {}
+      right: {},
+      top: {},
+      bot: {},
+      topRight: {},
+      topLeft: {},
+      bottomRight: {},
+      bottomLeft: {}
     };
     this.handleLeftEl = null;
     this.handleRightEl = null;
+    this.handleTopE1 = null;
+    this.handleBotE1 = null;
+    this.handleTopRightE1 = null;
+    this.handleTopLeftE1 = null;
+    this.handleBottomRightE1 = null;
+    this.handleBottomLeftE1 = null;
     this.data = params.data || {};
     this.attributes = params.attributes || {};
-    this.showTooltip = params.showTooltip ?? true;
 
     this.maxLength = params.maxLength;
-    // It assumes the minLength parameter value, or the regionsMinLength parameter value, if the first one not provided
-    this.minLength = params.minLength;
+
     this._onRedraw = () => this.updateRender();
 
     this.scroll = params.scroll !== false && ws.params.scrollParent;
     this.scrollSpeed = params.scrollSpeed || 1;
     this.scrollThreshold = params.scrollThreshold || 10;
+
     // Determines whether the context menu is prevented from being opened.
     this.preventContextMenu =
       params.preventContextMenu === undefined ? false : Boolean(params.preventContextMenu);
@@ -74,12 +95,13 @@ class Region {
 
     this.formatTimeCallback = params.formatTimeCallback;
     this.edgeScrollWidth = params.edgeScrollWidth;
+    this.boundingBox = params.boundingBox || false;
     this.bindInOut();
     this.render();
     this.wavesurfer.on('zoom', this._onRedraw);
     this.wavesurfer.on('redraw', this._onRedraw);
     this.wavesurfer.fireEvent('region-created', this);
-    this.saved = Boolean(params.saved) || false;
+    this.saved = false;
     this._onSave = () => this.save();
     this._onUnSave = () => this.unsave();
     this.lastTime = 0;
@@ -95,6 +117,12 @@ class Region {
     }
     if (params.end != null) {
       this.end = Number(params.end);
+    }
+    if (params.top != null) {
+      this.top = Number(params.top);
+    }
+    if (params.bot != null) {
+      this.bot = Number(params.bot);
     }
     if (params.loop != null) {
       this.loop = Boolean(params.loop);
@@ -146,7 +174,7 @@ class Region {
   /* Remove a single region. */
   remove() {
     if (this.element) {
-      this.wrapper.removeChild(this.element.domElement);
+      this.wrapper.removeChild(this.element);
       this.element = null;
       this.fireEvent('remove');
       this.wavesurfer.un('zoom', this._onRedraw);
@@ -185,50 +213,82 @@ class Region {
 
   /* Render a region as a DOM element. */
   render() {
-    this.element = this.util.withOrientation(
-      this.wrapper.appendChild(document.createElement('region')),
-      this.vertical
-    );
+    const regionEl = document.createElement('region');
 
-    this.element.className = 'wavesurfer-region';
-    if (this.showTooltip) {
-      this.element.title = this.formatTime(this.start, this.end);
-    }
-    this.element.setAttribute('data-id', this.id);
-
+    regionEl.className = 'wavesurfer-region';
+    regionEl.title = this.formatTime(this.start, this.end);
+    regionEl.setAttribute('data-id', this.id);
+    /* eslint-disable */
     for (const attrname in this.attributes) {
-      this.element.setAttribute(`data-region-${attrname}`, this.attributes[attrname]);
+      regionEl.setAttribute(`data-region-${attrname}`, this.attributes[attrname]);
     }
-
-    this.style(this.element, {
+    /* eslint-ensable */
+    let height;
+    if (this.bot === 0) {
+      height = '20px';
+    } else {
+      height = this.maxHeight - this.top - this.bot;
+      height += 'px';
+    }
+    this.style(regionEl, {
       position: 'absolute',
       zIndex: 2,
-      height: this.regionHeight,
-      top: this.marginTop
+      height,
+      top: '0px'
     });
 
     /* Resize handles */
     if (this.resize) {
-      this.handleLeftEl = this.util.withOrientation(
-        this.element.appendChild(document.createElement('handle')),
-        this.vertical
-      );
-      this.handleRightEl = this.util.withOrientation(
-        this.element.appendChild(document.createElement('handle')),
-        this.vertical
-      );
+      this.handleLeftEl = regionEl.appendChild(document.createElement('handle'));
+      this.handleRightEl = regionEl.appendChild(document.createElement('handle'));
 
       this.handleLeftEl.className = 'wavesurfer-handle wavesurfer-handle-start';
       this.handleRightEl.className = 'wavesurfer-handle wavesurfer-handle-end';
 
+      if (this.boundingBox) {
+        this.handleTopE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleBotE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleTopRightE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleTopLeftE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleBottomRightE1 = regionEl.appendChild(document.createElement('handle'));
+        this.handleBottomLeftE1 = regionEl.appendChild(document.createElement('handle'));
+
+
+        this.handleTopE1.className = 'wavesurfer-handle wavesurfer-handle-top';
+        this.handleBotE1.className = 'wavesurfer-handle wavesurfer-handle-bottom';
+        this.handleTopRightE1.className = 'wavesurfer-handle wavesurfer-handle-top-right';
+        this.handleTopLeftE1.className = 'wavesurfer-handle wavesurfer-handle-top-left';
+        this.handleBottomRightE1.className = 'wavesurfer-handle wavesurfer-handle-bottom-right';
+        this.handleBottomLeftE1.className = 'wavesurfer-handle wavesurfer-handle-bottom-left';
+      }
+
+
       // Default CSS properties for both handles.
       const css = {
-        cursor: this.vertical ? 'row-resize' : 'col-resize',
+        cursor: 'col-resize',
         position: 'absolute',
         top: '0px',
         width: '2px',
         height: '100%',
         backgroundColor: 'rgba(0, 0, 0, 1)'
+      };
+
+      const row_css = {
+        cursor: 'row-resize',
+        position: 'absolute',
+        width: '100%',
+        left: '0px',
+        height: '2px',
+        backgroundColor: 'rgba(0, 0, 0, 1)'
+      };
+
+      const corner_css = {
+        cursor: 'row-resize',
+        position: 'absolute',
+        width: '4px',
+        height: '4px',
+        backgroundColor: 'rgba(0, 0, 0, 1)',
+        zIndex: 2
       };
 
       // Merge CSS properties per handle.
@@ -238,6 +298,32 @@ class Region {
         this.handleStyle.right !== 'none'
           ? { right: '0px', ...css, ...this.handleStyle.right }
           : null;
+      const handleTopCss =
+        this.handleStyle.top !== 'none'
+          ? { top: '0px', ...row_css, ...this.handleStyle.top }
+          : null;
+      const handleBotCss =
+        this.handleStyle.bot !== 'none'
+          ? { bottom: '0px', ...row_css, ...this.handleStyle.bot }
+          : null;
+      const handleTopRightCss =
+        this.handleStyle.topRight !== 'none'
+          ? { top: '-1px', right: '-1px', ...corner_css, ...this.handleStyle.bot }
+          : null;
+      const handleTopLeftCss =
+        this.handleStyle.topLeft !== 'none'
+          ? { top: '-1px', left: '-1px', ...corner_css, ...this.handleStyle.bot }
+          : null;
+      const handleBottomRightCss =
+        this.handleStyle.bottomRight !== 'none'
+          ? { bottom: '-1px', right: '-1px', ...corner_css, ...this.handleStyle.bot }
+          : null;
+      const handleBottomLeftCss =
+        this.handleStyle.BottomLeft !== 'none'
+          ? { bottom: '-1px', left: '-1px', ...corner_css, ...this.handleStyle.bot }
+          : null;
+
+      console.log(handleTopCss && this.boundingBox)
 
       if (handleLeftCss) {
         this.style(this.handleLeftEl, handleLeftCss);
@@ -246,10 +332,29 @@ class Region {
       if (handleRightCss) {
         this.style(this.handleRightEl, handleRightCss);
       }
+      if (handleTopCss && this.boundingBox) {
+        this.style(this.handleTopE1, handleTopCss);
+      }
+      if (handleBotCss && this.boundingBox) {
+        this.style(this.handleBotE1, handleBotCss);
+      }
+      if (handleTopRightCss && this.boundingBox) {
+        this.style(this.handleTopRightE1, handleTopRightCss);
+      }
+      if (handleTopLeftCss && this.boundingBox) {
+        this.style(this.handleTopLeftE1, handleTopLeftCss);
+      }
+      if (handleTopRightCss && this.boundingBox) {
+        this.style(this.handleBottomRightE1, handleBottomRightCss);
+      }
+      if (handleTopLeftCss && this.boundingBox) {
+        this.style(this.handleBottomLeftE1, handleBottomLeftCss);
+      }
     }
 
+    this.element = this.wrapper.appendChild(regionEl);
     this.updateRender();
-    this.bindEvents();
+    this.bindEvents(regionEl);
   }
 
   formatTime(start, end) {
@@ -270,10 +375,15 @@ class Region {
     return this.wavesurfer.drawer.width / this.wavesurfer.params.pixelRatio;
   }
 
+  getHeight() {
+    return this.wavesurfer.drawer.height / this.wavesurfer.params.pixelRatio;
+  }
+
   /* Update element's position, width, color. */
   updateRender(color = this.color) {
     // duration varies during loading process, so don't overwrite important data
     const dur = this.wavesurfer.getDuration();
+    const max_Height = this.maxHeight;
     const width = this.getWidth();
 
     let startLimited = this.start;
@@ -300,21 +410,28 @@ class Region {
       // no gaps appear between regions.
       const left = Math.round((startLimited / dur) * width);
       const regionWidth = Math.round((endLimited / dur) * width) - left;
-
+      const top = this.top;
+      const bot = this.bot;
+      const regionHeight = max_Height - top - bot; // this.wrapper.style.height - this.top - this.bt
       this.style(this.element, {
         left: `${left}px`,
         width: `${regionWidth}px`,
+        top: `${top}px`,
+        height: `${regionHeight}px`,
         backgroundColor: color,
         cursor: this.drag ? 'move' : 'default'
       });
+
+      const pixelToFrequency = this.maxFrequency / this.maxHeight;
+      // frequency = 24000 - 24000/254x
+      this.regionTopFrequency = this.maxFrequency - this.top * pixelToFrequency;
+      this.regionBotFrequency = this.maxFrequency - (this.top + regionHeight) * pixelToFrequency;
 
       for (const attrname in this.attributes) {
         this.element.setAttribute(`data-region-${attrname}`, this.attributes[attrname]);
       }
 
-      if (this.showTooltip) {
-        this.element.title = this.formatTime(this.start, this.end);
-      }
+      this.element.title = this.formatTime(this.start, this.end);
     }
   }
 
@@ -324,11 +441,11 @@ class Region {
     this.firedOut = false;
 
     const onProcess = time => {
-      const start = Math.round(this.start * 10) / 10;
-      const end = Math.round(this.end * 10) / 10;
-      time = Math.round(time * 10) / 10;
+      const start = this.start; // Math.round(this.start * 10) / 10;
+      const end = this.end; // Math.round(this.end * 10) / 10;
+      time = this.wavesurfer.getCurrentTime(); // Math.round(time * 10) / 10;
 
-      if (!this.firedOut && this.firedIn && (start > time || end <= time)) {
+      if (!this.firedOut && this.firedIn && (start > time || end < time)) {
         this.firedOut = true;
         this.firedIn = false;
         this.fireEvent('out');
@@ -361,7 +478,7 @@ class Region {
 
   /* Bind DOM events. */
   bindEvents() {
-    const { preventContextMenu } = this;
+    const preventContextMenu = this.preventContextMenu;
 
     this.element.addEventListener('mouseenter', e => {
       this.fireEvent('mouseenter', e);
@@ -401,10 +518,11 @@ class Region {
   }
 
   bindDragEvents() {
-    const { container } = this.wavesurfer.drawer;
-    const { scrollSpeed } = this;
-    // const { scrollThreshold } = this;
+    const container = this.wavesurfer.drawer.container;
+    const scrollSpeed = this.scrollSpeed;
+    const scrollThreshold = this.scrollThreshold;
     let startTime;
+    let currTop;
     let touchId;
     let drag;
     let maxScroll;
@@ -414,24 +532,33 @@ class Region {
     let wrapperRect;
     let regionLeftHalfTime;
     let regionRightHalfTime;
+    const max_Height = this.maxHeight;
 
     // Scroll when the user is dragging within the threshold
-    const edgeScroll = event => {
-      const orientedEvent = this.util.withOrientation(event, this.vertical);
+    const edgeScroll = e => {
+      // this.wavesurfer.fireEvent('region-change', this)
       const duration = this.wavesurfer.getDuration();
+
       if (!scrollDirection || (!drag && !resize)) {
         return;
       }
 
-      const x = orientedEvent.clientX;
+      const x = e.clientX;
       let distanceBetweenCursorAndWrapperEdge = 0;
       let regionHalfTimeWidth = 0;
       let adjustment = 0;
 
       // Get the currently selected time according to the mouse position
       let time = this.regionsUtil.getRegionSnapToGridValue(
-        this.wavesurfer.drawer.handleEvent(event) * duration
+        this.wavesurfer.drawer.handleEvent(e) * duration
       );
+
+      const frequencyTop = Number(this.wrapper.style.top.replace('px', ''));
+
+      let range = this.regionsUtil.getRegionSnapToGridValue(
+        this.wavesurfer.drawer.handleEventVertical(e, false, max_Height) * max_Height
+      );
+      const frequencyBot = this.handleBotE1.style.bottom;
 
       if (drag) {
         // Considering the point of contact with the region while edgescrolling
@@ -444,7 +571,7 @@ class Region {
         }
       } else {
         // Considering minLength while edgescroll
-        let { minLength } = this;
+        let minLength = this.minLength;
         if (!minLength) {
           minLength = 0;
         }
@@ -467,32 +594,48 @@ class Region {
           if (time > duration) {
             time = duration;
           }
+        } else if (resize === 'top') {
+          if (range > max_Height - minLength) {
+            range = max_Height - minLength;
+            // adjustment = scrollSpeed * scrollDirection;
+          }
+
+          if (range < 0) {
+            range = 0;
+          }
+        } else if (resize === 'end') {
+          if (range < this.top + minLength) {
+            range = this.top + minLength;
+            // adjustment = scrollSpeed * scrollDirection;
+          }
+
+          if (range > max_Height) {
+            range = max_Height;
+          }
         }
       }
 
       // Don't edgescroll if region has reached min or max limit
-      const wrapperScrollLeft = this.wrapper.scrollLeft;
-
       if (scrollDirection === -1) {
-        if (Math.round(wrapperScrollLeft) === 0) {
+        if (Math.round(this.wrapper.scrollLeft) === 0) {
           return;
         }
 
         if (
           Math.round(
-            wrapperScrollLeft - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge
+            this.wrapper.scrollLeft - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge
           ) <= 0
         ) {
           return;
         }
       } else {
-        if (Math.round(wrapperScrollLeft) === maxScroll) {
+        if (Math.round(this.wrapper.scrollLeft) === maxScroll) {
           return;
         }
 
         if (
           Math.round(
-            wrapperScrollLeft + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge
+            this.wrapper.scrollLeft + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge
           ) >= maxScroll
         ) {
           return;
@@ -500,76 +643,93 @@ class Region {
       }
 
       // Update scroll position
-      let scrollLeft = wrapperScrollLeft - adjustment + scrollSpeed * scrollDirection;
+      let scrollLeft = this.wrapper.scrollLeft - adjustment + scrollSpeed * scrollDirection;
 
       if (scrollDirection === -1) {
         const calculatedLeft = Math.max(
           0 + regionHalfTimeWidth - distanceBetweenCursorAndWrapperEdge,
           scrollLeft
         );
-        scrollLeft = calculatedLeft;
-        this.wrapper.scrollLeft = calculatedLeft;
+        this.wrapper.scrollLeft = scrollLeft = calculatedLeft;
       } else {
         const calculatedRight = Math.min(
           maxScroll - regionHalfTimeWidth + distanceBetweenCursorAndWrapperEdge,
           scrollLeft
         );
-        scrollLeft = calculatedRight;
-        this.wrapper.scrollLeft = scrollLeft;
+        this.wrapper.scrollLeft = scrollLeft = calculatedRight;
       }
 
-      const delta = time - startTime;
+      const deltaX = range - currTop;
+      currTop = range;
+      const deltaY = time - startTime;
       startTime = time;
-
-      // Continue dragging or resizing
-      drag ? this.onDrag(delta) : this.onResize(delta, resize);
+      drag ? this.onDrag(deltaX, deltaY) : this.onResize(deltaX, deltaY, resize);
 
       // Repeat
       window.requestAnimationFrame(() => {
-        edgeScroll(event);
+        edgeScroll(e);
       });
     };
 
-    const onDown = event => {
+    const onDown = e => {
+      // this.wavesurfer.fireEvent('region-change', this)
       const duration = this.wavesurfer.getDuration();
-      if (event.touches && event.touches.length > 1) {
+      if (e.touches && e.touches.length > 1) {
         return;
       }
-      touchId = event.targetTouches ? event.targetTouches[0].identifier : null;
+      touchId = e.targetTouches ? e.targetTouches[0].identifier : null;
 
       // stop the event propagation, if this region is resizable or draggable
       // and the event is therefore handled here.
       if (this.drag || this.resize) {
-        event.stopPropagation();
+        e.stopPropagation();
       }
 
       // Store the selected startTime we begun dragging or resizing
       startTime = this.regionsUtil.getRegionSnapToGridValue(
-        this.wavesurfer.drawer.handleEvent(event, true) * duration
+        this.wavesurfer.drawer.handleEvent(e, true) * duration
       );
-
+      currTop = this.regionsUtil.getRegionSnapToGridValue(
+        this.wavesurfer.drawer.handleEventVertical(e, false, max_Height) * max_Height
+      );
       // Store the selected point of contact when we begin dragging
       regionLeftHalfTime = startTime - this.start;
       regionRightHalfTime = this.end - startTime;
 
       // Store for scroll calculations
       maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
-
-      wrapperRect = this.util.withOrientation(this.wrapper.getBoundingClientRect(), this.vertical);
+      wrapperRect = this.wrapper.getBoundingClientRect();
 
       this.isResizing = false;
       this.isDragging = false;
-      if (event.target.tagName.toLowerCase() === 'handle') {
+      if (e.target.tagName.toLowerCase() === 'handle') {
         this.isResizing = true;
-        resize = event.target.classList.contains('wavesurfer-handle-start') ? 'start' : 'end';
+        if (e.target.classList.contains('wavesurfer-handle-start')) {
+          resize = 'start';
+        } else if (e.target.classList.contains('wavesurfer-handle-end')) {
+          resize = 'end';
+        } else if (e.target.classList.contains('wavesurfer-handle-top')) {
+          resize = 'top';
+        } else if (e.target.classList.contains('wavesurfer-handle-bottom')) {
+          resize = 'bottom';
+        } else if (e.target.classList.contains('wavesurfer-handle-top-right')) {
+          resize = 'top-right';
+        } else if (e.target.classList.contains('wavesurfer-handle-top-left')) {
+          resize = 'top-left';
+        } else if (e.target.classList.contains('wavesurfer-handle-bottom-right')) {
+          resize = 'bottom-right';
+        } else if (e.target.classList.contains('wavesurfer-handle-bottom-left')) {
+          resize = 'bottom-left';
+        }
       } else {
         this.isDragging = true;
         drag = true;
         resize = false;
       }
     };
-    const onUp = event => {
-      if (event.touches && event.touches.length > 1) {
+    const onUp = e => {
+      // this.wavesurfer.fireEvent('region-change', this)
+      if (e.touches && e.touches.length > 1) {
         return;
       }
 
@@ -584,27 +744,27 @@ class Region {
       if (updated) {
         updated = false;
         this.util.preventClick();
-        this.fireEvent('update-end', event);
-        this.wavesurfer.fireEvent('region-update-end', this, event);
+        this.fireEvent('update-end', e);
+        this.wavesurfer.fireEvent('region-update-end', this, e);
       }
     };
-    const onMove = event => {
+    const onMove = e => {
+      // this.wavesurfer.fireEvent('region-change', this)
       const duration = this.wavesurfer.getDuration();
-      const orientedEvent = this.util.withOrientation(event, this.vertical);
 
-      if (event.touches && event.touches.length > 1) {
+      if (e.touches && e.touches.length > 1) {
         return;
       }
-      if (event.targetTouches && event.targetTouches[0].identifier !== touchId) {
+      if (e.targetTouches && e.targetTouches[0].identifier != touchId) {
         return;
       }
       if (!drag && !resize) {
         return;
       }
 
-      // const oldTime = startTime;
+      const oldTime = startTime;
       let time = this.regionsUtil.getRegionSnapToGridValue(
-        this.wavesurfer.drawer.handleEvent(event) * duration
+        this.wavesurfer.drawer.handleEvent(e) * duration
       );
 
       if (drag) {
@@ -619,23 +779,30 @@ class Region {
         }
       }
 
+      let range = this.regionsUtil.getRegionSnapToGridValue(
+        this.wavesurfer.drawer.handleEventVertical(e, false, max_Height) * max_Height
+      );
+
       if (resize) {
         // To maintain relative cursor start point while resizing
         // we have to handle for minLength
-        let { minLength } = this;
+        let minLength = this.minLength;
         if (!minLength) {
           minLength = 0;
         }
 
-        if (resize === 'start') {
-          if (time > this.end - minLength) {
-            time = this.end - minLength;
+        const topPosHandling = (range, minLength) => {
+          if (range > max_Height - minLength) {
+            range = max_Height - minLength;
           }
 
-          if (time < 0) {
-            time = 0;
+          if (range < 0) {
+            range = 0;
           }
-        } else if (resize === 'end') {
+          return range;
+        };
+
+        const RightPosHandling = (time, minLength) => {
           if (time < this.start + minLength) {
             time = this.start + minLength;
           }
@@ -643,39 +810,99 @@ class Region {
           if (time > duration) {
             time = duration;
           }
+          return time;
+        };
+
+        const LeftPosHandling = (time, minLength) => {
+          if (time > this.end - minLength) {
+            time = this.end - minLength;
+          }
+
+          if (time < 0) {
+            time = 0;
+          }
+          return time;
+        };
+
+        const BottomPosHandling = (range, minLength) => {
+          if (range < this.top + minLength) {
+            range = this.top + minLength;
+          }
+
+          if (range > max_Height) {
+            range = max_Height;
+          }
+          return range;
+        };
+
+        if (resize === 'start') {
+          time = LeftPosHandling(time, minLength);
+        } else if (resize === 'top') {
+          range = topPosHandling(range, minLength);
+        } else if (resize === 'end') {
+          time = RightPosHandling(time, minLength);
+        } else if (resize === 'bottom') {
+          range = BottomPosHandling(range, minLength);
+        } else if (resize === 'top-right') {
+          range = topPosHandling(range, minLength);
+          time = RightPosHandling(time, minLength);
+        } else if (resize === 'top-left') {
+          range = topPosHandling(range, minLength);
+          time = LeftPosHandling(time, minLength);
+        } else if (resize === 'bottom-right') {
+          range = BottomPosHandling(range, minLength);
+          time = RightPosHandling(time, minLength);
+        } else if (resize === 'bottom-left') {
+          range = BottomPosHandling(range, minLength);
+          time = LeftPosHandling(time, minLength);
         }
       }
 
-      const delta = time - startTime;
+      const deltaX = time - startTime;
       startTime = time;
-
+      const deltaY = range - currTop;
+      currTop = range;
       // Drag
       if (this.drag && drag) {
-        updated = updated || !!delta;
-        this.onDrag(delta);
+        updated = updated || !!deltaX || !!deltaY;
+
+        this.onDrag(deltaX, deltaY);
       }
 
       // Resize
       if (this.resize && resize) {
-        updated = updated || !!delta;
-        this.onResize(delta, resize);
+        updated = updated || !!deltaX || !!deltaY;
+        this.onResize(deltaX, deltaY, resize);
       }
 
       if (this.scroll && container.clientWidth < this.wrapper.scrollWidth) {
         // Triggering edgescroll from within edgeScrollWidth
-        const x = orientedEvent.clientX;
+        if (drag) {
+          const x = e.clientX;
 
-        // Check direction
-        if (x < wrapperRect.left + this.edgeScrollWidth) {
-          scrollDirection = -1;
-        } else if (x > wrapperRect.right - this.edgeScrollWidth) {
-          scrollDirection = 1;
+          // Check direction
+          if (x < wrapperRect.left + this.edgeScrollWidth) {
+            scrollDirection = -1;
+          } else if (x > wrapperRect.right - this.edgeScrollWidth) {
+            scrollDirection = 1;
+          } else {
+            scrollDirection = null;
+          }
         } else {
-          scrollDirection = null;
+          const x = e.clientX;
+
+          // Check direction
+          if (x < wrapperRect.left + this.edgeScrollWidth) {
+            scrollDirection = -1;
+          } else if (x > wrapperRect.right - this.edgeScrollWidth) {
+            scrollDirection = 1;
+          } else {
+            scrollDirection = null;
+          }
         }
 
         if (scrollDirection) {
-          edgeScroll(event);
+          edgeScroll(e);
         }
       }
     };
@@ -684,37 +911,49 @@ class Region {
     this.element.addEventListener('touchstart', onDown);
 
     document.body.addEventListener('mousemove', onMove);
-    document.body.addEventListener('touchmove', onMove, { passive: false });
+    document.body.addEventListener('touchmove', onMove);
 
-    document.addEventListener('mouseup', onUp);
+    document.body.addEventListener('mouseup', onUp);
     document.body.addEventListener('touchend', onUp);
 
     this.on('remove', () => {
-      document.removeEventListener('mouseup', onUp);
+      document.body.removeEventListener('mouseup', onUp);
       document.body.removeEventListener('touchend', onUp);
       document.body.removeEventListener('mousemove', onMove);
       document.body.removeEventListener('touchmove', onMove);
     });
 
     this.wavesurfer.on('destroy', () => {
-      document.removeEventListener('mouseup', onUp);
+      document.body.removeEventListener('mouseup', onUp);
       document.body.removeEventListener('touchend', onUp);
     });
   }
 
-  onDrag(delta) {
+  // TODO: Add drag feature here
+  onDrag(deltax, deltay) {
+    const max_Height = this.maxHeight;
     const maxEnd = this.wavesurfer.getDuration();
-    if (this.end + delta > maxEnd) {
-      delta = maxEnd - this.end;
+    if (this.end + deltax > maxEnd) {
+      deltax = maxEnd - this.end;
     }
 
-    if (this.start + delta < 0) {
-      delta = this.start * -1;
+    if (this.start + deltax < 0) {
+      deltax = this.start * -1;
     }
 
+    if (max_Height - this.bot + deltay > max_Height) {
+      deltay = 0;
+    }
+
+    if (this.top + deltay < 0) {
+      deltay = 0;
+    }
+    const bottom = max_Height - this.bot;
     this.update({
-      start: this.start + delta,
-      end: this.end + delta
+      start: this.start + deltax,
+      end: this.end + deltax,
+      top: this.top + deltay,
+      bot: this.bot - deltay
     });
   }
 
@@ -726,52 +965,139 @@ class Region {
    * @param {number} delta How much to add or subtract, given in seconds
    * @param {string} direction 'start 'or 'end'
    */
-  onResize(delta, direction) {
+  onResize(deltaX, deltaY, direction) {
     const duration = this.wavesurfer.getDuration();
-    if (direction === 'start') {
+    const maxFrequency = this.maxFrequency;
+    const max_Height = this.maxHeight;
+    const bottom = max_Height - this.bot;
+
+    // delta handling code
+    const topChange = deltaY => {
+      // deltaY /= 2;
       // Check if changing the start by the given delta would result in the region being smaller than minLength
       // Ignore cases where we are making the region wider rather than shrinking it
-      if (delta > 0 && this.end - (this.start + delta) < this.minLength) {
-        delta = this.end - this.minLength - this.start;
+      if (deltaY > 0 && bottom - (this.top + deltaY) < this.minLength) {
+        deltaY = bottom - this.minLength - this.top;
       }
 
-      if (delta < 0 && this.start + delta < 0) {
-        delta = this.start * -1;
+      if (deltaY < 0 && this.top + deltaY < 0) {
+        deltaY = this.top * -1;
       }
+      return deltaY;
+    };
 
-      this.update({
-        start: Math.min(this.start + delta, this.end),
-        end: Math.max(this.start + delta, this.end)
-      });
-    } else {
+    const endChange = deltaX => {
       // Check if changing the end by the given delta would result in the region being smaller than minLength
       // Ignore cases where we are making the region wider rather than shrinking it
-      if (delta < 0 && this.end + delta - this.start < this.minLength) {
-        delta = this.start + this.minLength - this.end;
+      if (deltaX < 0 && this.end + deltaX - this.start < this.minLength) {
+        deltaX = this.start + this.minLength - this.end;
       }
 
-      if (delta > 0 && this.end + delta > duration) {
-        delta = duration - this.end;
+      if (deltaX > 0 && this.end + deltaX > duration) {
+        deltaX = duration - this.end;
       }
+      return deltaX;
+    };
+
+    const startChange = deltaX => {
+      // Check if changing the start by the given delta would result in the region being smaller than minLength
+      // Ignore cases where we are making the region wider rather than shrinking it
+      if (deltaX > 0 && this.end - (this.start + deltaX) < this.minLength) {
+        deltaX = this.end - this.minLength - this.start;
+      }
+
+      if (deltaX < 0 && this.start + deltaX < 0) {
+        deltaX = this.start * -1;
+      }
+      return deltaX;
+    };
+
+    const bottomChange = deltaY => {
+      // deltaY /= 2;
+      // Check if changing the end by the given delta would result in the region being smaller than minLength
+      // Ignore cases where we are making the region wider rather than shrinking it
+      if (deltaY < 0 && bottom + deltaY - this.top < this.minLength) {
+        deltaY = this.top + this.minLength - bottom;
+      }
+
+      if (deltaY > 0 && bottom + deltaY > max_Height) {
+        deltaY = max_Height - bottom;
+      }
+      return deltaY;
+    };
+
+    // set changes with delta
+    if (direction === 'start') {
+      deltaX = startChange(deltaX);
+      this.update({
+        start: Math.min(this.start + deltaX, this.end),
+        end: Math.max(this.start + deltaX, this.end)
+      });
+    } else if (direction === 'end') {
+      deltaX = endChange(deltaX);
+      this.update({
+        start: Math.min(this.end + deltaX, this.start),
+        end: Math.max(this.end + deltaX, this.start)
+      });
+    } else if (direction === 'top') {
+      deltaY = topChange(deltaY);
+      this.update({
+        top: Math.min(this.top + deltaY, bottom),
+        bot: max_Height - Math.max(this.top + deltaY, bottom)
+      });
+    } else if (direction === 'bottom') {
+      deltaY = bottomChange(deltaY);
 
       this.update({
-        start: Math.min(this.end + delta, this.start),
-        end: Math.max(this.end + delta, this.start)
+        top: Math.min(bottom + deltaY, this.top),
+        bot: max_Height - Math.max(bottom + deltaY, this.top)
+      });
+    } else if (direction === 'top-right') {
+      deltaX = endChange(deltaX);
+      deltaY = topChange(deltaY);
+      this.update({
+        start: Math.min(this.end + deltaX, this.start),
+        end: Math.max(this.end + deltaX, this.start),
+        top: Math.min(this.top + deltaY, bottom),
+        bot: max_Height - Math.max(this.top + deltaY, bottom)
+      });
+    } else if (direction === 'top-left') {
+      deltaX = startChange(deltaX);
+      deltaY = topChange(deltaY);
+      this.update({
+        start: Math.min(this.start + deltaX, this.end),
+        end: Math.max(this.start + deltaX, this.end),
+        top: Math.min(this.top + deltaY, bottom),
+        bot: max_Height - Math.max(this.top + deltaY, bottom)
+      });
+    } else if (direction === 'bottom-right') {
+      deltaX = endChange(deltaX);
+      deltaY = topChange(deltaY);
+      this.update({
+        start: Math.min(this.end + deltaX, this.start),
+        end: Math.max(this.end + deltaX, this.start),
+        top: Math.min(bottom + deltaY, this.top),
+        bot: max_Height - Math.max(bottom + deltaY, this.top)
+      });
+    } else if (direction === 'bottom-left') {
+      deltaX = startChange(deltaX);
+      deltaY = topChange(deltaY);
+      this.update({
+        start: Math.min(this.start + deltaX, this.end),
+        end: Math.max(this.start + deltaX, this.end),
+        top: Math.min(bottom + deltaY, this.top),
+        bot: max_Height - Math.max(bottom + deltaY, this.top)
       });
     }
   }
 
   updateHandlesResize(resize) {
-    let cursorStyle;
-    if (resize) {
-      cursorStyle = this.vertical ? 'row-resize' : 'col-resize';
-    } else {
-      cursorStyle = 'auto';
-    }
+    const cursorStyle = resize ? 'col-resize' : 'auto';
+    const cursorStyle_row = resize ? 'row-resize' : 'auto';
 
     this.handleLeftEl && this.style(this.handleLeftEl, { cursor: cursorStyle });
     this.handleRightEl && this.style(this.handleRightEl, { cursor: cursorStyle });
+    this.handleBotE1 && this.style(this.handleBotE1, { cursor: cursorStyle_row });
+    this.handleTopE1 && this.style(this.handleTopE1, { cursor: cursorStyle_row });
   }
 }
-
-export default Region;

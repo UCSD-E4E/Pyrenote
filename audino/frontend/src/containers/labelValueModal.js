@@ -24,7 +24,7 @@ const FormModal = props => {
           <EditLabelValueForm labelId={labelId} labelValueId={labelValueId} />
         ) : null}
         {formType === 'DELETE_LABEL_VALUE' ? (
-          <DeleteLabelValueForm labelId={labelId} labelValueId={labelValueId} />
+          <DeleteLabelValueForm labelId={labelId} labelValueId={labelValueId} onDelete={onHide} />
         ) : null}
       </Modal.Body>
     </Modal>

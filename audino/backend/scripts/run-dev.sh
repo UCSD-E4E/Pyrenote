@@ -26,7 +26,8 @@ echo "Connecting to database"
 python3 "${app}/scripts/wait_for_database.py"
 
 echo "Applying new migrations"
-cd "${app}" && flask db stamp "f708012506ac"|| true
+[ ! -d "${app}/migrations/versions/" ] && mkdir "${app}/migrations/versions/"
+cd "${app}" && flask db stamp "head"|| true
 echo "Creating Migration"
 cd "${app}" && flask db migrate -m "I deleted all the tables" || true
 echo "Upgrading"

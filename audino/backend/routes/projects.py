@@ -138,6 +138,7 @@ def fetch_project(project_id):
         jsonify(
             project_id=project.id,
             name=project.name,
+            is_example=project.is_example,
             users=users,
             labels=labels,
             api_key=project.api_key,
@@ -151,7 +152,6 @@ def fetch_project(project_id):
 @api.route("/projects/<int:project_id>", methods=["PATCH"])
 @jwt_required
 def edit_project(project_id):
-    app.logger.info("hello")
     identity = get_jwt_identity()
     request_user = User.query.filter_by(username=identity["username"]).first()
     is_admin = True if request_user.role.role == "admin" else False
@@ -162,7 +162,13 @@ def edit_project(project_id):
     try:
         project = Project.query.get(project_id)
         newUserName = request.json.get("name", None)
-        project.set_name(newUserName)
+        is_example = request.json.get("is_example", None)
+        if (newUserName is not None or newUserName == ''):
+            project.set_name(newUserName)
+
+        if (is_example is not None):
+            app.logger.info(is_example == 'true')
+            project.set_is_example(is_example == 'true')
         # user = User.query.get(user_id)
         # user.set_role(role_id)
         # user.set_username(newUserName)
@@ -183,6 +189,7 @@ def edit_project(project_id):
         jsonify(
             project_id=project.id,
             name=project.name,
+            message="Successful edit"
         ),
         200,
     )
@@ -250,6 +257,7 @@ def update_project_users(project_id):
     )
 
 
+
 @api.route("/projects/toggled", methods=["PATCH"])
 @jwt_required
 def set_toggled_features():
@@ -277,7 +285,6 @@ def set_toggled_features():
 
     try:
         project = Project.query.get(project_id)
-
         project.set_features(features)
         db.session.add(project)
         db.session.commit()
@@ -326,21 +333,18 @@ def get_features(project_id):
     )
 
 
-@api.route("/projects/example", methods=["PATCH"])
-def give_users_examples():
-    user_id = request.json.get("users")
-    app.logger.info(f"{user_id}")
-    for project_id in [3, 4, 5]:
+def find_example_projects():
+    return Project.query.filter(Project.is_example == (True)).all()
+
+
+def give_users_examples(user_id):
+    for project in find_example_projects():
         try:
-            project = Project.query.get(project_id)
-            # TODO: Decide whether to give creator of project access
-            # project.users.append(request_user)
             if project is None:
-                app.logger.info(f"{project_id} is null")
+                app.logger.info(f"{project} is null")
                 continue
             final_users = [user for user in project.users]
-            user = User.query.filter_by(username=user_id).first()
-            app.logger.info(f"{user.username}")
+            user = User.query.filter_by(id=user_id).first()
             if user not in project.users:
                 final_users.append(user)
 
@@ -355,7 +359,7 @@ def give_users_examples():
             app.logger.error(e)
             return (
                 jsonify(
-                    message=f"Error adding users to project: {project_id}",
+                    message=f"Error adding users to project: {project.id}",
                     type="USERS_ASSIGNMENT_FAILED",
                 ),
                 500,
@@ -369,6 +373,14 @@ def give_users_examples():
         ),
         200,
     )
+
+
+@api.route("/projects/example", methods=["PATCH"])
+def give_users_examples_json():
+    user_id = request.json.get("users")
+    user = User.query.filter_by(username=user_id).first()
+    app.logger.info(f"{user_id}")
+    return give_users_examples(user.id)
 
 
 @api.route("/projects/<int:project_id>/labels", methods=["POST"])
@@ -405,7 +417,9 @@ def add_label_to_project(project_id):
 
     label_type_id = int(label_type_id)
 
-    if label_type_id not in [1, 2]:
+    all_label_types = [label_type.id for label_type in LabelType.query.all()]
+
+    if label_type_id not in all_label_types:
         return (
             jsonify(
                 message="Please assign correct label type!",
@@ -522,6 +536,7 @@ def update_label_for_project(project_id, label_id):
         return jsonify(message="Missing JSON in request"), 400
 
     label_type_id = request.json.get("type", None)
+    label_name = request.json.get("name", None)
 
     if not label_type_id:
         return (
@@ -533,7 +548,9 @@ def update_label_for_project(project_id, label_id):
         )
 
     label_type_id = int(label_type_id)
-    if label_type_id not in [1, 2]:
+    all_label_types = [label_type.id for label_type in LabelType.query.all()]
+
+    if label_type_id not in all_label_types:
         return (
             jsonify(
                 message="Please assign correct label type!",
@@ -550,6 +567,7 @@ def update_label_for_project(project_id, label_id):
                                       project_id=project_id
         ).first()
         label.set_label_type(label_type_id)
+        label.set_label_name(label_name)
         db.session.commit()
     except Exception as e:
         # TODO: Check for errors here
@@ -634,6 +652,8 @@ def get_segmentations_for_data(project_id, data_id):
                 "segmentation_id": segment.id,
                 "start_time": segment.start_time,
                 "end_time": segment.end_time,
+                "max_freq": segment.max_freq,
+                "min_freq": segment.min_freq,
             }
 
             values = dict()
@@ -740,11 +760,16 @@ def add_segmentations(project_id, data_id, seg_id=None):
 
     start_time = float(request.json.get("start", None))
     end_time = float(request.json.get("end", None))
+    max_freq = float(request.json.get("regionTopFrequency", None))
+    min_freq = float(request.json.get("regionBotFrequency", None))
 
     if start_time is None or end_time is None:
         return (
             jsonify(message="Params `start_time` or `end_time` missing"), 400
         )
+
+    if max_freq is None or min_freq is None:
+        return jsonify(message="Params `max_freq` or `min_freq` missing"), 400
 
     if type(start_time) is not float or type(end_time) is not float:
         msg = "Params `start_time` and `end_time` need to be float values"
@@ -755,12 +780,22 @@ def add_segmentations(project_id, data_id, seg_id=None):
             400,
         )
 
+    if type(max_freq) is not float or type(min_freq) is not float:
+        return (
+            jsonify(
+                message="Params `max_freq` and `min_freq` need to be floats"
+            ),
+            400,
+        )
+
     annotations = request.json.get("annotations", dict())
     # miliseconds to seconds
     time_spent = request.json.get("time_spent", 0) / 1000
     app.logger.info(time_spent)
     start_time = round(start_time, 4)
     end_time = round(end_time, 4)
+    max_freq = round(max_freq, 4)
+    min_freq = round(min_freq, 4)
 
     try:
         request_user = User.query.filter_by(username=identity["username"]
@@ -779,6 +814,8 @@ def add_segmentations(project_id, data_id, seg_id=None):
             project_id=project.id,
             end_time=end_time,
             start_time=start_time,
+            max_freq=max_freq,
+            min_freq=min_freq,
             annotations=annotations,
             time_spent=time_spent,
             segmentation_id=segmentation_id,
@@ -887,6 +924,7 @@ def get_project_annotations(project_id):
 
             for segmentation in data.segmentations:
                 segmentation_dict = segmentation.to_dict()
+                app.logger.info(segmentation_dict)
 
                 values = dict()
                 for value in segmentation.values:

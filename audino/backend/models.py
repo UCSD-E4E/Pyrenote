@@ -154,6 +154,9 @@ class Label(db.Model):
     def set_label_type(self, label_type_id):
         self.type_id = label_type_id
 
+    def set_label_name(self, name):
+        self.name = name
+
 
 class LabelType(db.Model):
     __tablename__ = "label_type"
@@ -240,12 +243,20 @@ class Project(db.Model):
         onupdate=db.func.utc_timestamp(),
     )
 
+    is_example = db.Column(
+        "is_example", db.Boolean(), nullable=True, default=False
+    )
+
     users = db.relationship(
         "User", secondary=user_project_table, back_populates="projects"
     )
     data = db.relationship("Data", backref="Project")
     labels = db.relationship("Label", backref="Project")
     creator_user = db.relationship("User")
+
+    def set_is_example(self, is_example):
+        self.is_example = is_example
+        app.logger.info(self.is_example)
 
     def set_name(self, newUsername):
         self.name = newUsername
@@ -288,6 +299,11 @@ class Segmentation(db.Model):
 
     end_time = db.Column("end_time", db.Float(), nullable=False)
 
+    max_freq = db.Column("max_freq", db.Float(), nullable=False,
+                         default=24000.0)
+
+    min_freq = db.Column("min_freq", db.Float(), nullable=False, default=0.0)
+
     created_at = db.Column(
         "created_at", db.DateTime(), nullable=False, default=db.func.now()
     )
@@ -323,10 +339,20 @@ class Segmentation(db.Model):
         app.logger.info(time_spent)
         self.time_spent = time_spent
 
+    def set_max_freq(self, max_freq):
+        if (max_freq != -1.0):
+            self.max_freq = max_freq
+
+    def set_min_freq(self, min_freq):
+        if (min_freq != -1.0):
+            self.min_freq = min_freq
+
     def to_dict(self):
         return {
             "start_time": self.start_time,
             "end_time": self.end_time,
+            "max_freq": self.max_freq,
+            "min_freq": self.min_freq,
             "created_at": self.created_at,
             "last_modified": self.last_modified,
             "time_spent": self.time_spent
