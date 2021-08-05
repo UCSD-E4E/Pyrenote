@@ -103,6 +103,12 @@ class App extends React.Component {
               store.set('isUserCreatingAccount', false);
             }
           }
+          if (error.response.status === 422) {
+            localStorage.removeItem('access_token')
+            history.push('/');
+            store.set('isUserLoggedIn', false);
+            store.set('isUserCreatingAccount', false);
+          }
         });
     } else {
       store.set('isUserCreatingAccount', true);

@@ -11,9 +11,25 @@ from flask_jwt_extended import (
 from werkzeug.urls import url_parse
 
 from backend import app, db, redis_client
-from backend.models import User
+from backend.models import User, Role
 
 from . import api
+
+
+def check_role(role_id):
+    # Get all roles from role table
+    roles = []
+    for role in Role.query.all():
+        roles.append(role.id)
+
+    if role_id not in roles:
+        return (
+            jsonify(message="Please assign correct role!",
+                    type="ROLE_INCORRECT"),
+            400,
+        )
+    else:
+        return None
 
 
 @api.route("/users", methods=["POST"])
@@ -50,12 +66,9 @@ def create_user():
         return (jsonify(message="Please provide your role!",
                 type="ROLE_MISSING"), 400)
 
-    if role_id not in ["1", "2"]:
-        return (
-            jsonify(message="Please assign correct role!",
-                    type="ROLE_INCORRECT"),
-            400,
-        )
+    result = check_role(int(role_id))
+    if result is not None:
+        return result
 
     try:
         user = User(username=username, role_id=role_id)
@@ -127,12 +140,9 @@ def create_user_no_auth():
         return (jsonify(message="Please provide your role!",
                 type="ROLE_MISSING"), 400)
 
-    if role_id not in ["1", "2"]:
-        return (
-            jsonify(message="Please assign correct role!",
-                    type="ROLE_INCORRECT"),
-            400,
-        )
+    result = check_role(int(role_id))
+    if result is not None:
+        return result
     app.logger.info("this far")
     try:
         user = User(username=username, role_id=role_id)
@@ -206,12 +216,10 @@ def update_user(user_id):
 
     role_id = int(role_id)
 
-    if role_id not in [1, 2]:
-        return (
-            jsonify(message="Please assign correct role!",
-                    type="ROLE_INCORRECT"),
-            400,
-        )
+    # Get all roles from role table
+    result = check_role(role_id)
+    if result is not None:
+        return result
 
     try:
         users = db.session.query(User).filter_by(role_id=1).all()
@@ -286,27 +294,18 @@ def delete_user(user_id):
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400
 
-    role_id = request.json.get("role", None)
-
-    if not role_id:
-        return (jsonify(message="Please provide your role!",
-                type="ROLE_MISSING"), 400)
-
-    role_id = int(role_id)
-
-    if role_id not in [1, 2]:
-        return (
-            jsonify(message="Please assign correct role!",
-                    type="ROLE_INCORRECT"),
-            400,
-        )
-
     try:
-        users = db.session.query(User).filter_by(role_id=1).all()
+        # Below code may not be doing anything
+        # if user cannot delete self, then one admin will always exist,
+        # themselves
+        # I could just merge the two error message, they acomplish the same
+        # thing
+        # TODO: Figure out this section
+        users = db.session.query(User).filter(User.id != request_user.id).all()
 
-        if len(users) == 1 and users[0].id == user_id and role_id == 2:
-            return jsonify(message="Atleast one admin should exist"), 400
-
+        if len(users) == 1 and users[0].role.id != 2:
+            return jsonify(message="Atleast one admin should exist"), 500
+        # above code no work?
         user = User.query.get(user_id)
         if (request_user == user):
             return jsonify(message="CANNOT DELETE YOUR OWN USER"), 600
@@ -315,7 +314,7 @@ def delete_user(user_id):
     except Exception as e:
         app.logger.error("No user found")
         app.logger.error(e)
-        # return jsonify(message="No user found!"), 404
+        return jsonify(message="No user found!"), 404
 
     return (
         jsonify(
