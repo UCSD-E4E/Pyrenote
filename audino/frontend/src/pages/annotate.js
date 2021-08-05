@@ -24,6 +24,7 @@ class Annotate extends React.Component {
     const index = window.location.href.indexOf('/projects');
 
     this.initalState = {
+      playbackRate: 50,
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -254,6 +255,13 @@ class Annotate extends React.Component {
     })
   }
 
+  changePlayback(e) {
+    console.log(e.target.value); 
+    this.state.spectrogram.contrast(e.target.value)
+    this.setState({playbackRate: e.target.value})
+    console.log(this.state.isPlaying); 
+  }
+
   render() {
     const {
       isDataLoading,
@@ -268,7 +276,8 @@ class Annotate extends React.Component {
       projectId,
       toUnsavedClipOn,
       spectrogramDemoOn,
-      spectrogram
+      spectrogram,
+      playbackRate
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -280,12 +289,21 @@ class Annotate extends React.Component {
         </Helmet>
         <div className="container h-100">
         {spectrogramDemoOn? 
+          <div>
+          <input
+            type="range"
+            min="1"
+            max="200"
+            value={playbackRate}
+            onChange={(e) => this.changePlayback(e)}
+          />
           <Button
             size="lg"
             type="danger"
-            onClick={e => spectrogram.invert()}
+            onClick={e => spectrogram.reduceBrightness()}
             text="test"
-          /> : null}
+          /> 
+          </div>: null}
           <div className="h-100 mt-5 text-center">
             <AlertSection
               messages={[

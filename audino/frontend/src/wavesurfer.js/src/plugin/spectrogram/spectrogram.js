@@ -7,6 +7,7 @@ class Spectrogram {
         this.wavesurfer = wavesurfer
         this.spectrCc = spectrCc
         this.imageData = imageData
+        this.ogImageData = imageData
         console.log("good")
 
 
@@ -21,6 +22,37 @@ class Spectrogram {
             data[i + 1] = 255 - data[i + 1]; // green
             data[i + 2] = 255 - data[i + 2]; // blue
         }
+        this.spectrCc.putImageData(this.imageData, 0, 0);
+    }
+
+    contrast(contrast) {
+        //https://stackoverflow.com/questions/10521978/html5-canvas-image-contrast
+        const data = this.ogImageData.data;
+        contrast = (contrast/100) + 1;  //convert to decimal & shift range: [0..2]
+        var intercept = 128 * (1 - contrast);
+        for(var i=0;i<data.length;i+=4){   //r,g,b,a
+            data[i]   =   data[i]*contrast + intercept;
+            data[i+1] = data[i+1]*contrast + intercept;
+            data[i+2] = data[i+2]*contrast + intercept;
+        }
+        this.spectrCc.putImageData(this.imageData, 0, 0);
+    }
+
+    reduceBrightness() {
+        const data = this.imageData.data;
+        for (var i = 0; i < data.length; i += 4) {
+            if ((data[i] +  data[i + 1] + data[i + 2] < 200)/3) {
+                data[i]     = data[i] / 2;     // red
+                data[i + 1] = data[i + 1] / 2; // green
+                data[i + 2] = data[i + 2] /  2; // blue
+            }
+            else {
+                data[i]     = data[i] / 1.05;     // red
+                data[i + 1] = data[i + 1] / 1.05; // green
+                data[i + 2] = data[i + 2] / 1.05; // blue
+            }
+        }
+
         this.spectrCc.putImageData(this.imageData, 0, 0);
     }
 }
