@@ -7,12 +7,24 @@ class Spectrogram {
         this.wavesurfer = wavesurfer
         this.spectrCc = spectrCc
         this.imageData = imageData
-        console.log("good")
-
 
         this.wavesurfer.fireEvent('spectrogram_created', this);
-        console.log("gooder")
+        const {width, height, data} = this.imageData
+        this.copyID = this.copy(width, height, data)
     }
+
+    copy(width, height, data) {
+        let copy = this.spectrCc.createImageData(width, height, data)
+
+        return copy
+    }
+
+    Truncate(value) {
+        if (value < 0) value = 0;
+        if (value > 255) value = 255;
+        return value
+    }
+
      // SPECTROGRAM MANIPLUATION CODE //
     invert() {
         const data = this.imageData.data;
@@ -25,21 +37,30 @@ class Spectrogram {
     }
 
     contrast(contrast) {
-        const cpImageData = this.spectrCc.createImageData(this.imageData.width, this.imageData.height)
-        const data = cpImageData.data
-        const oldData = this.imageData.data
-        //https://stackoverflow.com/questions/10521978/html5-canvas-image-contrast
-        contrast = (contrast)/50000000;  //convert to decimal & shift range: [0..2]
-        console.log(contrast)
-        var intercept = 1 * (contrast);
+        const {width, height, data} = this.imageData
+        const copy = this.copy(width, height, data)
+        //https://www.dfstudios.co.uk/articles/programming/image-programming-algorithms/image-processing-algorithms-part-5-contrast-adjustment/
+        var factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
 
-        for(var i=0;i<data.length;i+=4){   //r,g,b,a
-            data[i]   =   oldData[i]*contrast + intercept;
-            data[i+1] = oldData[i+1]*contrast + intercept;
-            data[i+2] = oldData[i+2]*contrast + intercept;
+        for(var i=0;i<data.length;i+=4)
+        {
+            data[i] = factor * (data[i] - 128) + 128;
+            data[i+1] = factor * (data[i+1] - 128) + 128;
+            data[i+2] = factor * (data[i+2] - 128) + 128;
         }
-        console.log(data[1000], oldData[1000])
-        this.spectrCc.putImageData(cpImageData, 0, 0);
+        this.spectrCc.putImageData(this.imageData, 0, 0);
+        //this.imageData = copy
+    }
+
+    brightness(bright) {
+        bright = (((bright / 50) - 1) * 255/2)
+        const data = this.imageData.data;
+        for (var i = 0; i < data.length; i += 4) {
+            data[i]     = this.Truncate(data[i] + bright);     // red
+            data[i + 1] = this.Truncate(data[i + 2] + bright); // green
+            data[i + 2] =this.Truncate(data[i + 3] + bright);
+        }
+        this.spectrCc.putImageData(this.imageData, 0, 0);
     }
 
     reduceBrightness() {

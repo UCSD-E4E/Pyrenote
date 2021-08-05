@@ -256,10 +256,7 @@ class Annotate extends React.Component {
   }
 
   changePlayback(e) {
-    console.log(e.target.value); 
-    this.state.spectrogram.contrast(e.target.value)
     this.setState({playbackRate: e.target.value})
-    console.log(this.state.isPlaying); 
   }
 
   render() {
@@ -292,10 +289,10 @@ class Annotate extends React.Component {
           <div>
           <input
             type="range"
-            min="1"
+            min="0"
             max="100"
             value={playbackRate}
-            onChange={(e) => this.changePlayback(e)}
+            onChange={(e) => {this.changePlayback(e); spectrogram.brightness(playbackRate)}}
           />
           <Button
             size="lg"
