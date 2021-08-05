@@ -452,6 +452,6 @@ class Logs(db.Model):
 
     def print_log(self):
         log = self.created_at.strftime("%m/%d/%Y, %H:%M:%S") + " by "
-        log = log + str(self.created_by) + ": " + self.log_lvl + "{ "
+        log = log + str(self.created_by) + ": " + self.log_lvl + " { "
         log = log + self.message + "}"
         return log
