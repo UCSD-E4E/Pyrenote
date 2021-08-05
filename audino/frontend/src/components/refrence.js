@@ -205,7 +205,6 @@ class RefrenceWindow extends React.Component {
     const elementList = document.getElementsByName(id)
     const content = elementList.item(0)
     try{
-      console.log(rotation)
       if (content.style.display === "block") {
         content.style.display = "none";
         rotation[id] = 90
@@ -213,7 +212,6 @@ class RefrenceWindow extends React.Component {
         content.style.display = "block";
         rotation[id] = 0
       }
-      console.log(rotation)
       this.setState({rotation})
     } catch (e) {
       console.warn("data has not loaded yet", e)
