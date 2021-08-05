@@ -323,9 +323,6 @@ def update_data(project_id, data_id):
 
         data = Data.query.filter_by(id=data_id, project_id=project_id).first()
 
-        # if request_user.username not in  data.assigned_user_id:
-        #    return jsonify(message="Unauthorized access!"), 401
-
         data.update_marked_review(is_marked_for_review)
 
         db.session.add(data)
