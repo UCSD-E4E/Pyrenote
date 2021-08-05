@@ -415,7 +415,7 @@ class Annotate extends React.Component {
               : successMessage
               ? this.renderAlerts('success', successMessage)
               : null}
-            <div>{original_filename}</div>
+            <div id={"filename"}>{original_filename}</div>
             {isRendering && (
               <div className="row justify-content-md-center my-4">
                 <div

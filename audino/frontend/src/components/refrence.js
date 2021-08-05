@@ -1,16 +1,18 @@
 import React from 'react';
 import {
   faBackward,
-  faForward,
+  faCaretDown,
   faPlayCircle,
   faPauseCircle
 } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import WaveSurfer from '../wavesurfer.js/src/wavesurfer.js';
 import RegionsPlugin from '../wavesurfer.js/src/plugin/regions/index.js';
 import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
 import { Button, IconButton } from '../components/button';
 import axios from 'axios';
 import { Children } from 'react';
+import { Router } from 'react-router';
 const colormap = require('colormap');
 const uuid = require("uuid");
 
@@ -156,7 +158,7 @@ class Refrence extends React.Component{
 class RefrenceWindow extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {end: false}
+    this.state = {end: false, rotation: {}}
     this.filenames = []
     this.labels = {}
     this.annotate = props.annotate
@@ -172,18 +174,21 @@ class RefrenceWindow extends React.Component {
     })
       .then(response => {
         const { data} = response.data;
+        let rotation =  {}
         data.forEach((sample) => { 
-          console.log(sample)
           let sampleLabel = sample["sample_label"]
           if (sampleLabel == null) {
             sampleLabel = "null string"
           }
+
+          rotation[sampleLabel] = 90
+
           if (this.labels[sampleLabel] == null) {
             this.labels[sampleLabel] = []
           }
           this.labels[sampleLabel].push(sample["filename"])
         })
-        console.log(this.labels)
+        this.setState({rotation})
       })
       .catch(error => {
         console.error(error);
@@ -194,26 +199,40 @@ class RefrenceWindow extends React.Component {
   }
 
   handleDropdown(e) {
+    let {rotation} = this.state
     //https://www.w3schools.com/howto/howto_js_collapsible.asp
     const id=e.currentTarget.id
     const elementList = document.getElementsByName(id)
     const content = elementList.item(0)
-    console.log(content)
-    console.log(content.style)
     try{
+      console.log(rotation)
       if (content.style.display === "block") {
         content.style.display = "none";
+        rotation[id] = 90
       } else {
         content.style.display = "block";
+        rotation[id] = 0
       }
+      console.log(rotation)
+      this.setState({rotation})
     } catch (e) {
       console.warn("data has not loaded yet", e)
     }
-    
+  }
+
+  setHeight() {
+    const title = document.getElementById("filename")
+    if (title !== null) {
+      const ref = document.getElementById("refrence-window-container")
+      if (ref !== null) {
+        ref.style.top = title.offsetTop - 10 + "px"
+      }
+    }
   }
 
   render() {
-    const {end} = this.state
+    this.setHeight()
+    const {end, rotation} = this.state
     const labels = this.labels  
     var thingy = ""
     if (end) {
@@ -223,7 +242,6 @@ class RefrenceWindow extends React.Component {
     }
     return (
       <div id={"refrence-window-container"}>
-         <div className="col justify-content-left my-4">
         <Button
         style={{zIndex: 100}}
         text={end? "hide smaples" : "show samples"}
@@ -232,15 +250,15 @@ class RefrenceWindow extends React.Component {
         size = 'sm'
         onClick={() => {this.setState({end: !end})}}
         /> 
-        </div>
         <div id={thingy} >
-          <text>Samples for comparision</text>
           {labels? 
             Object.entries(labels).map(([key, value]) => {
-              const id = uuid.v4()
+              const id = key
               return(
                 <div>
-                  <button id={id} type="button" className="collapsible" onClick={e => this.handleDropdown(e)}>{key}</button>
+                  <button id={id} type="button" className="collapsible" onClick={e => this.handleDropdown(e)}>
+                    {key} <FontAwesomeIcon icon={faCaretDown} size={"lg"} rotation={rotation[id]}/>
+                    </button>
                   <div name={id} className="content">
                     {
                       value.map((item) => {
