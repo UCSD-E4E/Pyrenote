@@ -26,9 +26,7 @@ def add_value_to_label(label_id):
     if not value:
         return (
             jsonify(message="Please provide a label value!",
-                    type="VALUE_MISSING"),
-            400,
-        )
+                    type="VALUE_MISSING"), 400,)
 
     try:
         label_value = LabelValue(value=value, label_id=label_id)
@@ -204,9 +202,4 @@ def delete_label(label_id, project_id):
         message = f"No value found with value id: {LabelCat}"
         return missing_data(message, additional_log=e)
 
-    return (
-        jsonify(
-            message="success"
-        ),
-        200,
-    )
+    return (jsonify(message="success"), 200)
