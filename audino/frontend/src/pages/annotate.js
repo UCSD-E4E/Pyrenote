@@ -293,7 +293,7 @@ class Annotate extends React.Component {
           <input
             type="range"
             min="1"
-            max="200"
+            max="100"
             value={playbackRate}
             onChange={(e) => this.changePlayback(e)}
           />

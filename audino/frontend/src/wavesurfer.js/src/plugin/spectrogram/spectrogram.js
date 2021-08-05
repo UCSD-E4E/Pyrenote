@@ -7,7 +7,6 @@ class Spectrogram {
         this.wavesurfer = wavesurfer
         this.spectrCc = spectrCc
         this.imageData = imageData
-        this.ogImageData = imageData
         console.log("good")
 
 
@@ -26,16 +25,21 @@ class Spectrogram {
     }
 
     contrast(contrast) {
+        const cpImageData = this.spectrCc.createImageData(this.imageData.width, this.imageData.height)
+        const data = cpImageData.data
+        const oldData = this.imageData.data
         //https://stackoverflow.com/questions/10521978/html5-canvas-image-contrast
-        const data = this.ogImageData.data;
-        contrast = (contrast/100) + 1;  //convert to decimal & shift range: [0..2]
-        var intercept = 128 * (1 - contrast);
+        contrast = (contrast)/50000000;  //convert to decimal & shift range: [0..2]
+        console.log(contrast)
+        var intercept = 1 * (contrast);
+
         for(var i=0;i<data.length;i+=4){   //r,g,b,a
-            data[i]   =   data[i]*contrast + intercept;
-            data[i+1] = data[i+1]*contrast + intercept;
-            data[i+2] = data[i+2]*contrast + intercept;
+            data[i]   =   oldData[i]*contrast + intercept;
+            data[i+1] = oldData[i+1]*contrast + intercept;
+            data[i+2] = oldData[i+2]*contrast + intercept;
         }
-        this.spectrCc.putImageData(this.imageData, 0, 0);
+        console.log(data[1000], oldData[1000])
+        this.spectrCc.putImageData(cpImageData, 0, 0);
     }
 
     reduceBrightness() {
