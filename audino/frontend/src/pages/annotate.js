@@ -271,7 +271,7 @@ class Annotate extends React.Component {
               overlay
               callback={e => this.handleAlertDismiss(e)}
             />
-            {!isRendering && <div>{original_filename}</div>}
+            {!isRendering && <div id="filename">{original_filename}</div>}
 
             <RenderingMsg isRendering={isRendering} />
             <Spectrogram isRendering={isRendering} />
