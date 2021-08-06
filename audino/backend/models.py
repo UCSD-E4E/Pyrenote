@@ -1,6 +1,8 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from backend import app, db
+from datetime import datetime
+
 
 annotation_table = db.Table(
     "annotation",
@@ -300,6 +302,18 @@ class Segmentation(db.Model):
         "created_at", db.DateTime(), nullable=False, default=db.func.now()
     )
 
+    created_by = db.Column(
+        "created_by", db.String(128), nullable=False,
+    )
+
+    last_modified_by = db.Column(
+        "last_modified_by", db.JSON(), default={},
+    )
+
+    time_spent = db.Column(
+        "time_spent", db.Integer(), nullable=True
+    )
+
     last_modified = db.Column(
         "last_modified",
         db.DateTime(),
@@ -331,6 +345,11 @@ class Segmentation(db.Model):
         app.logger.info(time_spent)
         self.time_spent = time_spent
 
+    def append_modifers(self, newUser):
+        if (self.last_modified_by is None):
+            self.last_modified_by = {}
+        date = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        self.last_modified_by[newUser] = date
     def set_max_freq(self, max_freq):
         if (max_freq != -1.0):
             self.max_freq = max_freq
@@ -346,8 +365,10 @@ class Segmentation(db.Model):
             "max_freq": self.max_freq,
             "min_freq": self.min_freq,
             "created_at": self.created_at,
+            "created_by": self.created_by,
             "last_modified": self.last_modified,
-            "time_spent": self.time_spent
+            "last_modified_by": self.last_modified_by,
+            "time_spent": self.time_spent,
         }
 
 
