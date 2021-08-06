@@ -11,6 +11,8 @@ class Spectrogram {
         this.wavesurfer.fireEvent('spectrogram_created', this);
         const {width, height, data} = this.imageData
         this.copyID = this.copy(width, height, data)
+
+        // TODO: capture frequency data output then use it to import new colormaps
     }
 
     copy() {
