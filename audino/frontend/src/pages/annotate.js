@@ -292,7 +292,7 @@ class Annotate extends React.Component {
             min="-1"
             max="1"
             value={playbackRate}
-            onChange={(e) => {this.changePlayback(e); spectrogram.brightness(playbackRate)}}
+            onChange={(e) => {this.changePlayback(e); spectrogram.brightness(e.target.value)}}
           />
           <Button
             size="lg"

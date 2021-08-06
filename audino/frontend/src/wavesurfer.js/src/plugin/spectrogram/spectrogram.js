@@ -14,6 +14,7 @@ class Spectrogram {
     }
 
     copy(width, height) {
+        this.spectrCc.putImageData(this.imageData, 0, 0);
         let copy = this.spectrCc.getImageData(0, 0, width, height)
         return copy
     }
