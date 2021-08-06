@@ -4,7 +4,7 @@ filenames && filenames.map((item, index) => {
             this.labels[item].map((item, index) => {
             }
             console.log(item) 
-             return (<Refrence filename={filenames[index]}
+             return (<Reference filename={filenames[index]}
              annotate={this.annotate}/>)
           })
 
@@ -21,7 +21,7 @@ filenames && filenames.map((item, index) => {
   renderAllSpectrograms(value) {
       return(value.map((item) => {
           <div>
-          <Refrence filename={item} annotate={this.annotate}/>
+          <Reference filename={item} annotate={this.annotate}/>
           {console.log("THIS RAN")}
           </div>
       }
