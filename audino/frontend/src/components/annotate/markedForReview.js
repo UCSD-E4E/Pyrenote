@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import ToggleYesNo from './toggleYesNo';
 
 const MarkedForReview = props => {
   const { annotate, state } = props;
@@ -34,9 +35,14 @@ const MarkedForReview = props => {
         });
       });
   };
-
+  const {projectId, dataId} = state
   return (
     <div className="row justify-content-center my-4">
+      <div className="buttons-container">
+      <div className="buttons-container-item">
+      <ToggleYesNo projectID={projectId} dataID={dataId}/>
+      </div>
+      <div className="buttons-container-item">
       <div className="form-check">
         <input
           className="form-check-input"
@@ -50,6 +56,8 @@ const MarkedForReview = props => {
         <label className="form-check-label" htmlFor="isMarkedForReview">
           Mark for review
         </label>
+        </div>
+      </div>
       </div>
     </div>
   );

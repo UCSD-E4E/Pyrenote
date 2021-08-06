@@ -2,7 +2,7 @@
 import React from 'react';
 import axios from 'axios';
 import { withStore } from '@spyna/react-store';
-import { Button } from './button';
+import { Button } from '../button';
 class ToggleYesNo extends React.Component {
   constructor(params) {
     super(params)
@@ -35,36 +35,12 @@ class ToggleYesNo extends React.Component {
     if (yes) msg = ": yes"
     else msg = ": no"
     return(
-      <div>
-      <text> <b>Feeling Confident In your labels?</b> {msg}</text>
-        <div className="row justify-content-center my-4">
-        
-          <div className="col-4">
-            <Button
-              text="Yes"
-              size="lg"
-              type={yes ? "primary" : "danger"}
-              onClick={() => this.handleClick("yes")}
-            />
-          </div>
-          {/*<div className="col-4">
-            <Button
-              text="&nbsp;"
-              size="lg"
-              type="primary"
-              onClick={() => {}}
-            />
-          </div>*/}
-          <div className="col-4">
-            <Button
-              text="No"
-              size="lg"
-              type={no ? "primary" : "danger"}
-              onClick={() => this.handleClick("no")}
-            />
-          </div>
-        </div>
-      </div>
+      <Button
+        text={"Feeling Confident In \n your labels?" + msg}
+        size="sm"
+        type={yes ? "primary" : "danger"}
+        onClick={() => this.handleClick(yes? "no" : "yes")}
+      />
     )
   }
 }
