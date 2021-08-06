@@ -196,6 +196,8 @@ export default class SpectrogramPlugin {
     this.wrapper = document.createElement('spectrogram');
     this.wrapper2 = document.createElement('labels');
     // if labels are active
+    let spectrogramLeft = '0px'
+    let negativeSpectrogramleft = '0px'
     if (this.params.labels) {
       this.labelsEl = document.createElement('canvas');
       const { labelsEl } = this;
@@ -218,6 +220,9 @@ export default class SpectrogramPlugin {
         'center',
         '#specLabels'
       );
+
+      spectrogramLeft = `${55 / this.pixelRatio / 2}px`
+      negativeSpectrogramleft = `${-55 / this.pixelRatio / 2}px`
     }
 
     this.drawer.style(this.wrapper, {
@@ -226,7 +231,7 @@ export default class SpectrogramPlugin {
       userSelect: 'none',
       webkitUserSelect: 'none',
       height: `${this.height / this.pixelRatio}px`,
-      left: `${55 / this.pixelRatio / 2}px`
+      left: spectrogramLeft
     });
 
     this.drawer.style(this.wrapper2, {
@@ -235,7 +240,7 @@ export default class SpectrogramPlugin {
       userSelect: 'none',
       webkitUserSelect: 'none',
       height: `${this.height / this.pixelRatio}px`,
-      left: `${-55 / this.pixelRatio / 2}px`
+      left: negativeSpectrogramleft
     });
 
     if (wsParams.fillParent || wsParams.scrollParent) {

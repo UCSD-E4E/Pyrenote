@@ -60,7 +60,7 @@ def generate_segmentation(
             start_time=start_time,
             end_time=end_time,
             time_spent=time_spent,
-            created_by=username
+            created_by=username,
             max_freq=max_freq,
             min_freq=min_freq,
         )
@@ -250,6 +250,12 @@ def add_data_from_site():
     app.logger.info("also made it to asdfasdfasdfhere!")
     is_marked_for_review = True
     app.logger.info("made it to here!")
+    is_sample = request.form.get("sample", 'False')
+    sampleJson = request.form.get("sampleJson", "{}")
+    sampleJson = json.loads(sampleJson)
+    is_sample = is_sample == 'true'
+    err = "no label value with id `{is_sample}` in }`"
+    app.logger.info(err)
     file_length = request.form.get("file_length", None)
     audio_files = []
     for n in range(int(file_length)):
@@ -262,6 +268,10 @@ def add_data_from_site():
         app.logger.info(file)
         original_filename = secure_filename(file.filename)
 
+        sample_label = None
+        if is_sample:
+            sample_label = sampleJson[original_filename]
+            
         extension = Path(original_filename).suffix.lower()
 
         if len(extension) > 1 and extension[1:] not in ALLOWED_EXTENSIONS:
@@ -283,6 +293,8 @@ def add_data_from_site():
                 assigned_user_id=username_id,
                 sampling_rate=frame_rate,
                 clip_length=clip_duration,
+                sample=is_sample,
+                sample_label=sample_label
             )
             app.logger.info(filename)
         except Exception as e:

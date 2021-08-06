@@ -5,6 +5,7 @@ import { withStore } from '@spyna/react-store';
 import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
+import { text } from '@fortawesome/fontawesome-svg-core';
 
 class UploadDataForm extends React.Component {
   constructor(props) {
@@ -21,18 +22,20 @@ class UploadDataForm extends React.Component {
       successMessage: '',
       isLoading: false,
       isSubmitting: false,
+      isSample: false,
       projectUrl: `/api/projects/${projectId}`,
       getUsersUrl: '/api/users',
       uploadUrl: 'api/data/admin_portal',
       updateUsersProject: `/api/projects/${projectId}/users`,
+      value: "",
       files: {}
     };
 
     this.state = { ...this.initialState };
   }
 
-  handleUpload() {
-    const { uploadUrl, apiKey, files } = this.state;
+  handleUpload(sample=false) {
+    const { uploadUrl, apiKey, files, value } = this.state;
     const formData = new FormData();
 
     for (let i = 0; i < files.length; i++) {
@@ -43,6 +46,8 @@ class UploadDataForm extends React.Component {
     formData.append('apiKey', apiKey);
     formData.append('username', ['admin', 'admin']);
     formData.append('file_length', files.length);
+    formData.append('sample', sample);
+    formData.append('sampleJson', value);
     this.setState({ isLoading: true });
     fetch(uploadUrl, {
       method: 'POST',
@@ -79,7 +84,24 @@ class UploadDataForm extends React.Component {
   }
 
   onChangeHandler(e) {
-    this.setState({ files: e.target.files });
+    let files = e.target.files
+    console.log(files, typeof(files))
+    this.setState({ files});
+    let text = "{\n"
+    Array.prototype.forEach.call(files, file => {
+      text = text + " \"" + file.name + "\":           , \n"
+    })
+    text = text + "}"
+    this.setState({ files, value: text});
+
+    /*const jsonEditor = document.getElementById("json_editor");
+    console.log(jsonEditor, jsonEditor.style.height, jsonEditor.scrollHeight)
+    jsonEditor.style.height = jsonEditor.scrollHeight + "px"*/
+
+  }
+
+  handleChangeText(e) {
+    this.setState({value: e.target.value});
   }
 
   resetState() {
@@ -87,7 +109,7 @@ class UploadDataForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, isLoading } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isLoading, isSample, value } = this.state;
     return (
       <div className="container h-75 text-center">
         <div>
@@ -109,17 +131,30 @@ class UploadDataForm extends React.Component {
           />
           <div className="form-row">
             <div className="form-group col">
+            <Button
+                size="lg"
+                type="primary"
+                disabled={isSubmitting}
+                onClick={() => this.setState({isSample: !isSample})}
+                text={isSample? "This is a sample data uplaod" : "not a sample data upload" }
+              />
               <Button
                 size="lg"
                 type="primary"
                 disabled={isSubmitting}
-                onClick={e => this.handleUpload(e)}
+                onClick={() => this.handleUpload(isSample)}
                 isSubmitting={isSubmitting}
                 alt="Uploading"
                 text="Upload"
               />
             </div>
           </div>
+        </div>
+        <div className="row h-100 justify-content-center align-items-center">
+        {isSample? 
+        <label style={{width: "200%"}}>
+          <textarea id="json_editor" value={value} onChange={e => this. handleChangeText(e)} style={{width: "100%", height: "200px"}} />
+        </label> : null }
         </div>
       </div>
     );

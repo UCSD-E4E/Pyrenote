@@ -1,3 +1,5 @@
+from sqlalchemy.orm import defaultload
+from sqlalchemy.sql.expression import false
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from backend import app, db
@@ -53,6 +55,12 @@ class Data(db.Model):
     __tablename__ = "data"
 
     id = db.Column("id", db.Integer(), primary_key=True)
+
+    sample = db.Column("sample", db.Boolean(), nullable=True,
+                       default=False)
+
+    sample_label = db.Column("sample_label", db.String(100), nullable=True,
+                             default="bird")
 
     project_id = db.Column(
         "project_id", db.Integer(), db.ForeignKey("project.id"), nullable=False

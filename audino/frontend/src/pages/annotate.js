@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
+import { Refrence, RefrenceWindow} from '../components/refrence';
 import NavButton from '../components/annotate/navbutton';
 import Spectrogram from '../components/annotate/spectrogram';
 import LabelSection from '../components/annotate/labelsSection';
@@ -50,6 +51,7 @@ class Annotate extends React.Component {
       numpage: 5,
       path: window.location.href.substring(0, index),
       direction: null,
+      refrenceWindowOn: false,
       storedAnnotations: null,
       applyPreviousAnnotations: false,
       boundingBox: true,
@@ -79,7 +81,8 @@ class Annotate extends React.Component {
           navButtonsEnabled: response.data.features_list['next button'],
           applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
-          playbackOn: response.data.features_list.playbackOn
+          playbackOn: response.data.features_list.playbackOn,
+          refrenceWindowOn: response.data.features_list['refrence window'],
         });
 
         axios({
@@ -94,7 +97,7 @@ class Annotate extends React.Component {
               errorMessage: error.response.data.message,
               isDataLoading: false
             });
-          });
+          })
 
         const wavesurferMethods = new WavesurferMethods({
           annotate: this,
@@ -244,8 +247,10 @@ class Annotate extends React.Component {
       original_filename,
       wavesurferMethods,
       navButtonsEnabled,
-      applyPreviousAnnotations,
+      refrenceWindowOn,
+      projectId,
       toUnsavedClipOn,
+      applyPreviousAnnotations,
       playbackRate,
       playbackOn
     } = this.state;
@@ -253,7 +258,7 @@ class Annotate extends React.Component {
       wavesurferMethods.updateState(this.state);
     }
     return (
-      <div>
+      <div  style={{overflow: "hidden"}}>
         <Helmet>
           <title>Annotate</title>
         </Helmet>
@@ -268,11 +273,10 @@ class Annotate extends React.Component {
               overlay
               callback={e => this.handleAlertDismiss(e)}
             />
-            {!isRendering && <div>{original_filename}</div>}
+            {!isRendering && <div id="filename">{original_filename}</div>}
 
             <RenderingMsg isRendering={isRendering} />
             <Spectrogram isRendering={isRendering} />
-
             {!isRendering ? (
               <div>
                 <LabelSection state={this.state} annotate={this} labelRef={this.labelRef} />
@@ -283,6 +287,7 @@ class Annotate extends React.Component {
                   {navButtonsEnabled && <NavButton annotate={this} />}
                   <PreviousAnnotationButton annotate={this} />
                   {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
+                  {refrenceWindowOn? <RefrenceWindow annotate={this} projectId={projectId}/> : console.log("no render")}
                 </div>
               </div>
             ) : null}
