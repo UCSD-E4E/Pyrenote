@@ -13,15 +13,21 @@ class Spectrogram {
         this.copyID = this.copy(width, height, data)
     }
 
-    copy(width, height) {
+    copy() {
+        const {width, height } = this.imageData
         this.spectrCc.putImageData(this.imageData, 0, 0);
         let copy = this.spectrCc.getImageData(0, 0, width, height)
+        this.spectrCc.putImageData(copy, 0, 0);
         return copy
     }
 
     Truncate(value) {
-        if (value < 0) value = 0;
-        if (value > 255) value = 255;
+        if (value < 0) {
+            value = 0;
+        }
+        else if (value > 255) {
+            value = 255;
+        }
         return value
     }
 
@@ -37,8 +43,7 @@ class Spectrogram {
     }
 
     contrast(contrast) {
-        const  {width, height} = this.imageData
-        const copy = this.copy(width, height)
+        const copy = this.copy()
         //https://www.dfstudios.co.uk/articles/programming/image-programming-algorithms/image-processing-algorithms-part-5-contrast-adjustment/
         var factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
         const data = copy.data
@@ -52,14 +57,14 @@ class Spectrogram {
     }
 
     brightness(bright) {
-        const  {width, height} = this.imageData
-        const copy = this.copy(width, height)
+        const copy = this.copy()
         bright = (((bright)) * 255/2)
         const data = copy.data;
         for (var i = 0; i < data.length; i += 4) {
             data[i]     = this.Truncate(data[i] + bright);     // red
-            data[i + 1] = this.Truncate(data[i + 2] + bright); // green
-            data[i + 2] =this.Truncate(data[i + 3] + bright);
+            data[i + 1] = this.Truncate(data[i + 1] + bright); // green
+            data[i + 2] = this.Truncate(data[i + 2] + bright);
+            data[i + 3] = data[i + 3]
         }
         this.spectrCc.putImageData(copy, 0, 0);
     }
