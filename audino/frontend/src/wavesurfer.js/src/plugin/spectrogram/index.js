@@ -329,7 +329,7 @@ export default class SpectrogramPlugin {
       spectrCc.putImageData(imageData, 0, 0);
       console.log("hello")
       try{
-        let test = new Spectrogram(my.wavesurfer, spectrCc, imageData)
+        let test = new Spectrogram(my.wavesurfer, spectrCc, imageData, pixels, heightFactor)
       } catch (e) {
         console.error(e)
       }

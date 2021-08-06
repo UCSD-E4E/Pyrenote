@@ -301,7 +301,7 @@ class Annotate extends React.Component {
           <Button
             size="lg"
             type="danger"
-            onClick={e => spectrogram.copy()}
+            onClick={e => spectrogram.setColorMap('winter')}
             text="test"
           /> 
           </div>: null}
