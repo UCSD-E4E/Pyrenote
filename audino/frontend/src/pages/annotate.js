@@ -24,7 +24,7 @@ class Annotate extends React.Component {
     const index = window.location.href.indexOf('/projects');
 
     this.initalState = {
-      playbackRate: 50,
+      playbackRate: 0,
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -289,8 +289,8 @@ class Annotate extends React.Component {
           <div>
           <input
             type="range"
-            min="0"
-            max="100"
+            min="-1"
+            max="1"
             value={playbackRate}
             onChange={(e) => {this.changePlayback(e); spectrogram.brightness(playbackRate)}}
           />
