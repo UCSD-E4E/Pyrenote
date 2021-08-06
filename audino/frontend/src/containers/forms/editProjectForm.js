@@ -47,7 +47,12 @@ class EditProjectForm extends React.Component {
   }
 
   handleMarkedExampleChange(e) {
-    this.setState({ isMarkedExample: !e.target.value });
+    const { isMarkedExample } = this.state;
+    if (isMarkedExample) {
+      this.setState({isMarkedExample: false})
+    } else {
+      this.setState({isMarkedExample: true})
+    }
   }
 
   handleProjectCreation(e) {
