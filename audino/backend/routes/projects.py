@@ -133,7 +133,7 @@ def fetch_project(project_id):
             ),
             404,
         )
-
+    app.logger.info(project.is_example)
     return (
         jsonify(
             project_id=project.id,
@@ -167,8 +167,8 @@ def edit_project(project_id):
             project.set_name(newUserName)
 
         if (is_example is not None):
-            app.logger.info(is_example == 'true')
-            project.set_is_example(is_example == 'true')
+            app.logger.info(is_example)
+            project.set_is_example(is_example)
         # user = User.query.get(user_id)
         # user.set_role(role_id)
         # user.set_username(newUserName)
@@ -255,7 +255,6 @@ def update_project_users(project_id):
         ),
         200,
     )
-
 
 
 @api.route("/projects/toggled", methods=["PATCH"])
