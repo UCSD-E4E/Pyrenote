@@ -113,6 +113,26 @@ class Annotate extends React.Component {
           .catch(error => {
             console.error(error);
             this.setState({
+              errorMessage: error.response.data.message,
+              isDataLoading: false
+            });
+          });
+
+        const wavesurferMethods = new WavesurferMethods({
+          annotate: this,
+          state: this.state,
+          boundingBox
+        });
+        const { wavesurfer, unsavedButton } = wavesurferMethods.loadWavesurfer();
+        this.UnsavedButton = unsavedButton;
+        axios
+          .all([axios.get(labelsUrl), axios.get(dataUrl)])
+          .then(response => {
+            this.loadFileMetadata(response, boundingBox, wavesurfer, wavesurferMethods);
+          })
+          .catch(error => {
+            console.error(error);
+            this.setState({
               isDataLoading: false
             });
           });
@@ -263,8 +283,6 @@ class Annotate extends React.Component {
         </Helmet>
         <div className="container h-100">
           <div className="h-100 mt-5 text-center">
-
-           
             <AlertSection
               messages={[
                 { message: errorUnsavedMessage, type: 'danger' },
@@ -274,11 +292,10 @@ class Annotate extends React.Component {
               overlay
               callback={e => this.handleAlertDismiss(e)}
             />
-            {!isRendering && <div id="filename">{original_filename}</div>}
+            {!isRendering && <div>{original_filename}</div>}
 
             <RenderingMsg isRendering={isRendering} />
             <Spectrogram isRendering={isRendering} />
-
             {!isRendering ? (
               <div>
                 <LabelSection state={this.state} annotate={this} labelRef={this.labelRef} />
