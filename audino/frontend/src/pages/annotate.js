@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import { Reference, ReferenceWindow} from '../components/reference';
+import { ReferenceWindow} from '../components/reference';
 import NavButton from '../components/annotate/navbutton';
 import Spectrogram from '../components/annotate/spectrogram';
 import LabelSection from '../components/annotate/labelsSection';
@@ -53,7 +53,7 @@ class Annotate extends React.Component {
       direction: null,
       referenceWindowOn: false,
       storedAnnotations: null,
-      applyPreviousAnnotations: false,
+      // applyPreviousAnnotations: false,
       boundingBox: true,
       initWavesurfer: false
     };
@@ -79,7 +79,7 @@ class Annotate extends React.Component {
         boundingBox = response.data.features_list['2D Labels'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
-          applyPreviousAnnotations: response.data.features_list['auto annotate'],
+          // applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           playbackOn: response.data.features_list.playbackOn,
           referenceWindowOn: response.data.features_list['reference window'],
@@ -250,9 +250,6 @@ class Annotate extends React.Component {
       referenceWindowOn,
       projectId,
       toUnsavedClipOn,
-      applyPreviousAnnotations,
-      playbackRate,
-      playbackOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);

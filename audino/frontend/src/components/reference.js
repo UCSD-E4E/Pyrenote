@@ -1,18 +1,14 @@
 import React from 'react';
 import {
-  faBackward,
   faCaretDown,
   faPlayCircle,
   faPauseCircle
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import WaveSurfer from '../wavesurfer.js/src/wavesurfer.js';
-import RegionsPlugin from '../wavesurfer.js/src/plugin/regions/index.js';
 import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
 import { Button, IconButton } from './button';
 import axios from 'axios';
-import { Children } from 'react';
-import { Router } from 'react-router';
 const colormap = require('colormap');
 const uuid = require("uuid");
 
@@ -32,10 +28,6 @@ class Reference extends React.Component{
   }
 
   componentDidMount() {
-
-
-
-    const { active } = this.state
     const spectrogramColorMap = colormap({
       colormap: 'hot',
       nshades: 256,
@@ -89,10 +81,6 @@ class Reference extends React.Component{
     });
 
     wavesurfer.load(`/audios/${this.filename}`);
-    //const { zoom } = this.state;
-    //wavesurfer.zoom(zoom);
-
-
     this.wavesurfer = wavesurfer
     
   }
@@ -103,8 +91,7 @@ class Reference extends React.Component{
   }
 
   
-  handlePause() {
-    const { wavesurfer } = this.state;
+handlePause() {
     this.setState({ isPlaying: false });
     this.wavesurfer.pause();
   }
@@ -117,15 +104,39 @@ class Reference extends React.Component{
           className="row justify-content-md-center"
           style={{ display: '' }}
         >
-          <div id={"waveform-labels" + this.containerId} style={{ float: 'left', width: "100%",
-  position: "relative",
-  float: "left", }} />
-          <div id={"wavegraph"  + this.containerId} style={{ float: 'left', width: "200%",
-  position: "relative",
-  float: "left"}} />
-          <div id={"waveform"  + this.containerId} style={{ float: 'left', width: "100%",
-  position: "relative",
-  float: "left",}} />
+          <div 
+            id={"waveform-labels" + this.containerId} 
+            style={
+              { 
+                float: 'left', 
+                width: "100%",
+                position: "relative",
+              }
+            } 
+          />
+          
+          <div 
+            id={"wavegraph"  + this.containerId} 
+            style={
+              { 
+                float: 'left', 
+                width: "200%",
+                position: "relative",
+              }
+            } 
+          />
+
+          <div 
+            id={"waveform"  + this.containerId} 
+            style={
+              { 
+                float: 'left', 
+                width: "100%",
+                position: "relative",
+              }
+            } 
+          />
+
         </div>
         <div className="col-md-1 col-2">
         {!isPlaying ? (
