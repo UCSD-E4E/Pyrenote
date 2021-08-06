@@ -53,7 +53,7 @@ class Spectrogram {
     brightness(bright) {
         const  {width, height} = this.imageData
         const copy = this.copy(width, height)
-        bright = (((bright / 50) - 1) * 255/2)
+        bright = (((bright)) * 255/2)
         const data = copy.data;
         for (var i = 0; i < data.length; i += 4) {
             data[i]     = this.Truncate(data[i] + bright);     // red
