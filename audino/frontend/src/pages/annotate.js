@@ -24,7 +24,7 @@ class Annotate extends React.Component {
     const index = window.location.href.indexOf('/projects');
 
     this.initalState = {
-      playbackRate: 0,
+      colorChange: 0,
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -255,8 +255,8 @@ class Annotate extends React.Component {
     })
   }
 
-  changePlayback(e) {
-    this.setState({playbackRate: e.target.value})
+  ChangeColorChange(e) {
+    this.setState({colorChange: e.target.value})
   }
 
   render() {
@@ -274,7 +274,11 @@ class Annotate extends React.Component {
       toUnsavedClipOn,
       spectrogramDemoOn,
       spectrogram,
-      playbackRate
+      playbackRate,
+      colorChange,
+      applyPreviousAnnotations,
+      toUnsavedClipOn,
+      playbackOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -292,7 +296,7 @@ class Annotate extends React.Component {
             min="-1"
             max="1"
             value={playbackRate}
-            onChange={(e) => {this.changePlayback(e); spectrogram.brightness(e.target.value)}}
+            onChange={(e) => {this.ChangeColorChange(e); spectrogram.brightness(e.target.value)}}
           />
           <Button
             size="lg"
