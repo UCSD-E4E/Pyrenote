@@ -295,7 +295,7 @@ class Annotate extends React.Component {
             type="range"
             min="-1"
             max="1"
-            value={playbackRate}
+            value={colorChange}
             onChange={(e) => {this.ChangeColorChange(e); spectrogram.brightness(e.target.value)}}
           />
           <Button
