@@ -1,3 +1,6 @@
-
+#enviorment
 audino/.env
 audino/backend/migrations/versions*
+
+#logging
+audino/backend/*.txt
