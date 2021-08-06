@@ -98,25 +98,6 @@ class Annotate extends React.Component {
               isDataLoading: false
             });
           })
-        const wavesurferMethods = new WavesurferMethods({
-          annotate: this,
-          state: this.state,
-          boundingBox
-        });
-        const { wavesurfer, unsavedButton } = wavesurferMethods.loadWavesurfer();
-        this.UnsavedButton = unsavedButton;
-        axios
-          .all([axios.get(labelsUrl), axios.get(dataUrl)])
-          .then(response => {
-            this.loadFileMetadata(response, boundingBox, wavesurfer, wavesurferMethods);
-          })
-          .catch(error => {
-            console.error(error);
-            this.setState({
-              errorMessage: error.response.data.message,
-              isDataLoading: false
-            });
-          });
 
         const wavesurferMethods = new WavesurferMethods({
           annotate: this,
@@ -292,7 +273,7 @@ class Annotate extends React.Component {
               overlay
               callback={e => this.handleAlertDismiss(e)}
             />
-            {!isRendering && <div>{original_filename}</div>}
+            {!isRendering && <div id="filename">{original_filename}</div>}
 
             <RenderingMsg isRendering={isRendering} />
             <Spectrogram isRendering={isRendering} />

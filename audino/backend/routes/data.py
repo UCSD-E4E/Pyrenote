@@ -60,7 +60,7 @@ def generate_segmentation(
             start_time=start_time,
             end_time=end_time,
             time_spent=time_spent,
-            created_by=username
+            created_by=username,
             max_freq=max_freq,
             min_freq=min_freq,
         )
