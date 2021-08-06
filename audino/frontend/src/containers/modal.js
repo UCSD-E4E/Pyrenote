@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import UploadDataForm from './forms/uploadDataForm';
@@ -61,10 +60,10 @@ const FormModal = props => {
           <EditLabelValueForm labelId={labelId} labelValueId={labelValueId} />
         ) : null}
         {formType === 'DELETE_LABEL_VALUE' ? (
-          <DeleteLabelValueForm labelId={labelId} labelValueId={labelValueId} onDelete={onExited}/>
+          <DeleteLabelValueForm labelId={labelId} labelValueId={labelValueId} onDelete={onExited} />
         ) : null}
         {formType === 'DELETE_LABEL' ? (
-          <DeleteLabelForm labelId={labelId} projectId={projectId} onDelete={onExited}/>
+          <DeleteLabelForm labelId={labelId} projectId={projectId} onDelete={onExited} />
         ) : null}
         {formType === 'UPLOAD_DATA' ? (
           <UploadDataForm projectId={projectId} projectName={projectName} apiKey={api_key} />

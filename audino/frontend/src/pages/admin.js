@@ -93,7 +93,6 @@ const Admin = props => {
 
   const updatePage = () => {
     setModalState({ ...modalState, modalShow: false });
-    console.log("MADE IT")
     setModalState(initModal)
     setProjectState(initProject)
     setUserState(initUser)

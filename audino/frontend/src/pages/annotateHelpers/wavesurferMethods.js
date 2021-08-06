@@ -9,7 +9,8 @@ import WaveSurfer from '../../wavesurfer.js/src/wavesurfer.js';
 import RegionsPlugin from '../../wavesurfer.js/src/plugin/regions/index.js';
 import SpectrogramPlugin from '../../wavesurfer.js/src/plugin/spectrogram/index.js';
 import { IconButton } from '../../components/button';
-import UnsavedButton from '../../components/next_unsaved_button';
+import UnsavedButton from '../../components/annotate/extraFeatures/next_unsaved_button';
+
 const colormap = require('colormap');
 
 /**
@@ -24,7 +25,8 @@ class WavesurferMethods {
   constructor(props) {
     this.state = props.state;
     this.annotate = props.annotate;
-    this.boundingBox = props.boundingBox
+    this.boundingBox = props.boundingBox;
+    this.unsavedButton = null;
   }
 
   updateState(state) {
@@ -36,8 +38,8 @@ class WavesurferMethods {
   }
 
   loadWavesurfer() {
-    const boundingBox = this.boundingBox
-    const { active } = this.state
+    const boundingBox = this.boundingBox;
+    const { active } = this.state;
     const spectrogramColorMap = colormap({
       colormap: 'hot',
       nshades: 256,
@@ -75,7 +77,7 @@ class WavesurferMethods {
       ]
     });
     const { history } = this.annotate.props;
-    const unsavedButton = new UnsavedButton(wavesurfer, active)
+    const unsavedButton = new UnsavedButton(wavesurfer, active);
     history.listen(() => {
       wavesurfer.stop();
     });
@@ -93,22 +95,20 @@ class WavesurferMethods {
     wavesurfer.on('region-updated', region => {
       this.handlePause();
       this.styleRegionColor(region, 'rgba(0, 102, 255, 0.3)');
-      this.annotate.UnsavedButton.addUnsaved(region)
+      unsavedButton.addUnsaved(region);
       region._onUnSave();
-      
     });
 
     wavesurfer.on('region-created', region => {
       this.handlePause();
-      const {storedAnnotations, applyPreviousAnnotations} = this.state
+      const { storedAnnotations, applyPreviousAnnotations } = this.annotate.state;
       if (applyPreviousAnnotations) {
-        region.data.annotations = storedAnnotations
+        region.data.annotations = storedAnnotations;
       }
       this.setState({
         selectedSegment: region
       });
-      console.log(region)
-      this.annotate.UnsavedButton.addUnsaved(region, !region.saved)
+      unsavedButton.addUnsaved(region, !region.saved);
     });
 
     wavesurfer.on('region-click', (r, e) => {
@@ -123,7 +123,8 @@ class WavesurferMethods {
       this.setState({ isPlaying: false });
     });
 
-    return {wavesurfer, unsavedButton};
+    this.unsavedButton = unsavedButton;
+    return { wavesurfer, unsavedButton };
   }
 
   handlePlay() {

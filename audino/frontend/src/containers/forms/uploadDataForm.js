@@ -2,7 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
-import Alert from '../../components/alert';
+import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
@@ -92,16 +92,11 @@ class UploadDataForm extends React.Component {
       <div className="container h-75 text-center">
         <div>
           {isLoading ? <Loader /> : null}
-          {errorMessage ? (
-            <Alert type="danger" message={errorMessage} onClose={e => this.handleAlertDismiss(e)} />
-          ) : null}
-          {successMessage ? (
-            <Alert
-              type="success"
-              message={successMessage}
-              onClose={e => this.handleAlertDismiss(e)}
-            />
-          ) : null}
+          <FormAlerts
+            errorMessage={errorMessage}
+            successMessage={successMessage}
+            callback={e => this.handleAlertDismiss(e)}
+          />
         </div>
         <div className="row h-100 justify-content-center align-items-center">
           <input

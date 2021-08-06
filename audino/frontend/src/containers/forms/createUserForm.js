@@ -3,7 +3,7 @@ import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 import setAuthorizationToken from '../../utils';
-import Alert from '../../components/alert';
+import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 
 class CreateUserForm extends React.Component {
@@ -217,20 +217,11 @@ class CreateUserForm extends React.Component {
               this.form = el;
             }}
           >
-            {errorMessage ? (
-              <Alert
-                type="danger"
-                message={errorMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
-            {successMessage ? (
-              <Alert
-                type="success"
-                message={successMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
+            <FormAlerts
+              errorMessage={errorMessage}
+              successMessage={successMessage}
+              callback={e => this.handleAlertDismiss(e)}
+            />
             <div className="form-group">
               <input
                 type="text"
