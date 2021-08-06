@@ -64,9 +64,7 @@ class DeleteUserForm extends React.Component {
     })
       .then(response => {
         if (response.status === 200) {
-          const { role_id } = response.data;
           this.setState({
-            role: String(role_id),
             isLoading: false,
             isSubmitting: false,
             successMessage: 'User has been deleted',

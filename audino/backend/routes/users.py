@@ -306,7 +306,7 @@ def delete_user(user_id):
         if len(users) == 1 and users[0].role.id != 2:
             return jsonify(message="Atleast one admin should exist"), 500
         # above code no work?
-        user = User.query.get(user_id)
+        user = User.query.filter(User.id == user_id).first()
         if (request_user == user):
             return jsonify(message="CANNOT DELETE YOUR OWN USER"), 600
         db.session.delete(user)

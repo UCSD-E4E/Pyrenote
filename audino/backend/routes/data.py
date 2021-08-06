@@ -1,7 +1,7 @@
 import json
 import sqlalchemy as sa
 import uuid
-
+from datetime import datetime
 from pathlib import Path
 
 from flask import jsonify, flash, redirect, url_for, request
@@ -48,6 +48,7 @@ def generate_segmentation(
     min_freq,
     data_id,
     time_spent,
+    username,
     segmentation_id=None,
 ):
     """Generate a Segmentation from the required segment information
@@ -59,6 +60,7 @@ def generate_segmentation(
             start_time=start_time,
             end_time=end_time,
             time_spent=time_spent,
+            created_by=username
             max_freq=max_freq,
             min_freq=min_freq,
         )
@@ -73,6 +75,7 @@ def generate_segmentation(
         segmentation.set_min_freq(min_freq)
         segmentation.set_max_freq(max_freq)
 
+    segmentation.append_modifers(username)
     db.session.add(segmentation)
     db.session.flush()
 

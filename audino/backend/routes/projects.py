@@ -1,3 +1,4 @@
+from datetime import datetime
 import sqlalchemy as sa
 import uuid
 
@@ -133,7 +134,7 @@ def fetch_project(project_id):
             ),
             404,
         )
-
+    app.logger.info(project.is_example)
     return (
         jsonify(
             project_id=project.id,
@@ -167,8 +168,8 @@ def edit_project(project_id):
             project.set_name(newUserName)
 
         if (is_example is not None):
-            app.logger.info(is_example == 'true')
-            project.set_is_example(is_example == 'true')
+            app.logger.info(is_example)
+            project.set_is_example(is_example)
         # user = User.query.get(user_id)
         # user.set_role(role_id)
         # user.set_username(newUserName)
@@ -255,7 +256,6 @@ def update_project_users(project_id):
         ),
         200,
     )
-
 
 
 @api.route("/projects/toggled", methods=["PATCH"])
@@ -794,9 +794,9 @@ def add_segmentations(project_id, data_id, seg_id=None):
     app.logger.info(time_spent)
     start_time = round(start_time, 4)
     end_time = round(end_time, 4)
+    username = identity["username"]
     max_freq = round(max_freq, 4)
     min_freq = round(min_freq, 4)
-
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
@@ -818,10 +818,9 @@ def add_segmentations(project_id, data_id, seg_id=None):
             min_freq=min_freq,
             annotations=annotations,
             time_spent=time_spent,
-            segmentation_id=segmentation_id,
-
+            username=username,
+            segmentation_id=segmentation_id
         )
-
         db.session.add(segmentation)
         db.session.commit()
         db.session.refresh(segmentation)

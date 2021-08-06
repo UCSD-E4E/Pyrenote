@@ -248,7 +248,10 @@ class Annotate extends React.Component {
       navButtonsEnabled,
       refrenceWindowOn,
       projectId,
-      toUnsavedClipOn
+      toUnsavedClipOn,
+      applyPreviousAnnotations,
+      playbackRate,
+      playbackOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
