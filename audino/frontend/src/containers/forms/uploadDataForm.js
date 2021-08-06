@@ -1,11 +1,9 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
-
 import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
-import { text } from '@fortawesome/fontawesome-svg-core';
 
 class UploadDataForm extends React.Component {
   constructor(props) {
@@ -153,7 +151,7 @@ class UploadDataForm extends React.Component {
         <div className="row h-100 justify-content-center align-items-center">
         {isSample? 
         <label style={{width: "200%"}}>
-          <textarea id="json_editor" value={value} onChange={e => this. handleChangeText(e)} style={{width: "100%", height: "200px"}} />
+          <textarea id="json_editor" value={value} onChange={e => this.handleChangeText(e)} style={{width: "100%", height: "200px"}} />
         </label> : null }
         </div>
       </div>
