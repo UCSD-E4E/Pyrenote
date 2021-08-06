@@ -115,6 +115,7 @@ def add_segmentations(project_id, data_id, seg_id=None):
             annotations=annotations,
             time_spent=time_spent,
             segmentation_id=segmentation_id,
+            username=request_user.username
 
         )
 

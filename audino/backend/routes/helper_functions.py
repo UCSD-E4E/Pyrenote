@@ -8,7 +8,10 @@ from backend.models import User, Data
 
 
 def general_error(custom_message, error, type="error"):
-    message = custom_message + error
+    try:
+        message = custom_message + error
+    except Exception:
+        message = custom_message
     app.logger.error(message)
     app.logger.error(error)
     return jsonify(message=message, type=type), 500

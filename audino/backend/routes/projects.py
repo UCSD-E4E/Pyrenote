@@ -275,19 +275,29 @@ def give_users_examples(user_id):
     for project in find_example_projects():
         try:
             if project is None:
+                app.logger.info(f"{project} is null")
                 continue
             final_users = [user for user in project.users]
-            user = User.query.filter_by(username=user_id).first()
+            user = User.query.filter_by(id=user_id).first()
             if user not in project.users:
                 final_users.append(user)
 
             project.users = final_users
+            app.logger.info(f"{final_users}")
             db.session.add(project)
             db.session.commit()
         except Exception as e:
-            msg = f"Error adding: {User.query.all()[0].id}, to {project.id}"
-            type = "USERS_ASSIGNMENT_FAILED",
-            return general_error(msg, e, type=type)
+            app.logger.error(
+                f"Error adding users to project:{User.query.all()[0].id}"
+            )
+            app.logger.error(e)
+            return (
+                jsonify(
+                    message=f"Error adding users to project: {project.id}",
+                    type="USERS_ASSIGNMENT_FAILED",
+                ),
+                500,
+            )
 
     return (
         jsonify(
@@ -297,6 +307,14 @@ def give_users_examples(user_id):
         ),
         200,
     )
+
+
+@api.route("/projects/example", methods=["PATCH"])
+def give_users_examples_json():
+    user_id = request.json.get("users")
+    user = User.query.filter_by(username=user_id).first()
+    app.logger.info(f"{user_id}")
+    return give_users_examples(user.id)
 
 
 @api.route("/projects/<int:project_id>/annotations", methods=["GET"])
