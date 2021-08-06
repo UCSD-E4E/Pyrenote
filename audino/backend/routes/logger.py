@@ -26,15 +26,17 @@ def post_log_msg_request():
     app.logger.info("here")
     project_id = int(request.json.get("project_id", -1))
     message = request.json.get("message", "")
-    message = request.json.get("logLvl", "")
+    log_lvl = request.json.get("logLvl", "")
     app.logger.info("here")
     app.logger.info(request_user)
-    post_log_msg(message, request_user.id, project_id)
+    post_log_msg(message, request_user.id, project_id=project_id,
+                 log_lvl=log_lvl)
     return jsonify(message="success"), 200
 
 
 # if you wanted to use this in a normal request so we don't cluter the site
 def post_log_msg(message, request_user, log_lvl="error", project_id=None):
+    app.logger.info(len(message))
     try:
         app.logger.info("here")
         log = Logs(project_id=project_id, message=message,

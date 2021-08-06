@@ -430,17 +430,15 @@ class Logs(db.Model):
     __tablename__ = "logs"
 
     id = db.Column("id", db.Integer(), primary_key=True)
-    project_id = db.Column("project_id", db.Integer(),
-                           db.ForeignKey("project.id"), nullable=True)
+    project_id = db.Column("project_id", db.Integer(), nullable=True)
 
     created_at = db.Column("created_at", db.DateTime(), nullable=False,
                            default=db.func.now())
 
-    created_by = db.Column("created_by", db.Integer(),
-                           db.ForeignKey("user.id"), nullable=True)
+    created_by = db.Column("created_by", db.Integer(), nullable=True)
 
     log_lvl = db.Column("log_lvl", db.String(100), nullable=False)
-    message = db.Column("message", db.String(100), nullable=False)
+    message = db.Column("message", db.String(1000), nullable=False)
 
     def to_dict(self):
         return {
