@@ -252,8 +252,11 @@ def add_data_from_site():
     app.logger.info("made it to here!")
     is_sample = request.form.get("sample", 'False')
     sampleJson = request.form.get("sampleJson", "{}")
-    sampleJson = json.loads(sampleJson)
     is_sample = is_sample == 'true'
+    
+    if (is_sample):
+        sampleJson = json.loads(sampleJson)
+
     err = "no label value with id `{is_sample}` in }`"
     app.logger.info(err)
     file_length = request.form.get("file_length", None)

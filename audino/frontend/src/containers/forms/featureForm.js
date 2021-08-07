@@ -16,7 +16,7 @@ class FeatureForm extends React.Component {
       successMessage: '',
       featuresEnabled: {
         'next button': true,
-        'refrence window': false,
+        'reference window': false,
         'auto annotate': false,
         'example 2': false,
         '2D Labels': false,

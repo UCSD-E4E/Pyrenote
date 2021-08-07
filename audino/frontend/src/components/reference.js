@@ -1,23 +1,19 @@
 import React from 'react';
 import {
-  faBackward,
   faCaretDown,
   faPlayCircle,
   faPauseCircle
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import WaveSurfer from '../wavesurfer.js/src/wavesurfer.js';
-import RegionsPlugin from '../wavesurfer.js/src/plugin/regions/index.js';
 import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
-import { Button, IconButton } from '../components/button';
+import { Button, IconButton } from './button';
 import axios from 'axios';
-import { Children } from 'react';
-import { Router } from 'react-router';
 const colormap = require('colormap');
 const uuid = require("uuid");
 
 
-class Refrence extends React.Component{
+class Reference extends React.Component{
   constructor(props) {
     super(props)
     this.annotate = props.annotate
@@ -32,10 +28,6 @@ class Refrence extends React.Component{
   }
 
   componentDidMount() {
-
-
-
-    const { active } = this.state
     const spectrogramColorMap = colormap({
       colormap: 'hot',
       nshades: 256,
@@ -89,10 +81,6 @@ class Refrence extends React.Component{
     });
 
     wavesurfer.load(`/audios/${this.filename}`);
-    //const { zoom } = this.state;
-    //wavesurfer.zoom(zoom);
-
-
     this.wavesurfer = wavesurfer
     
   }
@@ -103,8 +91,7 @@ class Refrence extends React.Component{
   }
 
   
-  handlePause() {
-    const { wavesurfer } = this.state;
+handlePause() {
     this.setState({ isPlaying: false });
     this.wavesurfer.pause();
   }
@@ -117,15 +104,39 @@ class Refrence extends React.Component{
           className="row justify-content-md-center"
           style={{ display: '' }}
         >
-          <div id={"waveform-labels" + this.containerId} style={{ float: 'left', width: "100%",
-  position: "relative",
-  float: "left", }} />
-          <div id={"wavegraph"  + this.containerId} style={{ float: 'left', width: "200%",
-  position: "relative",
-  float: "left"}} />
-          <div id={"waveform"  + this.containerId} style={{ float: 'left', width: "100%",
-  position: "relative",
-  float: "left",}} />
+          <div 
+            id={"waveform-labels" + this.containerId} 
+            style={
+              { 
+                float: 'left', 
+                width: "100%",
+                position: "relative",
+              }
+            } 
+          />
+          
+          <div 
+            id={"wavegraph"  + this.containerId} 
+            style={
+              { 
+                float: 'left', 
+                width: "200%",
+                position: "relative",
+              }
+            } 
+          />
+
+          <div 
+            id={"waveform"  + this.containerId} 
+            style={
+              { 
+                float: 'left', 
+                width: "100%",
+                position: "relative",
+              }
+            } 
+          />
+
         </div>
         <div className="col-md-1 col-2">
         {!isPlaying ? (
@@ -155,7 +166,7 @@ class Refrence extends React.Component{
 }
 
 
-class RefrenceWindow extends React.Component {
+class ReferenceWindow extends React.Component {
   constructor(props) {
     super(props)
     this.state = {end: false, rotation: {}}
@@ -221,7 +232,7 @@ class RefrenceWindow extends React.Component {
   setHeight() {
     const title = document.getElementById("filename")
     if (title !== null) {
-      const ref = document.getElementById("refrence-window-container")
+      const ref = document.getElementById("reference-window-container")
       if (ref !== null) {
         ref.style.top = title.offsetTop - 10 + "px"
       }
@@ -234,12 +245,12 @@ class RefrenceWindow extends React.Component {
     const labels = this.labels  
     var thingy = ""
     if (end) {
-      thingy = "refrence-window-left"
+      thingy = "reference-window-left"
     } else {
-      thingy = "refrence-window-right"
+      thingy = "reference-window-right"
     }
     return (
-      <div id={"refrence-window-container"}>
+      <div id={"reference-window-container"}>
         <Button
         style={{zIndex: 100}}
         text={end? "hide smaples" : "show samples"}
@@ -261,7 +272,7 @@ class RefrenceWindow extends React.Component {
                     {
                       value.map((item) => {
                         return(
-                          <Refrence filename={item} annotate={this.annotate}/>
+                          <Reference filename={item} annotate={this.annotate}/>
                         )
                       })
                     }
@@ -277,4 +288,4 @@ class RefrenceWindow extends React.Component {
   }
 }
 
-export { Refrence, RefrenceWindow};
+export { Reference, ReferenceWindow};

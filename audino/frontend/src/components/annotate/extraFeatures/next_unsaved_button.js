@@ -35,7 +35,8 @@ class UnsavedButton extends React.Component {
     }
     this.regions[id] = item;
     const { count } = this.state;
-    this.state.count = count + 1;
+    this.setState({ count: count + 1 }
+    );
   }
 
   removeSaved(region) {
@@ -65,7 +66,7 @@ class UnsavedButton extends React.Component {
 
     delete this.regions[id];
     const { count } = this.state;
-    this.state.count = count - 1;
+    this.setState({ count: count - 1 });
   }
 
   ifSelectedRegionNull() {

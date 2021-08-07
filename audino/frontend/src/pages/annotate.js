@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import { Refrence, RefrenceWindow} from '../components/refrence';
+import { ReferenceWindow} from '../components/reference';
 import NavButton from '../components/annotate/navbutton';
 import Spectrogram from '../components/annotate/spectrogram';
 import LabelSection from '../components/annotate/labelsSection';
@@ -23,7 +23,7 @@ class Annotate extends React.Component {
     const dataId = Number(match.params.dataid);
     const index = window.location.href.indexOf('/projects');
 
-    this.state = {
+    this.initalState = {
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -51,12 +51,13 @@ class Annotate extends React.Component {
       numpage: 5,
       path: window.location.href.substring(0, index),
       direction: null,
-      refrenceWindowOn: false,
+      referenceWindowOn: false,
       storedAnnotations: null,
-      applyPreviousAnnotations: false,
+      // applyPreviousAnnotations: false,
       boundingBox: true,
       initWavesurfer: false
     };
+    this.state = this.initalState;
     this.lastTime = 0;
     this.labelRef = {};
     this.UnsavedButton = null;
@@ -79,10 +80,10 @@ class Annotate extends React.Component {
         boundingBox = response.data.features_list['2D Labels'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
-          applyPreviousAnnotations: response.data.features_list['auto annotate'],
+          // applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           playbackOn: response.data.features_list.playbackOn,
-          refrenceWindowOn: response.data.features_list['refrence window'],
+          referenceWindowOn: response.data.features_list['reference window'],
         });
 
         axios({
@@ -124,6 +125,7 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
+      console.log(this.state)
   }
 
   handleAlertDismiss(e) {
@@ -237,6 +239,21 @@ class Annotate extends React.Component {
       });
   }
 
+  nextPage(nextDataId) {
+    const {wavesurfer, projectId} = this.state
+    console.log(nextDataId)
+    let newState =  this.initalState
+    newState["labelsUrl"] =  `/api/projects/${projectId}/labels`
+    newState["dataUrl"] = `/api/projects/${projectId}/data/${nextDataId}`
+    newState["segmentationUrl"] =  `/api/projects/${projectId}/data/${nextDataId}/segmentations`
+    newState["dataId"] = nextDataId
+    console.log(newState)
+    this.setState(newState, () => {
+      wavesurfer.destroy()
+      this.componentDidMount()
+    })
+  }
+
   render() {
     const {
       isDataLoading,
@@ -247,12 +264,9 @@ class Annotate extends React.Component {
       original_filename,
       wavesurferMethods,
       navButtonsEnabled,
-      refrenceWindowOn,
+      referenceWindowOn,
       projectId,
       toUnsavedClipOn,
-      applyPreviousAnnotations,
-      playbackRate,
-      playbackOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -287,7 +301,7 @@ class Annotate extends React.Component {
                   {navButtonsEnabled && <NavButton annotate={this} />}
                   <PreviousAnnotationButton annotate={this} />
                   {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
-                  {refrenceWindowOn? <RefrenceWindow annotate={this} projectId={projectId}/> : console.log("no render")}
+                  {referenceWindowOn? <ReferenceWindow annotate={this} projectId={projectId}/> : console.log("no render")}
                 </div>
               </div>
             ) : null}
