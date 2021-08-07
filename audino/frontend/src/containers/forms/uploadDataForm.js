@@ -81,9 +81,12 @@ class UploadDataForm extends React.Component {
     });
   }
 
+  handleChangeText(e) {
+    this.setState({ value: e.target.value });
+  }
+
   onChangeHandler(e) {
     const files = e.target.files;
-    console.log(files, typeof files);
     this.setState({ files });
     let text = '{\n';
     Array.prototype.forEach.call(files, file => {
@@ -93,12 +96,7 @@ class UploadDataForm extends React.Component {
     this.setState({ files, value: text });
 
     /* const jsonEditor = document.getElementById("json_editor");
-    console.log(jsonEditor, jsonEditor.style.height, jsonEditor.scrollHeight)
     jsonEditor.style.height = jsonEditor.scrollHeight + "px" */
-  }
-
-  handleChangeText(e) {
-    this.setState({ value: e.target.value });
   }
 
   resetState() {

@@ -46,7 +46,7 @@ class EditProjectForm extends React.Component {
     this.setState({ name: e.target.value });
   }
 
-  handleMarkedExampleChange(e) {
+  handleMarkedExampleChange() {
     const { isMarkedExample } = this.state;
     if (isMarkedExample) {
       this.setState({ isMarkedExample: false });
@@ -135,7 +135,7 @@ class EditProjectForm extends React.Component {
                 id="isExample"
                 value
                 checked={isMarkedExample}
-                onChange={e => this.handleMarkedExampleChange(e)}
+                onChange={() => this.handleMarkedExampleChange()}
                 // disabled={isMarkedForReviewLoading}
               />
               <label className="form-check-label" htmlFor="isMarkedForReview">

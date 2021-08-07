@@ -125,7 +125,6 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
-    console.log(this.state);
   }
 
   handleAlertDismiss(e) {
@@ -241,13 +240,11 @@ class Annotate extends React.Component {
 
   nextPage(nextDataId) {
     const { wavesurfer, projectId } = this.state;
-    console.log(nextDataId);
     const newState = this.initalState;
     newState.labelsUrl = `/api/projects/${projectId}/labels`;
     newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
     newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
     newState.dataId = nextDataId;
-    console.log(newState);
     this.setState(newState, () => {
       wavesurfer.destroy();
       this.componentDidMount();
@@ -303,9 +300,7 @@ class Annotate extends React.Component {
                   {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
                   {referenceWindowOn ? (
                     <ReferenceWindow annotate={this} projectId={projectId} />
-                  ) : (
-                    console.log('no render')
-                  )}
+                  ) : null}
                 </div>
               </div>
             ) : null}

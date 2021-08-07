@@ -16,7 +16,7 @@ class Reference extends React.Component {
     this.wavesurfer = null;
     this.playing = false;
     this.state = {
-      playing: false
+      isPlaying: false
     };
     this.containerId = uuid.v4();
     this.filename = props.filename;
@@ -30,7 +30,6 @@ class Reference extends React.Component {
       format: 'float'
     });
 
-    this.setState({ isDataLoading: true });
     const fftSamples = 512;
     const wavesurfer = WaveSurfer.create({
       container: `#waveform${this.containerId}`,
@@ -186,9 +185,6 @@ class ReferenceWindow extends React.Component {
       })
       .catch(error => {
         console.error(error);
-        this.setState({
-          isDataLoading: false
-        });
       });
   }
 

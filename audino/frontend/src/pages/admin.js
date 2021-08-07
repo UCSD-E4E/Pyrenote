@@ -63,7 +63,6 @@ const Admin = props => {
           users: response.data.users,
           isUserLoading: false
         });
-        console.log(response.data.users);
       })
       .catch(() => {
         setUserState({
@@ -76,7 +75,7 @@ const Admin = props => {
   React.useEffect(() => {
     fetchProjects();
     fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // *****eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showModal = newState => {

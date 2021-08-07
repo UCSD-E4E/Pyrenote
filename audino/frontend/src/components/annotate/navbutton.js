@@ -24,16 +24,8 @@ const NavButton = props => {
   // Go to the next audio recording
   const handleNextClip = (forceNext = false) => {
     handleAllSegmentSave(annotate);
-    const {
-      previous_pages,
-      num_of_prev,
-      data,
-      dataId,
-      projectId,
-      next_data_id,
-      next_data_url,
-      path
-    } = annotate.state;
+    const { previous_pages, num_of_prev, data, dataId, projectId, next_data_id, path } =
+      annotate.state;
 
     let success = true;
     success = checkForSave(success, forceNext, 'next');
@@ -57,7 +49,6 @@ const NavButton = props => {
       if (data[key].data_id === dataId) {
         try {
           newPageData = data[key + 1];
-          console.log(data[key], data[key + 1]);
           annotate.nextPage(newPageData.data_id);
           // window.location.href = path + url;
         } catch (z) {
