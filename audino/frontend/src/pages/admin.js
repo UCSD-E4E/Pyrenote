@@ -17,20 +17,19 @@ const Admin = props => {
     projectId: null,
     projectName: null,
     api_key: null
-  }
+  };
   const [modalState, setModalState] = React.useState(initModal);
-
 
   const initUser = {
     users: [],
     isUserLoading: false
-  }
+  };
   const [userState, setUserState] = React.useState(initUser);
 
   const initProject = {
     projects: [],
     isProjectLoading: false
-  }
+  };
   const [projectState, setProjectState] = React.useState(initProject);
 
   const fetchProjects = () => {
@@ -64,7 +63,7 @@ const Admin = props => {
           users: response.data.users,
           isUserLoading: false
         });
-        console.log(response.data.users)
+        console.log(response.data.users);
       })
       .catch(() => {
         setUserState({
@@ -94,9 +93,9 @@ const Admin = props => {
 
   const updatePage = () => {
     setModalState({ ...modalState, modalShow: false });
-    setModalState(initModal)
-    setProjectState(initProject)
-    setUserState(initUser)
+    setModalState(initModal);
+    setProjectState(initProject);
+    setUserState(initUser);
     fetchProjects();
     fetchUsers();
   };

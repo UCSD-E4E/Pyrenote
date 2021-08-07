@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import { ReferenceWindow} from '../components/reference';
+import { ReferenceWindow } from '../components/reference';
 import NavButton from '../components/annotate/navbutton';
 import Spectrogram from '../components/annotate/spectrogram';
 import LabelSection from '../components/annotate/labelsSection';
@@ -83,7 +83,7 @@ class Annotate extends React.Component {
           // applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           playbackOn: response.data.features_list.playbackOn,
-          referenceWindowOn: response.data.features_list['reference window'],
+          referenceWindowOn: response.data.features_list['reference window']
         });
 
         axios({
@@ -98,7 +98,7 @@ class Annotate extends React.Component {
               errorMessage: error.response.data.message,
               isDataLoading: false
             });
-          })
+          });
 
         const wavesurferMethods = new WavesurferMethods({
           annotate: this,
@@ -125,7 +125,7 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
-      console.log(this.state)
+    console.log(this.state);
   }
 
   handleAlertDismiss(e) {
@@ -240,18 +240,18 @@ class Annotate extends React.Component {
   }
 
   nextPage(nextDataId) {
-    const {wavesurfer, projectId} = this.state
-    console.log(nextDataId)
-    let newState =  this.initalState
-    newState["labelsUrl"] =  `/api/projects/${projectId}/labels`
-    newState["dataUrl"] = `/api/projects/${projectId}/data/${nextDataId}`
-    newState["segmentationUrl"] =  `/api/projects/${projectId}/data/${nextDataId}/segmentations`
-    newState["dataId"] = nextDataId
-    console.log(newState)
+    const { wavesurfer, projectId } = this.state;
+    console.log(nextDataId);
+    const newState = this.initalState;
+    newState.labelsUrl = `/api/projects/${projectId}/labels`;
+    newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
+    newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
+    newState.dataId = nextDataId;
+    console.log(newState);
     this.setState(newState, () => {
-      wavesurfer.destroy()
-      this.componentDidMount()
-    })
+      wavesurfer.destroy();
+      this.componentDidMount();
+    });
   }
 
   render() {
@@ -266,13 +266,13 @@ class Annotate extends React.Component {
       navButtonsEnabled,
       referenceWindowOn,
       projectId,
-      toUnsavedClipOn,
+      toUnsavedClipOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
     return (
-      <div  style={{overflow: "hidden"}}>
+      <div style={{ overflow: 'hidden' }}>
         <Helmet>
           <title>Annotate</title>
         </Helmet>
@@ -301,7 +301,11 @@ class Annotate extends React.Component {
                   {navButtonsEnabled && <NavButton annotate={this} />}
                   <PreviousAnnotationButton annotate={this} />
                   {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
-                  {referenceWindowOn? <ReferenceWindow annotate={this} projectId={projectId}/> : console.log("no render")}
+                  {referenceWindowOn ? (
+                    <ReferenceWindow annotate={this} projectId={projectId} />
+                  ) : (
+                    console.log('no render')
+                  )}
                 </div>
               </div>
             ) : null}

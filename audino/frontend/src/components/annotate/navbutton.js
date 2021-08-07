@@ -44,7 +44,7 @@ const NavButton = props => {
 
     if (num_of_prev < previous_pages.length - 1) {
       localStorage.setItem('count', JSON.stringify(next_page_num));
-      annotate.nextPage(previous_pages[next_page_num])
+      annotate.nextPage(previous_pages[next_page_num]);
       return;
     }
     previous_pages[num_of_prev] = dataId;
@@ -57,13 +57,13 @@ const NavButton = props => {
       if (data[key].data_id === dataId) {
         try {
           newPageData = data[key + 1];
-          console.log(data[key], data[key + 1])
-          annotate.nextPage(newPageData.data_id)
-          //window.location.href = path + url;
+          console.log(data[key], data[key + 1]);
+          annotate.nextPage(newPageData.data_id);
+          // window.location.href = path + url;
         } catch (z) {
           if (next_data_id && data[0].data_id !== next_data_id) {
-            annotate.nextPage(next_data_id)
-            //window.location.href = next_data_url;
+            annotate.nextPage(next_data_id);
+            // window.location.href = next_data_url;
           } else {
             window.location.href = `${path}/projects/${projectId}/data`;
           }
@@ -85,7 +85,7 @@ const NavButton = props => {
         previous_pages[num_of_prev] = dataId;
         localStorage.setItem('previous_links', JSON.stringify(previous_pages));
         localStorage.setItem('count', JSON.stringify(page_num));
-        annotate.nextPage(previous)
+        annotate.nextPage(previous);
       } else {
         console.warn('You have hit the end of the clips you have last seen');
         window.location.href = `${path}/projects/${projectId}/data`;

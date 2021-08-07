@@ -57,15 +57,17 @@ export default class Drawer extends util.Observer {
       this.container.appendChild(document.createElement('wave')),
       this.params.vertical
     );
-    let left = `${55 / this.params.pixelRatio / 2}px`
-    if (this.params.labels) {left = '0px'}
+    let left = `${55 / this.params.pixelRatio / 2}px`;
+    if (this.params.labels) {
+      left = '0px';
+    }
     this.style(this.wrapper, {
       display: 'block',
       position: 'relative',
       userSelect: 'none',
       webkitUserSelect: 'none',
       height: `${this.params.height / this.params.pixelRatio + 17}px`, // THIS IS WHERE HEIGHT IS CHANGED
-      left: left
+      left
     }); // ${-55 / this.pixelRatio / 2}
     if (this.params.fillParent || this.params.scrollParent) {
       this.style(this.wrapper, {
