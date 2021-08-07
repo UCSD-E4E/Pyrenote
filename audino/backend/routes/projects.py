@@ -415,20 +415,8 @@ def add_label_to_project(project_id):
             400,
         )
 
-    label_type_id = int(label_type_id)
-
-    all_label_types = [label_type.id for label_type in LabelType.query.all()]
-
-    if label_type_id not in all_label_types:
-        return (
-            jsonify(
-                message="Please assign correct label type!",
-                type="LABEL_TYPE_INCORRECT"
-            ),
-            400,
-        )
-
     try:
+        app.logger.info(len(LabelType.query.all()) == 0)
         if (len(LabelType.query.all()) == 0):
             app.logger.info("Creating labelTypes")
             select = LabelType(id=1, type='Select')
@@ -438,6 +426,17 @@ def add_label_to_project(project_id):
             db.session.commit()
     except Exception as e:
         app.logger.error(e)
+
+    label_type_id = int(label_type_id)
+    all_label_types = [label_type.id for label_type in LabelType.query.all()]
+    if label_type_id not in all_label_types:
+        return (
+            jsonify(
+                message="Please assign correct label type!",
+                type="LABEL_TYPE_INCORRECT"
+            ),
+            400,
+        )
 
     try:
         project = Project.query.get(project_id)
