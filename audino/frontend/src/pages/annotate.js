@@ -83,8 +83,9 @@ class Annotate extends React.Component {
           navButtonsEnabled: response.data.features_list['next button'],
           // applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
-          playbackOn: response.data.features_list.playbackOn,
           referenceWindowOn: response.data.features_list['reference window'],
+          playbackOn: response.data.features_list['playbackOn'],
+          spectrogramDemoOn: false //response.data.features_list['spectrogram demo'],
         });
 
         axios({
