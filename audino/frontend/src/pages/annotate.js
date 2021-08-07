@@ -80,7 +80,7 @@ class Annotate extends React.Component {
         boundingBox = response.data.features_list['2D Labels'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
-          // applyPreviousAnnotations: response.data.features_list['auto annotate'],
+          applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           playbackOn: response.data.features_list.playbackOn,
           referenceWindowOn: response.data.features_list['reference window']
@@ -263,6 +263,7 @@ class Annotate extends React.Component {
       navButtonsEnabled,
       referenceWindowOn,
       projectId,
+      applyPreviousAnnotations,
       toUnsavedClipOn
     } = this.state;
     if (wavesurferMethods) {
@@ -296,7 +297,7 @@ class Annotate extends React.Component {
                   <MarkedForReview state={this.state} annotate={this} />
                   <ChangePlayback annotate={this} />
                   {navButtonsEnabled && <NavButton annotate={this} />}
-                  <PreviousAnnotationButton annotate={this} />
+                  {applyPreviousAnnotations && <PreviousAnnotationButton annotate={this} />}
                   {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
                   {referenceWindowOn ? (
                     <ReferenceWindow annotate={this} projectId={projectId} />
