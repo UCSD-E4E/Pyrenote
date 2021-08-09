@@ -85,7 +85,7 @@ class DownloadDataForm extends React.Component {
             };
             download(csvContent, `${projectName}.csv`, 'text/csv;encoding:utf-8');
           } catch (c) {
-            errorLogger.sendLog(error.response.data.message)
+            errorLogger.sendLog(c.response.data.message)
             console.error(c);
           }
         } else {
