@@ -57,12 +57,16 @@ class ToggleYesNo extends React.Component {
     if (yes) msg = ": yes"
     else msg = ": no"
     return(
-      <Button
-        text={"Feeling Confident In \n your labels?" + msg}
-        size="sm"
-        type={yes ? "primary" : "danger"}
-        onClick={() => this.handleClick(yes? "no" : "yes")}
-      />
+      <div className="row justify-content-center my-4">
+        <div className="col-4">
+          <Button
+            text={"Feeling Confident In \n your labels?" + msg}
+            size="lg"
+            type={yes ? "primary" : "danger"}
+            onClick={() => this.handleClick(yes? "no" : "yes")}
+          />
+        </div>
+      </div>
     )
   }
 }
