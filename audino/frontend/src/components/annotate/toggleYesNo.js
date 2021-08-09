@@ -6,31 +6,54 @@ import { Button } from '../button';
 class ToggleYesNo extends React.Component {
   constructor(params) {
     super(params)
-    this.projectID = params.projectID
-    this.dataID = params.dataID
+    this.annotate = params.annotate
+    const {state} = this.annotate
+    const {projectID, dataID, dataUrl, isMarkedForReview} = state
+    this.projectID = projectID
+    this.dataID = dataID
+    this.dataUrl = dataUrl
     this.state = {
-      "yes": false,
-      "no": false,
+      "yes": !isMarkedForReview,
     }
   }
+  componentDidMount() {
+
+  }
+
   handleClick(type) {
     let newState = null
     if (type === "yes") newState = {yes: true, no: false}
     if (type === "no") newState = {yes: false, no: true}
     this.setState(newState)
-    let url = "/api/projects/" +this.projectID + "/data/" + this.dataID +
-           "/confident_check"
+    this.annotate.setState({ isMarkedForReviewLoading: true });
+
     axios({
-      method: 'POST',
-      url,
+      method: 'patch',
+      url: this.dataUrl,
       data: {
-        confidentCheck: newState.yes
+        is_marked_for_review: !newState.yes
       }
     })
+    .then(response => {
+      this.annotate.setState({
+        isMarkedForReviewLoading: false,
+        isMarkedForReview: response.data.is_marked_for_review,
+        errorMessage: null,
+        successMessage: 'Marked for review status changed'
+      });
+    })
+    .catch(error => {
+      console.error(error);
+      this.annotate.setState({
+        isDataLoading: false,
+        errorMessage: 'Error changing review status',
+        successMessage: null
+      });
+    });
   }
   
   render() {
-    const {yes, no} = this.state
+    const {yes} = this.state
     let msg = ": "
     if (yes) msg = ": yes"
     else msg = ": no"

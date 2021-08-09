@@ -41,7 +41,7 @@ const AnnotationWindow = props => {
             <LabelSection state={state} annotate={annotate} labelRef={annotate.labelRef} />
             <div className={isDataLoading ? 'hidden' : ''}>
               <LabelButton state={state} annotate={annotate} />
-              <ToggleYesNo/>
+              <ToggleYesNo annotate={this}/>
               {navButtonsEnabled && <NavButton annotate={annotate} />}
             </div>
           </div>
