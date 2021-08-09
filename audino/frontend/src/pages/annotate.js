@@ -24,6 +24,7 @@ class Annotate extends React.Component {
     const index = window.location.href.indexOf('/projects');
 
     this.initalState = {
+      colorChange: 0,
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -252,6 +253,10 @@ class Annotate extends React.Component {
     });
   }
 
+  ChangeColorChange(e) {
+    this.setState({colorChange: e.target.value})
+  }
+
   render() {
     const {
       isDataLoading,
@@ -264,9 +269,15 @@ class Annotate extends React.Component {
       navButtonsEnabled,
       referenceWindowOn,
       projectId,
+      toUnsavedClipOn,
+      spectrogramDemoOn,
+      spectrogram,
+      playbackRate,
+      colorChange,
       applyPreviousAnnotations,
       spectrogramDemoOn,
       toUnsavedClipOn,
+      playbackOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);

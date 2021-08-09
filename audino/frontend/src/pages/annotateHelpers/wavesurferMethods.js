@@ -82,7 +82,9 @@ class WavesurferMethods {
       wavesurfer.stop();
     });
 
+    //spectrogram_created
     wavesurfer.on('ready', () => {
+      console.log("caught wavesurfer ready")
       const screenSize = window.screen.width;
       if (screenSize > wavesurfer.getDuration() * wavesurfer.params.minPxPerSec) {
         wavesurfer.zoom(screenSize / wavesurfer.getDuration());
@@ -110,6 +112,11 @@ class WavesurferMethods {
       });
       unsavedButton.addUnsaved(region, !region.saved);
     });
+
+    wavesurfer.on('spectrogram_created', (spectrogram) => {
+      this.setState({ spectrogram });
+      console.log("caught spectrogram creation")
+    })
 
     wavesurfer.on('region-click', (r, e) => {
       e.stopPropagation();
