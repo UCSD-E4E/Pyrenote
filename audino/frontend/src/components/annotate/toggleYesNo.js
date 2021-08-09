@@ -22,8 +22,7 @@ class ToggleYesNo extends React.Component {
 
   handleClick(type) {
     let newState = null
-    if (type === "yes") newState = {yes: true, no: false}
-    if (type === "no") newState = {yes: false, no: true}
+    if (type === "yes") newState = {yes: true}
     this.setState(newState)
     this.annotate.setState({ isMarkedForReviewLoading: true });
 
