@@ -18,11 +18,10 @@ class FeatureForm extends React.Component {
         'next button': true,
         'reference window': false,
         'auto annotate': false,
-        'example 2': false,
         '2D Labels': false,
         'to unsaved cliped': false,
-        playbackOn: false,
-        'example 3': false
+        'playbackOn': false,
+        'spectrogram demo': false,
       }
     };
 
