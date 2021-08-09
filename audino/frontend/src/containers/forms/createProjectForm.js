@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
-
+import { errorLogger } from '../../logger';
 import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 
@@ -61,6 +61,7 @@ class CreateProjectForm extends React.Component {
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message)
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: '',

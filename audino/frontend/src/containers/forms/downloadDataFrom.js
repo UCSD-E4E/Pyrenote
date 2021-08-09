@@ -5,7 +5,7 @@ import { withStore } from '@spyna/react-store';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from '../../components/button';
 import { FormAlerts } from '../../components/alert';
-
+import { errorLogger } from '../../logger';
 import Loader from '../../components/loader';
 
 class DownloadDataForm extends React.Component {
@@ -85,6 +85,7 @@ class DownloadDataForm extends React.Component {
             };
             download(csvContent, `${projectName}.csv`, 'text/csv;encoding:utf-8');
           } catch (c) {
+            errorLogger.sendLog(error.response.data.message)
             console.error(c);
           }
         } else {
@@ -92,6 +93,7 @@ class DownloadDataForm extends React.Component {
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message)
         this.setState({
           errorMessage: error.response.data.message
         });
@@ -115,6 +117,7 @@ class DownloadDataForm extends React.Component {
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message)
         console.error(error);
         this.setState({
           errorMessage: error.response.data.message
@@ -163,6 +166,7 @@ class DownloadDataForm extends React.Component {
       save_link.download = name;
       this._fake_click(save_link);
     } else {
+      errorLogger.sendLog('Neither a[download] nor msSaveBlob is available')
       throw new Error('Neither a[download] nor msSaveBlob is available');
     }
   }
