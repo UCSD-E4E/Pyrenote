@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 
 import FFT from './fft';
-import Spectrogram from './spectrogram.js'
+import Spectrogram from './spectrogram.js';
 /**
  * @typedef {Object} SpectrogramPluginParams
  * @property {string|HTMLElement} container Selector of element or element in
@@ -197,8 +197,8 @@ export default class SpectrogramPlugin {
     this.wrapper = document.createElement('spectrogram');
     this.wrapper2 = document.createElement('labels');
     // if labels are active
-    let spectrogramLeft = '0px'
-    let negativeSpectrogramleft = '0px'
+    let spectrogramLeft = '0px';
+    let negativeSpectrogramleft = '0px';
     if (this.params.labels) {
       this.labelsEl = document.createElement('canvas');
       const { labelsEl } = this;
@@ -222,8 +222,8 @@ export default class SpectrogramPlugin {
         '#specLabels'
       );
 
-      spectrogramLeft = `${55 / this.pixelRatio / 2}px`
-      negativeSpectrogramleft = `${-55 / this.pixelRatio / 2}px`
+      spectrogramLeft = `${55 / this.pixelRatio / 2}px`;
+      negativeSpectrogramleft = `${-55 / this.pixelRatio / 2}px`;
     }
 
     this.drawer.style(this.wrapper, {
@@ -327,14 +327,13 @@ export default class SpectrogramPlugin {
         }
       }
       spectrCc.putImageData(imageData, 0, 0);
-      console.log("hello")
-      try{
-        let test = new Spectrogram(my.wavesurfer, spectrCc, imageData, pixels, heightFactor)
+      try {
+        const test = new Spectrogram(my.wavesurfer, spectrCc, imageData, pixels, heightFactor);
       } catch (e) {
-        console.error(e)
+        console.error(e);
       }
-      //let test = new Spectrogram(this.wavesurfer, spectrCc, imageData)
-      //console.log("oh", test)
+      // let test = new Spectrogram(this.wavesurfer, spectrCc, imageData)
+      // console.log("oh", test)
     }
   }
 

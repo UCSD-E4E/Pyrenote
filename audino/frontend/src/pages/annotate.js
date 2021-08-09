@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import { ReferenceWindow} from '../components/reference';
+import { ReferenceWindow } from '../components/reference';
 import NavButton from '../components/annotate/navbutton';
 import Spectrogram from '../components/annotate/spectrogram';
 import LabelSection from '../components/annotate/labelsSection';
@@ -14,6 +14,7 @@ import RenderingMsg from '../components/annotate/renderingMsg';
 import MarkedForReview from '../components/annotate/markedForReview';
 import PreviousAnnotationButton from '../components/annotate/extraFeatures/previousAnnotationButton';
 import ChangePlayback from '../components/annotate/extraFeatures/changePlayback';
+import SpectroChanger from '../components/annotate/spectroChanger';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -81,11 +82,11 @@ class Annotate extends React.Component {
         boundingBox = response.data.features_list['2D Labels'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
-          // applyPreviousAnnotations: response.data.features_list['auto annotate'],
+          applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           referenceWindowOn: response.data.features_list['reference window'],
-          playbackOn: response.data.features_list['playbackOn'],
-          spectrogramDemoOn: false //response.data.features_list['spectrogram demo'],
+          playbackOn: response.data.features_list.playbackOn,
+          spectrogramDemoOn: response.data.features_list['spectrogram demo']
         });
 
         axios({
@@ -100,7 +101,7 @@ class Annotate extends React.Component {
               errorMessage: error.response.data.message,
               isDataLoading: false
             });
-          })
+          });
 
         const wavesurferMethods = new WavesurferMethods({
           annotate: this,
@@ -127,7 +128,6 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
-      console.log(this.state)
   }
 
   handleAlertDismiss(e) {
@@ -242,22 +242,20 @@ class Annotate extends React.Component {
   }
 
   nextPage(nextDataId) {
-    const {wavesurfer, projectId} = this.state
-    console.log(nextDataId)
-    let newState =  this.initalState
-    newState["labelsUrl"] =  `/api/projects/${projectId}/labels`
-    newState["dataUrl"] = `/api/projects/${projectId}/data/${nextDataId}`
-    newState["segmentationUrl"] =  `/api/projects/${projectId}/data/${nextDataId}/segmentations`
-    newState["dataId"] = nextDataId
-    console.log(newState)
+    const { wavesurfer, projectId } = this.state;
+    const newState = this.initalState;
+    newState.labelsUrl = `/api/projects/${projectId}/labels`;
+    newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
+    newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
+    newState.dataId = nextDataId;
     this.setState(newState, () => {
-      wavesurfer.destroy()
-      this.componentDidMount()
-    })
+      wavesurfer.destroy();
+      this.componentDidMount();
+    });
   }
 
   ChangeColorChange(e) {
-    this.setState({colorChange: e.target.value})
+    this.setState({ colorChange: e.target.value });
   }
 
   render() {
@@ -272,40 +270,20 @@ class Annotate extends React.Component {
       navButtonsEnabled,
       referenceWindowOn,
       projectId,
-      toUnsavedClipOn,
-      spectrogramDemoOn,
-      spectrogram,
-      playbackRate,
-      colorChange,
       applyPreviousAnnotations,
-      toUnsavedClipOn,
-      playbackOn
+      spectrogramDemoOn,
+      toUnsavedClipOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
     return (
-      <div  style={{overflow: "hidden"}}>
+      <div style={{ overflow: 'hidden' }}>
         <Helmet>
           <title>Annotate</title>
         </Helmet>
         <div className="container h-100">
-        {spectrogramDemoOn? 
-          <div>
-          <input
-            type="range"
-            min="-1"
-            max="1"
-            value={colorChange}
-            onChange={(e) => {this.ChangeColorChange(e); spectrogram.brightness(e.target.value)}}
-          />
-          <Button
-            size="lg"
-            type="danger"
-            onClick={e => spectrogram.setColorMap('winter')}
-            text="test"
-          /> 
-          </div>: null}
+          {spectrogramDemoOn && <SpectroChanger annotate={this} />}
           <div className="h-100 mt-5 text-center">
             <AlertSection
               messages={[
@@ -328,9 +306,11 @@ class Annotate extends React.Component {
                   <MarkedForReview state={this.state} annotate={this} />
                   <ChangePlayback annotate={this} />
                   {navButtonsEnabled && <NavButton annotate={this} />}
-                  <PreviousAnnotationButton annotate={this} />
+                  {applyPreviousAnnotations && <PreviousAnnotationButton annotate={this} />}
                   {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
-                  {referenceWindowOn? <ReferenceWindow annotate={this} projectId={projectId}/> : console.log("no render")}
+                  {referenceWindowOn ? (
+                    <ReferenceWindow annotate={this} projectId={projectId} />
+                  ) : null}
                 </div>
               </div>
             ) : null}
