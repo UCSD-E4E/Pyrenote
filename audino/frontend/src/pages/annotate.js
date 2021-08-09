@@ -24,6 +24,7 @@ class Annotate extends React.Component {
     const index = window.location.href.indexOf('/projects');
 
     this.initalState = {
+      colorChange: 0,
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -82,8 +83,9 @@ class Annotate extends React.Component {
           navButtonsEnabled: response.data.features_list['next button'],
           // applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
-          playbackOn: response.data.features_list.playbackOn,
           referenceWindowOn: response.data.features_list['reference window'],
+          playbackOn: response.data.features_list['playbackOn'],
+          spectrogramDemoOn: false //response.data.features_list['spectrogram demo'],
         });
 
         axios({
@@ -254,6 +256,10 @@ class Annotate extends React.Component {
     })
   }
 
+  ChangeColorChange(e) {
+    this.setState({colorChange: e.target.value})
+  }
+
   render() {
     const {
       isDataLoading,
@@ -267,6 +273,13 @@ class Annotate extends React.Component {
       referenceWindowOn,
       projectId,
       toUnsavedClipOn,
+      spectrogramDemoOn,
+      spectrogram,
+      playbackRate,
+      colorChange,
+      applyPreviousAnnotations,
+      toUnsavedClipOn,
+      playbackOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -277,6 +290,22 @@ class Annotate extends React.Component {
           <title>Annotate</title>
         </Helmet>
         <div className="container h-100">
+        {spectrogramDemoOn? 
+          <div>
+          <input
+            type="range"
+            min="-1"
+            max="1"
+            value={colorChange}
+            onChange={(e) => {this.ChangeColorChange(e); spectrogram.brightness(e.target.value)}}
+          />
+          <Button
+            size="lg"
+            type="danger"
+            onClick={e => spectrogram.setColorMap('winter')}
+            text="test"
+          /> 
+          </div>: null}
           <div className="h-100 mt-5 text-center">
             <AlertSection
               messages={[
