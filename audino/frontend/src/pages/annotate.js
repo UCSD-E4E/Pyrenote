@@ -15,6 +15,7 @@ import MarkedForReview from '../components/annotate/markedForReview';
 import PreviousAnnotationButton from '../components/annotate/extraFeatures/previousAnnotationButton';
 import ChangePlayback from '../components/annotate/extraFeatures/changePlayback';
 import SpectroChanger from '../components/annotate/spectroChanger';
+
 class Annotate extends React.Component {
   constructor(props) {
     super(props);
@@ -84,8 +85,8 @@ class Annotate extends React.Component {
           applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           referenceWindowOn: response.data.features_list['reference window'],
-          playbackOn: response.data.features_list['playbackOn'],
-          spectrogramDemoOn: response.data.features_list['spectrogram demo'],
+          playbackOn: response.data.features_list.playbackOn,
+          spectrogramDemoOn: response.data.features_list['spectrogram demo']
         });
 
         axios({
@@ -254,7 +255,7 @@ class Annotate extends React.Component {
   }
 
   ChangeColorChange(e) {
-    this.setState({colorChange: e.target.value})
+    this.setState({ colorChange: e.target.value });
   }
 
   render() {
@@ -269,15 +270,9 @@ class Annotate extends React.Component {
       navButtonsEnabled,
       referenceWindowOn,
       projectId,
-      toUnsavedClipOn,
-      spectrogramDemoOn,
-      spectrogram,
-      playbackRate,
-      colorChange,
       applyPreviousAnnotations,
       spectrogramDemoOn,
-      toUnsavedClipOn,
-      playbackOn
+      toUnsavedClipOn
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -288,7 +283,7 @@ class Annotate extends React.Component {
           <title>Annotate</title>
         </Helmet>
         <div className="container h-100">
-        {spectrogramDemoOn && <SpectroChanger annotate={this}/>}
+          {spectrogramDemoOn && <SpectroChanger annotate={this} />}
           <div className="h-100 mt-5 text-center">
             <AlertSection
               messages={[

@@ -13,8 +13,7 @@
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.21.1",
     "bootstrap": "^4.4.1",
-    "colormap": "^2.3.1",
-    "uuid": "^8.3.2",
+    "colormap": "^2.3.2",
     "debounce": "^1.2.1",
     "history": "^5.0.0",
     "jquery": "^3.5.0",
@@ -30,6 +29,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
     "redux": "^4.0.5",
+    "uuid": "^8.3.2",
     "wavesurfer.js": "^5.1.0"
   },
   "proxy": "http://backend:5000",
