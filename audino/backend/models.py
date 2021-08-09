@@ -355,6 +355,7 @@ class Segmentation(db.Model):
             self.last_modified_by = {}
         date = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         self.last_modified_by[newUser] = date
+
     def set_max_freq(self, max_freq):
         if (max_freq != -1.0):
             self.max_freq = max_freq
