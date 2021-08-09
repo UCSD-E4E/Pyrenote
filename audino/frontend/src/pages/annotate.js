@@ -14,7 +14,7 @@ import RenderingMsg from '../components/annotate/renderingMsg';
 import MarkedForReview from '../components/annotate/markedForReview';
 import PreviousAnnotationButton from '../components/annotate/extraFeatures/previousAnnotationButton';
 import ChangePlayback from '../components/annotate/extraFeatures/changePlayback';
-
+import SpectroChanger from '../components/annotate/spectroChanger';
 class Annotate extends React.Component {
   constructor(props) {
     super(props);
@@ -82,8 +82,9 @@ class Annotate extends React.Component {
           navButtonsEnabled: response.data.features_list['next button'],
           applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
-          playbackOn: response.data.features_list.playbackOn,
-          referenceWindowOn: response.data.features_list['reference window']
+          referenceWindowOn: response.data.features_list['reference window'],
+          playbackOn: response.data.features_list['playbackOn'],
+          spectrogramDemoOn: response.data.features_list['spectrogram demo'],
         });
 
         axios({
@@ -264,7 +265,8 @@ class Annotate extends React.Component {
       referenceWindowOn,
       projectId,
       applyPreviousAnnotations,
-      toUnsavedClipOn
+      spectrogramDemoOn,
+      toUnsavedClipOn,
     } = this.state;
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -275,6 +277,7 @@ class Annotate extends React.Component {
           <title>Annotate</title>
         </Helmet>
         <div className="container h-100">
+        {spectrogramDemoOn && <SpectroChanger annotate={this}/>}
           <div className="h-100 mt-5 text-center">
             <AlertSection
               messages={[
