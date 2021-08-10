@@ -5,7 +5,6 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import { ReferenceWindow } from '../components/reference';
 import NavButton from '../components/annotate/navbutton';
 import Spectrogram from '../components/annotate/spectrogram';
 import LabelSection from '../components/annotate/labelsSection';
@@ -15,6 +14,10 @@ import MarkedForReview from '../components/annotate/markedForReview';
 import PreviousAnnotationButton from '../components/annotate/extraFeatures/previousAnnotationButton';
 import ChangePlayback from '../components/annotate/extraFeatures/changePlayback';
 import SpectroChanger from '../components/annotate/spectroChanger';
+import {SideMenu, sidebarResizerHandler} from '../components/sideMenu';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGripVertical, faAngleDoubleLeft } from '@fortawesome/free-solid-svg-icons';
+import { IconButton } from '../components/button';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -57,7 +60,8 @@ class Annotate extends React.Component {
       storedAnnotations: null,
       // applyPreviousAnnotations: false,
       boundingBox: true,
-      initWavesurfer: false
+      initWavesurfer: false,
+      maxHeight: window.innerHeight
     };
     this.state = this.initalState;
     this.lastTime = 0;
@@ -258,6 +262,12 @@ class Annotate extends React.Component {
     this.setState({ colorChange: e.target.value });
   }
 
+  collapseSideBar() {
+    const { disappear } = this.state
+    if (disappear) this.setState({disappear : false})
+    else this.setState({disappear : true})
+  }
+
   render() {
     const {
       isDataLoading,
@@ -269,52 +279,72 @@ class Annotate extends React.Component {
       wavesurferMethods,
       navButtonsEnabled,
       referenceWindowOn,
-      projectId,
+      maxHeight,
       applyPreviousAnnotations,
       spectrogramDemoOn,
-      toUnsavedClipOn
+      toUnsavedClipOn,
+      disappear
     } = this.state;
+
+    console.log(disappear)
+
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
+    sidebarResizerHandler()
+
     return (
-      <div style={{ overflow: 'hidden' }}>
+      <div style={{margin: 0, height: maxHeight + "px", overflow: "hidden"}}>
         <Helmet>
           <title>Annotate</title>
         </Helmet>
-        <div className="container h-100">
-          {spectrogramDemoOn && <SpectroChanger annotate={this} />}
-          <div className="h-100 mt-5 text-center">
-            <AlertSection
-              messages={[
-                { message: errorUnsavedMessage, type: 'danger' },
-                { message: errorMessage, type: 'danger' },
-                { message: successMessage, type: 'success' }
-              ]}
-              overlay
-              callback={e => this.handleAlertDismiss(e)}
-            />
-            {!isRendering && <div id="filename">{original_filename}</div>}
+        <div className="containerAnnotate">
+          <span className="sideMenu" style={{float: "left", height: maxHeight + "px"}}>
+            <SideMenu annotate={this}/>
+          </span>
 
-            <RenderingMsg isRendering={isRendering} />
-            <Spectrogram isRendering={isRendering} />
-            {!isRendering ? (
-              <div>
-                <LabelSection state={this.state} annotate={this} labelRef={this.labelRef} />
-                <div className={isDataLoading ? 'hidden' : ''}>
-                  <LabelButton state={this.state} annotate={this} />
-                  <MarkedForReview state={this.state} annotate={this} />
-                  <ChangePlayback annotate={this} />
-                  {navButtonsEnabled && <NavButton annotate={this} />}
-                  {applyPreviousAnnotations && <PreviousAnnotationButton annotate={this} />}
-                  {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
-                  {referenceWindowOn ? (
-                    <ReferenceWindow annotate={this} projectId={projectId} />
-                  ) : null}
-                </div>
-              </div>
-            ) : null}
+          <div class="resizer" id="dragMe" style={{width: "5px"}}>
+            <IconButton icon={faAngleDoubleLeft}             
+              type="primary"
+              onClick={() => this.collapseSideBar()}
+              />
+            <div id="sidebarDragger">
+              <FontAwesomeIcon  size = '2x' icon={faGripVertical}/>
+            </div>
           </div>
+
+          <span className="AnnotationRegion" style={{float: "left", flex: "1 1 0%", marginLeft: "2%", marginRight: "2%"}}>
+            {spectrogramDemoOn && <SpectroChanger annotate={this} />}
+            <div className="h-100 mt-5 text-center">
+              <AlertSection
+                messages={[
+                  { message: errorUnsavedMessage, type: 'danger' },
+                  { message: errorMessage, type: 'danger' },
+                  { message: successMessage, type: 'success' }
+                ]}
+                overlay
+                callback={e => this.handleAlertDismiss(e)}
+              />
+              {!isRendering && <div id="filename">{original_filename}</div>}
+
+              <RenderingMsg isRendering={isRendering} />
+              <Spectrogram isRendering={isRendering} />
+              {!isRendering ? (
+                <div>
+                  <LabelSection state={this.state} annotate={this} labelRef={this.labelRef} />
+                  <div className={isDataLoading ? 'hidden' : ''}>
+                    <LabelButton state={this.state} annotate={this} />
+                    <MarkedForReview state={this.state} annotate={this} />
+                    <ChangePlayback annotate={this} />
+                    {navButtonsEnabled && <NavButton annotate={this} />}
+                    {applyPreviousAnnotations && <PreviousAnnotationButton annotate={this} />}
+                    {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </span>
+
         </div>
       </div>
     );
