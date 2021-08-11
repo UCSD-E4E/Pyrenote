@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import { SideMenu } from '../components/sideMenu';
+import SideMenu from '../components/sideMenu';
 import { animateWidth } from '../components/annotate/animation';
 import Resizer from '../components/resizerElement';
 import AnnotationWindow from '../components/annotate/annotationWindow.js';
@@ -257,21 +257,16 @@ class Annotate extends React.Component {
     const { disappear } = this.state;
     if (disappear === 'sideMenuDisappear') {
       this.setState({ disappear: 'sideMenu' });
-      animateWidth(document.body.offsetWidth * .3, 0.6, "sideMenuDisappear")
+      animateWidth(document.body.offsetWidth * 0.3, 0.6, 'sideMenuDisappear');
     } else {
-      animateWidth(0, 0.6, "sideMenu", ()=>{
+      animateWidth(0, 0.6, 'sideMenu', () => {
         this.setState({ disappear: 'sideMenuDisappear' });
-      })
+      });
     }
   }
 
   render() {
-    const {
-      wavesurferMethods,
-      maxHeight,
-      disappear,
-      referenceWindowOn
-    } = this.state;
+    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn } = this.state;
 
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -282,32 +277,37 @@ class Annotate extends React.Component {
         <Helmet>
           <title>Annotate</title>
         </Helmet>
-          {referenceWindowOn ?
-               <div className="containerAnnotate">
-                <span className={disappear} id="rightWindow" style={{ float: 'left', height: `${maxHeight}px` }}>
-                  <SideMenu annotate={this} />
-                </span>
+        {referenceWindowOn ? (
+          <div className="containerAnnotate">
+            <span
+              className={disappear}
+              id="rightWindow"
+              style={{ float: 'left', height: `${maxHeight}px` }}
+            >
+              <SideMenu annotate={this} />
+            </span>
 
-                <Resizer 
-                  annotate={this}
-                  isOpen={disappear !== 'sideMenuDisappear'}
-                  rightID="rightWindow" leftID="leftWindow"
-                  propertySwapCallabck={() => this.collapseSideBar()}
-                />
+            <Resizer
+              annotate={this}
+              isOpen={disappear !== 'sideMenuDisappear'}
+              rightID="rightWindow"
+              leftID="leftWindow"
+              propertySwapCallabck={() => this.collapseSideBar()}
+            />
 
-                <span
-                  className="AnnotationRegion"
-                  id="leftWindow"
-                  style={{ float: 'left', flex: '1 1 0%', marginLeft: '2%', marginRight: '2%' }}
-                >
-                  <AnnotationWindow annotate={this}/>
-                </span>
-              </div> 
-            : 
-            <div className="container h-100">
-              <AnnotationWindow annotate={this}/>
-            </div>
-          }
+            <span
+              className="AnnotationRegion"
+              id="leftWindow"
+              style={{ float: 'left', flex: '1 1 0%', marginLeft: '2%', marginRight: '2%' }}
+            >
+              <AnnotationWindow annotate={this} />
+            </span>
+          </div>
+        ) : (
+          <div className="container h-100">
+            <AnnotationWindow annotate={this} />
+          </div>
+        )}
       </div>
     );
   }

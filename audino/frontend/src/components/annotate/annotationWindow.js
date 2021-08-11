@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertSection } from '../../components/alert';
+import { AlertSection } from '../alert';
 import NavButton from './navbutton';
 import Spectrogram from './spectrogram';
 import LabelSection from './labelsSection';
@@ -12,7 +12,7 @@ import SpectroChanger from './spectroChanger';
 
 const AnnotationWindow = props => {
   const { annotate } = props;
-  const {state} = annotate
+  const { state } = annotate;
   const {
     isDataLoading,
     errorMessage,
@@ -23,7 +23,7 @@ const AnnotationWindow = props => {
     navButtonsEnabled,
     applyPreviousAnnotations,
     spectrogramDemoOn,
-    toUnsavedClipOn,
+    toUnsavedClipOn
   } = state;
 
   return (
@@ -62,5 +62,3 @@ const AnnotationWindow = props => {
 };
 
 export default AnnotationWindow;
-
-

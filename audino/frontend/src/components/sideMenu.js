@@ -4,14 +4,13 @@ import { ReferenceWindow } from './reference';
 const SideMenu = props => {
   const { annotate } = props;
   const { state } = annotate;
-  const { projectId, referenceWindowOn, disappear, maxHeight } = state;
+  const { projectId, referenceWindowOn } = state;
 
   return (
-    
-      <div className="sidebar">
-        {referenceWindowOn ? <ReferenceWindow annotate={annotate} projectId={projectId} /> : null}
-      </div>
+    <div className="sidebar">
+      {referenceWindowOn ? <ReferenceWindow annotate={annotate} projectId={projectId} /> : null}
+    </div>
   );
 };
 
-export { SideMenu};
+export default SideMenu;

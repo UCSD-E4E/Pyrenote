@@ -5,13 +5,13 @@ import {
   faAngleDoubleLeft,
   faAngleDoubleRight
 } from '@fortawesome/free-solid-svg-icons';
-import { IconButton } from '../components/button';
+import { IconButton } from './button';
 
 const sidebarResizerHandler = (left, right) => {
   try {
     const resizer = document.getElementById('dragMe');
-    const leftSide = document.getElementById(left)//resizer.previousElementSibling;
-    const rightSide = document.getElementById(right)
+    const leftSide = document.getElementById(left); // resizer.previousElementSibling;
+    const rightSide = document.getElementById(right);
 
     // The current position of mouse
     let x = 0;
@@ -72,21 +72,20 @@ const sidebarResizerHandler = (left, right) => {
 
 const Resizer = props => {
   const { isOpen, annotate, rightID, leftID } = props;
-  sidebarResizerHandler(rightID, leftID)
+  sidebarResizerHandler(rightID, leftID);
   return (
     <div className="resizer" id="dragMe" style={{ width: '5px' }}>
-    <IconButton
-      icon={isOpen ? faAngleDoubleLeft : faAngleDoubleRight}
-      type="primary"
-      onClick={() => annotate.collapseSideBar()}
-    />
-    {isOpen? (
-      <div id="sidebarDragger">
-        <FontAwesomeIcon size="2x" icon={faGripVertical} />
-      </div>
-    ) : null}
-  </div>
-
+      <IconButton
+        icon={isOpen ? faAngleDoubleLeft : faAngleDoubleRight}
+        type="primary"
+        onClick={() => annotate.collapseSideBar()}
+      />
+      {isOpen ? (
+        <div id="sidebarDragger">
+          <FontAwesomeIcon size="2x" icon={faGripVertical} />
+        </div>
+      ) : null}
+    </div>
   );
 };
 

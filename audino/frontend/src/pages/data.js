@@ -37,24 +37,13 @@ class Data extends React.Component {
     };
   }
 
-  trackScrolling = () => {
-    console.log("hello?")
-    const { nextPage } = this.state;
-    console.log(this.isBottom() && nextPage)
-    if (this.isBottom() && nextPage) {
-      // this.setState({ isDataLoading: true });
-      this.getData(true);
-    }
-  };
-
   // code below from
   // https://stackoverflow.com/questions/45585542/detecting-when-user-scrolls-to-bottom-of-div-with-react-js
   componentDidMount() {
     this.setState({ isDataLoading: true });
     this.getData();
-    console.log("hello?")
     document.body.addEventListener('scroll', this.trackScrolling);
-    document.body.addEventListener('scroll', () => {console.log("scrolling")});
+    document.body.addEventListener('scroll', () => {});
   }
 
   componentWillUnmount() {
@@ -95,15 +84,23 @@ class Data extends React.Component {
       });
   }
 
+  trackScrolling = () => {
+    const { nextPage } = this.state;
+    if (this.isBottom() && nextPage) {
+      // this.setState({ isDataLoading: true });
+      this.getData(true);
+    }
+  };
+
   isScrollLessThanWindow() {
     const yMax = document.body.scrollHeight - document.body.clientHeight;
     return yMax <= 0;
   }
 
   isBottom() {
-    //https://stackoverflow.com/questions/3898130/check-if-a-user-has-scrolled-to-the-bottom/3898152
-    const element = document.body
-    return element.scrollHeight - element.scrollTop === element.clientHeight
+    // https://stackoverflow.com/questions/3898130/check-if-a-user-has-scrolled-to-the-bottom/3898152
+    const element = document.body;
+    return element.scrollHeight - element.scrollTop === element.clientHeight;
   }
 
   prepareUrl(projectId, page, active) {
@@ -211,7 +208,7 @@ class Data extends React.Component {
               </div>
             ) : null}
           </div>
-         
+
           {/* <div className="col-12 my-4 justify-content-center align-items-center text-center">
             {prevPage ? (
               <a className="col" href={prevPageUrl}>
@@ -226,7 +223,6 @@ class Data extends React.Component {
               </a>
             ) : null}
             </div> */}
-        
         </div>
       </div>
     );
