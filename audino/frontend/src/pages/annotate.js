@@ -3,26 +3,11 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faGripVertical,
-  faAngleDoubleLeft,
-  faAngleDoubleRight
-} from '@fortawesome/free-solid-svg-icons';
-import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import NavButton from '../components/annotate/navbutton';
-import Spectrogram from '../components/annotate/spectrogram';
-import LabelSection from '../components/annotate/labelsSection';
-import LabelButton from '../components/annotate/labelButtons';
-import RenderingMsg from '../components/annotate/renderingMsg';
-import MarkedForReview from '../components/annotate/markedForReview';
-import PreviousAnnotationButton from '../components/annotate/extraFeatures/previousAnnotationButton';
-import ChangePlayback from '../components/annotate/extraFeatures/changePlayback';
-import SpectroChanger from '../components/annotate/spectroChanger';
-import { SideMenu, sidebarResizerHandler } from '../components/sideMenu';
-import { IconButton } from '../components/button';
-import { CollapseSideWindow } from '../components/annotate/animation';
+import { SideMenu } from '../components/sideMenu';
+import { animateWidth } from '../components/annotate/animation';
+import Resizer from '../components/resizerElement';
+import AnnotationWindow from '../components/annotate/annotationWindow.js';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -271,99 +256,58 @@ class Annotate extends React.Component {
   collapseSideBar() {
     const { disappear } = this.state;
     if (disappear === 'sideMenuDisappear') {
-      const element = document.getElementsByClassName('sideMenuDisappear')[0];
-      element.style.setProperty('width', '30%');
       this.setState({ disappear: 'sideMenu' });
+      animateWidth(document.body.offsetWidth * .3, 0.6, "sideMenuDisappear")
     } else {
-      // const element = document.getElementsByClassName("sideMenu")[0]
-      // console.log(element)
-      CollapseSideWindow(this);
-      // element.style.setProperty('width', '0%')
-      // this.setState({disappear : "sideMenuDisappear"})
+      animateWidth(0, 0.6, "sideMenu", ()=>{
+        this.setState({ disappear: 'sideMenuDisappear' });
+      })
     }
   }
 
   render() {
     const {
-      isDataLoading,
-      errorMessage,
-      errorUnsavedMessage,
-      successMessage,
-      isRendering,
-      original_filename,
       wavesurferMethods,
-      navButtonsEnabled,
-      referenceWindowOn,
       maxHeight,
-      applyPreviousAnnotations,
-      spectrogramDemoOn,
-      toUnsavedClipOn,
-      disappear
+      disappear,
+      referenceWindowOn
     } = this.state;
 
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
-    sidebarResizerHandler();
 
     return (
       <div style={{ margin: 0, height: `${maxHeight}px`, overflow: 'hidden' }}>
         <Helmet>
           <title>Annotate</title>
         </Helmet>
-        <div className="containerAnnotate">
-          <span className={disappear} style={{ float: 'left', height: `${maxHeight}px` }}>
-            <SideMenu annotate={this} />
-          </span>
+          {referenceWindowOn ?
+               <div className="containerAnnotate">
+                <span className={disappear} id="rightWindow" style={{ float: 'left', height: `${maxHeight}px` }}>
+                  <SideMenu annotate={this} />
+                </span>
 
-          <div className="resizer" id="dragMe" style={{ width: '5px' }}>
-            <IconButton
-              icon={disappear !== 'sideMenuDisappear' ? faAngleDoubleLeft : faAngleDoubleRight}
-              type="primary"
-              onClick={() => this.collapseSideBar()}
-            />
-            {disappear !== 'sideMenuDisappear' ? (
-              <div id="sidebarDragger">
-                <FontAwesomeIcon size="2x" icon={faGripVertical} />
-              </div>
-            ) : null}
-          </div>
+                <Resizer 
+                  annotate={this}
+                  isOpen={disappear !== 'sideMenuDisappear'}
+                  rightID="rightWindow" leftID="leftWindow"
+                  propertySwapCallabck={() => this.collapseSideBar()}
+                />
 
-          <span
-            className="AnnotationRegion"
-            style={{ float: 'left', flex: '1 1 0%', marginLeft: '2%', marginRight: '2%' }}
-          >
-            {spectrogramDemoOn && <SpectroChanger annotate={this} />}
-            <div className="h-100 mt-5 text-center">
-              <AlertSection
-                messages={[
-                  { message: errorUnsavedMessage, type: 'danger' },
-                  { message: errorMessage, type: 'danger' },
-                  { message: successMessage, type: 'success' }
-                ]}
-                overlay
-                callback={e => this.handleAlertDismiss(e)}
-              />
-              {!isRendering && <div id="filename">{original_filename}</div>}
-
-              <RenderingMsg isRendering={isRendering} />
-              <Spectrogram isRendering={isRendering} />
-              {!isRendering ? (
-                <div>
-                  <LabelSection state={this.state} annotate={this} labelRef={this.labelRef} />
-                  <div className={isDataLoading ? 'hidden' : ''}>
-                    <LabelButton state={this.state} annotate={this} />
-                    <MarkedForReview state={this.state} annotate={this} />
-                    <ChangePlayback annotate={this} />
-                    {navButtonsEnabled && <NavButton annotate={this} />}
-                    {applyPreviousAnnotations && <PreviousAnnotationButton annotate={this} />}
-                    {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
-                  </div>
-                </div>
-              ) : null}
+                <span
+                  className="AnnotationRegion"
+                  id="leftWindow"
+                  style={{ float: 'left', flex: '1 1 0%', marginLeft: '2%', marginRight: '2%' }}
+                >
+                  <AnnotationWindow annotate={this}/>
+                </span>
+              </div> 
+            : 
+            <div className="container h-100">
+              <AnnotationWindow annotate={this}/>
             </div>
-          </span>
-        </div>
+          }
       </div>
     );
   }

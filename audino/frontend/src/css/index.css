@@ -147,7 +147,7 @@ body,
 }
 
 .sideMenu {
-  animation: slide-right 0.6s ease-in-out;
+  
   width: 30%;
   min-width: "5px";
 }
