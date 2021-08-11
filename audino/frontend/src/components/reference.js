@@ -230,16 +230,6 @@ class ReferenceWindow extends React.Component {
     }
     return (
       <div id="reference-window-container">
-        <Button
-          style={{ zIndex: 100 }}
-          text={end ? 'hide smaples' : 'show samples'}
-          type="primary"
-          title={end ? 'hide smaples' : 'show samples'}
-          size="sm"
-          onClick={() => {
-            this.setState({ end: !end });
-          }}
-        />
         <div id={thingy}>
           {labels
             ? Object.entries(labels).map(([key, value]) => {

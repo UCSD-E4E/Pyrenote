@@ -61,7 +61,8 @@ class Annotate extends React.Component {
       // applyPreviousAnnotations: false,
       boundingBox: true,
       initWavesurfer: false,
-      maxHeight: window.innerHeight
+      maxHeight: window.innerHeight,
+      disappear : "sideMenu",
     };
     this.state = this.initalState;
     this.lastTime = 0;
@@ -264,8 +265,18 @@ class Annotate extends React.Component {
 
   collapseSideBar() {
     const { disappear } = this.state
-    if (disappear) this.setState({disappear : false})
-    else this.setState({disappear : true})
+    if (disappear == "sideMenuDisappear") {
+      const element = document.getElementsByClassName("sideMenuDisappear")[0]
+      console.log(element)
+      element.style.setProperty('width', '30%')
+      this.setState({disappear : "sideMenu"})
+    }
+    else {
+      const element = document.getElementsByClassName("sideMenu")[0]
+      console.log(element)
+      element.style.setProperty('width', '0%')
+      this.setState({disappear : "sideMenuDisappear"})
+    } 
   }
 
   render() {
@@ -299,7 +310,7 @@ class Annotate extends React.Component {
           <title>Annotate</title>
         </Helmet>
         <div className="containerAnnotate">
-          <span className="sideMenu" style={{float: "left", height: maxHeight + "px"}}>
+          <span className={disappear} style={{float: "left", height: maxHeight + "px"}}>
             <SideMenu annotate={this}/>
           </span>
 
