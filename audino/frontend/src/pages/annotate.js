@@ -3,6 +3,12 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faGripVertical,
+  faAngleDoubleLeft,
+  faAngleDoubleRight
+} from '@fortawesome/free-solid-svg-icons';
 import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
 import NavButton from '../components/annotate/navbutton';
@@ -14,11 +20,10 @@ import MarkedForReview from '../components/annotate/markedForReview';
 import PreviousAnnotationButton from '../components/annotate/extraFeatures/previousAnnotationButton';
 import ChangePlayback from '../components/annotate/extraFeatures/changePlayback';
 import SpectroChanger from '../components/annotate/spectroChanger';
-import {SideMenu, sidebarResizerHandler} from '../components/sideMenu';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGripVertical, faAngleDoubleLeft, faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons';
+import { SideMenu, sidebarResizerHandler } from '../components/sideMenu';
 import { IconButton } from '../components/button';
-import {CollapseSideWindow} from '../components/annotate/animation';
+import { CollapseSideWindow } from '../components/annotate/animation';
+
 class Annotate extends React.Component {
   constructor(props) {
     super(props);
@@ -62,7 +67,7 @@ class Annotate extends React.Component {
       boundingBox: true,
       initWavesurfer: false,
       maxHeight: window.innerHeight,
-      disappear : "sideMenu",
+      disappear: 'sideMenu'
     };
     this.state = this.initalState;
     this.lastTime = 0;
@@ -264,20 +269,18 @@ class Annotate extends React.Component {
   }
 
   collapseSideBar() {
-    const { disappear } = this.state
-    if (disappear == "sideMenuDisappear") {
-      const element = document.getElementsByClassName("sideMenuDisappear")[0]
-      console.log(element)
-      element.style.setProperty('width', '30%')
-      this.setState({disappear : "sideMenu"})
+    const { disappear } = this.state;
+    if (disappear === 'sideMenuDisappear') {
+      const element = document.getElementsByClassName('sideMenuDisappear')[0];
+      element.style.setProperty('width', '30%');
+      this.setState({ disappear: 'sideMenu' });
+    } else {
+      // const element = document.getElementsByClassName("sideMenu")[0]
+      // console.log(element)
+      CollapseSideWindow(this);
+      // element.style.setProperty('width', '0%')
+      // this.setState({disappear : "sideMenuDisappear"})
     }
-    else {
-      //const element = document.getElementsByClassName("sideMenu")[0]
-      //console.log(element)
-      CollapseSideWindow(this)
-      //element.style.setProperty('width', '0%')
-      //this.setState({disappear : "sideMenuDisappear"})
-    } 
   }
 
   render() {
@@ -298,34 +301,38 @@ class Annotate extends React.Component {
       disappear
     } = this.state;
 
-    console.log(disappear)
-
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
-    sidebarResizerHandler()
+    sidebarResizerHandler();
 
     return (
-      <div style={{margin: 0, height: maxHeight + "px", overflow: "hidden"}}>
+      <div style={{ margin: 0, height: `${maxHeight}px`, overflow: 'hidden' }}>
         <Helmet>
           <title>Annotate</title>
         </Helmet>
         <div className="containerAnnotate">
-          <span className={disappear} style={{float: "left", height: maxHeight + "px"}}>
-            <SideMenu annotate={this}/>
+          <span className={disappear} style={{ float: 'left', height: `${maxHeight}px` }}>
+            <SideMenu annotate={this} />
           </span>
 
-          <div class="resizer" id="dragMe" style={{width: "5px"}}>
-            <IconButton icon={disappear != "sideMenuDisappear" ? faAngleDoubleLeft : faAngleDoubleRight}             
+          <div className="resizer" id="dragMe" style={{ width: '5px' }}>
+            <IconButton
+              icon={disappear !== 'sideMenuDisappear' ? faAngleDoubleLeft : faAngleDoubleRight}
               type="primary"
               onClick={() => this.collapseSideBar()}
-              />
-            {disappear != "sideMenuDisappear" ? <div id="sidebarDragger">
-              <FontAwesomeIcon  size = '2x' icon={faGripVertical}/>
-            </div> : null}
+            />
+            {disappear !== 'sideMenuDisappear' ? (
+              <div id="sidebarDragger">
+                <FontAwesomeIcon size="2x" icon={faGripVertical} />
+              </div>
+            ) : null}
           </div>
 
-          <span className="AnnotationRegion" style={{float: "left", flex: "1 1 0%", marginLeft: "2%", marginRight: "2%"}}>
+          <span
+            className="AnnotationRegion"
+            style={{ float: 'left', flex: '1 1 0%', marginLeft: '2%', marginRight: '2%' }}
+          >
             {spectrogramDemoOn && <SpectroChanger annotate={this} />}
             <div className="h-100 mt-5 text-center">
               <AlertSection
@@ -356,7 +363,6 @@ class Annotate extends React.Component {
               ) : null}
             </div>
           </span>
-
         </div>
       </div>
     );

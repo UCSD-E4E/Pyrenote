@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import WaveSurfer from '../wavesurfer.js/src/wavesurfer.js';
 import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
-import { Button, IconButton } from './button';
+import { IconButton } from './button';
 
 const colormap = require('colormap');
 const uuid = require('uuid');
