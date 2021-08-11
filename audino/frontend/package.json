@@ -12,6 +12,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.21.1",
+    "bezier-easing": "^2.1.0",
     "bootstrap": "^4.4.1",
     "colormap": "^2.3.2",
     "debounce": "^1.2.1",

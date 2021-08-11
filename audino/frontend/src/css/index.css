@@ -153,7 +153,7 @@ body,
 }
 
 .sideMenuDisappear {
-  animation: slide-left 0.6s ease-in-out;
+
   width: 0% !important; 
 }
 
@@ -161,12 +161,6 @@ body,
   right: 2%;
   width: 70%;
   min-width: 500px;
-}
-
-@keyframes slide-left {
-  to {
-    width: 0;
-  }
 }
 
 @keyframes slide-right {

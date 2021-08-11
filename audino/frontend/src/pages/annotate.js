@@ -16,9 +16,9 @@ import ChangePlayback from '../components/annotate/extraFeatures/changePlayback'
 import SpectroChanger from '../components/annotate/spectroChanger';
 import {SideMenu, sidebarResizerHandler} from '../components/sideMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGripVertical, faAngleDoubleLeft } from '@fortawesome/free-solid-svg-icons';
+import { faGripVertical, faAngleDoubleLeft, faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from '../components/button';
-
+import {CollapseSideWindow} from '../components/annotate/animation';
 class Annotate extends React.Component {
   constructor(props) {
     super(props);
@@ -272,10 +272,11 @@ class Annotate extends React.Component {
       this.setState({disappear : "sideMenu"})
     }
     else {
-      const element = document.getElementsByClassName("sideMenu")[0]
-      console.log(element)
-      element.style.setProperty('width', '0%')
-      this.setState({disappear : "sideMenuDisappear"})
+      //const element = document.getElementsByClassName("sideMenu")[0]
+      //console.log(element)
+      CollapseSideWindow(this)
+      //element.style.setProperty('width', '0%')
+      //this.setState({disappear : "sideMenuDisappear"})
     } 
   }
 
@@ -315,13 +316,13 @@ class Annotate extends React.Component {
           </span>
 
           <div class="resizer" id="dragMe" style={{width: "5px"}}>
-            <IconButton icon={faAngleDoubleLeft}             
+            <IconButton icon={disappear != "sideMenuDisappear" ? faAngleDoubleLeft : faAngleDoubleRight}             
               type="primary"
               onClick={() => this.collapseSideBar()}
               />
-            <div id="sidebarDragger">
+            {disappear != "sideMenuDisappear" ? <div id="sidebarDragger">
               <FontAwesomeIcon  size = '2x' icon={faGripVertical}/>
-            </div>
+            </div> : null}
           </div>
 
           <span className="AnnotationRegion" style={{float: "left", flex: "1 1 0%", marginLeft: "2%", marginRight: "2%"}}>
