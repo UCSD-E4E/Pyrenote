@@ -4,7 +4,7 @@ set -o errexit
 
 app="/app/frontend"
 echo "npm install"
-cd "${app}" && npm i bezier-easing
+cd "${app}" && npm install --save @fortawesome/fontawesome-free
 {
     cd "${app}" && npm install
 } || {
