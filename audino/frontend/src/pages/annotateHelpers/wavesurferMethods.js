@@ -102,9 +102,19 @@ class WavesurferMethods {
 
     wavesurfer.on('region-created', region => {
       this.handlePause();
+<<<<<<< Updated upstream
       const { storedAnnotations, applyPreviousAnnotations } = this.annotate.state;
       if (applyPreviousAnnotations) {
         region.data.annotations = storedAnnotations;
+=======
+      if (this.annotate.state.selectedSegment != null){
+        if(this.annotate.state.selectedSegment.saved == true){
+          this.styleRegionColor(this.annotate.state.selectedSegment, 'rgba(0, 0, 0, 0.7')
+        }
+        else{
+          this.styleRegionColor(this.annotate.state.selectedSegment, 'rgba(0, 102, 255, 0.3)')
+        }
+>>>>>>> Stashed changes
       }
       this.setState({
         selectedSegment: region
@@ -118,11 +128,23 @@ class WavesurferMethods {
 
     wavesurfer.on('region-click', (r, e) => {
       e.stopPropagation();
+      if (this.annotate.state.selectedSegment != null){
+        if(this.annotate.state.selectedSegment.saved == true){
+          this.styleRegionColor(this.annotate.state.selectedSegment, 'rgba(0, 0, 0, 0.7')
+        }
+        else{
+          this.styleRegionColor(this.annotate.state.selectedSegment, 'rgba(0, 102, 255, 0.3)')
+        }
+        
+      }
+      
       this.setState({
         isPlaying: true,
         selectedSegment: r
       });
       r.play();
+      this.styleRegionColor(r, "rgba(255, 255, 255, 0.7)");
+      
     });
     wavesurfer.on('pause', () => {
       this.setState({ isPlaying: false });
