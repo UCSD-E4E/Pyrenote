@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const noop = () => {};
 
-const IconButton = ({ icon, size = 'lg', title = '', onClick = noop }) => {
+const IconButton = ({ icon, size = 'lg', title = '', onClick = noop, style = {} }) => {
   return (
-    <button type="button" className="btn btn-default" onClick={onClick} title={title}>
+    <button type="button" className="btn btn-default" style={style} onClick={onClick} title={title}>
       <FontAwesomeIcon icon={icon} size={size} />
     </button>
   );
