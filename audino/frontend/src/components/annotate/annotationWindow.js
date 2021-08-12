@@ -7,7 +7,6 @@ import LabelButton from './labelButtons';
 import RenderingMsg from './renderingMsg';
 import MarkedForReview from './markedForReview';
 
-
 const AnnotationWindow = props => {
   const { annotate } = props;
   const { state } = annotate;
@@ -18,7 +17,7 @@ const AnnotationWindow = props => {
     successMessage,
     isRendering,
     original_filename,
-    navButtonsEnabled,
+    navButtonsEnabled
   } = state;
 
   return (

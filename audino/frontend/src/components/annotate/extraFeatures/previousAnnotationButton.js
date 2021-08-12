@@ -6,23 +6,21 @@ const PreviousAnnotationButton = props => {
   const { state } = annotate;
   const { applyPreviousAnnotations } = state;
   return (
-    <div className="sideMenuItem" >
+    <div className="sideMenuItem">
       Carry over annotations to new region
       {applyPreviousAnnotations !== null ? (
-          <Button
-            size="lg"
-            type="primary"
-            onClick={() =>
-              annotate.setState({ applyPreviousAnnotations: !applyPreviousAnnotations })
-            }
-            text={
-              applyPreviousAnnotations
-                ? 'apply previous annotations enabled'
-                : 'apply previous annotations disabled'
-            }
-          />
+        <Button
+          size="lg"
+          type="primary"
+          onClick={() => annotate.setState({ applyPreviousAnnotations: !applyPreviousAnnotations })}
+          text={
+            applyPreviousAnnotations
+              ? 'apply previous annotations enabled'
+              : 'apply previous annotations disabled'
+          }
+        />
       ) : null}
-      <br></br>
+      <br />
     </div>
   );
 };

@@ -49,8 +49,13 @@ const SideMenuTab = props => {
 const SideMenu = props => {
   const { annotate } = props;
   const { state } = annotate;
-  const { projectId, referenceWindowOn, spectrogramDemoOn, applyPreviousAnnotations,
-    toUnsavedClipOn } = state;
+  const {
+    projectId,
+    referenceWindowOn,
+    spectrogramDemoOn,
+    applyPreviousAnnotations,
+    toUnsavedClipOn
+  } = state;
 
   const initTabOpen = {
     refrences: true,
@@ -106,21 +111,19 @@ const SideMenu = props => {
         <ReferenceWindow annotate={annotate} projectId={projectId} />
       ) : null}
 
-      {tabOpen.SpectrogramChanger ?
+      {tabOpen.SpectrogramChanger ? (
         <div className="sideMenuItem">
           {spectrogramDemoOn && (
             <div>
-              <SpectroChanger annotate={annotate}/>  
-              <br></br>
+              <SpectroChanger annotate={annotate} />
+              <br />
             </div>
           )}
           <ChangePlayback annotate={annotate} />
           {applyPreviousAnnotations && <PreviousAnnotationButton annotate={annotate} />}
           {toUnsavedClipOn && annotate.UnsavedButton ? annotate.UnsavedButton.render() : null}
-
         </div>
-       : null}
-      
+      ) : null}
     </div>
   );
 };
