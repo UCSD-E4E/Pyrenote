@@ -6,9 +6,9 @@ const PreviousAnnotationButton = props => {
   const { state } = annotate;
   const { applyPreviousAnnotations } = state;
   return (
-    <div>
+    <div className="sideMenuItem" >
+      Carry over annotations to new region
       {applyPreviousAnnotations !== null ? (
-        <div className="col-4">
           <Button
             size="lg"
             type="primary"
@@ -21,8 +21,8 @@ const PreviousAnnotationButton = props => {
                 : 'apply previous annotations disabled'
             }
           />
-        </div>
       ) : null}
+      <br></br>
     </div>
   );
 };

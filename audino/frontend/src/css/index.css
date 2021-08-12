@@ -180,3 +180,12 @@ body,
     width: 70%;
   }
 }
+
+.sideMenuItem {
+  text-align: center; 
+  display: grid;
+  float: left;
+  overflow: hidden;
+  width: 100%;
+  padding: 10px;
+}

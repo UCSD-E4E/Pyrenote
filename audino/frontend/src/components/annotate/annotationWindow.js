@@ -6,8 +6,7 @@ import LabelSection from './labelsSection';
 import LabelButton from './labelButtons';
 import RenderingMsg from './renderingMsg';
 import MarkedForReview from './markedForReview';
-import PreviousAnnotationButton from './extraFeatures/previousAnnotationButton';
-import ChangePlayback from './extraFeatures/changePlayback';
+
 
 const AnnotationWindow = props => {
   const { annotate } = props;
@@ -20,8 +19,6 @@ const AnnotationWindow = props => {
     isRendering,
     original_filename,
     navButtonsEnabled,
-    applyPreviousAnnotations,
-    toUnsavedClipOn
   } = state;
 
   return (
@@ -46,10 +43,7 @@ const AnnotationWindow = props => {
             <div className={isDataLoading ? 'hidden' : ''}>
               <LabelButton state={state} annotate={annotate} />
               <MarkedForReview state={state} annotate={annotate} />
-              <ChangePlayback annotate={annotate} />
               {navButtonsEnabled && <NavButton annotate={annotate} />}
-              {applyPreviousAnnotations && <PreviousAnnotationButton annotate={annotate} />}
-              {toUnsavedClipOn && annotate.UnsavedButton ? annotate.UnsavedButton.render() : null}
             </div>
           </div>
         ) : null}

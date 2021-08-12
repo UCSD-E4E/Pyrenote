@@ -11,15 +11,21 @@ const ChangePlayback = props => {
 
   return (
     <div>
+
       {playbackOn ? (
-        <input
-          type="range"
-          min="1"
-          max="200"
-          value={playbackRate}
-          onChange={e => changePlayback(e)}
-        />
+        <div className="sideMenuItem">
+          <text style={{textAlign: 'center',}}>Change Playback</text>
+          <input
+            type="range"
+            min="1"
+            max="200"
+            value={playbackRate}
+            onChange={e => changePlayback(e)}
+          />
+          <br></br>
+        </div>
       ) : null}
+      
     </div>
   );
 };

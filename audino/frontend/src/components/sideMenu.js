@@ -5,6 +5,8 @@ import { ReferenceWindow } from './reference';
 import { IconButton, SVGButton } from './button';
 import SpectroChanger from './annotate/spectroChanger';
 import WaveformEdit from './svg/WaveformEdit';
+import ChangePlayback from './annotate/extraFeatures/changePlayback';
+import PreviousAnnotationButton from './annotate/extraFeatures/previousAnnotationButton';
 
 const faWaveformEdit = {
   prefix: 'fac',
@@ -47,7 +49,8 @@ const SideMenuTab = props => {
 const SideMenu = props => {
   const { annotate } = props;
   const { state } = annotate;
-  const { projectId, referenceWindowOn, spectrogramDemoOn } = state;
+  const { projectId, referenceWindowOn, spectrogramDemoOn, applyPreviousAnnotations,
+    toUnsavedClipOn } = state;
 
   const initTabOpen = {
     refrences: true,
@@ -102,17 +105,20 @@ const SideMenu = props => {
       {referenceWindowOn && tabOpen.refrences ? (
         <ReferenceWindow annotate={annotate} projectId={projectId} />
       ) : null}
-      
+
       {tabOpen.SpectrogramChanger ?
-        spectrogramDemoOn && (
-          <div>
-            <SpectroChanger annotate={annotate}/>  
-            <br></br>
-          </div>
-        )
+        <div className="sideMenuItem">
+          {spectrogramDemoOn && (
+            <div>
+              <SpectroChanger annotate={annotate}/>  
+              <br></br>
+            </div>
+          )}
+          <ChangePlayback annotate={annotate} />
+          {applyPreviousAnnotations && <PreviousAnnotationButton annotate={annotate} />}
+          {toUnsavedClipOn && annotate.UnsavedButton ? annotate.UnsavedButton.render() : null}
 
-
-        
+        </div>
        : null}
       
     </div>

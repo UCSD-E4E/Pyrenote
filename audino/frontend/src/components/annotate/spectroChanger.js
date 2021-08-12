@@ -15,16 +15,7 @@ const SpectroChanger = props => {
     contrast = 0;
   }
   return (
-    <div  
-      style={{
-        display: 'grid',
-        float: 'left',
-        overflow: 'hidden',
-        width: '100%',
-        textAlign: 'center',
-        padding: "10px"
-      }}
-    >
+    <div className="sideMenuItem">
       <text>brightness</text>
       <input
         type="range"
