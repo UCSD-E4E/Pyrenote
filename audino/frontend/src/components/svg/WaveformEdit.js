@@ -32,4 +32,18 @@ function WaveformEdit(props) {
   )
 }
 
+
+const faWaveformEdit = {
+  prefix: 'fac',
+  iconName: 'faWaveformEdit',
+  icon: [
+    16,
+    16,
+    [],
+    null,
+    'M15.486 2.04a.976.976 0 0 0-1.28-.386l-.006.003-9.307 4.745.943 1.668 9.308-4.746-.003-.005a.877.877 0 0 0 .374-1.227l-.03-.053zm-.345 1.279l-.94-1.662a.877.877 0 0 0-.364 1.222l.03.052c.25.443.82.615 1.274.388z'
+  ]
+};
+
 export default WaveformEdit
+export {faWaveformEdit}

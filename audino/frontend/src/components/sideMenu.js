@@ -1,5 +1,5 @@
 import React from 'react';
-import { faAtlas } from '@fortawesome/free-solid-svg-icons';
+import { faAtlas, faCog } from '@fortawesome/free-solid-svg-icons';
 // import fontawesome from '@fortawesome/fontawesome-free';
 import { ReferenceWindow } from './reference';
 import { IconButton, SVGButton } from './button';
@@ -7,18 +7,6 @@ import SpectroChanger from './annotate/spectroChanger';
 import WaveformEdit from './svg/WaveformEdit';
 import ChangePlayback from './annotate/extraFeatures/changePlayback';
 import PreviousAnnotationButton from './annotate/extraFeatures/previousAnnotationButton';
-
-const faWaveformEdit = {
-  prefix: 'fac',
-  iconName: 'faWaveformEdit',
-  icon: [
-    16,
-    16,
-    [],
-    null,
-    'M15.486 2.04a.976.976 0 0 0-1.28-.386l-.006.003-9.307 4.745.943 1.668 9.308-4.746-.003-.005a.877.877 0 0 0 .374-1.227l-.03-.053zm-.345 1.279l-.94-1.662a.877.877 0 0 0-.364 1.222l.03.052c.25.443.82.615 1.274.388z'
-  ]
-};
 
 const SideMenuTab = props => {
   const { tab, icon, tabOpen, setTab } = props;
@@ -86,12 +74,9 @@ const SideMenu = props => {
         }}
       >
         <SideMenuTab tab="refrences" icon={faAtlas} tabOpen={tabOpen} setTab={tab => setTab(tab)} />
-        <SVGButton>
-          <WaveformEdit />
-        </SVGButton>
         <SideMenuTab
           tab="SpectrogramChanger"
-          icon={faWaveformEdit}
+          icon={faCog}
           tabOpen={tabOpen}
           setTab={tab => setTab(tab)}
         />
