@@ -358,6 +358,7 @@ class Segmentation(db.Model):
             self.last_modified_by = {}
         date = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         self.last_modified_by[newUser] = date
+
     def set_max_freq(self, max_freq):
         if (max_freq != -1.0):
             self.max_freq = max_freq
@@ -423,3 +424,33 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+
+class Logs(db.Model):
+    __tablename__ = "logs"
+
+    id = db.Column("id", db.Integer(), primary_key=True)
+    project_id = db.Column("project_id", db.Integer(), nullable=True)
+
+    created_at = db.Column("created_at", db.DateTime(), nullable=False,
+                           default=db.func.now())
+
+    created_by = db.Column("created_by", db.Integer(), nullable=True)
+
+    log_lvl = db.Column("log_lvl", db.String(100), nullable=False)
+    message = db.Column("message", db.String(1000), nullable=False)
+
+    def to_dict(self):
+        return {
+            "project_id": self.project_id,
+            "created_at": self.created_at,
+            "created_by": self.created_by,
+            "message": self.message,
+            "log_lvl": self.log_lvl
+        }
+
+    def print_log(self):
+        log = self.created_at.strftime("%m/%d/%Y, %H:%M:%S") + " by "
+        log = log + str(self.created_by) + ": " + self.log_lvl + " { "
+        log = log + self.message + "}"
+        return log

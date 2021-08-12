@@ -3,6 +3,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 
 import Loader from '../components/loader';
+import { errorLogger } from '../logger';
 
 class Dashboard extends React.Component {
   constructor(props) {
@@ -26,10 +27,11 @@ class Dashboard extends React.Component {
           isProjectLoading: false
         });
       })
-      .catch(() => {
+      .catch(e => {
         this.setState({
           isProjectLoading: false
         });
+        errorLogger.sendLog("Something went wrong with the upload" + e.response.data.message)
       });
   }
 

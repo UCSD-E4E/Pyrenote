@@ -36,6 +36,7 @@ const AlertSection = ({ messages, callback, overlay }) => {
   let oneAlertRendered = false;
 
   const renderAlerts = (type, message, overlay = true, callback = () => {}) => {
+    
     return (
       <div>
         <Alert type={type} message={message} overlay={overlay} onClose={e => callback(e)} />
