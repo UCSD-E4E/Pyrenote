@@ -8,7 +8,6 @@ import RenderingMsg from './renderingMsg';
 import MarkedForReview from './markedForReview';
 import PreviousAnnotationButton from './extraFeatures/previousAnnotationButton';
 import ChangePlayback from './extraFeatures/changePlayback';
-import SpectroChanger from './spectroChanger';
 
 const AnnotationWindow = props => {
   const { annotate } = props;
@@ -22,13 +21,11 @@ const AnnotationWindow = props => {
     original_filename,
     navButtonsEnabled,
     applyPreviousAnnotations,
-    spectrogramDemoOn,
     toUnsavedClipOn
   } = state;
 
   return (
     <div>
-      {spectrogramDemoOn && <SpectroChanger annotate={annotate} />}
       <div className="h-100 mt-5 text-center">
         <AlertSection
           messages={[

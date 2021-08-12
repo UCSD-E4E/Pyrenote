@@ -51,7 +51,7 @@ class Annotate extends React.Component {
       // applyPreviousAnnotations: false,
       boundingBox: true,
       initWavesurfer: false,
-      maxHeight: window.innerHeight,
+      maxHeight: document.body.offsetHeight,
       disappear: 'sideMenu'
     };
     this.state = this.initalState;

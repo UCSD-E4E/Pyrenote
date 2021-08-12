@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 const noop = () => {};
 
 const IconButton = ({ icon, size = 'lg', title = '', onClick = noop, style = {} }) => {
@@ -16,6 +15,15 @@ IconButton.propTypes = {
   icon: PropTypes.objectOf.isRequired,
   size: PropTypes.oneOf(['lg', 'sm', '2x']).isRequired
 };
+
+const SVGButton = ({children, title = '', onClick = noop, style = {} }) => {
+  return (
+    <button type="button" className="btn btn-default" style={style} onClick={onClick} title={title}>
+      {children}
+    </button>
+  );
+};
+
 
 const Button = ({
   text,
@@ -60,4 +68,4 @@ Button.defaultProps = {
   isDisabled: false
 };
 
-export { Button, IconButton };
+export { Button, IconButton, SVGButton };
