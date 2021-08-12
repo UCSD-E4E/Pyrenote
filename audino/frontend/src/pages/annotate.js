@@ -85,20 +85,6 @@ class Annotate extends React.Component {
           spectrogramDemoOn: response.data.features_list['spectrogram demo']
         });
 
-        axios({
-          method: 'get',
-          url: apiUrl
-        })
-          .then(response => {
-            this.loadNextData(response);
-          })
-          .catch(error => {
-            this.setState({
-              errorMessage: error.response.data.message,
-              isDataLoading: false
-            });
-          });
-
         const wavesurferMethods = new WavesurferMethods({
           annotate: this,
           state: this.state,
@@ -206,35 +192,6 @@ class Annotate extends React.Component {
 
     this.setState({ wavesurfer, wavesurferMethods });
     this.loadRegions(regions);
-  }
-
-  loadNextData(response) {
-    const { projectId, path } = this.state;
-    const { active, next_page } = response.data;
-    this.setState({
-      data: response.data.data
-    });
-
-    let apiUrl2 = `/api/current_user/projects/${projectId}/data`;
-    apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
-
-    axios({
-      method: 'get',
-      url: apiUrl2
-    })
-      .then(message => {
-        const { data } = message.data;
-        const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
-        this.setState({
-          next_data_url,
-          next_data_id: data[0].data_id
-        });
-      })
-      .catch(error => {
-        this.setState({
-          errorMessage: error.message.data.message
-        });
-      });
   }
 
   nextPage(nextDataId) {
