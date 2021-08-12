@@ -120,7 +120,7 @@ const SideMenu = props => {
             </div>
           )}
           <ChangePlayback annotate={annotate} />
-          {applyPreviousAnnotations && <PreviousAnnotationButton annotate={annotate} />}
+          <PreviousAnnotationButton annotate={annotate} />
           {toUnsavedClipOn && annotate.UnsavedButton ? annotate.UnsavedButton.render() : null}
         </div>
       ) : null}

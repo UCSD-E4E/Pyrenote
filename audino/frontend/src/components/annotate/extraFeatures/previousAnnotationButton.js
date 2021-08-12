@@ -5,6 +5,7 @@ const PreviousAnnotationButton = props => {
   const { annotate } = props;
   const { state } = annotate;
   const { applyPreviousAnnotations } = state;
+  console.log(applyPreviousAnnotations)
   return (
     <div className="sideMenuItem">
       Carry over annotations to new region
