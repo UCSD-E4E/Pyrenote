@@ -79,7 +79,7 @@ const Resizer = props => {
         icon={isOpen ? faAngleDoubleLeft : faAngleDoubleRight}
         type="primary"
         onClick={() => annotate.collapseSideBar()}
-        title={isOpen ? "collapse side menu" : "open side menu"}
+        title={isOpen ? 'collapse side menu' : 'open side menu'}
       />
       {isOpen ? (
         <div id="sidebarDragger">

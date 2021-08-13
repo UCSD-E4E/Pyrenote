@@ -2,9 +2,8 @@ import React from 'react';
 import { faAtlas, faCog } from '@fortawesome/free-solid-svg-icons';
 // import fontawesome from '@fortawesome/fontawesome-free';
 import { ReferenceWindow } from './reference';
-import { IconButton, SVGButton } from './button';
+import { IconButton } from './button';
 import SpectroChanger from './annotate/spectroChanger';
-import WaveformEdit from './svg/WaveformEdit';
 import ChangePlayback from './annotate/extraFeatures/changePlayback';
 import PreviousAnnotationButton from './annotate/extraFeatures/previousAnnotationButton';
 
@@ -37,13 +36,7 @@ const SideMenuTab = props => {
 const SideMenu = props => {
   const { annotate } = props;
   const { state } = annotate;
-  const {
-    projectId,
-    referenceWindowOn,
-    spectrogramDemoOn,
-    applyPreviousAnnotations,
-    toUnsavedClipOn
-  } = state;
+  const { projectId, referenceWindowOn, spectrogramDemoOn, toUnsavedClipOn } = state;
 
   const initTabOpen = {
     refrences: true,

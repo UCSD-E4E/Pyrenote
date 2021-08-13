@@ -53,7 +53,7 @@ const SpectroChanger = props => {
         onClick={() => spectrogram.setColorMap('hot')}
         text="Reset Color Map"
       />
-      <br></br>
+      <br />
     </div>
   );
 };
