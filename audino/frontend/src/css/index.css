@@ -190,3 +190,10 @@ body,
   width: 100%;
   padding: 10px;
 }
+
+.vl {
+  border-left: 3px solid rgb(119, 119, 119);
+  height: 24px;
+  top: 0px;
+  position: relative;
+}
