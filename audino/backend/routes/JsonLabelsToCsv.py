@@ -109,10 +109,9 @@ def JsonToText(data):
 
 def JsonToRaven(data):
     text = ""
-    app.logger.info(data)
     text = write_row(text, ['Selection', 'View', 'Begin Time (s)',
-                                'End Time (s)', 'Low Freq (Hz)',
-                                'High Freq (Hz)', 'Species'])
+                            'End Time (s)', 'Low Freq (Hz)',
+                            'High Freq (Hz)', 'Species'], delimeter="	")
     for audio in data:
         original_filename = audio['original_filename']
         sampling_rate = audio['sampling_rate']
@@ -123,8 +122,7 @@ def JsonToRaven(data):
         text = text + "========================="
         text = text + "\n" + original_filename
         text = text + "\n ========================= \n"
-       
-        
+
         for region in segments:
             end = region['end_time']
             start = region['start_time']
@@ -132,7 +130,8 @@ def JsonToRaven(data):
             if len(region['annotations']) == 0:
                 label = "NO LABEL"
                 text = write_row(text, [count, 'Spectrogram 1', '1',
-                                 start,  end, '100.0', '200000.0', label])
+                                 start,  end, '100.0', '1000.0', label],
+                                 delimeter="	")
             else:
                 for labelCate in region['annotations'].values():
                     print(labelCate)
@@ -143,21 +142,23 @@ def JsonToRaven(data):
                             label = label['value']
                             text = write_row(text, [count, 'Spectrogram 1',
                                              '1', start,  end, '100.0',
-                                                           '200000.0', label])
+                                                           '1000.0', label],
+                                             delimeter="	")
                     except Exception as e:
                         label = values['value']
                         text = write_row(text, [count, 'Spectrogram 1', '1',
-                                         start,  end, '100.0', '200000.0',
-                                         label])
+                                         start,  end, '100.0', '1000.0',
+                                         label],
+                                         delimeter="	")
                     count += 1
     return text
 
 
-def write_row(text, row):
+def write_row(text, row, delimeter=","):
     for i in range(len(row)):
         text = text + str(row[i])
         if (i == (len(row) - 1)):
             text = text + "\n"
         else:
-            text = text + ","
+            text = text + delimeter
     return text
