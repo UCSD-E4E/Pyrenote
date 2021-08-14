@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React from 'react';
-
+import { errorLogger } from '../../logger';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 
@@ -63,6 +63,7 @@ class CreateLabelValueForm extends React.Component {
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message)
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: '',
