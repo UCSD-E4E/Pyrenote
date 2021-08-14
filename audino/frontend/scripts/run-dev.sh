@@ -5,6 +5,7 @@ set -o errexit
 app="/app/frontend"
 echo "npm install"
 {
+    cd "{app}" && npm i bezier-easing
     cd "${app}" && npm install
 } || {
     echo "package update broke install, deleting node_modules"
@@ -12,5 +13,7 @@ echo "npm install"
     cd "${app}" && rm -f package-lock.json
     cd "${app}" && npm install
 }
+echo "npm update"
+cd "${app}" && npm update
 echo "npm start"
 cd "${app}" && npm run start

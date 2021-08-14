@@ -15,7 +15,8 @@ const SpectroChanger = props => {
     contrast = 0;
   }
   return (
-    <div>
+    <div className="sideMenuItem">
+      <text>brightness</text>
       <input
         type="range"
         min="-1"
@@ -27,6 +28,7 @@ const SpectroChanger = props => {
         }}
         // can also do spectrogram.contrast
       />
+      <text>contrast</text>
       <input
         type="range"
         min="-155"
@@ -37,12 +39,21 @@ const SpectroChanger = props => {
           spectrogram.contrast(e.target.value);
         }}
       />
+      <text>change color map</text>
+      <Button
+        size="lg"
+        type="primary"
+        onClick={() => spectrogram.setColorMap('winter')}
+        text="change color map"
+      />
+      <text>RESET</text>
       <Button
         size="lg"
         type="danger"
-        onClick={() => spectrogram.setColorMap('winter')}
-        text="test"
+        onClick={() => spectrogram.setColorMap('hot')}
+        text="Reset Color Map"
       />
+      <br />
     </div>
   );
 };

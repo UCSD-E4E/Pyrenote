@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import WaveSurfer from '../wavesurfer.js/src/wavesurfer.js';
 import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
-import { Button, IconButton } from './button';
+import { IconButton } from './button';
 
 const colormap = require('colormap');
 const uuid = require('uuid');
@@ -230,16 +230,6 @@ class ReferenceWindow extends React.Component {
     }
     return (
       <div id="reference-window-container">
-        <Button
-          style={{ zIndex: 100 }}
-          text={end ? 'hide smaples' : 'show samples'}
-          type="primary"
-          title={end ? 'hide smaples' : 'show samples'}
-          size="sm"
-          onClick={() => {
-            this.setState({ end: !end });
-          }}
-        />
         <div id={thingy}>
           {labels
             ? Object.entries(labels).map(([key, value]) => {

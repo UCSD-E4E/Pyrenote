@@ -4,21 +4,37 @@ const ChangePlayback = props => {
   const { annotate } = props;
   const { state } = annotate;
   const { wavesurfer, playbackOn, playbackRate } = state;
+  const stickySpeeds = [25, 50, 75, 100, 125, 150, 175, 200];
   const changePlayback = e => {
-    wavesurfer.setPlaybackRate(e.target.value / 100);
-    annotate.setState({ playbackRate: e.target.value });
+    const speed = e.target.value;
+    wavesurfer.setPlaybackRate(speed / 100);
+    annotate.setState({ playbackRate: speed });
+  };
+
+  const stickToSpeed = e => {
+    let speed = e.target.value;
+    stickySpeeds.forEach(value => {
+      if (Math.abs(speed - value) < 10) speed = value;
+    });
+    wavesurfer.setPlaybackRate(speed / 100);
+    annotate.setState({ playbackRate: speed });
   };
 
   return (
     <div>
       {playbackOn ? (
-        <input
-          type="range"
-          min="1"
-          max="200"
-          value={playbackRate}
-          onChange={e => changePlayback(e)}
-        />
+        <div className="sideMenuItem">
+          <text style={{ textAlign: 'center' }}>Change Playback</text>
+          <input
+            type="range"
+            min="1"
+            max="200"
+            value={playbackRate}
+            onChange={e => changePlayback(e)}
+            onMouseUp={e => stickToSpeed(e)}
+          />
+          <br />
+        </div>
       ) : null}
     </div>
   );

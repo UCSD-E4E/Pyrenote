@@ -102,8 +102,10 @@ class UnsavedButton extends React.Component {
     }
 
     return (
-      <div>
+      <div className="sideMenuItem">
+        Navigate to next unsaved button
         <Button text={msg} size="lg" type="primary" onClick={() => this.iteratePos()} />
+        <br />
       </div>
     );
   }
