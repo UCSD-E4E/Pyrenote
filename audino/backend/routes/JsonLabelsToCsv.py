@@ -109,7 +109,7 @@ def JsonToText(data):
 
 def JsonToRaven(data):
     text = ""
-    text = write_row(text, ['Selection', 'View', 'Begin Time (s)',
+    text = write_row(text, ['Selection', 'View', 'Channel', 'Begin Time (s)',
                             'End Time (s)', 'Low Freq (Hz)',
                             'High Freq (Hz)', 'Species'], delimeter="	")
     for audio in data:
