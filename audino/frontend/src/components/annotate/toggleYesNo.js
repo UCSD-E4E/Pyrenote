@@ -1,7 +1,5 @@
-
 import React from 'react';
 import axios from 'axios';
-import { withStore } from '@spyna/react-store';
 import { Button } from '../button';
 class ToggleYesNo extends React.Component {
   constructor(params) {
