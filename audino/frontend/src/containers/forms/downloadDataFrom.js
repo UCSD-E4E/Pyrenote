@@ -2,6 +2,8 @@ import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
+import JSZip from 'jszip';
+import FileSaver from 'file-saver';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from '../../components/button';
 import { FormAlerts } from '../../components/alert';
@@ -76,14 +78,22 @@ class DownloadDataForm extends React.Component {
       method: 'get',
       url: `/api/projects/${projectId}/annotations`,
       headers: {
-        csv: 'raven'
+        csv: 'raven-test'
       }
     })
       .then(response => {
+       
+
         const { annotations } = response.data;
         if (annotations) {
           const data = annotations; // JSON.stringify(annotations, null, 2)
-          this.download(data, `${projectName}.txt`, 'text/csv;encoding:utf-8');
+          let zip = new JSZip();
+          data.forEach(file => {
+            zip.file(file["original_filename"], file["annotations"]);
+          })
+          zip.generateAsync({type: "blob"}).then(function(content) {
+            FileSaver.saveAs(content, "raven_annotations.zip");
+          });
         } else {
           console.warn('No annotations found');
         }
@@ -195,6 +205,10 @@ class DownloadDataForm extends React.Component {
       )}`; // only this mime type is supported
     }
   };
+
+  downloadZIP() {
+
+  }
 
   resetState() {
     this.setState(this.initialState);

@@ -112,45 +112,45 @@ def JsonToRaven(data):
     text = write_row(text, ['Selection', 'View', 'Channel', 'Begin Time (s)',
                             'End Time (s)', 'Low Freq (Hz)',
                             'High Freq (Hz)', 'Species'], delimeter="	")
-    for audio in data:
-        original_filename = audio['original_filename']
-        sampling_rate = audio['sampling_rate']
-        clip_length = audio['clip_length']
-        segments = audio['segmentations']
-        count = 1
+    audio = data
+    original_filename = audio['original_filename']
+    sampling_rate = audio['sampling_rate']
+    clip_length = audio['clip_length']
+    segments = audio['segmentations']
+    count = 1
 
-        text = text + "========================="
-        text = text + "\n" + original_filename
-        text = text + "\n ========================= \n"
+    # text = text + "========================="
+    # text = text + "\n" + original_filename
+    # text = text + "\n ========================= \n"
 
-        for region in segments:
-            end = region['end_time']
-            start = region['start_time']
-            time_spent = region['time_spent']
-            if len(region['annotations']) == 0:
-                label = "NO LABEL"
-                text = write_row(text, [count, 'Spectrogram 1', '1',
-                                 start,  end, '100.0', '1000.0', label],
-                                 delimeter="	")
-            else:
-                for labelCate in region['annotations'].values():
-                    print(labelCate)
-                    values = labelCate["values"]
-                    try:
-                        for label in values:
-                            print(label)
-                            label = label['value']
-                            text = write_row(text, [count, 'Spectrogram 1',
-                                             '1', start,  end, '100.0',
-                                                           '1000.0', label],
-                                             delimeter="	")
-                    except Exception as e:
-                        label = values['value']
-                        text = write_row(text, [count, 'Spectrogram 1', '1',
-                                         start,  end, '100.0', '1000.0',
-                                         label],
+    for region in segments:
+        end = region['end_time']
+        start = region['start_time']
+        time_spent = region['time_spent']
+        if len(region['annotations']) == 0:
+            label = "NO LABEL"
+            text = write_row(text, [count, 'Spectrogram 1', '1',
+                                    start,  end, '100.0', '1000.0', label],
+                             delimeter="	")
+        else:
+            for labelCate in region['annotations'].values():
+                print(labelCate)
+                values = labelCate["values"]
+                try:
+                    for label in values:
+                        print(label)
+                        label = label['value']
+                        text = write_row(text, [count, 'Spectrogram 1',
+                                                '1', start,  end, '100.0',
+                                                '1000.0', label],
                                          delimeter="	")
-                    count += 1
+                except Exception as e:
+                    label = values['value']
+                    text = write_row(text, [count, 'Spectrogram 1', '1',
+                                     start,  end, '100.0', '1000.0',
+                                     label],
+                                     delimeter="	")
+                count += 1
     return text
 
 
