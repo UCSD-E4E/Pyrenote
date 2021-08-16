@@ -233,7 +233,7 @@ class DownloadDataForm extends React.Component {
               width: '30%'
             }}
           >
-            <text>DOWNLOAD CSV it has changed</text>
+            <text>DOWNLOAD CSV</text>
             <IconButton
               icon={faDownload}
               size="lg"
