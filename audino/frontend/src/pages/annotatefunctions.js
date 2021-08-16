@@ -114,7 +114,7 @@ const handleSegmentDelete = annotate => {
         annotate.setState({
           isSegmentDeleting: false
         });
-        errorLogger.sendLog(error.data.message)
+        //errorLogger.sendLog(error.data.message)
       });
   } else {
     removeSegment(wavesurfer, selectedSegment, annotate);
