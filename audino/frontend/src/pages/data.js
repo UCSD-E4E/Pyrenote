@@ -30,7 +30,8 @@ class Data extends React.Component {
         pending: this.prepareUrl(projectId, 1, 'pending'),
         completed: this.prepareUrl(projectId, 1, 'completed'),
         all: this.prepareUrl(projectId, 1, 'all'),
-        marked_review: this.prepareUrl(projectId, 1, 'marked_review')
+        marked_review: this.prepareUrl(projectId, 1, 'marked_review'),
+        not_confident: this.prepareUrl(projectId, 1, 'not_confident')
       },
       nextPage: null,
       isDataLoading: false
@@ -158,6 +159,14 @@ class Data extends React.Component {
                         href={tabUrls.marked_review}
                       >
                         Marked for review ({count.marked_review})
+                      </a>
+                    </li>
+                    <li className="nav-item">
+                      <a
+                        className={`nav-link ${active === 'not_confident' ? 'active' : null}`}
+                        href={tabUrls.not_confident}
+                      >
+                        not_confident ({count.not_confident})
                       </a>
                     </li>
                   </ul>

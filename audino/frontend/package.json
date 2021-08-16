@@ -16,7 +16,7 @@
     "bootstrap": "^4.4.1",
     "colormap": "^2.3.2",
     "debounce": "^1.2.1",
-    "history": "^5.0.0",
+    "history": "^5.0.1",
     "jquery": "^3.5.0",
     "load-script": "^1.0.0",
     "popper.js": "^1.16.1",
@@ -31,7 +31,7 @@
     "react-scripts": "3.4.1",
     "redux": "^4.0.5",
     "uuid": "^8.3.2",
-    "wavesurfer.js": "^5.1.0"
+    "wavesurfer.js": "^5.2.0"
   },
   "proxy": "http://backend:5000",
   "scripts": {
