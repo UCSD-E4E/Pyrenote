@@ -113,24 +113,24 @@ def JsonToRaven(data):
                             'End Time (s)', 'Low Freq (Hz)',
                             'High Freq (Hz)', 'Species'], delimeter="	")
     audio = data
-    original_filename = audio['original_filename']
-    sampling_rate = audio['sampling_rate']
-    clip_length = audio['clip_length']
     segments = audio['segmentations']
+    sampling_rate = round(audio['sampling_rate'] / 2)
     count = 1
-
-    # text = text + "========================="
-    # text = text + "\n" + original_filename
-    # text = text + "\n ========================= \n"
-
+    app.logger.info(sampling_rate)
     for region in segments:
         end = region['end_time']
         start = region['start_time']
-        time_spent = region['time_spent']
+        max_freq = region['max_freq']
+        if (int(max_freq) < 0 or int(max_freq) > sampling_rate):
+            max_freq = sampling_rate
+
+        min_freq = region['min_freq']
+        if (int(min_freq) < 0 or int(min_freq) > sampling_rate):
+            min_freq = 0
         if len(region['annotations']) == 0:
             label = "NO LABEL"
             text = write_row(text, [count, 'Spectrogram 1', '1',
-                                    start,  end, '100.0', '1000.0', label],
+                                    start,  end, min_freq, max_freq, label],
                              delimeter="	")
         else:
             for labelCate in region['annotations'].values():
@@ -141,13 +141,13 @@ def JsonToRaven(data):
                         print(label)
                         label = label['value']
                         text = write_row(text, [count, 'Spectrogram 1',
-                                                '1', start,  end, '100.0',
-                                                '1000.0', label],
+                                                '1', start,  end, min_freq,
+                                                max_freq, label],
                                          delimeter="	")
                 except Exception as e:
                     label = values['value']
                     text = write_row(text, [count, 'Spectrogram 1', '1',
-                                     start,  end, '100.0', '1000.0',
+                                     start,  end, min_freq, max_freq,
                                      label],
                                      delimeter="	")
                 count += 1
