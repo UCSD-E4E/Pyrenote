@@ -917,6 +917,9 @@ def get_project_annotations(project_id):
         annotations = []
 
         for data in project.data:
+            if (data.sample):
+                continue
+
             data_dict = data.to_dict()
             data_dict["segmentations"] = []
 
