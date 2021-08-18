@@ -165,7 +165,10 @@ class Annotate extends React.Component {
     });
 
     const { is_marked_for_review, segmentations, filename, original_filename, sampling_rate } = response[1].data;
-
+    let {sampleRate} = this.state
+    if (!sampleRate) {
+      sampleRate = sampling_rate
+    }
     const regions = segmentations.map(segmentation => {
       if (boundingBox) {
         return {
@@ -200,7 +203,8 @@ class Annotate extends React.Component {
       original_filename
     });
 
-    wavesurfer.load(`/audios/${filename}`, null, null, null, sampling_rate);
+    console.log("start load", sampleRate)
+    wavesurfer.load(`/audios/${filename}`, null, null, null, sampleRate);
     const { zoom } = this.state;
     wavesurfer.zoom(zoom);
 

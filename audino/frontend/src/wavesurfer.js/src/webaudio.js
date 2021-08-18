@@ -87,10 +87,8 @@ export default class WebAudio extends util.Observer {
      * a new one
      */
     getOfflineAudioContext(sampleRate) {
-        if (!window.WaveSurferOfflineAudioContext) {
-            window.WaveSurferOfflineAudioContext = new (window.OfflineAudioContext ||
-                window.webkitOfflineAudioContext)(1, 2, sampleRate);
-        }
+        window.WaveSurferOfflineAudioContext = new (window.OfflineAudioContext ||
+            window.webkitOfflineAudioContext)(1, 2, sampleRate);
         return window.WaveSurferOfflineAudioContext;
     }
 
@@ -344,11 +342,9 @@ export default class WebAudio extends util.Observer {
      */
     async decodeArrayBuffer(arraybuffer, callback, errback, sampleRate) {
         console.log("in decode array buffer", sampleRate, sampleRate ? sampleRate: this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100)
-        if (!this.offlineAc) {
-            this.offlineAc = this.getOfflineAudioContext(
-                sampleRate ? sampleRate: this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100
-            );
-        }
+        this.offlineAc = this.getOfflineAudioContext(
+            sampleRate ? sampleRate: this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100
+        );
 
         console.log(this.offlineAc)
         if ('webkitAudioContext' in window) {
@@ -367,11 +363,13 @@ export default class WebAudio extends util.Observer {
             callback(audiobuffer)*/
             console.log("here")
             //var audioCtx = new (window.AudioContext || window.webkitAudioContext)(1, 2, sampleRate);
+            console.log(arraybuffer)
             await this.offlineAc.decodeAudioData(arraybuffer,  (data) => {
                 callback(data)
                 console.log("here", data)
             },
             err => errback(err))
+
         }
     }
 
