@@ -343,7 +343,9 @@ export default class SpectrogramPlugin {
     const { buffer } = this;
     const channelOne = buffer.getChannelData(0);
     // const bufferLength = buffer.length;
-    const { sampleRate } = buffer;
+    let { sampleRate } = buffer;
+    //sampleRate = 18000 * 2
+    console.log(sampleRate)
     const frequencies = [];
 
     if (!buffer) {
@@ -414,7 +416,14 @@ export default class SpectrogramPlugin {
     const getMaxY = frequenciesHeight || 512;
     const labelIndex = 5 * (getMaxY / 256);
     const freqStart = 0;
-    const step = (this.wavesurfer.backend.ac.sampleRate / 2 - freqStart) / labelIndex;
+    console.log(this.wavesurfer.backend.ac.sampleRate)
+    let sampleRate = 44100
+    if (this.wavesurfer.backend.offlineAc.sampleRate) {
+        sampleRate = this.wavesurfer.backend.offlineAc.sampleRate
+    } else if (this.wavesurfer.backend.ac.sampleRate) {
+        sampleRate = this.wavesurfer.backend.ac.sampleRate
+    }
+    const step = (sampleRate / 2 - freqStart) / labelIndex;
 
     // prepare canvas element for labels
     const ctx = this.labelsEl.getContext('2d');

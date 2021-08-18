@@ -1289,12 +1289,14 @@ export default class WaveSurfer extends util.Observer {
    * @private
    * @param {ArrayBuffer} arraybuffer Buffer to process
    */
-  loadArrayBuffer(arraybuffer) {
+   loadArrayBuffer(arraybuffer, sampleRate = null) {
+       console.log(arraybuffer, sampleRate)
     this.decodeArrayBuffer(arraybuffer, data => {
+        console.log(data)
       if (!this.isDestroyed) {
         this.loadDecodedBuffer(data);
       }
-    });
+    }, sampleRate);
   }
 
   /**
@@ -1305,6 +1307,7 @@ export default class WaveSurfer extends util.Observer {
    * @emits WaveSurfer#ready
    */
   loadDecodedBuffer(buffer) {
+    console.log(buffer)
     this.backend.load(buffer);
     this.drawBuffer();
     this.isReady = true;
@@ -1358,7 +1361,7 @@ export default class WaveSurfer extends util.Observer {
    *   true
    * );
    */
-   load(url, peaks, preload, duration) {
+   load(url, peaks, preload, duration, sampleRate) {
     if (!url) {
         throw new Error('url parameter cannot be empty');
     }
@@ -1395,10 +1398,10 @@ export default class WaveSurfer extends util.Observer {
     if (this.params.backend === 'WebAudio' && url instanceof HTMLMediaElement) {
         url = url.src;
     }
-
+    console.log(sampleRate)
     switch (this.params.backend) {
         case 'WebAudio':
-            return this.loadBuffer(url, peaks, duration);
+            return this.loadBuffer(url, peaks, duration, sampleRate);
         case 'MediaElement':
         case 'MediaElementWebAudio':
             return this.loadMediaElement(url, peaks, preload, duration);
@@ -1415,12 +1418,13 @@ export default class WaveSurfer extends util.Observer {
    * @param {?number} duration Optional duration of audio file
    * @returns {void}
    */
-  loadBuffer(url, peaks, duration) {
+  loadBuffer(url, peaks, duration, sampleRate = null) {
+      console.log(sampleRate)
     const load = action => {
       if (action) {
         this.tmpEvents.push(this.once('ready', action));
       }
-      return this.getArrayBuffer(url, data => this.loadArrayBuffer(data));
+      return this.getArrayBuffer(url, data => this.loadArrayBuffer(data, sampleRate));
     };
 
     if (peaks) {
@@ -1501,7 +1505,7 @@ export default class WaveSurfer extends util.Observer {
    * @param {Object} arraybuffer The array buffer to decode
    * @param {function} callback The function to call on complete
    */
-  decodeArrayBuffer(arraybuffer, callback) {
+  decodeArrayBuffer(arraybuffer, callback, sampleRate) {
     this.arraybuffer = arraybuffer;
     this.backend.decodeArrayBuffer(
       arraybuffer,
@@ -1513,7 +1517,8 @@ export default class WaveSurfer extends util.Observer {
           this.arraybuffer = null;
         }
       },
-      () => this.fireEvent('error', 'Error decoding audiobuffer')
+      () => this.fireEvent('error', 'Error decoding audiobuffer'),
+      sampleRate
     );
   }
 
