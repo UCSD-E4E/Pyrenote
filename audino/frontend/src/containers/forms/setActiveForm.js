@@ -54,14 +54,18 @@ class SetActiveForm extends React.Component {
             callback={e => this.handleAlertDismiss(e)}
           />
         <text>What audio data do you want recommended to you by clicking next?</text>
+        <br/>
         <select class="form-control" onChange={e => this.handleChange(e)}>
           <option value="-1">Choose Active</option>
           <option value="pending">Pending</option>
           <option value="completed">Completed</option>
           <option value="marked_review">Marked review</option>
           <option value="all">All</option>
+          <option value="all">Recommended</option>
         </select>
+        <br/>
         <text>Go into settings page of side window to change this setting</text>
+        <br/>
         <Button type="primary" text="Submit Active" onClick={()=> this.handleSubmit()}/>
       </div>
     );

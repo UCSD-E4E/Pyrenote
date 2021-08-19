@@ -132,9 +132,9 @@ def getNextClip(project_id, data_id):
     return jsonify(message=message), 404
 
 
-@jwt_required
 @api.route("next_clip/next_rec/project/<int:project_id>/data/<int:data_id>",
            methods=["GET"])
+@jwt_required
 def getNextReccomendedData(project_id, data_id):
     # TODO: Generalize to other systems
     # active = request.args.get("active", "completed", type=str)
@@ -196,6 +196,7 @@ def getNextReccomendedData(project_id, data_id):
         return (
             jsonify(
                 data=response,
+                data_id=data.id,
                 active=active,
             ),
             200,

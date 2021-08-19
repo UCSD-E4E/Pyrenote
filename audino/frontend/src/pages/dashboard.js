@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { Button } from '../components/button';
 
 import Loader from '../components/loader';
 import { errorLogger } from '../logger';
@@ -35,6 +36,28 @@ class Dashboard extends React.Component {
       });
   }
 
+  getReccomendedData(projectId) {
+    axios({
+      method: 'get',
+      url: `api/next_clip/next_rec/project/${projectId}/data/1`
+    })
+      .then(response => {
+        console.log(response)
+        const index = window.location.href.indexOf('/dashboard');
+        const path = window.location.href.substring(0, index)
+        console.log(`${path}/projects/${projectId}/data/${response.data.data_id}/annotate`)
+        localStorage.setItem("active", "recommended")
+        window.location.href = `${path}/projects/${projectId}/data/${response.data.data_id}/annotate`
+      })
+      .catch(e => {
+        this.setState({
+          isProjectLoading: false
+        });
+      });
+    
+    
+  }
+
   render() {
     const { isProjectLoading, projects } = this.state;
     return (
@@ -56,7 +79,7 @@ class Dashboard extends React.Component {
                       <th scope="col">#</th>
                       <th scope="col">Name</th>
                       <th scope="col">Created By</th>
-                      <th scope="col">Created On</th>
+                      <th scope="col">Quick Start</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -70,7 +93,9 @@ class Dashboard extends React.Component {
                             <a href={`/projects/${project.project_id}/data`}>{project.name}</a>
                           </td>
                           <td className="align-middle">{project.created_by}</td>
-                          <td className="align-middle">{project.created_on}</td>
+                          <td className="align-middle">
+                            <Button type="primary" text="Quick Start Anotating" onClick={() => this.getReccomendedData(project.project_id)} />
+                          </td>
                         </tr>
                       );
                     })}
