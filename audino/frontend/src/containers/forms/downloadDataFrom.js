@@ -1,7 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-import { withRouter } from 'react-router';
-import { withStore } from '@spyna/react-store';
 import JSZip from 'jszip';
 import FileSaver from 'file-saver';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
