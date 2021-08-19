@@ -8,6 +8,7 @@ import SideMenu from '../components/sideMenu';
 import { animateWidth } from '../components/annotate/animation';
 import Resizer from '../components/resizerElement';
 import AnnotationWindow from '../components/annotate/annotationWindow.js';
+import FormModal from '../containers/modal';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -52,7 +53,8 @@ class Annotate extends React.Component {
       boundingBox: true,
       initWavesurfer: false,
       maxHeight: document.body.offsetHeight,
-      disappear: 'sideMenu'
+      disappear: 'sideMenu',
+      showActiveForm: localStorage.getItem("active") == null,
     };
     this.state = this.initalState;
     this.lastTime = 0;
@@ -224,7 +226,7 @@ class Annotate extends React.Component {
   }
 
   render() {
-    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn } = this.state;
+    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn, showActiveForm } = this.state;
 
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -235,6 +237,13 @@ class Annotate extends React.Component {
         <Helmet>
           <title>Annotate</title>
         </Helmet>
+        <FormModal
+          formType={"SET_ACTIVE"}
+          title={"select active"}
+          show={showActiveForm}
+          annotate={this}
+          onHide={() => this.setState({showActiveForm: false})}
+        />
         {referenceWindowOn ? (
           <div className="containerAnnotate">
             <span

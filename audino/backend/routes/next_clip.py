@@ -106,6 +106,22 @@ def getNextClip(project_id, data_id):
                 count += 1
             if (next is not None):
                 test_page += 1
+            else:
+                next_data = data[active].paginate(1, 1, False).items[0]
+                pd = data[active].paginate(1, 10, False)
+                next = pd.next_num if paginated_data.has_next else None
+                prev = pd.prev_num if paginated_data.has_prev else None
+                return (
+                        jsonify(
+                            data=next_data.to_dict(),
+                            data_id=next_data.id,
+                            next_page=next,
+                            prev_page=prev,
+                            page=test_page,
+                            active=active,
+                        ),
+                        200,
+                    )
     except Exception as e:
         message = "Error fetching all data points"
         app.logger.error(message)

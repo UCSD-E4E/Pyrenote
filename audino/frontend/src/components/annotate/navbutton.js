@@ -48,17 +48,24 @@ const NavButton = props => {
     const { dataId, projectId } =
       annotate.state;
     const active = localStorage.getItem('active');
+    if (active == null) {
+      annotate.setState({showActiveForm: true})
+      return;
+    }
+    console.log("button", active)
     let success = true;
     success = checkForSave(success, forceNext, 'next');
     if (!success) {
       return;
     }
+    console.log("send active")
     const url = '/api/next_clip/project/' + projectId + '/data/' + dataId 
     axios({
       method: 'get',
       url: url + "?active=" + active
     })
       .then(response => {
+        console.log(response)
         const {data_id} = response.data
         console.log(response.status === 202 === 202)
         loadNextPage(response.status === 202, data_id)

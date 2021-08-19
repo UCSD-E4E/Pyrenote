@@ -15,6 +15,7 @@ import DeleteLabelForm from './forms/deleteLabelFrom';
 import EditProjectForm from './forms/editProjectForm';
 import DownloadDataForm from './forms/downloadDataFrom';
 import FeatureForm from './forms/featureForm';
+import SetActiveForm from './forms/setActiveForm';
 
 const FormModal = props => {
   const {
@@ -28,7 +29,8 @@ const FormModal = props => {
     labelId,
     labelValueId,
     api_key,
-    projectName
+    projectName,
+    annotate
   } = props;
   return (
     <Modal
@@ -73,6 +75,9 @@ const FormModal = props => {
         ) : null}
         {formType === 'FEATURE_FORM' ? (
           <FeatureForm projectId={projectId} projectName={projectName} apiKey={api_key} />
+        ) : null}
+        {formType == 'SET_ACTIVE' ? (
+          <SetActiveForm annotate={annotate} onDelete={() => onExited}/>
         ) : null}
       </Modal.Body>
     </Modal>
