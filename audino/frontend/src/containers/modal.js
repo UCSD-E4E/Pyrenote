@@ -76,7 +76,7 @@ const FormModal = props => {
         {formType === 'FEATURE_FORM' ? (
           <FeatureForm projectId={projectId} projectName={projectName} apiKey={api_key} />
         ) : null}
-        {formType == 'SET_ACTIVE' ? (
+        {formType === 'SET_ACTIVE' ? (
           <SetActiveForm annotate={annotate} onDelete={() => onExited}/>
         ) : null}
       </Modal.Body>

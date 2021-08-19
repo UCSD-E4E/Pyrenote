@@ -2,9 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 import { FormAlerts } from '../../components/alert';
-import { errorLogger } from '../../logger';
 import { Button } from '../../components/button';
-import Loader from '../../components/loader';
 
 class SetActiveForm extends React.Component {
   constructor(props) {
@@ -45,7 +43,7 @@ class SetActiveForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, isLoading, isSample, value } = this.state;
+    const { errorMessage, successMessage } = this.state;
     return (
       <div className="container h-75 text-center">
          <FormAlerts

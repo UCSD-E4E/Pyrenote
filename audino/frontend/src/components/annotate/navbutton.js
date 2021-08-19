@@ -61,7 +61,7 @@ const NavButton = props => {
     console.log("send active")
     let url = '/api/next_clip/project/' + projectId + '/data/' + dataId 
     url = url + "?active=" + active
-    if (active == "recommended") {
+    if (active === "recommended") {
       url = '/api/next_clip/next_rec/project/' + projectId + '/data/' + dataId 
     }
     axios({

@@ -66,8 +66,7 @@ class Annotate extends React.Component {
     this.lastTime = Date.now();
     this.savePrevious();
 
-    const { dataId, projectId, labelsUrl, dataUrl } = this.state;
-    const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
+    const { projectId, labelsUrl, dataUrl } = this.state;
 
     let boundingBox = null;
     axios({
