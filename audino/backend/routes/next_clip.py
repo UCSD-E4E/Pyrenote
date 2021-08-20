@@ -145,17 +145,19 @@ def getNextReccomendedData(project_id, data_id):
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
         data = None
+        try:
+            dataPendingList = list(
+                db.session.query(Data)
+                .filter(Data.project_id == project_id)
+                .filter(Data.id != data_id)
+                .filter(Data.id.notin_(segmentations))
+                .distinct()
+                .all()
+            )
+            dataPending = dataPendingList[randint(0, len(dataPendingList) - 1)]
+        except Exception:
+            dataPending = None
 
-        dataPendingList = list(
-            db.session.query(Data)
-            .filter(Data.project_id == project_id)
-            .filter(Data.id != data_id)
-            .filter(Data.id.notin_(segmentations))
-            .distinct()
-            .all()
-        )
-
-        dataPending = dataPendingList[randint(0, len(dataPendingList) - 1)]
         key = identity["username"]
         try:
             dataReviewList = list(
