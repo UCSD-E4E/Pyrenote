@@ -132,6 +132,9 @@ class WavesurferMethods {
     wavesurfer.on('pause', () => {
       this.setState({ isPlaying: false });
     });
+    wavesurfer.on('play', () => {
+      this.setState({ isPlaying: true });
+    });
 
     this.unsavedButton = unsavedButton;
     return { wavesurfer, unsavedButton };

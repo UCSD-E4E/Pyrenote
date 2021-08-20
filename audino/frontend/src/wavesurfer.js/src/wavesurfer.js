@@ -934,8 +934,7 @@ export default class WaveSurfer extends util.Observer {
     const paused = this.backend.isPaused();
 
     if (isWebAudioBackend && !paused) {
-        console.log("huh?")
-        this.pause();
+        this.backend.pause();
     }
 
     // avoid small scrolls while paused seeking
@@ -944,10 +943,11 @@ export default class WaveSurfer extends util.Observer {
     this.backend.seekTo(progress * this.getDuration());
     this.drawer.progress(progress);
 
-    /*if (isWebAudioBackend && !paused) {
+    if (isWebAudioBackend && !paused) {
         console.log("bruh?")
         this.backend.play();
-    }*/
+        this.fireEvent('play')
+    }
 
     this.params.scrollParent = oldScrollParent;
     console.log("progression")
