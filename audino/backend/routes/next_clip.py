@@ -136,6 +136,7 @@ def getNextClip(project_id, data_id):
            methods=["GET"])
 @jwt_required
 def getNextReccomendedData(project_id, data_id):
+    identity = get_jwt_identity()
     # TODO: Generalize to other systems
     # active = request.args.get("active", "completed", type=str)
     # TODO: if the user is looking in All / completed /
@@ -143,7 +144,8 @@ def getNextReccomendedData(project_id, data_id):
     active = "pending"
 
     try:
-
+        request_user = User.query.filter_by(username=identity["username"]
+                                            ).first()
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
         data = None
@@ -156,16 +158,14 @@ def getNextReccomendedData(project_id, data_id):
             .distinct()
             .first()
         )
-
-        # TODO: Make sure the user isn't reviewing stuff they have already
-        # done, so like create a last touched feature and see if user
-        # has already touched it previously
+        key = identity["username"]
         dataReview = (
                 db.session.query(Data)
                 .filter(Data.project_id == project_id)
                 .filter(Data.is_marked_for_review)
                 .filter(Data.id.in_(segmentations))
                 .filter(Data.id != data_id)
+                .filter(Data.assigned_user_id[key] != request_user.id)
                 .distinct()
                 .first()
             )
