@@ -150,25 +150,31 @@ def getNextReccomendedData(project_id, data_id):
                                          ).distinct().subquery()
         data = None
 
-        dataPending = (
+        dataPendingList = list(
             db.session.query(Data)
             .filter(Data.project_id == project_id)
             .filter(Data.id != data_id)
             .filter(Data.id.notin_(segmentations))
             .distinct()
-            .first()
+            .all()
         )
+
+        dataPending = dataPendingList[randint(0, len(dataPendingList) - 1)]
         key = identity["username"]
-        dataReview = (
-                db.session.query(Data)
-                .filter(Data.project_id == project_id)
-                .filter(Data.is_marked_for_review)
-                .filter(Data.id.in_(segmentations))
-                .filter(Data.id != data_id)
-                .filter(Data.assigned_user_id[key] != request_user.id)
-                .distinct()
-                .first()
-            )
+        try:
+            dataReviewList = list(
+                    db.session.query(Data)
+                    .filter(Data.project_id == project_id)
+                    .filter(Data.is_marked_for_review)
+                    .filter(Data.id.in_(segmentations))
+                    .filter(Data.id != data_id)
+                    .filter(Data.assigned_user_id[key] != request_user.id)
+                    .distinct()
+                    .all()
+                )
+            dataReview = dataReviewList[randint(0, len(dataReviewList) - 1)]
+        except Exception:
+            dataReview = None
 
         review_chance = (dataPending is None or randint(0, 5) == 0)
         app.logger.info(dataReview)
