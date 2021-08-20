@@ -47,6 +47,8 @@ class Dashboard extends React.Component {
         const path = window.location.href.substring(0, index)
         console.log(`${path}/projects/${projectId}/data/${response.data.data_id}/annotate`)
         localStorage.setItem("active", "recommended")
+        localStorage.setItem('previous_links', JSON.stringify([]));
+        localStorage.setItem('count', JSON.stringify(0));
         window.location.href = `${path}/projects/${projectId}/data/${response.data.data_id}/annotate`
       })
       .catch(e => {
