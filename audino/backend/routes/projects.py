@@ -823,6 +823,9 @@ def add_segmentations(project_id, data_id, seg_id=None):
         db.session.add(segmentation)
         db.session.commit()
         db.session.refresh(segmentation)
+
+        app.logger.info("LOOKIE HERE")
+        app.logger.info(segmentation.last_modified_by)
     except Exception as e:
         app.logger.error(f"Could not create segmentation")
         app.logger.error(e)
@@ -959,14 +962,10 @@ def get_project_annotations(project_id):
         return jsonify(message=message, type="FETCH_ANNOTATIONS_FAILED"), 500
     if ((download_csv) == "true"):
         text, csv = JsonLabelsToCsv.JsonToText(annotations)
-        app.logger.info(f'{type(text)}, {text}')
         annotations_to_download = csv
-        app.logger.info("here: ", annotations_to_download)
     elif ((download_csv) == "raven"):
         text = JsonLabelsToCsv.JsonToRaven(annotations)
-        app.logger.info(f'{type(text)}, {text}')
         annotations_to_download = text
-        app.logger.info("here: ", annotations_to_download)
     elif ((download_csv) == "raven-test"):
         annotations_to_download = []
         for file in annotations:
@@ -977,7 +976,6 @@ def get_project_annotations(project_id):
             )
     else:
         annotations_to_download = annotations
-        app.logger.info("here: ", annotations_to_download)
     return (
         jsonify(
             message="Annotations fetched successfully",
