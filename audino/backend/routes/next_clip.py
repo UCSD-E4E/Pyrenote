@@ -137,10 +137,6 @@ def getNextClip(project_id, data_id):
 @jwt_required
 def getNextReccomendedData(project_id, data_id):
     identity = get_jwt_identity()
-    # TODO: Generalize to other systems
-    # active = request.args.get("active", "completed", type=str)
-    # TODO: if the user is looking in All / completed /
-    #  or Marked_for_review intentionally, then they should stay there.
     active = "pending"
 
     try:
