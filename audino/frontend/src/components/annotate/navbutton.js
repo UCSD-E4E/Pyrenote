@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../button';
 import { handleAllSegmentSave } from '../../pages/annotatefunctions';
+import axios from 'axios';
 
 const NavButton = props => {
   const { annotate } = props;
@@ -21,17 +22,8 @@ const NavButton = props => {
     return success;
   };
 
-  // Go to the next audio recording
-  const handleNextClip = (forceNext = false) => {
-    handleAllSegmentSave(annotate);
-    const { previous_pages, num_of_prev, data, dataId, projectId, next_data_id, path } =
-      annotate.state;
-
-    let success = true;
-    success = checkForSave(success, forceNext, 'next');
-    if (!success) {
-      return;
-    }
+  const loadNextPage = (noMore,next_data_id) => {
+    const { previous_pages, num_of_prev, path, projectId, dataId } = annotate.state;
     const next_page_num = num_of_prev + 1;
 
     if (num_of_prev < previous_pages.length - 1) {
@@ -43,24 +35,48 @@ const NavButton = props => {
     localStorage.setItem('previous_links', JSON.stringify(previous_pages));
     localStorage.setItem('count', JSON.stringify(next_page_num));
 
-    let newPageData = data[0];
-    Object.keys(data).forEach(key => {
-      key = parseInt(key, 10);
-      if (data[key].data_id === dataId) {
-        try {
-          newPageData = data[key + 1];
-          annotate.nextPage(newPageData.data_id);
-          // window.location.href = path + url;
-        } catch (z) {
-          if (next_data_id && data[0].data_id !== next_data_id) {
-            annotate.nextPage(next_data_id);
-            // window.location.href = next_data_url;
-          } else {
-            window.location.href = `${path}/projects/${projectId}/data`;
-          }
-        }
-      }
-    });
+    if (noMore) {
+      window.location.href = `${path}/projects/${projectId}/data`;
+    } else {
+      annotate.nextPage(next_data_id);
+    }
+  }
+
+  // Go to the next audio recording
+  const handleNextClip = (forceNext = false) => {
+    handleAllSegmentSave(annotate);
+    const { dataId, projectId } =
+      annotate.state;
+    const active = localStorage.getItem('active');
+    if (active == null) {
+      annotate.setState({showActiveForm: true})
+      return;
+    }
+    console.log("button", active)
+    let success = true;
+    success = checkForSave(success, forceNext, 'next');
+    if (!success) {
+      return;
+    }
+    console.log("send active")
+    let url = '/api/next_clip/project/' + projectId + '/data/' + dataId 
+    url = url + "?active=" + active
+    if (active === "recommended") {
+      url = '/api/next_clip/next_rec/project/' + projectId + '/data/' + dataId 
+    }
+    axios({
+      method: 'get',
+      url: url
+    })
+      .then(response => {
+        console.log(response)
+        const {data_id} = response.data
+        console.log(response.status === 202 === 202)
+        loadNextPage(response.status === 202, data_id)
+      })
+      .catch((e) => {
+        console.error(e)
+      });
   };
 
   // Go to previous audio recording

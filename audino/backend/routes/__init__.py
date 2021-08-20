@@ -45,7 +45,6 @@ from .current_user import (
     fetch_data_for_project,
     get_next_data,
     get_next_data2,
-    get_next_data_unknown,
     get_all
 )
 from .data import (
@@ -57,3 +56,7 @@ from .data import (
     set_confident_check_data
 )
 from .audios import send_audio_file
+
+from .next_clip import (
+    getNextReccomendedData, getNextClip, get_next_data_unknown
+)

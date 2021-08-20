@@ -2,7 +2,7 @@ import React from 'react';
 import { faAtlas, faCog } from '@fortawesome/free-solid-svg-icons';
 // import fontawesome from '@fortawesome/fontawesome-free';
 import { ReferenceWindow } from './reference';
-import { IconButton } from './button';
+import { Button, IconButton } from './button';
 import SpectroChanger from './annotate/spectroChanger';
 import ChangePlayback from './annotate/extraFeatures/changePlayback';
 import PreviousAnnotationButton from './annotate/extraFeatures/previousAnnotationButton';
@@ -36,7 +36,7 @@ const SideMenuTab = props => {
 const SideMenu = props => {
   const { annotate } = props;
   const { state } = annotate;
-  const { projectId, referenceWindowOn, spectrogramDemoOn, toUnsavedClipOn } = state;
+  const { projectId, referenceWindowOn, spectrogramDemoOn, toUnsavedClipOn, isRendering } = state;
 
   const initTabOpen = {
     refrences: true,
@@ -89,7 +89,7 @@ const SideMenu = props => {
         <ReferenceWindow annotate={annotate} projectId={projectId} />
       ) : null}
 
-      {tabOpen.SpectrogramChanger ? (
+      {tabOpen.SpectrogramChanger && !isRendering ? (
         <div className="sideMenuItem">
           {spectrogramDemoOn && (
             <div>
@@ -100,6 +100,13 @@ const SideMenu = props => {
           <ChangePlayback annotate={annotate} />
           <PreviousAnnotationButton annotate={annotate} />
           {toUnsavedClipOn && annotate.UnsavedButton ? annotate.UnsavedButton.render() : null}
+
+          <br/>
+          <Button 
+            type="primary" 
+            text="change next data settings" 
+            onClick={()=> {annotate.setState({showActiveForm: true})}} 
+          />
         </div>
       ) : null}
     </div>
