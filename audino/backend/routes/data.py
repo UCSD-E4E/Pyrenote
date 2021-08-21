@@ -341,39 +341,3 @@ def update_data(project_id, data_id):
         ),
         200,
     )
-
- 
-@api.route("/projects/<int:project_id>/data/<int:data_id>/confident_check",
-           methods=["POST"])
-@jwt_required
-def set_confident_check_data(project_id, data_id):
-    identity = get_jwt_identity()
-    confident_check = request.json.get("confidentCheck")
-    
-    try:
-        app.logger.info("hello")
-        request_user = User.query.filter_by(username=identity["username"]
-                                            ).first()
-        app.logger.info("hello")
-        project = Project.query.get(project_id)
-        if request_user not in project.users:
-            return jsonify(message="Unauthorized access!"), 401
-        app.logger.info("hello")
-        data = (
-            db.session.query(Data)
-            .filter(Data.project_id == project_id)
-            .filter(Data.id == data_id)
-            .first()
-        )
-        if data is None:
-            return jsonify(message="Wrong Data ID"), 401
-        app.logger.info("hello")
-        data.set_confident_check(confident_check)
-        app.logger.info("hello")
-        db.session.add(data)
-        db.session.commit()
-        db.session.refresh(data)
-        app.logger.info(e)
-        return jsonify(message="errors!!!!!"), 500
-
-    return jsonify(message="SUCCESS"), 200

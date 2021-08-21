@@ -60,7 +60,7 @@ from .data import (
     generate_segmentation,
     add_data,
     add_data_from_site,
-    update_data
+    update_data,
     set_confident_check_data
 )
 from .audios import send_audio_file
