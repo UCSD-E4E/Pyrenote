@@ -136,39 +136,43 @@ def getNextClip(project_id, data_id):
            methods=["GET"])
 @jwt_required
 def getNextReccomendedData(project_id, data_id):
-    # TODO: Generalize to other systems
-    # active = request.args.get("active", "completed", type=str)
-    # TODO: if the user is looking in All / completed /
-    #  or Marked_for_review intentionally, then they should stay there.
+    identity = get_jwt_identity()
     active = "pending"
 
     try:
-
+        request_user = User.query.filter_by(username=identity["username"]
+                                            ).first()
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
         data = None
-
-        dataPending = (
-            db.session.query(Data)
-            .filter(Data.project_id == project_id)
-            .filter(Data.id != data_id)
-            .filter(Data.id.notin_(segmentations))
-            .distinct()
-            .first()
-        )
-
-        # TODO: Make sure the user isn't reviewing stuff they have already
-        # done, so like create a last touched feature and see if user
-        # has already touched it previously
-        dataReview = (
+        try:
+            dataPendingList = list(
                 db.session.query(Data)
                 .filter(Data.project_id == project_id)
-                .filter(Data.is_marked_for_review)
-                .filter(Data.id.in_(segmentations))
                 .filter(Data.id != data_id)
+                .filter(Data.id.notin_(segmentations))
                 .distinct()
-                .first()
+                .all()
             )
+            dataPending = dataPendingList[randint(0, len(dataPendingList) - 1)]
+        except Exception:
+            dataPending = None
+
+        key = identity["username"]
+        try:
+            dataReviewList = list(
+                    db.session.query(Data)
+                    .filter(Data.project_id == project_id)
+                    .filter(Data.is_marked_for_review)
+                    .filter(Data.id.in_(segmentations))
+                    .filter(Data.id != data_id)
+                    .filter(Data.assigned_user_id[key] != request_user.id)
+                    .distinct()
+                    .all()
+                )
+            dataReview = dataReviewList[randint(0, len(dataReviewList) - 1)]
+        except Exception:
+            dataReview = None
 
         review_chance = (dataPending is None or randint(0, 5) == 0)
         app.logger.info(dataReview)
