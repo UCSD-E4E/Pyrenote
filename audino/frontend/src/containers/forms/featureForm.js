@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
-
+import { errorLogger } from '../../logger';
 import { FormAlerts } from '../../components/alert';
 import FeatureChecklist from '../../components/checklist';
 
@@ -18,11 +18,10 @@ class FeatureForm extends React.Component {
         'next button': true,
         'reference window': false,
         'auto annotate': false,
-        'example 2': false,
         '2D Labels': false,
         'to unsaved cliped': false,
-        'playbackOn': false,
-        'example 3': false
+        playbackOn: false,
+        'spectrogram demo': false
       }
     };
 
@@ -51,6 +50,7 @@ class FeatureForm extends React.Component {
       })
       .catch(error => {
         console.error(error);
+        errorLogger.sendLog(error.response.data.message)
         this.setState({
           errorMessage: error.response.data.message
         });

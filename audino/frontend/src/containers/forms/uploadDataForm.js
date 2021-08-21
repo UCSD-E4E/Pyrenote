@@ -2,6 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 import { FormAlerts } from '../../components/alert';
+import { errorLogger } from '../../logger';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
@@ -25,14 +26,14 @@ class UploadDataForm extends React.Component {
       getUsersUrl: '/api/users',
       uploadUrl: 'api/data/admin_portal',
       updateUsersProject: `/api/projects/${projectId}/users`,
-      value: "",
+      value: '',
       files: {}
     };
 
     this.state = { ...this.initialState };
   }
 
-  handleUpload(sample=false) {
+  handleUpload(sample = false) {
     const { uploadUrl, apiKey, files, value } = this.state;
     const formData = new FormData();
 
@@ -60,6 +61,7 @@ class UploadDataForm extends React.Component {
             successMessage: null,
             isLoading: false
           });
+          errorLogger.sendLog(data.message)
         } else {
           this.setState({
             isSubmitting: false,
@@ -81,25 +83,22 @@ class UploadDataForm extends React.Component {
     });
   }
 
-  onChangeHandler(e) {
-    let files = e.target.files
-    console.log(files, typeof(files))
-    this.setState({ files});
-    let text = "{\n"
-    Array.prototype.forEach.call(files, file => {
-      text = text + " \"" + file.name + "\":           , \n"
-    })
-    text = text + "}"
-    this.setState({ files, value: text});
-
-    /*const jsonEditor = document.getElementById("json_editor");
-    console.log(jsonEditor, jsonEditor.style.height, jsonEditor.scrollHeight)
-    jsonEditor.style.height = jsonEditor.scrollHeight + "px"*/
-
+  handleChangeText(e) {
+    this.setState({ value: e.target.value });
   }
 
-  handleChangeText(e) {
-    this.setState({value: e.target.value});
+  onChangeHandler(e) {
+    const files = e.target.files;
+    this.setState({ files });
+    let text = '{\n';
+    Array.prototype.forEach.call(files, file => {
+      text = `${text} "${file.name}":           , \n`;
+    });
+    text += '}';
+    this.setState({ files, value: text });
+
+    /* const jsonEditor = document.getElementById("json_editor");
+    jsonEditor.style.height = jsonEditor.scrollHeight + "px" */
   }
 
   resetState() {
@@ -129,12 +128,12 @@ class UploadDataForm extends React.Component {
           />
           <div className="form-row">
             <div className="form-group col">
-            <Button
+              <Button
                 size="lg"
                 type="primary"
                 disabled={isSubmitting}
-                onClick={() => this.setState({isSample: !isSample})}
-                text={isSample? "This is a sample data uplaod" : "not a sample data upload" }
+                onClick={() => this.setState({ isSample: !isSample })}
+                text={isSample ? 'This is a sample data uplaod' : 'not a sample data upload'}
               />
               <Button
                 size="lg"
@@ -149,10 +148,16 @@ class UploadDataForm extends React.Component {
           </div>
         </div>
         <div className="row h-100 justify-content-center align-items-center">
-        {isSample? 
-        <label style={{width: "200%"}}>
-          <textarea id="json_editor" value={value} onChange={e => this.handleChangeText(e)} style={{width: "100%", height: "200px"}} />
-        </label> : null }
+          {isSample ? (
+            <label style={{ width: '200%' }}>
+              <textarea
+                id="json_editor"
+                value={value}
+                onChange={e => this.handleChangeText(e)}
+                style={{ width: '100%', height: '200px' }}
+              />
+            </label>
+          ) : null}
         </div>
       </div>
     );

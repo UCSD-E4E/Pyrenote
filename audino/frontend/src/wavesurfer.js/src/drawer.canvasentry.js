@@ -362,5 +362,6 @@ export default class CanvasEntry {
     if (type === 'dataURL') {
       return this.wave.toDataURL(format, quality);
     }
+    return null;
   }
 }

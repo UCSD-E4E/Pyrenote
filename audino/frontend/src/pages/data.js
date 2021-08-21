@@ -18,7 +18,7 @@ class Data extends React.Component {
       projectId,
       data: [],
       active: params.get('active') || 'pending',
-      page: params.get('page') || 1,
+      page: 0,
       count: {
         pending: 0,
         completed: 0,
@@ -30,37 +30,52 @@ class Data extends React.Component {
         pending: this.prepareUrl(projectId, 1, 'pending'),
         completed: this.prepareUrl(projectId, 1, 'completed'),
         all: this.prepareUrl(projectId, 1, 'all'),
-        marked_review: this.prepareUrl(projectId, 1, 'marked_review')
+        marked_review: this.prepareUrl(projectId, 1, 'marked_review'),
+        not_confident: this.prepareUrl(projectId, 1, 'not_confident')
       },
       nextPage: null,
-      prevPage: null,
       isDataLoading: false
     };
   }
 
+  // code below from
+  // https://stackoverflow.com/questions/45585542/detecting-when-user-scrolls-to-bottom-of-div-with-react-js
   componentDidMount() {
     this.setState({ isDataLoading: true });
-    let { apiUrl } = this.state;
-    let { page, active } = this.state;
-    apiUrl = `${apiUrl}?page=${page}&active=${active}`;
+    this.getData();
+    document.body.addEventListener('scroll', this.trackScrolling);
+    document.body.addEventListener('scroll', () => {});
+  }
 
+  componentWillUnmount() {
+    document.body.addEventListener('scroll', this.trackScrolling);
+  }
+
+  getData(next=false) {
+    let { apiUrl, page, active, data } = this.state;
+    localStorage.setItem('active', active);
+    page += 1;
+    apiUrl = `${apiUrl}?page=${page}&active=${active}`;
     axios({
       method: 'get',
       url: apiUrl
     })
       .then(response => {
-        const { data, count, next_page, prev_page } = response.data;
-        page = response.data.page;
-        active = response.data.active;
+        const { count, active, next_page } = response.data;
+        const next_page_data = response.data.data;
+        data = next_page_data.concat(data);
+
         this.setState({
           data,
           count,
           active,
           page,
           nextPage: next_page,
-          prevPage: prev_page,
           isDataLoading: false
         });
+        if (next_page && this.isScrollLessThanWindow()) {
+          this.getData();
+        }
       })
       .catch(error => {
         console.error(error);
@@ -70,10 +85,23 @@ class Data extends React.Component {
       });
   }
 
-  getNextPage() {
-    const { projectId, data } = this.state;
+  trackScrolling = () => {
+    const { nextPage } = this.state;
+    if (this.isBottom() && nextPage) {
+      // this.setState({ isDataLoading: true });
+      this.getData(true);
+    }
+  };
 
-    return { projectId, data };
+  isScrollLessThanWindow() {
+    const yMax = document.body.scrollHeight - document.body.clientHeight;
+    return yMax <= 0;
+  }
+
+  isBottom() {
+    // https://stackoverflow.com/questions/3898130/check-if-a-user-has-scrolled-to-the-bottom/3898152
+    const element = document.body;
+    return element.scrollHeight - element.scrollTop === element.clientHeight;
   }
 
   prepareUrl(projectId, page, active) {
@@ -83,10 +111,7 @@ class Data extends React.Component {
   render() {
     localStorage.setItem('previous_links', JSON.stringify([]));
     localStorage.setItem('count', JSON.stringify(0));
-    const { projectId, isDataLoading, data, count, active, page, nextPage, prevPage, tabUrls } =
-      this.state;
-    const nextPageUrl = this.prepareUrl(projectId, nextPage, active);
-    const prevPageUrl = this.prepareUrl(projectId, prevPage, active);
+    const { projectId, isDataLoading, data, count, active, nextPage, tabUrls } = this.state;
 
     return (
       <div>
@@ -136,6 +161,14 @@ class Data extends React.Component {
                         Marked for review ({count.marked_review})
                       </a>
                     </li>
+                    <li className="nav-item">
+                      <a
+                        className={`nav-link ${active === 'not_confident' ? 'active' : null}`}
+                        href={tabUrls.not_confident}
+                      >
+                        not_confident ({count.not_confident})
+                      </a>
+                    </li>
                   </ul>
                 </div>
                 {data.length > 0 ? (
@@ -164,16 +197,28 @@ class Data extends React.Component {
                     </tbody>
                   </table>
                 ) : null}
+                <div
+                  className="button-container"
+                  style={{
+                    position: 'relative',
+                    justifyItems: 'center',
+                    left: '50%',
+                    paddingBottom: '50px'
+                  }}
+                >
+                  {nextPage ? (
+                    <Loader />
+                  ) : (
+                    <text>
+                      <b>End Of Data</b>
+                    </text>
+                  )}
+                </div>
               </div>
             ) : null}
           </div>
-          <div className="row my-4 justify-content-center align-items-center">
-            {isDataLoading ? <Loader /> : null}
-            {!isDataLoading && data.length === 0 ? (
-              <div className="font-weight-bold">No data exists!</div>
-            ) : null}
-          </div>
-          <div className="col-12 my-4 justify-content-center align-items-center text-center">
+
+          {/* <div className="col-12 my-4 justify-content-center align-items-center text-center">
             {prevPage ? (
               <a className="col" href={prevPageUrl}>
                 Previous
@@ -186,7 +231,7 @@ class Data extends React.Component {
                 Next
               </a>
             ) : null}
-          </div>
+            </div> */}
         </div>
       </div>
     );
@@ -194,7 +239,4 @@ class Data extends React.Component {
 }
 
 export default withRouter(Data);
-export function getData() {
-  Data.getNextPage();
-}
 export const dataLinks = datas;

@@ -82,6 +82,7 @@ class WavesurferMethods {
       wavesurfer.stop();
     });
 
+    // spectrogram_created
     wavesurfer.on('ready', () => {
       const screenSize = window.screen.width;
       if (screenSize > wavesurfer.getDuration() * wavesurfer.params.minPxPerSec) {
@@ -109,6 +110,10 @@ class WavesurferMethods {
         selectedSegment: region
       });
       unsavedButton.addUnsaved(region, !region.saved);
+    });
+
+    wavesurfer.on('spectrogram_created', spectrogram => {
+      this.setState({ spectrogram });
     });
 
     wavesurfer.on('region-click', (r, e) => {

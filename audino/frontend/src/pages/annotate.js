@@ -3,17 +3,12 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet';
-import { AlertSection } from '../components/alert';
 import WavesurferMethods from './annotateHelpers/wavesurferMethods.js';
-import { ReferenceWindow} from '../components/reference';
-import NavButton from '../components/annotate/navbutton';
-import Spectrogram from '../components/annotate/spectrogram';
-import LabelSection from '../components/annotate/labelsSection';
-import LabelButton from '../components/annotate/labelButtons';
-import RenderingMsg from '../components/annotate/renderingMsg';
-import MarkedForReview from '../components/annotate/markedForReview';
-import PreviousAnnotationButton from '../components/annotate/extraFeatures/previousAnnotationButton';
-import ChangePlayback from '../components/annotate/extraFeatures/changePlayback';
+import SideMenu from '../components/sideMenu';
+import { animateWidth } from '../components/annotate/animation';
+import Resizer from '../components/resizerElement';
+import AnnotationWindow from '../components/annotate/annotationWindow.js';
+import FormModal from '../containers/modal';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -23,7 +18,8 @@ class Annotate extends React.Component {
     const dataId = Number(match.params.dataid);
     const index = window.location.href.indexOf('/projects');
 
-    this.state = {
+    this.initalState = {
+      colorChange: 0,
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -55,8 +51,12 @@ class Annotate extends React.Component {
       storedAnnotations: null,
       // applyPreviousAnnotations: false,
       boundingBox: true,
-      initWavesurfer: false
+      initWavesurfer: false,
+      maxHeight: document.body.offsetHeight,
+      disappear: 'sideMenu',
+      showActiveForm: localStorage.getItem("active") == null,
     };
+    this.state = this.initalState;
     this.lastTime = 0;
     this.labelRef = {};
     this.UnsavedButton = null;
@@ -66,8 +66,7 @@ class Annotate extends React.Component {
     this.lastTime = Date.now();
     this.savePrevious();
 
-    const { dataId, projectId, labelsUrl, dataUrl } = this.state;
-    const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
+    const { projectId, labelsUrl, dataUrl } = this.state;
 
     let boundingBox = null;
     axios({
@@ -76,28 +75,16 @@ class Annotate extends React.Component {
     })
       .then(response => {
         // take all the current values of featuresList, include the new ones defined at the line 27
+        console.log(response.data)
         boundingBox = response.data.features_list['2D Labels'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
-          // applyPreviousAnnotations: response.data.features_list['auto annotate'],
+          applyPreviousAnnotations: response.data.features_list['auto annotate'],
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
-          playbackOn: response.data.features_list.playbackOn,
           referenceWindowOn: response.data.features_list['reference window'],
+          playbackOn: response.data.features_list.playbackOn,
+          spectrogramDemoOn: response.data.features_list['spectrogram demo']
         });
-
-        axios({
-          method: 'get',
-          url: apiUrl
-        })
-          .then(response => {
-            this.loadNextData(response);
-          })
-          .catch(error => {
-            this.setState({
-              errorMessage: error.response.data.message,
-              isDataLoading: false
-            });
-          })
 
         const wavesurferMethods = new WavesurferMethods({
           annotate: this,
@@ -208,88 +195,85 @@ class Annotate extends React.Component {
     this.loadRegions(regions);
   }
 
-  loadNextData(response) {
-    const { projectId, path } = this.state;
-    const { active, next_page } = response.data;
-    this.setState({
-      data: response.data.data
+  nextPage(nextDataId) {
+    const { wavesurfer, projectId } = this.state;
+    const newState = this.initalState;
+    newState.labelsUrl = `/api/projects/${projectId}/labels`;
+    newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
+    newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
+    newState.dataId = nextDataId;
+    this.setState(newState, () => {
+      wavesurfer.destroy();
+      this.componentDidMount();
     });
+  }
 
-    let apiUrl2 = `/api/current_user/projects/${projectId}/data`;
-    apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
+  ChangeColorChange(e) {
+    this.setState({ colorChange: e.target.value });
+  }
 
-    axios({
-      method: 'get',
-      url: apiUrl2
-    })
-      .then(message => {
-        const { data } = message.data;
-        const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
-        this.setState({
-          next_data_url,
-          next_data_id: data[0].data_id
-        });
-      })
-      .catch(error => {
-        this.setState({
-          errorMessage: error.message.data.message
-        });
+  collapseSideBar() {
+    const { disappear } = this.state;
+    if (disappear === 'sideMenuDisappear') {
+      this.setState({ disappear: 'sideMenu' });
+      animateWidth(document.body.offsetWidth * 0.3, 0.6, 'sideMenuDisappear');
+    } else {
+      animateWidth(0, 0.6, 'sideMenu', () => {
+        this.setState({ disappear: 'sideMenuDisappear' });
       });
+    }
   }
 
   render() {
-    const {
-      isDataLoading,
-      errorMessage,
-      errorUnsavedMessage,
-      successMessage,
-      isRendering,
-      original_filename,
-      wavesurferMethods,
-      navButtonsEnabled,
-      referenceWindowOn,
-      projectId,
-      toUnsavedClipOn,
-    } = this.state;
+    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn, showActiveForm } = this.state;
+
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
+
     return (
-      <div  style={{overflow: "hidden"}}>
+      <div style={{ margin: 0, height: `${maxHeight}px`, overflow: 'hidden' }}>
         <Helmet>
           <title>Annotate</title>
         </Helmet>
-        <div className="container h-100">
-          <div className="h-100 mt-5 text-center">
-            <AlertSection
-              messages={[
-                { message: errorUnsavedMessage, type: 'danger' },
-                { message: errorMessage, type: 'danger' },
-                { message: successMessage, type: 'success' }
-              ]}
-              overlay
-              callback={e => this.handleAlertDismiss(e)}
-            />
-            {!isRendering && <div id="filename">{original_filename}</div>}
+        <FormModal
+          formType={"SET_ACTIVE"}
+          title={"select active"}
+          show={showActiveForm}
+          annotate={this}
+          onHide={() => this.setState({showActiveForm: false})}
+        />
+        {referenceWindowOn ? (
+          <div className="containerAnnotate">
+            <span
+              className={disappear}
+              id="rightWindow"
+              style={{ float: 'left', height: `${maxHeight}px` }}
+            >
+              <SideMenu annotate={this} />
+            </span>
 
-            <RenderingMsg isRendering={isRendering} />
-            <Spectrogram isRendering={isRendering} />
-            {!isRendering ? (
-              <div>
-                <LabelSection state={this.state} annotate={this} labelRef={this.labelRef} />
-                <div className={isDataLoading ? 'hidden' : ''}>
-                  <LabelButton state={this.state} annotate={this} />
-                  <MarkedForReview state={this.state} annotate={this} />
-                  <ChangePlayback annotate={this} />
-                  {navButtonsEnabled && <NavButton annotate={this} />}
-                  <PreviousAnnotationButton annotate={this} />
-                  {toUnsavedClipOn && this.UnsavedButton ? this.UnsavedButton.render() : null}
-                  {referenceWindowOn? <ReferenceWindow annotate={this} projectId={projectId}/> : console.log("no render")}
-                </div>
-              </div>
-            ) : null}
+            <Resizer
+              annotate={this}
+              isOpen={disappear !== 'sideMenuDisappear'}
+              rightID="rightWindow"
+              leftID="leftWindow"
+              propertySwapCallabck={() => this.collapseSideBar()}
+            />
+
+            <span
+              className="AnnotationRegion"
+              id="leftWindow"
+              style={{ float: 'left', flex: '1 1 0%', marginLeft: '2%', marginRight: '2%' }}
+            >
+              <AnnotationWindow annotate={this} />
+            </span>
           </div>
-        </div>
+        ) : (
+          <div className="container h-100">
+            <AnnotationWindow annotate={this} />
+          </div>
+        )}
       </div>
     );
   }

@@ -99,11 +99,16 @@ class Data(db.Model):
 
     segmentations = db.relationship("Segmentation", backref="Data")
 
+    confident_check = db.Column("confident_check", db.Boolean(), default=False)
+
     def update_marked_review(self, marked_review):
         self.is_marked_for_review = marked_review
 
     def set_segmentations(self, segmentations):
         self.segmentations = segmentations
+
+    def set_confident_check(self, confident_check):
+        self.confident_check = confident_check
 
     def to_dict(self):
         return {
@@ -116,6 +121,7 @@ class Data(db.Model):
             "assigned_users": self.assigned_user_id,
             "sampling_rate": self.sampling_rate,
             "clip_length": self.clip_length,
+            "confident_check": self.confident_check,
         }
 
 
@@ -421,3 +427,33 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+
+class Logs(db.Model):
+    __tablename__ = "logs"
+
+    id = db.Column("id", db.Integer(), primary_key=True)
+    project_id = db.Column("project_id", db.Integer(), nullable=True)
+
+    created_at = db.Column("created_at", db.DateTime(), nullable=False,
+                           default=db.func.now())
+
+    created_by = db.Column("created_by", db.Integer(), nullable=True)
+
+    log_lvl = db.Column("log_lvl", db.String(100), nullable=False)
+    message = db.Column("message", db.String(1000), nullable=False)
+
+    def to_dict(self):
+        return {
+            "project_id": self.project_id,
+            "created_at": self.created_at,
+            "created_by": self.created_by,
+            "message": self.message,
+            "log_lvl": self.log_lvl
+        }
+
+    def print_log(self):
+        log = self.created_at.strftime("%m/%d/%Y, %H:%M:%S") + " by "
+        log = log + str(self.created_by) + ": " + self.log_lvl + " { "
+        log = log + self.message + "}"
+        return log

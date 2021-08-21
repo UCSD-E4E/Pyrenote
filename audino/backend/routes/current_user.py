@@ -10,6 +10,7 @@ from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
 from .helper_functions import retrieve_database, general_error, missing_data
+from .logger import post_log_msg
 from . import api
 
 
@@ -17,7 +18,6 @@ from . import api
 @jwt_required
 def fetch_current_user_projects():
     identity = get_jwt_identity()
-
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
@@ -35,7 +35,7 @@ def fetch_current_user_projects():
         )
     except Exception as e:
         return general_error("Error fetching all projects", e)
-
+    post_log_msg("Accessed project's page", request_user.id)
     return jsonify(projects=response), 200
 
 
@@ -245,72 +245,6 @@ def get_next_data2(project_id, dv, page_data):
         ),
         200,
     )
-
-
-@api.route(
- "/current_user/unknown/projects/<int:project_id>/data/<int:data_value>",
- methods=["GET"]
-)
-@jwt_required
-def get_next_data_unknown(project_id, data_value):
-    identity = get_jwt_identity()
-    active = request.args.get("active", "completed", type=str)
-
-    try:
-        request_user = User.query.filter_by(username=identity["username"]
-                                            ).first()
-        project = Project.query.get(project_id)
-        project = Project.query.get(project_id)
-
-        if request_user not in project.users:
-            return jsonify(message="Unauthorized access!"), 401
-
-        segmentations = db.session.query(Segmentation.data_id
-                                         ).distinct().subquery()
-        data = {}
-        categories = ["pending", "completed"]
-        data = retrieve_database(project_id, segmentations, categories)
-
-        active = "unknown"
-        if (active != "pending"):
-            for data_pt in data["completed"]:
-                if data_pt.id == data_value:
-                    active = "completed"
-                    break
-            if (active == "unknown"):
-                active = "pending"
-
-        page = -1
-        test_page = 1
-        while (page == -1):
-            paginated_data = data[active].paginate(test_page, 10, False)
-            next = paginated_data.next_num if paginated_data.has_next else None
-            prev = paginated_data.prev_num if paginated_data.has_prev else None
-            for data_point in paginated_data.items:
-                if (data_point.id == data_value):
-                    response = list(
-                        [
-                            {
-                                "data_id": data_point.id,
-                            }
-                            for data_point in paginated_data.items
-                        ]
-                    )
-                    return (
-                        jsonify(
-                            data=response,
-                            next_page=next,
-                            prev_page=prev,
-                            page=test_page,
-                            active=active,
-                        ),
-                        200,
-                    )
-            if (next is not None):
-                test_page += 1
-    except Exception as e:
-        return general_error("Error fetching all projects", e)
-    return missing_data(f"Error data value `{data_value}` not in project")
 
 
 @api.route("/current_user/projects/get_all", methods=["GET"])

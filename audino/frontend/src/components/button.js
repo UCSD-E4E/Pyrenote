@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const noop = () => {};
 
-const IconButton = ({ icon, size = 'lg', title = '', onClick = noop }) => {
+const IconButton = ({ icon, size = 'lg', title = '', onClick = noop, style = {} }) => {
   return (
-    <button type="button" className="btn btn-default" onClick={onClick} title={title}>
+    <button type="button" className="btn btn-default" style={style} onClick={onClick} title={title}>
       <FontAwesomeIcon icon={icon} size={size} />
     </button>
   );
@@ -15,6 +15,14 @@ const IconButton = ({ icon, size = 'lg', title = '', onClick = noop }) => {
 IconButton.propTypes = {
   icon: PropTypes.objectOf.isRequired,
   size: PropTypes.oneOf(['lg', 'sm', '2x']).isRequired
+};
+
+const SVGButton = ({ children, title = '', onClick = noop, style = {} }) => {
+  return (
+    <button type="button" className="btn btn-default" style={style} onClick={onClick} title={title}>
+      {children}
+    </button>
+  );
 };
 
 const Button = ({
@@ -60,4 +68,4 @@ Button.defaultProps = {
   isDisabled: false
 };
 
-export { Button, IconButton };
+export { Button, IconButton, SVGButton };

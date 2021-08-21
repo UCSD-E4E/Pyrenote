@@ -5,6 +5,7 @@ import { withStore } from '@spyna/react-store';
 import setAuthorizationToken from '../../utils';
 import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
+import { errorLogger } from '../../logger';
 
 class CreateUserForm extends React.Component {
   constructor(props) {
@@ -128,6 +129,7 @@ class CreateUserForm extends React.Component {
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message)
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: '',

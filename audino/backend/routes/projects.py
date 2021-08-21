@@ -1,7 +1,8 @@
 import sqlalchemy as sa
 import uuid
 
-from flask import jsonify, request
+import os
+from flask import jsonify, flash, redirect, url_for, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.orm import query
 from backend import app, db
@@ -329,6 +330,9 @@ def get_project_annotations(project_id):
         annotations = []
 
         for data in project.data:
+            if (data.sample):
+                continue
+
             data_dict = data.to_dict()
             data_dict["segmentations"] = []
 
@@ -366,6 +370,20 @@ def get_project_annotations(project_id):
     if (download_csv == "true"):
         text, csv = JsonLabelsToCsv.JsonToText(annotations)
         annotations_to_download = csv
+        app.logger.info("here: ", annotations_to_download)
+    elif ((download_csv) == "raven"):
+        text = JsonLabelsToCsv.JsonToRaven(annotations)
+        app.logger.info(f'{type(text)}, {text}')
+        annotations_to_download = text
+        app.logger.info("here: ", annotations_to_download)
+    elif ((download_csv) == "raven-test"):
+        annotations_to_download = []
+        for file in annotations:
+            filename = os.path.splitext(file["original_filename"])[0] + ".txt"
+            annotations_to_download.append({
+                "original_filename": filename,
+                "annotations": JsonLabelsToCsv.JsonToRaven(file)}
+            )
     else:
         annotations_to_download = annotations
     return (
