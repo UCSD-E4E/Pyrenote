@@ -2,8 +2,8 @@ import React from 'react';
 import { faCaretDown, faPlayCircle, faPauseCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import WaveSurfer from '../wavesurfer.js/src/wavesurfer.js';
-import SpectrogramPlugin from '../wavesurfer.js/src/plugin/spectrogram/index.js';
+import WaveSurfer from 'wavesurfer.js/src/wavesurfer.js';
+import SpectrogramPlugin from 'wavesurfer.js/src/plugin/spectrogram/index.js';
 import { IconButton } from './button';
 
 const colormap = require('colormap');

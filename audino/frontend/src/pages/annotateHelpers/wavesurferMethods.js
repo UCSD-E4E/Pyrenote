@@ -5,9 +5,10 @@ import {
   faPlayCircle,
   faPauseCircle
 } from '@fortawesome/free-solid-svg-icons';
-import WaveSurfer from '../../wavesurfer.js/src/wavesurfer.js';
-import RegionsPlugin from '../../wavesurfer.js/src/plugin/regions/index.js';
-import SpectrogramPlugin from '../../wavesurfer.js/src/plugin/spectrogram/index.js';
+//import {WaveSurfer, RegionsPlugin, SpectrogramPlugin} from 'wavesurfer.js';
+import WaveSurfer from "wavesurfer.js";
+import SpectrogramPlugin from 'wavesurfer.js/dist/plugin/spectrogram';
+import RegionsPlugin from 'wavesurfer.js/dist/plugin/region';
 import { IconButton } from '../../components/button';
 import UnsavedButton from '../../components/annotate/extraFeatures/next_unsaved_button';
 
