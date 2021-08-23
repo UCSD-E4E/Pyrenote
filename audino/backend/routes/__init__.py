@@ -61,7 +61,6 @@ from .data import (
     add_data,
     add_data_from_site,
     update_data,
-    set_confident_check_data
 )
 from .audios import send_audio_file
 

@@ -287,3 +287,70 @@ def get_all():
         return general_error("Error fetching all projects", e)
 
     return (jsonify(data=response, count=count_data), 200,)
+
+
+@api.route("/current_user/projects/<int:project_id>/sample", methods=["GET"])
+@jwt_required
+def fetch_sample_for_project(project_id):
+    identity = get_jwt_identity()
+
+    try:
+        request_user = User.query.filter_by(username=identity["username"]
+                                            ).first()
+        project = Project.query.get(project_id)
+
+        if request_user not in project.users:
+            return jsonify(message="Unauthorized access!"), 401
+
+        segmentations = db.session.query(Segmentation.data_id
+                                         ).distinct().subquery()
+        # Lets set big id to the {username.idenity, username.id}
+        # this would make it fast but aslo render serval data points
+        data = {}
+        big_key = identity["username"]
+        # print(Data.assigned_user_id)
+        # for key in Data.assigned_user_id:
+        #    if request_user.id == Data.assigned_user_id[key]:
+        #        big_key = key
+        #        print(big_key, key)
+        data["pending"] = (
+            db.session.query(Data)
+            .filter_by(sample=True)
+            .filter(Data.project_id == project_id)
+            .filter(Data.id.notin_(segmentations))
+            .distinct()
+            .order_by(Data.last_modified.desc())
+        )
+
+        paginated_data = data["pending"]
+        response = []
+        for data_point in paginated_data:
+            date = ""
+            if data_point.created_at is not None:
+                date = data_point.created_at.strftime("%B %d, %Y")
+            else:
+                date = "N/a"
+            new_data = {
+                    "data_id": data_point.id,
+                    "filename": data_point.filename,
+                    "original_filename": data_point.original_filename,
+                    "created_on": date,
+                    "is_marked_for_review": data_point.is_marked_for_review,
+                    "number_of_segmentations": len(data_point.segmentations),
+                    "sampling_rate": data_point.sampling_rate,
+                    "clip_length": data_point.clip_length,
+                    "sample_label": data_point.sample_label,
+                }
+            response.append(new_data)
+    except Exception as e:
+        message = "Error fetching all data points"
+        app.logger.error(message)
+        app.logger.error(e)
+        return jsonify(message=message), 501
+
+    return (
+            jsonify(
+                data=response,
+            ),
+            200,
+        )

@@ -2,8 +2,8 @@ from flask import jsonify, request
 
 from backend import app, db
 from backend.models import User, Data
-
-
+from sqlalchemy.sql.expression import false, true, null
+from sqlalchemy import or_
 """return and log an error message that is not a specific error"""
 
 
@@ -51,6 +51,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
         if (request_user is not None):
             data["pending"] = (
                 db.session.query(Data)
+                .filter(or_(Data.sample != true(), Data.sample == null()))
                 .filter(request_user.id == Data.assigned_user_id[big_key])
                 .filter(Data.project_id == project_id)
                 .filter(Data.id.notin_(segmentations))
@@ -60,6 +61,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
         else:
             data["pending"] = (
                 db.session.query(Data)
+                .filter(or_(Data.sample != true(), Data.sample == null()))
                 .filter(Data.project_id == project_id)
                 .filter(Data.id.notin_(segmentations))
                 .distinct()
@@ -70,6 +72,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
         if (request_user is not None):
             data["completed"] = (
                 db.session.query(Data)
+                .filter(or_(Data.sample != true(), Data.sample == null()))
                 .filter(request_user.id == Data.assigned_user_id[big_key])
                 .filter(Data.project_id == project_id)
                 .filter(Data.id.in_(segmentations))
@@ -79,6 +82,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
         else:
             data["completed"] = (
                 db.session.query(Data)
+                .filter(or_(Data.sample != true(), Data.sample == null()))
                 .filter(Data.project_id == project_id)
                 .filter(Data.id.in_(segmentations))
                 .distinct()
@@ -90,12 +94,14 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
         data["marked_review"] = Data.query.filter_by(
             project_id=project_id,
             is_marked_for_review=True,
+            sample=False
         ).order_by(Data.last_modified.desc())
 
     if ("all") in categories:
         app.logger.info("made it here")
         data["all"] = Data.query.filter_by(
-            project_id=project_id
+            project_id=project_id,
+            sample=False
         ).order_by(Data.last_modified.desc())
     app.logger.info(data)
     return data
