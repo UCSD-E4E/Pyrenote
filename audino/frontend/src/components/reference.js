@@ -81,6 +81,10 @@ class Reference extends React.Component {
     this.wavesurfer = wavesurfer;
   }
 
+  componentWillUnmount() {
+    this.wavesurfer.destroy();
+  }
+
   handlePlay() {
     this.setState({ isPlaying: true });
     this.wavesurfer.play();

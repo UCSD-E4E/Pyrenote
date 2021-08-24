@@ -75,6 +75,7 @@ class Annotate extends React.Component {
     })
       .then(response => {
         // take all the current values of featuresList, include the new ones defined at the line 27
+
         boundingBox = response.data.features_list['2D Labels'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
@@ -201,8 +202,11 @@ class Annotate extends React.Component {
     newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
     newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
     newState.dataId = nextDataId;
+
+    wavesurfer.destroy();
+
     this.setState(newState, () => {
-      wavesurfer.destroy();
+      this.setState({wavesurfer: null})
       this.componentDidMount();
     });
   }
