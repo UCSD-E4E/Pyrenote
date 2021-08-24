@@ -358,7 +358,7 @@ class Segmentation(db.Model):
 
     def append_modifers(self, newUser):
         if (self.last_modified_by is None):
-            self.last_modified_by = {"data": None}
+            self.last_modified_by = {"data": {}}
             app.logger.info("ran")
         date = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         test = self.last_modified_by["data"]
