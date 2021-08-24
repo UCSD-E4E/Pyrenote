@@ -53,7 +53,10 @@ class Reference extends React.Component {
           labelContainer: `#waveform-labels${this.containerId}`,
           labels: false,
           scrollParent: true,
-          colorMap: spectrogramColorMap
+          colorMap: spectrogramColorMap,
+          checkCallback: () => {
+            return window.location.href.includes('annotate');
+          }
         })
       ]
     });

@@ -49,7 +49,7 @@ const handleAllSegmentSave = annotate => {
                 errorMessage: 'Error saving segment',
                 successMessage: null
               });
-              errorLogger.sendLog(error.data.message);
+              errorLogger.sendLog('Error saving segment');
             });
         } else {
           axios({
