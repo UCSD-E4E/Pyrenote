@@ -1,4 +1,4 @@
-from flask import jsonify, flash, redirect, url_for, request
+from flask import jsonify, request
 from flask_jwt_extended import (
     jwt_required,
     create_access_token,
@@ -6,11 +6,8 @@ from flask_jwt_extended import (
     get_jti,
     get_raw_jwt,
 )
-from werkzeug.urls import url_parse
-from werkzeug.exceptions import BadRequest
 from backend import app, jwt, redis_client
 from backend.models import User
-import json
 from . import auth
 
 

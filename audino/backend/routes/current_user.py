@@ -3,12 +3,13 @@ from sqlalchemy import or_
 from sqlalchemy.sql.expression import false, true, null
 import uuid
 
-from flask import jsonify, flash, redirect, url_for, request
+from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.urls import url_parse
 from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
+from .helper_functions import retrieve_database, general_error, missing_data
 from .logger import post_log_msg
 from . import api
 
@@ -33,10 +34,7 @@ def fetch_current_user_projects():
             ]
         )
     except Exception as e:
-        message = "Error fetching all projects"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 500
+        return general_error("Error fetching all projects", e)
     post_log_msg("Accessed project's page", request_user.id)
     return jsonify(projects=response), 200
 
@@ -59,39 +57,9 @@ def fetch_data_for_project(project_id):
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
 
-        data = {}
-        data["pending"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.notin_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
-
-        data["completed"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.in_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
-
-        data["marked_review"] = Data.query.filter_by(
-            project_id=project_id,
-            is_marked_for_review=True,
-        ).order_by(Data.last_modified.desc())
-
-        data["not_confident"] = Data.query.filter_by(
-            project_id=project_id,
-            confident_check=False,
-        ).filter(Data.id.in_(segmentations)).order_by(Data.last_modified.desc())
-        app.logger.info("hello")
-        data["all"] = Data.query.filter_by(
-            project_id=project_id
-        ).order_by(Data.last_modified.desc())
-
+        categories = ["pending", "completed", "marked_review", "all"]
+        data = retrieve_database(project_id, segmentations, categories)
+        app.logger.info(data)
         paginate_data = data[active].paginate(page, 10, False)
 
         next_page = paginate_data.next_num if paginate_data.has_next else None
@@ -117,10 +85,7 @@ def fetch_data_for_project(project_id):
         count_data = {key: value.count() for key, value in data.items()}
         app.logger.info("HELLO")
     except Exception as e:
-        message = "Error fetching all data points"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 500
+        return general_error("Error fetching all projects", e)
 
     return (
         jsonify(
@@ -155,34 +120,12 @@ def get_next_data(project_id, data_value):
 
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
-        # Lets set big id to the {username.idenity, username.id}
-        # this would make it fast but aslo render serval data points
+
         data = {}
         big_key = identity["username"]
-        # print(Data.assigned_user_id)
-        # for key in Data.assigned_user_id:
-        #    if request_user.id == Data.assigned_user_id[key]:
-        #        big_key = key
-        #        print(big_key, key)
-        data["pending"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(request_user.id == Data.assigned_user_id[big_key])
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.notin_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
-
-        data["completed"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(request_user.id == Data.assigned_user_id[big_key])
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.in_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
+        categories = ["pending", "completed"]
+        data = retrieve_database(project_id, segmentations, categories,
+                                 request_user, big_key)
 
         paginated_data_pending = data["pending"].paginate(page, 10, False)
         paginated_data_complet = data["completed"].paginate(page, 10, False)
@@ -194,7 +137,6 @@ def get_next_data(project_id, data_value):
                     active = "completed"
                     paginate_data = paginated_data_complet
                     break
-            app.logger.info(active)
 
         next_page = paginate_data.next_num if paginate_data.has_next else None
         prev_page = paginate_data.prev_num if paginate_data.has_prev else None
@@ -215,10 +157,7 @@ def get_next_data(project_id, data_value):
         )
         count_data = {key: value.count() for key, value in data.items()}
     except Exception as e:
-        message = "Error fetching all data points"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 501
+        return general_error("Error fetching all projects", e)
 
     return (
         jsonify(
@@ -256,34 +195,12 @@ def get_next_data2(project_id, dv, page_data):
 
         segmentations = db.session.query(Segmentation.data_id
                                          ).distinct().subquery()
-        # Lets set big id to the {username.idenity, username.id}
-        # this would make it fast but aslo render serval data points
+
         data = {}
         big_key = identity["username"]
-        # print(Data.assigned_user_id)
-        # for key in Data.assigned_user_id:
-        #    if request_user.id == Data.assigned_user_id[key]:
-        #        big_key = key
-        #        print(big_key, key)
-        data["pending"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(request_user.id == Data.assigned_user_id[big_key])
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.notin_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
-
-        data["completed"] = (
-            db.session.query(Data)
-            .filter(or_(Data.sample != true(), Data.sample == null()))
-            .filter(request_user.id == Data.assigned_user_id[big_key])
-            .filter(Data.project_id == project_id)
-            .filter(Data.id.in_(segmentations))
-            .distinct()
-            .order_by(Data.last_modified.desc())
-        )
+        categories = ["pending", "completed"]
+        data = retrieve_database(project_id, segmentations, categories,
+                                 request_user, big_key)
 
         paginated_data_pending = data["pending"].paginate(page, 10, False)
         paginated_data_complet = data["completed"].paginate(page, 10, False)
@@ -295,7 +212,6 @@ def get_next_data2(project_id, dv, page_data):
                     active = "completed"
                     paginate_data = paginated_data_complet
                     break
-            app.logger.info(active)
 
         next_page = paginate_data.next_num if paginate_data.has_next else None
         prev_page = paginate_data.prev_num if paginate_data.has_prev else None
@@ -316,10 +232,7 @@ def get_next_data2(project_id, dv, page_data):
         )
         count_data = {key: value.count() for key, value in data.items()}
     except Exception as e:
-        message = "Error fetching all data points"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 501
+        return general_error("Error fetching all projects", e)
 
     return (
         jsonify(
@@ -337,31 +250,8 @@ def get_next_data2(project_id, dv, page_data):
 @api.route("/current_user/projects/get_all", methods=["GET"])
 @jwt_required
 def get_all():
-    identity = get_jwt_identity()
-    app.logger.info("made it this far")
-    # page = request.args.get("page", 1, type=int)
-    # active = request.args.get("active", "completed", type=str)
-
     try:
-        request_user = User.query.filter_by(username=identity["username"]
-                                            ).first()
-
-        # debug to improve secuiuty
-        # if request_user not in project.users:
-        #    return jsonify(message="Unauthorized access!"), 401
-
-        segmentations = db.session.query(Segmentation.data_id
-                                         ).distinct().subquery()
-        # Lets set big id to the {username.idenity, username.id}
-        # this would make it fast but aslo render serval data points
         data = {}
-        big_key = identity["username"]
-        # print(Data.assigned_user_id)
-        # for key in Data.assigned_user_id:
-        #    if request_user.id == Data.assigned_user_id[key]:
-        #        big_key = key
-        #        print(big_key, key)
-        app.logger.info("made it this far")
         data["pending"] = (
             db.session.query(Data)
             .filter(or_(Data.sample != true(), Data.sample == null()))
@@ -369,7 +259,6 @@ def get_all():
             .order_by(Data.last_modified.desc())
             .all()
         )
-        app.logger.info("made it this far")
         paginated_data = data["pending"]
         response = []
         for data_point in paginated_data:
@@ -389,25 +278,15 @@ def get_all():
                     "clip_length": data_point.clip_length,
                 }
             response.append(new_data)
-        app.logger.info("made it this far")
         count_data = {}
         count = 0
         for key in data:
             count += 1
             count_data[key] = count
     except Exception as e:
-        message = "Error fetching all data points"
-        app.logger.error(message)
-        app.logger.error(e)
-        return jsonify(message=message), 501
+        return general_error("Error fetching all projects", e)
 
-    return (
-        jsonify(
-            data=response,
-            count=count_data,
-        ),
-        200,
-    )
+    return (jsonify(data=response, count=count_data), 200,)
 
 
 @api.route("/current_user/projects/<int:project_id>/sample", methods=["GET"])

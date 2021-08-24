@@ -21,7 +21,6 @@ def JsonToCsv(data, filename):
                              'last_modified', 'is_marked_for_review',
                              'assigned_users'])
         for audio in data:
-            # print(audio)
             original_filename = audio['original_filename']
             assigned_users = audio['assigned_users']
             created_at = audio['created_at']
