@@ -1,12 +1,13 @@
 import json
 import csv
 from pprint import pprint
+from backend import app
 
 
-def fileWrapperForJson(filename):
+def test(filename):
     with open(filename, 'r') as f:
         data = json.load(f)
-        text = JsonToCsv(data)
+        text = JsonToRaven(data)
         print("===================================================")
         print(text)
 
@@ -106,11 +107,58 @@ def JsonToText(data):
     return text, csv
 
 
-def write_row(text, row):
+def JsonToRaven(data):
+    text = ""
+    text = write_row(text, ['Selection', 'View', 'Channel', 'Begin Time (s)',
+                            'End Time (s)', 'Low Freq (Hz)',
+                            'High Freq (Hz)', 'Species'], delimeter="	")
+    audio = data
+    segments = audio['segmentations']
+    sampling_rate = round(audio['sampling_rate'] / 2)
+    count = 1
+    app.logger.info(sampling_rate)
+    for region in segments:
+        end = region['end_time']
+        start = region['start_time']
+        max_freq = region['max_freq']
+        if (int(max_freq) < 0 or int(max_freq) > sampling_rate):
+            max_freq = sampling_rate
+
+        min_freq = region['min_freq']
+        if (int(min_freq) < 0 or int(min_freq) > sampling_rate):
+            min_freq = 0
+        if len(region['annotations']) == 0:
+            label = "NO LABEL"
+            text = write_row(text, [count, 'Spectrogram 1', '1',
+                                    start,  end, min_freq, max_freq, label],
+                             delimeter="	")
+        else:
+            for labelCate in region['annotations'].values():
+                print(labelCate)
+                values = labelCate["values"]
+                try:
+                    for label in values:
+                        print(label)
+                        label = label['value']
+                        text = write_row(text, [count, 'Spectrogram 1',
+                                                '1', start,  end, min_freq,
+                                                max_freq, label],
+                                         delimeter="	")
+                except Exception as e:
+                    label = values['value']
+                    text = write_row(text, [count, 'Spectrogram 1', '1',
+                                     start,  end, min_freq, max_freq,
+                                     label],
+                                     delimeter="	")
+                count += 1
+    return text
+
+
+def write_row(text, row, delimeter=","):
     for i in range(len(row)):
         text = text + str(row[i])
         if (i == (len(row) - 1)):
             text = text + "\n"
         else:
-            text = text + ","
+            text = text + delimeter
     return text

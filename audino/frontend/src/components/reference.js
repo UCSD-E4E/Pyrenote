@@ -68,7 +68,6 @@ class Reference extends React.Component {
         wavesurfer.zoom(screenSize / wavesurfer.getDuration());
         wavesurfer.spectrogram._onUpdate(screenSize);
       }
-      wavesurfer.enableDragSelection({ color: 'rgba(0, 102, 255, 0.3)' });
     });
 
     wavesurfer.on('pause', () => {

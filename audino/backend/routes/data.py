@@ -76,8 +76,7 @@ def generate_segmentation(
         segmentation.set_max_freq(max_freq)
 
     segmentation.append_modifers(username)
-    db.session.add(segmentation)
-    db.session.flush()
+    app.logger.info(segmentation.last_modified_by)
 
     values = []
 
@@ -178,6 +177,7 @@ def add_data():
             clip_length=clip_length,
         )
     except Exception as e:
+        app.logger.info(e)
         raise BadRequest(description="username_id is bad ")
     print("HELLLO THERE ERROR MESSAGE")
     db.session.flush()
