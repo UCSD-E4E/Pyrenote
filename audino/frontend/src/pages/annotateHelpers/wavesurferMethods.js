@@ -69,7 +69,10 @@ class WavesurferMethods {
           labelContainer: '#waveform-labels',
           labels: true,
           scrollParent: true,
-          colorMap: spectrogramColorMap
+          colorMap: spectrogramColorMap,
+          checkCallback: () => {
+            return window.location.href.includes('annotate');
+          }
         }),
         RegionsPlugin.create({
           boundingBox
