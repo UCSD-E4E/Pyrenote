@@ -318,6 +318,7 @@ def give_users_examples_json():
     return give_users_examples(user.id)
 
 
+ 
 @api.route("/projects/<int:project_id>/annotations", methods=["GET"])
 @jwt_required
 def get_project_annotations(project_id):
@@ -370,12 +371,9 @@ def get_project_annotations(project_id):
     if (download_csv == "true"):
         text, csv = JsonLabelsToCsv.JsonToText(annotations)
         annotations_to_download = csv
-        app.logger.info("here: ", annotations_to_download)
     elif ((download_csv) == "raven"):
         text = JsonLabelsToCsv.JsonToRaven(annotations)
-        app.logger.info(f'{type(text)}, {text}')
         annotations_to_download = text
-        app.logger.info("here: ", annotations_to_download)
     elif ((download_csv) == "raven-test"):
         annotations_to_download = []
         for file in annotations:

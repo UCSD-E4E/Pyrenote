@@ -75,8 +75,7 @@ def generate_segmentation(
         segmentation.set_max_freq(max_freq)
 
     segmentation.append_modifers(username)
-    db.session.add(segmentation)
-    db.session.flush()
+    app.logger.info(segmentation.last_modified_by)
 
     values = []
 

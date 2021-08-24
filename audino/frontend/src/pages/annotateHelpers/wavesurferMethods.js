@@ -116,6 +116,11 @@ class WavesurferMethods {
       this.setState({ spectrogram });
     });
 
+    wavesurfer.on('click', (e) => {
+      console.log("hello?")
+      this.handlePause() 
+    });
+
     wavesurfer.on('region-click', (r, e) => {
       e.stopPropagation();
       this.setState({
@@ -126,6 +131,9 @@ class WavesurferMethods {
     });
     wavesurfer.on('pause', () => {
       this.setState({ isPlaying: false });
+    });
+    wavesurfer.on('play', () => {
+      this.setState({ isPlaying: true });
     });
 
     this.unsavedButton = unsavedButton;
@@ -140,6 +148,7 @@ class WavesurferMethods {
 
   handlePause() {
     const { wavesurfer } = this.state;
+    console.log("paused")
     this.setState({ isPlaying: false });
     wavesurfer.pause();
   }

@@ -4,6 +4,7 @@ const colormap = require('colormap');
 
 class Spectrogram {
   constructor(wavesurfer, spectrCc, imageData, pixels, heightFactor) {
+    console.log("spectrogvram")
     this.wavesurfer = wavesurfer;
     this.spectrCc = spectrCc;
     this.imageData = imageData;
