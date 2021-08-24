@@ -87,7 +87,7 @@ class DownloadDataForm extends React.Component {
           data.forEach(file => {
             zip.file(file.original_filename, file.annotations);
           });
-          zip.generateAsync({ type: 'blob' }).then( content => {
+          zip.generateAsync({ type: 'blob' }).then(content => {
             FileSaver.saveAs(content, 'raven_annotations.zip');
           });
         } else {

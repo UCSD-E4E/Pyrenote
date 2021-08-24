@@ -18,11 +18,9 @@ class SetActiveForm extends React.Component {
 
   handleChange(e) {
     this.setState({ value: e.target.value });
-    console.log(e.target.value);
   }
 
   handleSubmit() {
-    console.log('hello?');
     const { value, annotate } = this.state;
     localStorage.setItem('active', value);
     this.setState({
@@ -30,7 +28,6 @@ class SetActiveForm extends React.Component {
       errorMessage: ''
     });
     annotate.setState({ active: value });
-    console.log(value);
     this.onDelete();
   }
 

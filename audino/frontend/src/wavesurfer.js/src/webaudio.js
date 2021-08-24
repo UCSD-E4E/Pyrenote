@@ -350,13 +350,11 @@ export default class WebAudio extends util.Observer {
             const audiobuffer = await context.decodeAudioData( arraybuffer );
             console.log(audiobuffer)
             callback(audiobuffer) */
-      console.log('here');
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       await audioCtx.decodeAudioData(
         arraybuffer,
         data => {
           callback(data);
-          console.log('here');
         },
         err => errback(err)
       );
@@ -370,7 +368,7 @@ export default class WebAudio extends util.Observer {
    * @param {?number} duration Explicit duration
    */
   setPeaks(peaks, duration) {
-    if (duration != null) {
+    if (duration !== null) {
       this.explicitDuration = duration;
     }
     this.peaks = peaks;
@@ -383,7 +381,7 @@ export default class WebAudio extends util.Observer {
    */
   setLength(length) {
     // No resize, we can preserve the cached peaks.
-    if (this.mergedPeaks && length == 2 * this.mergedPeaks.length - 1 + 2) {
+    if (this.mergedPeaks && length === 2 * this.mergedPeaks.length - 1 + 2) {
       return;
     }
 
@@ -478,11 +476,11 @@ export default class WebAudio extends util.Observer {
         peaks[2 * i] = max;
         peaks[2 * i + 1] = min;
 
-        if (c == 0 || max > this.mergedPeaks[2 * i]) {
+        if (c === 0 || max > this.mergedPeaks[2 * i]) {
           this.mergedPeaks[2 * i] = max;
         }
 
-        if (c == 0 || min < this.mergedPeaks[2 * i + 1]) {
+        if (c === 0 || min < this.mergedPeaks[2 * i + 1]) {
           this.mergedPeaks[2 * i + 1] = min;
         }
       }
@@ -520,7 +518,7 @@ export default class WebAudio extends util.Observer {
     // close the audioContext if closeAudioContext option is set to true
     if (this.params.closeAudioContext) {
       // check if browser supports AudioContext.close()
-      if (typeof this.ac.close === 'function' && this.ac.state != 'closed') {
+      if (typeof this.ac.close === 'function' && this.ac.state !== 'closed') {
         this.ac.close();
       }
       // clear the reference to the audiocontext
@@ -583,7 +581,7 @@ export default class WebAudio extends util.Observer {
    * some browsers require an explicit call to #resume before they will play back audio
    */
   resumeAudioContext() {
-    if (this.ac.state == 'suspended') {
+    if (this.ac.state === 'suspended') {
       this.ac.resume && this.ac.resume();
     }
   }
@@ -627,13 +625,13 @@ export default class WebAudio extends util.Observer {
 
     this.scheduledPause = null;
 
-    if (start == null) {
+    if (start === null) {
       start = this.getCurrentTime();
       if (start >= this.getDuration()) {
         start = 0;
       }
     }
-    if (end == null) {
+    if (end === null) {
       end = this.getDuration();
     }
 

@@ -116,8 +116,7 @@ class WavesurferMethods {
       this.setState({ spectrogram });
     });
 
-    wavesurfer.on('click', e => {
-      console.log('hello?');
+    wavesurfer.on('click', () => {
       this.handlePause();
     });
 
@@ -148,7 +147,6 @@ class WavesurferMethods {
 
   handlePause() {
     const { wavesurfer } = this.state;
-    console.log('paused');
     this.setState({ isPlaying: false });
     wavesurfer.pause();
   }

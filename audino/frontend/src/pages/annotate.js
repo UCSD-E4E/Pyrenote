@@ -75,7 +75,6 @@ class Annotate extends React.Component {
     })
       .then(response => {
         // take all the current values of featuresList, include the new ones defined at the line 27
-        console.log(response.data);
         boundingBox = response.data.features_list['2D Labels'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
