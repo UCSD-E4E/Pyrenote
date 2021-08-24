@@ -4,7 +4,7 @@ import { handleAllSegmentSave, handleSegmentDelete } from '../../pages/annotatef
 
 const LabelButton = props => {
   const { annotate } = props;
-  const { state } = annotate
+  const { state } = annotate;
   const { isSegmentDeleting, selectedSegment, isSegmentSaving } = state;
 
   return (

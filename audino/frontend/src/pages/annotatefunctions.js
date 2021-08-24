@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { errorLogger } from '../logger';
+
 const handleAllSegmentSave = annotate => {
   const { segmentationUrl, wavesurfer, wavesurferMethods } = annotate.state;
   Object.values(wavesurfer.regions.list).forEach(segment => {
@@ -48,7 +49,7 @@ const handleAllSegmentSave = annotate => {
                 errorMessage: 'Error saving segment',
                 successMessage: null
               });
-              errorLogger.sendLog(error.data.message)
+              errorLogger.sendLog(error.data.message);
             });
         } else {
           axios({
@@ -114,7 +115,7 @@ const handleSegmentDelete = annotate => {
         annotate.setState({
           isSegmentDeleting: false
         });
-        //errorLogger.sendLog(error.data.message)
+        // errorLogger.sendLog(error.data.message)
       });
   } else {
     removeSegment(wavesurfer, selectedSegment, annotate);

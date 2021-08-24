@@ -35,7 +35,7 @@ class EditProjectForm extends React.Component {
         }
       })
       .catch(error => {
-        errorLogger.sendLog(error.response.data.message)
+        errorLogger.sendLog(error.response.data.message);
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: null
@@ -81,7 +81,7 @@ class EditProjectForm extends React.Component {
         } */
       })
       .catch(error => {
-        errorLogger.sendLog(error.response.data.message)
+        errorLogger.sendLog(error.response.data.message);
         console.error(error.response);
         this.setState({
           errorMessage: error.response.data.message,

@@ -51,7 +51,7 @@ class Data extends React.Component {
     document.body.addEventListener('scroll', this.trackScrolling);
   }
 
-  getData(next=false) {
+  getData(next = false) {
     let { apiUrl, page, active, data } = this.state;
     localStorage.setItem('active', active);
     page += 1;
