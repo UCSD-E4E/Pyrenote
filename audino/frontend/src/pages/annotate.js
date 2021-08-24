@@ -201,12 +201,10 @@ class Annotate extends React.Component {
     newState.labelsUrl = `/api/projects/${projectId}/labels`;
     newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
     newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
-    newState.dataId = nextDataId;
+    newState.wavesurfer = null;
 
     wavesurfer.destroy();
-
     this.setState(newState, () => {
-      this.setState({wavesurfer: null})
       this.componentDidMount();
     });
   }
