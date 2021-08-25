@@ -26,9 +26,7 @@ const SampleRateChanger = props => {
     }
 
     return (
-      <div className="col 4">
-        <input type="text" id="fname" name="fname" onChange={e => inputText(e)}/>
-        <Button text="submit" onClick={() => handleSubmit()} type="primary" />
+      <div className="sideMenuItem">
         <input
         type="range"
         min="0"
