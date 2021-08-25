@@ -1,5 +1,5 @@
 from sqlalchemy.orm import defaultload
-from sqlalchemy.sql.expression import false
+from sqlalchemy.sql.expression import false, null
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from backend import app, db
@@ -353,17 +353,19 @@ class Segmentation(db.Model):
         self.end_time = end_time
 
     def set_time_spent(self, time):
-        app.logger.info(time)
         time_spent = self.time_spent + time
-        app.logger.info(self.time_spent)
-        app.logger.info(time_spent)
         self.time_spent = time_spent
 
     def append_modifers(self, newUser):
         if (self.last_modified_by is None):
-            self.last_modified_by = {}
+            self.last_modified_by = {"data": None}
+            app.logger.info("ran")
         date = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-        self.last_modified_by[newUser] = date
+        test = self.last_modified_by["data"]
+        test[newUser] = date
+        self.last_modified_by["data"] = test
+        app.logger.info(self.last_modified_by)
+        app.logger.info(newUser)
 
     def set_max_freq(self, max_freq):
         if (max_freq != -1.0):
@@ -374,6 +376,7 @@ class Segmentation(db.Model):
             self.min_freq = min_freq
 
     def to_dict(self):
+        app.logger.info(self.last_modified_by)
         return {
             "start_time": self.start_time,
             "end_time": self.end_time,
@@ -382,7 +385,7 @@ class Segmentation(db.Model):
             "created_at": self.created_at,
             "created_by": self.created_by,
             "last_modified": self.last_modified,
-            "last_modified_by": self.last_modified_by,
+            "last_modified_by": self.last_modified_by["data"],
             "time_spent": self.time_spent,
         }
 

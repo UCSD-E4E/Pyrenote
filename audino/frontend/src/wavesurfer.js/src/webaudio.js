@@ -340,6 +340,7 @@ export default class WebAudio extends util.Observer {
      * @param {function} callback The function to call on complete.
      * @param {function} errback The function to call on error.
      */
+
     async decodeArrayBuffer(arraybuffer, callback, errback, sampleRate) {
         console.log("in decode array buffer", sampleRate, sampleRate ? sampleRate: this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100)
         this.offlineAc = this.getOfflineAudioContext(
@@ -347,6 +348,7 @@ export default class WebAudio extends util.Observer {
         );
 
         console.log(this.offlineAc)
+
         if ('webkitAudioContext' in window) {
             // Safari: no support for Promise-based decodeAudioData enabled
             // Enable it in Safari using the Experimental Features > Modern WebAudio API option

@@ -4,17 +4,16 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from flask import jsonify, flash, redirect, url_for, request
+from flask import jsonify, request
 from flask import send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
-from werkzeug.exceptions import BadRequest, NotFound, InternalServerError
+from werkzeug.exceptions import BadRequest, NotFound
 
 from backend import app, db
 from backend.models import Data, Project, User, Segmentation, Label, LabelValue
 import mutagen
-import wave
+from .helper_functions import general_error
 from . import api
 
 ALLOWED_EXTENSIONS = ["wav", "mp3", "ogg"]
@@ -51,9 +50,9 @@ def generate_segmentation(
     username,
     segmentation_id=None,
 ):
-    """Generate a Segmentation from the required segment information
     """
-    app.logger.info(time_spent)
+    Generate a Segmentation from the required segment information
+    """
     if segmentation_id is None:
         segmentation = Segmentation(
             data_id=data_id,
@@ -76,8 +75,7 @@ def generate_segmentation(
         segmentation.set_max_freq(max_freq)
 
     segmentation.append_modifers(username)
-    db.session.add(segmentation)
-    db.session.flush()
+    app.logger.info(segmentation.last_modified_by)
 
     values = []
 
@@ -178,6 +176,7 @@ def add_data():
             clip_length=clip_length,
         )
     except Exception as e:
+        app.logger.info(e)
         raise BadRequest(description="username_id is bad ")
     print("HELLLO THERE ERROR MESSAGE")
     db.session.flush()
@@ -221,10 +220,7 @@ def add_data():
 
 @api.route("/data/admin_portal", methods=["POST"])
 def add_data_from_site():
-    app.logger.info(request.files)
-    app.logger.info(request.form)
     api_key = request.form.get("apiKey", None)
-    app.logger.info("also made it to asdfasdfasdfhere!")
 
     if not api_key:
         description = "API Key missing from `Authorization` Header"
@@ -235,19 +231,15 @@ def add_data_from_site():
     if not project:
         raise NotFound(description="No project exist with given API Key")
 
-    app.logger.info("also made it to asdfasdfasdfhere!")
     username_txt = request.form.get("username", None)
     username = username_txt.split(",")
     username_id = {}
     for name in username:
-        app.logger.info(name)
         user = User.query.first()
-        app.logger.info(user)
         if not user:
             raise NotFound(description="No user found with given username")
 
         username_id[name] = user.id
-    app.logger.info("also made it to asdfasdfasdfhere!")
     is_marked_for_review = True
     app.logger.info("made it to here!")
     is_sample = request.form.get("sample", 'False')
@@ -264,11 +256,7 @@ def add_data_from_site():
     for n in range(int(file_length)):
         audio_files.append(request.files.get(str(n)))
 
-    app.logger.info(audio_files)
-    app.logger.info(audio_files)
-    app.logger.info("also made it to here!")
     for file in audio_files:
-        app.logger.info(file)
         original_filename = secure_filename(file.filename)
 
         sample_label = None
@@ -299,7 +287,6 @@ def add_data_from_site():
                 sample=is_sample,
                 sample_label=sample_label
             )
-            app.logger.info(filename)
         except Exception as e:
             raise BadRequest(description="username_id is bad ")
         db.session.add(data)
@@ -316,38 +303,40 @@ def add_data_from_site():
     )
 
 
-@api.route("/projects/<int:project_id>/data/<int:data_id>/confident_check",
-           methods=["POST"])
+@api.route("/projects/<int:project_id>/data/<int:data_id>", methods=["PATCH"])
 @jwt_required
-def set_confident_check_data(project_id, data_id):
+def update_data(project_id, data_id):
     identity = get_jwt_identity()
-    confident_check = request.json.get("confidentCheck")
-    
+
+    if not request.is_json:
+        return jsonify(message="Missing JSON in request"), 400
+
+    is_marked_for_review = bool(
+                                request.json.get("is_marked_for_review", False)
+    )
+
     try:
-        app.logger.info("hello")
-        request_user = User.query.filter_by(username=identity["username"]
-                                            ).first()
-        app.logger.info("hello")
+        request_user = User.query.filter_by(
+                                            username=identity["username"]
+        ).first()
         project = Project.query.get(project_id)
+
         if request_user not in project.users:
             return jsonify(message="Unauthorized access!"), 401
-        app.logger.info("hello")
-        data = (
-            db.session.query(Data)
-            .filter(Data.project_id == project_id)
-            .filter(Data.id == data_id)
-            .first()
-        )
-        if data is None:
-            return jsonify(message="Wrong Data ID"), 401
-        app.logger.info("hello")
-        data.set_confident_check(confident_check)
-        app.logger.info("hello")
-        db.session.add(data)
-        db.session.commit()
-        db.session.refresh(data)
-    except Exception as e:
-        app.logger.info(e)
-        return jsonify(message="errors!!!!!"), 500
 
-    return jsonify(message="SUCCESS"), 200
+        data = Data.query.filter_by(id=data_id, project_id=project_id).first()
+
+        data.update_marked_review(is_marked_for_review)
+    except Exception as e:
+        type = "DATA_UPDATION_FAILED"
+        return general_error(f"Error updating data", e, type=type)
+
+    return (
+        jsonify(
+            data_id=data.id,
+            is_marked_for_review=data.is_marked_for_review,
+            message=f"Data updated",
+            type="DATA_UPDATED",
+        ),
+        200,
+    )

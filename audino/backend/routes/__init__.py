@@ -21,17 +21,24 @@ from .projects import (
     fetch_project,
     edit_project,
     update_project_users,
-    give_users_examples_json,
+    give_users_examples,
+    get_project_annotations
+)
+
+from .project_segmentations import (
+    get_segmentations_for_data,
+    add_segmentations,
+    delete_segmentations,
+)
+
+from .project_labels import (
     add_label_to_project,
     get_label_for_project,
     update_label_for_project,
     get_labels_for_project,
-    get_segmentations_for_data,
-    update_data,
-    add_segmentations,
-    delete_segmentations,
-    get_project_annotations
+
 )
+
 from .labels import (
     add_value_to_label,
     get_values_for_label,
@@ -45,7 +52,6 @@ from .current_user import (
     fetch_data_for_project,
     get_next_data,
     get_next_data2,
-    get_next_data_unknown,
     get_all
 )
 from .data import (
@@ -54,6 +60,10 @@ from .data import (
     generate_segmentation,
     add_data,
     add_data_from_site,
-    set_confident_check_data
+    update_data,
 )
 from .audios import send_audio_file
+
+from .next_clip import (
+    getNextReccomendedData, getNextClip, get_next_data_unknown
+)

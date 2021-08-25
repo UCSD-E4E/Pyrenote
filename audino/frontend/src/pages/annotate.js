@@ -8,6 +8,7 @@ import SideMenu from '../components/sideMenu';
 import { animateWidth } from '../components/annotate/animation';
 import Resizer from '../components/resizerElement';
 import AnnotationWindow from '../components/annotate/annotationWindow.js';
+import FormModal from '../containers/modal';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -52,7 +53,8 @@ class Annotate extends React.Component {
       boundingBox: true,
       initWavesurfer: false,
       maxHeight: document.body.offsetHeight,
-      disappear: 'sideMenu'
+      disappear: 'sideMenu',
+      showActiveForm: localStorage.getItem("active") == null,
     };
     this.state = this.initalState;
     this.lastTime = 0;
@@ -64,8 +66,7 @@ class Annotate extends React.Component {
     this.lastTime = Date.now();
     this.savePrevious();
 
-    const { dataId, projectId, labelsUrl, dataUrl } = this.state;
-    const apiUrl = `/api/current_user/unknown/projects/${projectId}/data/${dataId}`;
+    const { projectId, labelsUrl, dataUrl } = this.state;
 
     let boundingBox = null;
     axios({
@@ -84,20 +85,6 @@ class Annotate extends React.Component {
           playbackOn: response.data.features_list.playbackOn,
           spectrogramDemoOn: response.data.features_list['spectrogram demo']
         });
-
-        axios({
-          method: 'get',
-          url: apiUrl
-        })
-          .then(response => {
-            this.loadNextData(response);
-          })
-          .catch(error => {
-            this.setState({
-              errorMessage: error.response.data.message,
-              isDataLoading: false
-            });
-          });
 
         const wavesurferMethods = new WavesurferMethods({
           annotate: this,
@@ -212,35 +199,6 @@ class Annotate extends React.Component {
     this.loadRegions(regions);
   }
 
-  loadNextData(response) {
-    const { projectId, path } = this.state;
-    const { active, next_page } = response.data;
-    this.setState({
-      data: response.data.data
-    });
-
-    let apiUrl2 = `/api/current_user/projects/${projectId}/data`;
-    apiUrl2 = `${apiUrl2}?page=${next_page}&active=${active}`;
-
-    axios({
-      method: 'get',
-      url: apiUrl2
-    })
-      .then(message => {
-        const { data } = message.data;
-        const next_data_url = `${path}/projects/${projectId}/data/${data[0].data_id}/annotate`;
-        this.setState({
-          next_data_url,
-          next_data_id: data[0].data_id
-        });
-      })
-      .catch(error => {
-        this.setState({
-          errorMessage: error.message.data.message
-        });
-      });
-  }
-
   nextPage(nextDataId) {
     const { wavesurfer, projectId } = this.state;
     const newState = this.initalState;
@@ -271,7 +229,7 @@ class Annotate extends React.Component {
   }
 
   render() {
-    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn } = this.state;
+    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn, showActiveForm } = this.state;
 
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -282,6 +240,13 @@ class Annotate extends React.Component {
         <Helmet>
           <title>Annotate</title>
         </Helmet>
+        <FormModal
+          formType={"SET_ACTIVE"}
+          title={"select active"}
+          show={showActiveForm}
+          annotate={this}
+          onHide={() => this.setState({showActiveForm: false})}
+        />
         {referenceWindowOn ? (
           <div className="containerAnnotate">
             <span
