@@ -37,8 +37,8 @@ const SampleRateChanger = props => {
         onChange={e => {
           ChangeColorChange(e);
         }}
-        // can also do spectrogram.contrast
       />
+      {hz/2 + "khz"}
       </div>
     )
 };
