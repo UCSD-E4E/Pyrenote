@@ -3,7 +3,7 @@ import StickySlider from '../stickySlider';
 const Zoom = props => {
   const {annotate} = props
   const {state} = annotate;
-  const {isRendering, wavesurfer} = state
+  const {isRendering, wavesurfer, zoomOn} = state
 
   /*wavesurfer.on('zoom', pxPerSec => {
     wavesurfer.spectrogram._onUpdate(pxPerSec * wavesurfer.getDuration());
@@ -16,17 +16,23 @@ const Zoom = props => {
   }
 
   return (
-    <div
-      style={{ display: isRendering ? 'none' : '' }}
-    >
-     <StickySlider
-      min="1"
-      max="200"
-      finalChangeCallback={value => handleZoom(value)}
-      stickyPos={[0, 200]}
-      threshold={5}
-    />
+    <div>
+      {zoomOn ?  
+      <div
+        style={{ display: isRendering ? 'none' : '' }}
+      >
+      <StickySlider
+        min="1"
+        max="200"
+        finalChangeCallback={value => handleZoom(value)}
+        stickyPos={[0, 200]}
+        threshold={5}
+      />
+      </div>
+       : null}
+     
     </div>
+    
   );
 };
 

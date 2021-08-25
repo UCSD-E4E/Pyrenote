@@ -83,7 +83,8 @@ class Annotate extends React.Component {
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           referenceWindowOn: response.data.features_list['reference window'],
           playbackOn: response.data.features_list.playbackOn,
-          spectrogramDemoOn: response.data.features_list['spectrogram demo']
+          spectrogramDemoOn: response.data.features_list['spectrogram demo'],
+          zoomOn: response.data.features_list['zoom']
         });
 
         const wavesurferMethods = new WavesurferMethods({
