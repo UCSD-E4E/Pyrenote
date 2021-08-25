@@ -208,7 +208,7 @@ class Annotate extends React.Component {
     const { zoom } = this.state;
     wavesurfer.zoom(zoom);
 
-    this.setState({ wavesurfer, wavesurferMethods });
+    this.setState({ wavesurfer, wavesurferMethods, filename });
     this.loadRegions(regions);
   }
 

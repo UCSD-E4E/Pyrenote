@@ -277,6 +277,16 @@ export default class SpectrogramPlugin {
   }
 
   render(zoom = false) {
+    this.loadLabels(
+        'rgba(68,68,68,0.5)',
+        '12px',
+        '10px',
+        '',
+        '#fff',
+        '#f7f7f7',
+        'center',
+        '#specLabels'
+      );
     this.updateCanvasStyle(zoom);
 
     if (this.frequenciesDataUrl) {
