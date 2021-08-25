@@ -13,7 +13,7 @@ class UnsavedButton extends React.Component {
     this.annotate = annotate;
     this.state = { count: 0 };
   }
-  
+
   addUnsaved(region, ignore = false) {
     if (!region.saved && !ignore) {
       return;
