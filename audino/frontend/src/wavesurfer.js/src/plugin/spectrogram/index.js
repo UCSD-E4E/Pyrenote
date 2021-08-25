@@ -110,8 +110,8 @@ export default class SpectrogramPlugin {
             : params.container;
 
         if (!this.container) {
-          //throw Error('No container for WaveSurfer spectrogram');
-          console.error('No container for WaveSurfer spectrogram')
+          // throw Error('No container for WaveSurfer spectrogram');
+          console.error('No container for WaveSurfer spectrogram');
           return;
         }
 
@@ -121,8 +121,8 @@ export default class SpectrogramPlugin {
             : params.labelContainer;
 
         if (!this.labelContainer) {
-          //throw Error('No container for WaveSurfer spectrogram');
-          console.error('No container for WaveSurfer spectrogram')
+          // throw Error('No container for WaveSurfer spectrogram');
+          console.error('No container for WaveSurfer spectrogram');
           return;
         }
 
