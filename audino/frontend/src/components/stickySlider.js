@@ -9,7 +9,8 @@ const StickySlider = ({
   hasLabels = true,
   threshold = 10,
   stickyPos = [],
-  changeCallback = noop
+  changeCallback = noop,
+  finalChangeCallback = noop
 }) => {
   const [value, setValue] = React.useState(Math.floor((max - min) / 2));
 
@@ -25,6 +26,7 @@ const StickySlider = ({
       if (Math.abs(pos - finalValue) < threshold) finalValue = pos;
     });
     changeCallback(finalValue);
+    finalChangeCallback(finalValue)
     setValue(finalValue);
   };
 

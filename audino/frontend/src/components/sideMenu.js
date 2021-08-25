@@ -7,7 +7,7 @@ import SpectroChanger from './annotate/spectroChanger';
 import ChangePlayback from './annotate/extraFeatures/changePlayback';
 import PreviousAnnotationButton from './annotate/extraFeatures/previousAnnotationButton';
 import SampleRateChanger from './annotate/sampleRateChanger';
-
+import Zoom from './annotate/zoom';
 const SideMenuTab = props => {
   const { tab, icon, tabOpen, setTab } = props;
   const swapTabs = tab => {
@@ -102,6 +102,8 @@ const SideMenu = props => {
           <PreviousAnnotationButton annotate={annotate} />
           {toUnsavedClipOn && annotate.UnsavedButton ? annotate.UnsavedButton.render() : null}
           <SampleRateChanger state={state}  annotate={annotate}/>
+          <Zoom annotate={annotate} />
+
           <br/>
           <Button 
             type="primary" 
