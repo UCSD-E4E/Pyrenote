@@ -146,9 +146,12 @@ class Annotate extends React.Component {
   }
 
   loadFileMetadata(response, boundingBox, wavesurfer, wavesurferMethods) {
+    console.log("hello?????????????????????????")
     this.setState({
       isDataLoading: false,
-      labels: response[0].data
+      labels: response[0].data,
+      wavesurfer,
+      wavesurferMethods
     });
 
     const { is_marked_for_review, segmentations, filename, original_filename } = response[1].data;
@@ -180,18 +183,20 @@ class Annotate extends React.Component {
         boundingBox
       };
     });
-
+    console.log("hello?????????????????????????", this.state.wavesurfer)
     this.setState({
       isDataLoading: false,
       isMarkedForReview: is_marked_for_review,
       original_filename
     });
+    console.log("hello?????????????????????????")
 
     wavesurfer.load(`/audios/${filename}`);
     const { zoom } = this.state;
     wavesurfer.zoom(zoom);
 
     this.setState({ wavesurfer, wavesurferMethods });
+    console.log(wavesurfer)
     this.loadRegions(regions);
   }
 

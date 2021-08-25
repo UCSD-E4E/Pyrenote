@@ -127,6 +127,9 @@ class WavesurferMethods {
     wavesurfer.on('pause', () => {
       this.setState({ isPlaying: false });
     });
+    wavesurfer.on('zoom', pxPerSec => {
+      wavesurfer.spectrogram._onUpdate(pxPerSec * wavesurfer.getDuration());
+    })
 
     this.unsavedButton = unsavedButton;
     return { wavesurfer, unsavedButton };
@@ -152,13 +155,6 @@ class WavesurferMethods {
   handleBackward() {
     const { wavesurfer } = this.state;
     wavesurfer.skipBackward(5);
-  }
-
-  handleZoom(e) {
-    const { wavesurfer } = this.state;
-    const zoom = Number(e.target.value);
-    wavesurfer.zoom(zoom);
-    this.setState({ zoom });
   }
 
   styleRegionColor(region, color) {

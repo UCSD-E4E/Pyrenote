@@ -6,7 +6,7 @@ const Zoom = props => {
   const {isRendering, wavesurfer} = state
 
   const handleZoom = value => {
-    console.log("hello")
+    console.log("hello", wavesurfer, state, annotate, props)
     wavesurfer.zoom(value);
   }
 
