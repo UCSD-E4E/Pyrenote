@@ -338,11 +338,14 @@ export default class SpectrogramPlugin {
   }
 
   getFrequencies(callback) {
-    const { fftSamples } = this;
+    let { fftSamples } = this;
+    fftSamples = fftSamples
     this.buffer = this.wavesurfer.backend.buffer;
+    console.log(this.buffer)
     const { buffer } = this;
     const channelOne = buffer.getChannelData(0);
     // const bufferLength = buffer.length;
+    console.log(channelOne)
     const { sampleRate } = buffer;
     const frequencies = [];
 
