@@ -127,9 +127,6 @@ class WavesurferMethods {
     wavesurfer.on('pause', () => {
       this.setState({ isPlaying: false });
     });
-    wavesurfer.on('zoom', pxPerSec => {
-      wavesurfer.spectrogram._onUpdate(pxPerSec * wavesurfer.getDuration());
-    })
 
     this.unsavedButton = unsavedButton;
     return { wavesurfer, unsavedButton };

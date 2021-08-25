@@ -5,9 +5,14 @@ const Zoom = props => {
   const {state} = annotate;
   const {isRendering, wavesurfer} = state
 
+  /*wavesurfer.on('zoom', pxPerSec => {
+    wavesurfer.spectrogram._onUpdate(pxPerSec * wavesurfer.getDuration());
+  })*/
+
   const handleZoom = value => {
     console.log("hello", wavesurfer, state, annotate, props)
     wavesurfer.zoom(value);
+    wavesurfer.spectrogram._onUpdate()
   }
 
   return (
