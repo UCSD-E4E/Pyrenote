@@ -80,7 +80,7 @@ class WavesurferMethods {
       ]
     });
     const { history } = this.annotate.props;
-    const unsavedButton = new UnsavedButton(wavesurfer, active);
+    const unsavedButton = new UnsavedButton(wavesurfer, active, this.annotate);
     history.listen(() => {
       wavesurfer.stop();
     });
