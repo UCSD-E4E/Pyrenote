@@ -110,6 +110,24 @@ class Spectrogram {
     this.spectrCc.putImageData(imageData, 0, 0);
     this.imageData = imageData;
   }
+
+  setScale(factor) {
+    const copy = this.copy();
+    const { width, height } = this.imageData;
+    let zoomFactor = Math.pow(2, factor);
+    console.log(zoomFactor)
+    let count = 0
+
+    for (let i = 0; i < this.imageData.data.length; i += 4) {
+        var targetIndex = Math.floor(i / zoomFactor) * 4;
+        copy.data[i]     = this.imageData.data[targetIndex];
+        copy.data[i + 1] = this.imageData.data[targetIndex + 1];
+        copy.data[i + 2] = this.imageData.data[targetIndex + 2];
+        copy.data[i + 3] = this.imageData.data[targetIndex + 3];
+      }
+      this.spectrCc.putImageData(copy, 0, 0);
+    }
 }
+
 
 export default Spectrogram;
