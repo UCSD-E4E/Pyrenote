@@ -162,14 +162,6 @@ class Data extends React.Component {
                         Marked for review ({count.marked_review})
                       </a>
                     </li>
-                    <li className="nav-item">
-                      <a
-                        className={`nav-link ${active === 'not_confident' ? 'active' : null}`}
-                        href={tabUrls.not_confident}
-                      >
-                        not_confident ({count.not_confident})
-                      </a>
-                    </li>
                   </ul>
                 </div>
                 {data.length > 0 ? (
