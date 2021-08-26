@@ -64,7 +64,7 @@ class Data extends React.Component {
       .then(response => {
         const { count, active, next_page } = response.data;
         const next_page_data = response.data.data;
-        data = next_page_data.concat(data);
+        data = data.concat(next_page_data);
 
         this.setState({
           data,
