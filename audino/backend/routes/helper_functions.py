@@ -91,11 +91,14 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
 
     if ("marked_review") in categories:
         app.logger.info("made it here")
-        data["marked_review"] = Data.query.filter_by(
-            project_id=project_id,
-            is_marked_for_review=True,
-            sample=False
-        ).order_by(Data.last_modified.desc())
+        data["marked_review"] = (
+             db.session.query(Data)
+             .filter(Data.project_id == project_id)
+             .filter(Data.is_marked_for_review == true())
+             .filter(or_(Data.sample != true(), Data.sample == null()))
+             .order_by(Data.last_modified.desc())
+        )
+    app.logger.info("got data here")
 
     if ("all") in categories:
         app.logger.info("made it here")
