@@ -2,8 +2,8 @@ import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
-
-import Alert from '../../components/alert';
+import { errorLogger } from '../../logger';
+import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
@@ -11,6 +11,7 @@ class DeleteUserForm extends React.Component {
   constructor(props) {
     super(props);
     const { userId } = this.props;
+    this.onDelete = () => props.onDelete();
     this.initialState = {
       userId: Number(userId),
       role: '-1',
@@ -37,6 +38,7 @@ class DeleteUserForm extends React.Component {
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message);
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: null,
@@ -63,19 +65,19 @@ class DeleteUserForm extends React.Component {
     })
       .then(response => {
         if (response.status === 200) {
-          const { role_id } = response.data;
           this.setState({
-            role: String(role_id),
             isLoading: false,
             isSubmitting: false,
             successMessage: 'User has been deleted',
             errorMessage: null
           });
+          this.onDelete();
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message);
         this.setState({
-          errorMessage: error.response.data.message,
+          errorMessage: error,
           successMessage: null,
           isSubmitting: false
         });
@@ -111,20 +113,11 @@ class DeleteUserForm extends React.Component {
             }}
           >
             {isLoading ? <Loader /> : null}
-            {errorMessage ? (
-              <Alert
-                type="danger"
-                message={errorMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
-            {successMessage ? (
-              <Alert
-                type="success"
-                message={successMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
+            <FormAlerts
+              errorMessage={errorMessage}
+              successMessage={successMessage}
+              callback={e => this.handleAlertDismiss(e)}
+            />
             {!isLoading ? (
               <div>
                 <h1 className="h3 mb-3 font-weight-normal">

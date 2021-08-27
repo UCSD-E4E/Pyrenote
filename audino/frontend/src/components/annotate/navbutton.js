@@ -1,75 +1,98 @@
 import React from 'react';
-import { Button } from './button';
+import axios from 'axios';
+import { Button } from '../button';
+import { handleAllSegmentSave } from '../../pages/annotatefunctions';
 
 const NavButton = props => {
   const { annotate } = props;
 
-  // Go to the next audio recording
-  const handleNextClip = (forceNext = false) => {
-    annotate.handleAllSegmentSave();
-    const {
-      previous_pages,
-      num_of_prev,
-      data,
-      dataId,
-      projectId,
-      next_data_id,
-      next_data_url,
-      path
-    } = annotate.state;
+  const checkForSave = (success, forceClip, dir) => {
+    const { wavesurfer } = annotate.state;
+    annotate.setState({ direction: dir });
+    Object.values(wavesurfer.regions.list).forEach(segment => {
+      if (segment.saved === false && !forceClip) {
+        if (segment.data.annotations == null) {
+          annotate.setState({
+            errorUnsavedMessage: `There are regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
+          });
+          success = false;
+        }
+      }
+    });
+    return success;
+  };
 
-    let success = true;
-    success = annotate.checkForSave(success, forceNext, 'next');
-    if (!success) {
-      return;
-    }
+  const loadNextPage = (noMore, next_data_id) => {
+    const { previous_pages, num_of_prev, path, projectId, dataId } = annotate.state;
     const next_page_num = num_of_prev + 1;
 
     if (num_of_prev < previous_pages.length - 1) {
       localStorage.setItem('count', JSON.stringify(next_page_num));
-      window.location.href = previous_pages[next_page_num];
+      annotate.nextPage(previous_pages[next_page_num]);
       return;
     }
-    previous_pages[num_of_prev] = window.location.href;
+    previous_pages[num_of_prev] = dataId;
     localStorage.setItem('previous_links', JSON.stringify(previous_pages));
     localStorage.setItem('count', JSON.stringify(next_page_num));
 
-    let newPageData = data[0];
-    Object.keys(data).forEach(key => {
-      key = parseInt(key, 10);
-      if (data[key].data_id === dataId) {
-        try {
-          newPageData = data[key + 1];
-          const url = `/projects/${projectId}/data/${newPageData.data_id}/annotate`;
-          /// projects
-          window.location.href = path + url;
-        } catch (z) {
-          if (next_data_id && data[0].data_id !== next_data_id) {
-            window.location.href = next_data_url;
-          } else {
-            window.location.href = `${path}/projects/${projectId}/data`;
-          }
-        }
-      }
-    });
+    if (noMore) {
+      window.location.href = `${path}/projects/${projectId}/data`;
+    } else {
+      annotate.nextPage(next_data_id);
+    }
+  };
+
+  // Go to the next audio recording
+  const handleNextClip = (forceNext = false) => {
+    handleAllSegmentSave(annotate);
+    const { dataId, projectId } = annotate.state;
+    const active = localStorage.getItem('active');
+    if (active == null) {
+      annotate.setState({ showActiveForm: true });
+      return;
+    }
+
+    let success = true;
+    success = checkForSave(success, forceNext, 'next');
+    if (!success) {
+      return;
+    }
+
+    let url = `/api/next_clip/project/${projectId}/data/${dataId}`;
+    url = `${url}?active=${active}`;
+    if (active === 'recommended') {
+      url = `/api/next_clip/next_rec/project/${projectId}/data/${dataId}`;
+    }
+    axios({
+      method: 'get',
+      url
+    })
+      .then(response => {
+        const { data_id } = response.data;
+        loadNextPage(response.status === 202, data_id);
+      })
+      .catch(e => {
+        console.error(e);
+      });
   };
 
   // Go to previous audio recording
   const handlePreviousClip = (forcePrev = false) => {
-    annotate.handleAllSegmentSave();
-    const { previous_pages, num_of_prev } = annotate.state;
+    handleAllSegmentSave(annotate);
+    const { previous_pages, num_of_prev, path, projectId, dataId } = annotate.state;
     let success = true;
-    success = annotate.checkForSave(success, forcePrev, 'previous');
+    success = checkForSave(success, forcePrev, 'previous');
     if (success) {
       if (num_of_prev > 0) {
         const page_num = num_of_prev - 1;
         const previous = previous_pages[page_num];
-        previous_pages[num_of_prev] = window.location.href;
+        previous_pages[num_of_prev] = dataId;
         localStorage.setItem('previous_links', JSON.stringify(previous_pages));
         localStorage.setItem('count', JSON.stringify(page_num));
-        window.location.href = previous;
+        annotate.nextPage(previous);
       } else {
         console.warn('You have hit the end of the clips you have last seen');
+        window.location.href = `${path}/projects/${projectId}/data`;
       }
     }
   };

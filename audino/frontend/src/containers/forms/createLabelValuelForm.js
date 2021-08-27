@@ -1,10 +1,10 @@
 import axios from 'axios';
 import React from 'react';
-
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
+import { errorLogger } from '../../logger';
 
-import Alert from '../../components/alert';
+import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 
 class CreateLabelValueForm extends React.Component {
@@ -63,6 +63,7 @@ class CreateLabelValueForm extends React.Component {
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message);
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: '',
@@ -95,20 +96,11 @@ class CreateLabelValueForm extends React.Component {
               this.form = el;
             }}
           >
-            {errorMessage ? (
-              <Alert
-                type="danger"
-                message={errorMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
-            {successMessage ? (
-              <Alert
-                type="success"
-                message={successMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
+            <FormAlerts
+              errorMessage={errorMessage}
+              successMessage={successMessage}
+              callback={e => this.handleAlertDismiss(e)}
+            />
             <div className="form-group">
               <input
                 type="text"

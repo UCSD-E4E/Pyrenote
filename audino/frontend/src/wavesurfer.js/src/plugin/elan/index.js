@@ -165,7 +165,7 @@ export default class ElanPlugin {
     // Create JavaScript references between annotations
     data.tiers.forEach(tier => {
       tier.annotations.forEach(annot => {
-        if (annot.ref != null) {
+        if (annot.ref !== null) {
           annot.reference = data.annotations[annot.ref];
         }
       });
@@ -274,7 +274,7 @@ export default class ElanPlugin {
   bindClick() {
     this._onClick = e => {
       const { ref } = e.target.dataset;
-      if (ref != null) {
+      if (ref !== null) {
         const annot = this.data.annotations[ref];
         if (annot) {
           this.fireEvent('select', annot.start, annot.end);

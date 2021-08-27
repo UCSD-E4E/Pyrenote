@@ -2,8 +2,8 @@ import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
-
-import Alert from '../../components/alert';
+import { errorLogger } from '../../logger';
+import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
@@ -11,7 +11,7 @@ class DeleteLabelForm extends React.Component {
   constructor(props) {
     super(props);
     const { labelId } = this.props;
-
+    this.onDelete = () => props.onDelete();
     this.initialState = {
       labelId,
       errorMessage: null,
@@ -39,9 +39,13 @@ class DeleteLabelForm extends React.Component {
             successMessage: 'Label value has been DELETED',
             errorMessage: null
           });
+          /* eslint-disable */
+          this.onDelete() 
+          /* eslint-enable */
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message);
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: null,
@@ -80,20 +84,11 @@ class DeleteLabelForm extends React.Component {
             }}
           >
             {isLoading ? <Loader /> : null}
-            {errorMessage ? (
-              <Alert
-                type="danger"
-                message={errorMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
-            {successMessage ? (
-              <Alert
-                type="success"
-                message={successMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
+            <FormAlerts
+              errorMessage={errorMessage}
+              successMessage={successMessage}
+              callback={e => this.handleAlertDismiss(e)}
+            />
             {!isLoading ? (
               <div>
                 <div className="form-group" />

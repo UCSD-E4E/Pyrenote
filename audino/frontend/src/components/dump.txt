@@ -1,0 +1,30 @@
+filenames && filenames.map((item, index) => {
+            <text>{item}</text>
+              
+            this.labels[item].map((item, index) => {
+            }
+            console.log(item) 
+             return (<Reference filename={filenames[index]}
+             annotate={this.annotate}/>)
+          })
+
+
+          {value? 
+                  this.renderAllSpectrograms(value)
+                : null}
+                {console.log("THIS TOO")}
+                {
+                  () => {return(<text>should have worked</text>)}
+                }
+                </div>
+              )
+  renderAllSpectrograms(value) {
+      return(value.map((item) => {
+          <div>
+          <Reference filename={item} annotate={this.annotate}/>
+          {console.log("THIS RAN")}
+          </div>
+      }
+      )
+    )
+  }

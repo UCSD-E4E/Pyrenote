@@ -1,8 +1,10 @@
 import axios from 'axios';
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { Button } from '../components/button';
 
 import Loader from '../components/loader';
+import { errorLogger } from '../logger';
 
 class Dashboard extends React.Component {
   constructor(props) {
@@ -25,6 +27,27 @@ class Dashboard extends React.Component {
           projects: response.data.projects,
           isProjectLoading: false
         });
+      })
+      .catch(e => {
+        this.setState({
+          isProjectLoading: false
+        });
+        errorLogger.sendLog(`Something went wrong with the upload${e.response.data.message}`);
+      });
+  }
+
+  getReccomendedData(projectId) {
+    axios({
+      method: 'get',
+      url: `api/next_clip/next_rec/project/${projectId}/data/1`
+    })
+      .then(response => {
+        const index = window.location.href.indexOf('/dashboard');
+        const path = window.location.href.substring(0, index);
+        localStorage.setItem('active', 'recommended');
+        localStorage.setItem('previous_links', JSON.stringify([]));
+        localStorage.setItem('count', JSON.stringify(0));
+        window.location.href = `${path}/projects/${projectId}/data/${response.data.data_id}/annotate`;
       })
       .catch(() => {
         this.setState({
@@ -54,7 +77,7 @@ class Dashboard extends React.Component {
                       <th scope="col">#</th>
                       <th scope="col">Name</th>
                       <th scope="col">Created By</th>
-                      <th scope="col">Created On</th>
+                      <th scope="col">Quick Start</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -68,7 +91,13 @@ class Dashboard extends React.Component {
                             <a href={`/projects/${project.project_id}/data`}>{project.name}</a>
                           </td>
                           <td className="align-middle">{project.created_by}</td>
-                          <td className="align-middle">{project.created_on}</td>
+                          <td className="align-middle">
+                            <Button
+                              type="primary"
+                              text="Quick Start Anotating"
+                              onClick={() => this.getReccomendedData(project.project_id)}
+                            />
+                          </td>
                         </tr>
                       );
                     })}

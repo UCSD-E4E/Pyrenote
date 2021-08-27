@@ -2,8 +2,8 @@ import React from 'react';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
-
-import Alert from '../../components/alert';
+import { errorLogger } from '../../logger';
+import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 import LabelValues from '../../pages/labelValues';
@@ -64,7 +64,7 @@ class EditLabelForm extends React.Component {
 
     this.setState({ isSubmitting: true });
 
-    const { labelUrl, type } = this.state;
+    const { labelUrl, type, name } = this.state;
 
     // TODO: Get these values from api
     if (!type || !['1', '2'].includes(type)) {
@@ -80,7 +80,8 @@ class EditLabelForm extends React.Component {
       method: 'patch',
       url: labelUrl,
       data: {
-        type
+        type,
+        name
       }
     })
       .then(response => {
@@ -97,6 +98,7 @@ class EditLabelForm extends React.Component {
         }
       })
       .catch(error => {
+        errorLogger.sendLog(error.response.data.message);
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: null,
@@ -113,12 +115,8 @@ class EditLabelForm extends React.Component {
     });
   }
 
-  clearForm() {
-    this.form.reset();
-  }
-
-  resetState() {
-    this.setState(this.initialState);
+  handleLabelNameChange(e) {
+    this.setState({ name: e.target.value });
   }
 
   render() {
@@ -144,20 +142,11 @@ class EditLabelForm extends React.Component {
           >
             {' '}
             {isLoading ? <Loader /> : null}
-            {errorMessage ? (
-              <Alert
-                type="danger"
-                message={errorMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
-            {successMessage ? (
-              <Alert
-                type="success"
-                message={successMessage}
-                onClose={e => this.handleAlertDismiss(e)}
-              />
-            ) : null}
+            <FormAlerts
+              errorMessage={errorMessage}
+              successMessage={successMessage}
+              callback={e => this.handleAlertDismiss(e)}
+            />
             {!isLoading ? (
               <div>
                 <div className="form-group">
@@ -169,7 +158,7 @@ class EditLabelForm extends React.Component {
                     value={name}
                     autoFocus
                     required
-                    disabled
+                    onChange={e => this.handleLabelNameChange(e)}
                   />
                 </div>
                 <div className="form-group">

@@ -9,7 +9,7 @@ import FormModal from '../containers/modal';
 import { AdminHandleFormProjects, AdminHandleFormUsers } from './adminHandleForm';
 
 const Admin = props => {
-  const [modalState, setModalState] = React.useState({
+  const initModal = {
     formType: null,
     modalShow: false,
     title: null,
@@ -17,16 +17,20 @@ const Admin = props => {
     projectId: null,
     projectName: null,
     api_key: null
-  });
+  };
+  const [modalState, setModalState] = React.useState(initModal);
 
-  const [userState, setUserState] = React.useState({
+  const initUser = {
     users: [],
     isUserLoading: false
-  });
-  const [projectState, setProjectState] = React.useState({
+  };
+  const [userState, setUserState] = React.useState(initUser);
+
+  const initProject = {
     projects: [],
     isProjectLoading: false
-  });
+  };
+  const [projectState, setProjectState] = React.useState(initProject);
 
   const fetchProjects = () => {
     axios({
@@ -71,6 +75,7 @@ const Admin = props => {
   React.useEffect(() => {
     fetchProjects();
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showModal = newState => {
@@ -86,6 +91,10 @@ const Admin = props => {
   };
 
   const updatePage = () => {
+    setModalState({ ...modalState, modalShow: false });
+    setModalState(initModal);
+    setProjectState(initProject);
+    setUserState(initUser);
     fetchProjects();
     fetchUsers();
   };

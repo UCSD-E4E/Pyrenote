@@ -4,7 +4,7 @@ import sys
 import requests
 import json
 import wave
-
+import mutagen
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Upload sample data to project")
@@ -20,12 +20,6 @@ parser.add_argument(
     type=str,
     help="Path to audio file which is to be annotated (wav, mp3, ogg only)",
     default=False,
-)
-parser.add_argument(
-    "--reference_transcription",
-    type=str,
-    help="Reference transcription associated with the data",
-    default=None,
 )
 parser.add_argument("--host", type=str, help="Host of service", default=None)
 parser.add_argument(
@@ -63,13 +57,10 @@ for filename in os.listdir(directory):
         print("Audio file does not exist")
         continue
 
-    with wave.open(str(audio_path), "rb") as wave_file:
-        frame_rate = wave_file.getframerate()
-        frames = wave_file.getnframes()
-        rate = wave_file.getframerate()
-        clip_duration = frames / float(rate)
+    metadata = mutagen.File(audio_path.as_posix()).info
+    frame_rate = metadata.sample_rate
+    clip_duration = metadata.length
 
-    reference_transcription = args.reference_transcription
     username = args.username.split('.')
     print(username)
     username_dict = {}
@@ -79,7 +70,6 @@ for filename in os.listdir(directory):
     file = {"audio_file": (audio_filename, audio_obj)}
 
     values = {
-        "reference_transcription": reference_transcription,
         "username": username,
         "segmentations": segmentations,
         "is_marked_for_review": is_marked_for_review,

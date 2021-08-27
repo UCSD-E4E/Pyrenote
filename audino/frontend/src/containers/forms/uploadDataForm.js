@@ -1,8 +1,8 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
-
-import Alert from '../../components/alert';
+import { FormAlerts } from '../../components/alert';
+import { errorLogger } from '../../logger';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
@@ -21,18 +21,20 @@ class UploadDataForm extends React.Component {
       successMessage: '',
       isLoading: false,
       isSubmitting: false,
+      isSample: false,
       projectUrl: `/api/projects/${projectId}`,
       getUsersUrl: '/api/users',
       uploadUrl: 'api/data/admin_portal',
       updateUsersProject: `/api/projects/${projectId}/users`,
+      value: '',
       files: {}
     };
 
     this.state = { ...this.initialState };
   }
 
-  handleUpload() {
-    const { uploadUrl, apiKey, files } = this.state;
+  handleUpload(sample = false) {
+    const { uploadUrl, apiKey, files, value } = this.state;
     const formData = new FormData();
 
     for (let i = 0; i < files.length; i++) {
@@ -43,6 +45,8 @@ class UploadDataForm extends React.Component {
     formData.append('apiKey', apiKey);
     formData.append('username', ['admin', 'admin']);
     formData.append('file_length', files.length);
+    formData.append('sample', sample);
+    formData.append('sampleJson', value);
     this.setState({ isLoading: true });
     fetch(uploadUrl, {
       method: 'POST',
@@ -57,6 +61,7 @@ class UploadDataForm extends React.Component {
             successMessage: null,
             isLoading: false
           });
+          errorLogger.sendLog(data.message);
         } else {
           this.setState({
             isSubmitting: false,
@@ -78,8 +83,22 @@ class UploadDataForm extends React.Component {
     });
   }
 
+  handleChangeText(e) {
+    this.setState({ value: e.target.value });
+  }
+
   onChangeHandler(e) {
-    this.setState({ files: e.target.files });
+    const files = e.target.files;
+    this.setState({ files });
+    let text = '{\n';
+    Array.prototype.forEach.call(files, file => {
+      text = `${text} "${file.name}":           , \n`;
+    });
+    text += '}';
+    this.setState({ files, value: text });
+
+    /* const jsonEditor = document.getElementById("json_editor");
+    jsonEditor.style.height = jsonEditor.scrollHeight + "px" */
   }
 
   resetState() {
@@ -87,21 +106,16 @@ class UploadDataForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, isLoading } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isLoading, isSample, value } = this.state;
     return (
       <div className="container h-75 text-center">
         <div>
           {isLoading ? <Loader /> : null}
-          {errorMessage ? (
-            <Alert type="danger" message={errorMessage} onClose={e => this.handleAlertDismiss(e)} />
-          ) : null}
-          {successMessage ? (
-            <Alert
-              type="success"
-              message={successMessage}
-              onClose={e => this.handleAlertDismiss(e)}
-            />
-          ) : null}
+          <FormAlerts
+            errorMessage={errorMessage}
+            successMessage={successMessage}
+            callback={e => this.handleAlertDismiss(e)}
+          />
         </div>
         <div className="row h-100 justify-content-center align-items-center">
           <input
@@ -118,13 +132,32 @@ class UploadDataForm extends React.Component {
                 size="lg"
                 type="primary"
                 disabled={isSubmitting}
-                onClick={e => this.handleUpload(e)}
+                onClick={() => this.setState({ isSample: !isSample })}
+                text={isSample ? 'This is a sample data uplaod' : 'not a sample data upload'}
+              />
+              <Button
+                size="lg"
+                type="primary"
+                disabled={isSubmitting}
+                onClick={() => this.handleUpload(isSample)}
                 isSubmitting={isSubmitting}
                 alt="Uploading"
                 text="Upload"
               />
             </div>
           </div>
+        </div>
+        <div className="row h-100 justify-content-center align-items-center">
+          {isSample ? (
+            <label style={{ width: '200%' }}>
+              <textarea
+                id="json_editor"
+                value={value}
+                onChange={e => this.handleChangeText(e)}
+                style={{ width: '100%', height: '200px' }}
+              />
+            </label>
+          ) : null}
         </div>
       </div>
     );

@@ -9,6 +9,7 @@ import WaveSurfer from '../../wavesurfer.js/src/wavesurfer.js';
 import RegionsPlugin from '../../wavesurfer.js/src/plugin/regions/index.js';
 import SpectrogramPlugin from '../../wavesurfer.js/src/plugin/spectrogram/index.js';
 import { IconButton } from '../../components/button';
+import UnsavedButton from '../../components/annotate/extraFeatures/next_unsaved_button';
 
 const colormap = require('colormap');
 
@@ -24,6 +25,8 @@ class WavesurferMethods {
   constructor(props) {
     this.state = props.state;
     this.annotate = props.annotate;
+    this.boundingBox = props.boundingBox;
+    this.unsavedButton = null;
   }
 
   updateState(state) {
@@ -35,6 +38,8 @@ class WavesurferMethods {
   }
 
   loadWavesurfer() {
+    const boundingBox = this.boundingBox;
+    const { active } = this.state;
     const spectrogramColorMap = colormap({
       colormap: 'hot',
       nshades: 256,
@@ -64,16 +69,23 @@ class WavesurferMethods {
           labelContainer: '#waveform-labels',
           labels: true,
           scrollParent: true,
-          colorMap: spectrogramColorMap
+          colorMap: spectrogramColorMap,
+          checkCallback: () => {
+            return window.location.href.includes('annotate');
+          }
         }),
-        RegionsPlugin.create()
+        RegionsPlugin.create({
+          boundingBox
+        })
       ]
     });
     const { history } = this.annotate.props;
+    const unsavedButton = new UnsavedButton(wavesurfer, active, this.annotate);
     history.listen(() => {
       wavesurfer.stop();
     });
 
+    // spectrogram_created
     wavesurfer.on('ready', () => {
       const screenSize = window.screen.width;
       if (screenSize > wavesurfer.getDuration() * wavesurfer.params.minPxPerSec) {
@@ -87,14 +99,28 @@ class WavesurferMethods {
     wavesurfer.on('region-updated', region => {
       this.handlePause();
       this.styleRegionColor(region, 'rgba(0, 102, 255, 0.3)');
+      unsavedButton.addUnsaved(region);
       region._onUnSave();
     });
 
     wavesurfer.on('region-created', region => {
       this.handlePause();
+      const { storedAnnotations, applyPreviousAnnotations } = this.annotate.state;
+      if (applyPreviousAnnotations) {
+        region.data.annotations = storedAnnotations;
+      }
       this.setState({
         selectedSegment: region
       });
+      unsavedButton.addUnsaved(region, !region.saved);
+    });
+
+    wavesurfer.on('spectrogram_created', spectrogram => {
+      this.setState({ spectrogram });
+    });
+
+    wavesurfer.on('click', () => {
+      this.handlePause();
     });
 
     wavesurfer.on('region-click', (r, e) => {
@@ -108,8 +134,12 @@ class WavesurferMethods {
     wavesurfer.on('pause', () => {
       this.setState({ isPlaying: false });
     });
+    wavesurfer.on('play', () => {
+      this.setState({ isPlaying: true });
+    });
 
-    return wavesurfer;
+    this.unsavedButton = unsavedButton;
+    return { wavesurfer, unsavedButton };
   }
 
   handlePlay() {

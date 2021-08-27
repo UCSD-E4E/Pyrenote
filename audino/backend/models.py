@@ -1,6 +1,10 @@
+from sqlalchemy.orm import defaultload
+from sqlalchemy.sql.expression import false, null
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from backend import app, db
+from datetime import datetime
+
 
 annotation_table = db.Table(
     "annotation",
@@ -52,6 +56,12 @@ class Data(db.Model):
 
     id = db.Column("id", db.Integer(), primary_key=True)
 
+    sample = db.Column("sample", db.Boolean(), nullable=True,
+                       default=False)
+
+    sample_label = db.Column("sample_label", db.String(100), nullable=True,
+                             default="bird")
+
     project_id = db.Column(
         "project_id", db.Integer(), db.ForeignKey("project.id"), nullable=False
     )
@@ -89,11 +99,16 @@ class Data(db.Model):
 
     segmentations = db.relationship("Segmentation", backref="Data")
 
+    confident_check = db.Column("confident_check", db.Boolean(), default=False)
+
     def update_marked_review(self, marked_review):
         self.is_marked_for_review = marked_review
 
     def set_segmentations(self, segmentations):
         self.segmentations = segmentations
+
+    def set_confident_check(self, confident_check):
+        self.confident_check = confident_check
 
     def to_dict(self):
         return {
@@ -106,6 +121,7 @@ class Data(db.Model):
             "assigned_users": self.assigned_user_id,
             "sampling_rate": self.sampling_rate,
             "clip_length": self.clip_length,
+            "confident_check": self.confident_check,
         }
 
 
@@ -145,6 +161,9 @@ class Label(db.Model):
 
     def set_label_type(self, label_type_id):
         self.type_id = label_type_id
+
+    def set_label_name(self, name):
+        self.name = name
 
 
 class LabelType(db.Model):
@@ -217,6 +236,9 @@ class Project(db.Model):
 
     api_key = db.Column("api_key", db.String(32), nullable=False, unique=True)
 
+    features_list = db.Column("features_list", db.JSON(), nullable=True,
+                              default={})
+
     created_at = db.Column(
         "created_at", db.DateTime(), nullable=False, default=db.func.now()
     )
@@ -229,6 +251,10 @@ class Project(db.Model):
         onupdate=db.func.utc_timestamp(),
     )
 
+    is_example = db.Column(
+        "is_example", db.Boolean(), nullable=True, default=False
+    )
+
     users = db.relationship(
         "User", secondary=user_project_table, back_populates="projects"
     )
@@ -236,8 +262,15 @@ class Project(db.Model):
     labels = db.relationship("Label", backref="Project")
     creator_user = db.relationship("User")
 
+    def set_is_example(self, is_example):
+        self.is_example = is_example
+        app.logger.info(self.is_example)
+
     def set_name(self, newUsername):
         self.name = newUsername
+
+    def set_features(self, features):
+        self.features_list = features
 
 
 class Role(db.Model):
@@ -274,8 +307,25 @@ class Segmentation(db.Model):
 
     end_time = db.Column("end_time", db.Float(), nullable=False)
 
+    max_freq = db.Column("max_freq", db.Float(), nullable=False,
+                         default=24000.0)
+
+    min_freq = db.Column("min_freq", db.Float(), nullable=False, default=0.0)
+
     created_at = db.Column(
         "created_at", db.DateTime(), nullable=False, default=db.func.now()
+    )
+
+    created_by = db.Column(
+        "created_by", db.String(128), nullable=False,
+    )
+
+    last_modified_by = db.Column(
+        "last_modified_by", db.JSON(), default={},
+    )
+
+    time_spent = db.Column(
+        "time_spent", db.Integer(), nullable=True
     )
 
     last_modified = db.Column(
@@ -303,19 +353,40 @@ class Segmentation(db.Model):
         self.end_time = end_time
 
     def set_time_spent(self, time):
-        app.logger.info(time)
         time_spent = self.time_spent + time
-        app.logger.info(self.time_spent)
-        app.logger.info(time_spent)
         self.time_spent = time_spent
 
+    def append_modifers(self, newUser):
+        if (self.last_modified_by is None):
+            self.last_modified_by = {"data": {}}
+            app.logger.info("ran")
+        date = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        test = self.last_modified_by["data"]
+        test[newUser] = date
+        self.last_modified_by["data"] = test
+        app.logger.info(self.last_modified_by)
+        app.logger.info(newUser)
+
+    def set_max_freq(self, max_freq):
+        if (max_freq != -1.0):
+            self.max_freq = max_freq
+
+    def set_min_freq(self, min_freq):
+        if (min_freq != -1.0):
+            self.min_freq = min_freq
+
     def to_dict(self):
+        app.logger.info(self.last_modified_by)
         return {
             "start_time": self.start_time,
             "end_time": self.end_time,
+            "max_freq": self.max_freq,
+            "min_freq": self.min_freq,
             "created_at": self.created_at,
+            "created_by": self.created_by,
             "last_modified": self.last_modified,
-            "time_spent": self.time_spent
+            "last_modified_by": self.last_modified_by["data"],
+            "time_spent": self.time_spent,
         }
 
 
@@ -362,3 +433,33 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+
+class Logs(db.Model):
+    __tablename__ = "logs"
+
+    id = db.Column("id", db.Integer(), primary_key=True)
+    project_id = db.Column("project_id", db.Integer(), nullable=True)
+
+    created_at = db.Column("created_at", db.DateTime(), nullable=False,
+                           default=db.func.now())
+
+    created_by = db.Column("created_by", db.Integer(), nullable=True)
+
+    log_lvl = db.Column("log_lvl", db.String(100), nullable=False)
+    message = db.Column("message", db.String(1000), nullable=False)
+
+    def to_dict(self):
+        return {
+            "project_id": self.project_id,
+            "created_at": self.created_at,
+            "created_by": self.created_by,
+            "message": self.message,
+            "log_lvl": self.log_lvl
+        }
+
+    def print_log(self):
+        log = self.created_at.strftime("%m/%d/%Y, %H:%M:%S") + " by "
+        log = log + str(self.created_by) + ": " + self.log_lvl + " { "
+        log = log + self.message + "}"
+        return log

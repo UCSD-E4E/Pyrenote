@@ -519,6 +519,7 @@ export default class WaveSurfer extends util.Observer {
    * @return {this} The wavesurfer instance
    */
   init() {
+    console.log("creating stuff")
     this.registerPlugins(this.params.plugins);
     this.createDrawer();
     this.createBackend();
@@ -670,32 +671,40 @@ export default class WaveSurfer extends util.Observer {
    */
   createDrawer() {
     this.drawer = new this.Drawer(this.container, this.params);
-    this.drawer.init();
-    this.fireEvent('drawer-created', this.drawer);
+        this.drawer.init();
+        this.fireEvent('drawer-created', this.drawer);
 
-    if (this.params.responsive !== false) {
-      window.addEventListener('resize', this._onResize, true);
-      window.addEventListener('orientationchange', this._onResize, true);
+        if (this.params.responsive !== false) {
+            window.addEventListener('resize', this._onResize, true);
+            window.addEventListener('orientationchange', this._onResize, true);
+        }
+
+        this.drawer.on('redraw', () => {
+            console.log(
+                "clicked",
+                progress, e
+            )
+            this.drawBuffer();
+            this.drawer.progress(this.backend.getPlayedPercents());
+        });
+
+        // Click-to-seek
+        this.drawer.on('click', (e, progress) => {
+            console.log(
+                "clicked",
+                progress, e
+            )
+            setTimeout(() => this.seekTo(progress), 0);
+        });
+
+        // Relay the scroll event from the drawer
+        this.drawer.on('scroll', e => {
+            if (this.params.partialRender) {
+                this.drawBuffer();
+            }
+            this.fireEvent('scroll', e);
+        });
     }
-
-    this.drawer.on('redraw', () => {
-      this.drawBuffer();
-      this.drawer.progress(this.backend.getPlayedPercents());
-    });
-
-    // Click-to-seek
-    this.drawer.on('click', (e, progress) => {
-      setTimeout(() => this.seekTo(progress), 0);
-    });
-
-    // Relay the scroll event from the drawer
-    this.drawer.on('scroll', e => {
-      if (this.params.partialRender) {
-        this.drawBuffer();
-      }
-      this.fireEvent('scroll', e);
-    });
-  }
 
   /**
    * Create the backend
@@ -800,6 +809,7 @@ export default class WaveSurfer extends util.Observer {
    * wavesurfer.play(1, 5);
    */
   play(start, end) {
+    console.log(start, end)
     this.fireEvent('interaction', () => this.play(start, end));
     return this.backend.play(start, end);
   }
@@ -935,10 +945,13 @@ export default class WaveSurfer extends util.Observer {
     this.drawer.progress(progress);
 
     if (isWebAudioBackend && !paused) {
+        console.log("bruh?")
         this.backend.play();
+        this.fireEvent('play')
     }
 
     this.params.scrollParent = oldScrollParent;
+    console.log("progression")
     this.fireEvent('seek', progress);
 }
 

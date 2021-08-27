@@ -1,20 +1,19 @@
 import json
 import sqlalchemy as sa
 import uuid
-
+from datetime import datetime
 from pathlib import Path
 
-from flask import jsonify, flash, redirect, url_for, request
+from flask import jsonify, request
 from flask import send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
-from werkzeug.exceptions import BadRequest, NotFound, InternalServerError
+from werkzeug.exceptions import BadRequest, NotFound
 
 from backend import app, db
 from backend.models import Data, Project, User, Segmentation, Label, LabelValue
-
-import wave
+import mutagen
+from .helper_functions import general_error
 from . import api
 
 ALLOWED_EXTENSIONS = ["wav", "mp3", "ogg"]
@@ -31,7 +30,7 @@ def validate_segmentation(segment):
     Validate the segmentation before accepting the annotation's upload
     from users
     """
-    required_key = {"start_time", "end_time"}
+    required_key = {"start_time", "end_time", "max_freq", "min_freq"}
 
     if set(required_key).issubset(segment.keys()):
         return True
@@ -44,19 +43,25 @@ def generate_segmentation(
     project_id,
     start_time,
     end_time,
+    max_freq,
+    min_freq,
     data_id,
     time_spent,
+    username,
     segmentation_id=None,
 ):
-    """Generate a Segmentation from the required segment information
     """
-    app.logger.info(time_spent)
+    Generate a Segmentation from the required segment information
+    """
     if segmentation_id is None:
         segmentation = Segmentation(
             data_id=data_id,
             start_time=start_time,
             end_time=end_time,
             time_spent=time_spent,
+            created_by=username,
+            max_freq=max_freq,
+            min_freq=min_freq,
         )
     else:
         # segmentation updated for existing data
@@ -66,9 +71,11 @@ def generate_segmentation(
         segmentation.set_start_time(start_time)
         segmentation.set_end_time(end_time)
         segmentation.set_time_spent(time_spent)
+        segmentation.set_min_freq(min_freq)
+        segmentation.set_max_freq(max_freq)
 
-    db.session.add(segmentation)
-    db.session.flush()
+    segmentation.append_modifers(username)
+    app.logger.info(segmentation.last_modified_by)
 
     values = []
 
@@ -169,6 +176,7 @@ def add_data():
             clip_length=clip_length,
         )
     except Exception as e:
+        app.logger.info(e)
         raise BadRequest(description="username_id is bad ")
     print("HELLLO THERE ERROR MESSAGE")
     db.session.flush()
@@ -188,6 +196,8 @@ def add_data():
             project_id=project.id,
             end_time=segment["end_time"],
             start_time=segment["start_time"],
+            max_freq=segment["max_freq"],
+            min_freq=segment["min_freq"],
             annotations=segment.get("annotations", {}),
         )
 
@@ -210,10 +220,7 @@ def add_data():
 
 @api.route("/data/admin_portal", methods=["POST"])
 def add_data_from_site():
-    app.logger.info(request.files)
-    app.logger.info(request.form)
     api_key = request.form.get("apiKey", None)
-    app.logger.info("also made it to asdfasdfasdfhere!")
 
     if not api_key:
         description = "API Key missing from `Authorization` Header"
@@ -224,33 +231,38 @@ def add_data_from_site():
     if not project:
         raise NotFound(description="No project exist with given API Key")
 
-    app.logger.info("also made it to asdfasdfasdfhere!")
     username_txt = request.form.get("username", None)
     username = username_txt.split(",")
     username_id = {}
     for name in username:
-        app.logger.info(name)
         user = User.query.first()
-        app.logger.info(user)
         if not user:
             raise NotFound(description="No user found with given username")
 
         username_id[name] = user.id
-    app.logger.info("also made it to asdfasdfasdfhere!")
     is_marked_for_review = True
     app.logger.info("made it to here!")
+    is_sample = request.form.get("sample", 'False')
+    sampleJson = request.form.get("sampleJson", "{}")
+    is_sample = is_sample == 'true'
+    
+    if (is_sample):
+        sampleJson = json.loads(sampleJson)
+
+    err = "no label value with id `{is_sample}` in }`"
+    app.logger.info(err)
     file_length = request.form.get("file_length", None)
     audio_files = []
     for n in range(int(file_length)):
         audio_files.append(request.files.get(str(n)))
 
-    app.logger.info(audio_files)
-    app.logger.info(audio_files)
-    app.logger.info("also made it to here!")
     for file in audio_files:
-        app.logger.info(file)
         original_filename = secure_filename(file.filename)
 
+        sample_label = None
+        if is_sample:
+            sample_label = sampleJson[original_filename]
+            
         extension = Path(original_filename).suffix.lower()
 
         if len(extension) > 1 and extension[1:] not in ALLOWED_EXTENSIONS:
@@ -260,12 +272,9 @@ def add_data_from_site():
 
         file_path = Path(app.config["UPLOAD_FOLDER"]).joinpath(filename)
         file.save(file_path.as_posix())
-        wave_file = wave.open(str(file_path), 'rb')
-        frame_rate = wave_file.getframerate()
-        frames = wave_file.getnframes()
-        rate = wave_file.getframerate()
-        clip_duration = frames / float(rate)
-        wave_file.close()
+        metadata = mutagen.File(file_path.as_posix()).info
+        frame_rate = metadata.sample_rate
+        clip_duration = metadata.length
         try:
             data = Data(
                 project_id=project.id,
@@ -275,8 +284,9 @@ def add_data_from_site():
                 assigned_user_id=username_id,
                 sampling_rate=frame_rate,
                 clip_length=clip_duration,
+                sample=is_sample,
+                sample_label=sample_label
             )
-            app.logger.info(filename)
         except Exception as e:
             raise BadRequest(description="username_id is bad ")
         db.session.add(data)
@@ -290,4 +300,50 @@ def add_data_from_site():
             type="DATA_CREATED",
         ),
         201,
+    )
+
+
+@api.route("/projects/<int:project_id>/data/<int:data_id>", methods=["PATCH"])
+@jwt_required
+def update_data(project_id, data_id):
+    identity = get_jwt_identity()
+
+    if not request.is_json:
+        return jsonify(message="Missing JSON in request"), 400
+
+    is_marked_for_review = bool(
+                                request.json.get("is_marked_for_review", False)
+    )
+
+    app.logger.info(is_marked_for_review is True)
+
+    try:
+        request_user = User.query.filter_by(
+                                            username=identity["username"]
+        ).first()
+        project = Project.query.get(project_id)
+
+        if request_user not in project.users:
+            return jsonify(message="Unauthorized access!"), 401
+
+        data = Data.query.filter_by(id=data_id, project_id=project_id).first()
+
+        data.update_marked_review(is_marked_for_review is True)
+        db.session.add(data)
+        db.session.flush()
+        db.session.commit()
+        db.session.refresh(data)
+    except Exception as e:
+        type = "DATA_UPDATION_FAILED"
+        return general_error(f"Error updating data", e, type=type)
+
+    app.logger.info(data.is_marked_for_review)
+    return (
+        jsonify(
+            data_id=data.id,
+            is_marked_for_review=data.is_marked_for_review,
+            message=f"Data updated",
+            type="DATA_UPDATED",
+        ),
+        200,
     )
