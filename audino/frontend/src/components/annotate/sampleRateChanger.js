@@ -3,9 +3,10 @@ import { Button } from '../button';
 
 const SampleRateChanger = props => {
     const {annotate, state} =  props
-    const {wavesurfer, filename} = state
+    const {wavesurfer, filename, spectrogram} = state
     const [text, setText] = React.useState("")
     const [hz, setHz] = React.useState(44.1)
+    const [hz2, setHz2] = React.useState(44.1)
     const handleSubmit = () => {
       const int = parseInt(text, 10)
       console.log(int)
@@ -27,7 +28,7 @@ const SampleRateChanger = props => {
 
     return (
       <div className="sideMenuItem">
-        <input
+       {/* <input
         type="range"
         min="0"
         max="300"
@@ -35,8 +36,18 @@ const SampleRateChanger = props => {
         onChange={e => {
           ChangeColorChange(e);
         }}
+      />*/}
+       <input
+        type="range"
+        min="0"
+        max="300"
+        value={hz2}
+        onChange={e => {
+          setHz2(e.target.value);
+          spectrogram.scale(0, e.target.value, 8)
+        }}
       />
-      {hz/2 + "khz"}
+      {hz2/2 + "khz"}
       </div>
     )
 };

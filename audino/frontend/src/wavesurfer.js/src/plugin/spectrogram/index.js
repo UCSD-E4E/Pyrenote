@@ -338,7 +338,7 @@ export default class SpectrogramPlugin {
       }
       spectrCc.putImageData(imageData, 0, 0);
       try {
-        const test = new Spectrogram(my.wavesurfer, spectrCc, imageData, pixels, heightFactor);
+        const test = new Spectrogram(my.wavesurfer, spectrCc, imageData, pixels, heightFactor, my);
       } catch (e) {
         console.error(e);
       }

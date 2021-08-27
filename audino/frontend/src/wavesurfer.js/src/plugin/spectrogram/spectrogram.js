@@ -3,7 +3,7 @@
 const colormap = require('colormap');
 
 class Spectrogram {
-  constructor(wavesurfer, spectrCc, imageData, pixels, heightFactor) {
+  constructor(wavesurfer, spectrCc, imageData, pixels, heightFactor, render) {
     console.log("spectrogvram")
     this.wavesurfer = wavesurfer;
     this.spectrCc = spectrCc;
@@ -14,6 +14,7 @@ class Spectrogram {
     this.wavesurfer.fireEvent('spectrogram_created', this);
     const { width, height, data } = this.imageData;
     this.copyID = this.copy(width, height, data);
+    this.render = render
 
     // TODO: capture frequency data output then use it to import new colormaps
   }
@@ -110,6 +111,60 @@ class Spectrogram {
     }
     this.spectrCc.putImageData(imageData, 0, 0);
     this.imageData = imageData;
+  }
+
+  scale(newHzMin, newHzMax, initMaxHz) {
+    newHzMin /= 4
+    newHzMax /= 4
+    const colorMapArray = colormap({
+        colormap: "warm",
+        nshades: 256,
+        format: 'float',
+        alpha: 1
+      });
+
+    const fftSamples = 256
+    const sampleToFreq = fftSamples/initMaxHz
+    const minSample = Math.floor(newHzMin * sampleToFreq)
+    const maxSample = Math.floor(newHzMax * sampleToFreq)
+
+    const pixels = this.pixels;
+    const { width, height } = this.imageData;
+    const heightFactor = this.heightFactor;
+    const newHeight = maxSample - minSample
+    console.log(minSample, maxSample, pixels[0].length)
+
+    const imageData = this.spectrCc.createImageData(width, newHeight);
+    let i;
+    let j;
+    let k;
+
+    for (i = 0; i < pixels.length; i++) {
+      for (j = 0; j < pixels[i].length; j++) {
+
+          if (j < minSample || j > maxSample) {
+              continue;
+          }
+        const colorMap = colorMapArray[pixels[i][j]];
+        /* eslint-disable max-depth */
+        for (k = 0; k < heightFactor; k++) {
+          let y = height - j * heightFactor;
+          if (heightFactor === 2 && k === 1) {
+            y--;
+          }
+          const redIndex = y * (width * 4) + i * 4;
+          imageData.data[redIndex] = colorMap[0] * 255;
+          imageData.data[redIndex + 1] = colorMap[1] * 255;
+          imageData.data[redIndex + 2] = colorMap[2] * 255;
+          imageData.data[redIndex + 3] = colorMap[3] * 255;
+        }
+        /* eslint-enable max-depth */
+      }
+    }
+    this.spectrCc.putImageData(imageData, 0, 0);
+    this.imageData = imageData;
+    this.spectrCc.scale(1, height / newHeight);
+
   }
 }
 
