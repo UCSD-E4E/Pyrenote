@@ -32,6 +32,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
     "redux": "^4.0.5",
+    "resize-image-data": "^0.3.0",
     "uuid": "^8.3.2",
     "wavesurfer.js": "^5.2.0"
   },

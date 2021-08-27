@@ -411,7 +411,8 @@ export default class SpectrogramPlugin {
     textColorFreq,
     textColorUnit,
     textAlign,
-    container
+    container,
+    sampleRateParam=null
   ) {
     const frequenciesHeight = this.height;
     bgFill = bgFill || 'rgba(68,68,68,0)';
@@ -428,11 +429,17 @@ export default class SpectrogramPlugin {
     const freqStart = 0;
     console.log(this.wavesurfer.backend.ac.sampleRate)
     let sampleRate = 44100
-    if (this.wavesurfer.backend.offlineAc.sampleRate) {
-        sampleRate = this.wavesurfer.backend.offlineAc.sampleRate
-    } else if (this.wavesurfer.backend.ac.sampleRate) {
-        sampleRate = this.wavesurfer.backend.ac.sampleRate
+    if (sampleRate === null) {
+        if (this.wavesurfer.backend.offlineAc.sampleRate) {
+            sampleRate = this.wavesurfer.backend.offlineAc.sampleRate
+        } else if (this.wavesurfer.backend.ac.sampleRate) {
+            sampleRate = this.wavesurfer.backend.ac.sampleRate
+        }
+    } else {
+        sampleRate = sampleRateParam
     }
+
+
     const step = (sampleRate / 2 - freqStart) / labelIndex;
 
     // prepare canvas element for labels

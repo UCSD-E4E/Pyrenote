@@ -114,6 +114,7 @@ class Spectrogram {
   }
 
   scale(newHzMin, newHzMax, initMaxHz) {
+    const resizeImageData = require('resize-image-data')
     newHzMin /= 4
     newHzMax /= 4
     const colorMapArray = colormap({
@@ -140,15 +141,16 @@ class Spectrogram {
     let k;
 
     for (i = 0; i < pixels.length; i++) {
-      for (j = 0; j < pixels[i].length; j++) {
+     let z= 0
+      for (j = minSample; j < pixels[i].length; j++) {
 
-          if (j < minSample || j > maxSample) {
-              continue;
-          }
+        if (j < minSample || j > maxSample) {
+           continue;
+        }
         const colorMap = colorMapArray[pixels[i][j]];
         /* eslint-disable max-depth */
         for (k = 0; k < heightFactor; k++) {
-          let y = height - j * heightFactor;
+          let y = height - z * heightFactor;
           if (heightFactor === 2 && k === 1) {
             y--;
           }
@@ -158,12 +160,29 @@ class Spectrogram {
           imageData.data[redIndex + 2] = colorMap[2] * 255;
           imageData.data[redIndex + 3] = colorMap[3] * 255;
         }
+        z++
         /* eslint-enable max-depth */
       }
     }
-    this.spectrCc.putImageData(imageData, 0, 0);
-    this.imageData = imageData;
-    this.spectrCc.scale(1, height / newHeight);
+    console.log(this.spectrCc.canvas   )
+    const result = resizeImageData(imageData, width, height, 'nearest-neighbor')
+    console.log(result)
+    const imageData2 = this.spectrCc.createImageData(width, height);
+    this.spectrCc.putImageData(imageData2, 0, 0)
+    this.spectrCc.putImageData(result, 0, newHeight - height)
+
+
+    this.render.loadLabels(
+        'rgba(68,68,68,0.5)',
+        '12px',
+        '10px',
+        '',
+        '#fff',
+        '#f7f7f7',
+        'center',
+        '#specLabels',
+        newHzMax * 4000
+      );
 
   }
 }
