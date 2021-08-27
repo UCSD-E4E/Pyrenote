@@ -101,11 +101,13 @@ const SideMenu = props => {
           <PreviousAnnotationButton annotate={annotate} />
           {toUnsavedClipOn && annotate.UnsavedButton ? annotate.UnsavedButton.render() : null}
 
-          <br/>
-          <Button 
-            type="primary" 
-            text="change next data settings" 
-            onClick={()=> {annotate.setState({showActiveForm: true})}} 
+          <br />
+          <Button
+            type="primary"
+            text="change next data settings"
+            onClick={() => {
+              annotate.setState({ showActiveForm: true });
+            }}
           />
         </div>
       ) : null}

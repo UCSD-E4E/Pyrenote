@@ -93,7 +93,7 @@ class ManageUsersProjectForm extends React.Component {
         });
       })
       .catch(error => {
-        errorLogger.sendLog(error.response.data.message)
+        errorLogger.sendLog(error.response.data.message);
         this.setState({
           isSubmitting: false,
           errorMessage: error.response.data.message,

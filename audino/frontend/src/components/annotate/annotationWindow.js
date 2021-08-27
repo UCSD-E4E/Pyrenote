@@ -5,7 +5,7 @@ import Spectrogram from './spectrogram';
 import LabelSection from './labelsSection';
 import LabelButton from './labelButtons';
 import RenderingMsg from './renderingMsg';
-import ToggleYesNo from './toggleYesNo'
+import ToggleYesNo from './toggleYesNo';
 
 const AnnotationWindow = props => {
   const { annotate } = props;
@@ -41,7 +41,7 @@ const AnnotationWindow = props => {
             <LabelSection state={state} annotate={annotate} labelRef={annotate.labelRef} />
             <div className={isDataLoading ? 'hidden' : ''}>
               <LabelButton state={state} annotate={annotate} />
-              <ToggleYesNo annotate={annotate}/>
+              <ToggleYesNo annotate={annotate} />
               {navButtonsEnabled && <NavButton annotate={annotate} />}
             </div>
           </div>

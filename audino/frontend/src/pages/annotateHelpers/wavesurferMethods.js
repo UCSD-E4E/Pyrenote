@@ -69,7 +69,10 @@ class WavesurferMethods {
           labelContainer: '#waveform-labels',
           labels: true,
           scrollParent: true,
-          colorMap: spectrogramColorMap
+          colorMap: spectrogramColorMap,
+          checkCallback: () => {
+            return window.location.href.includes('annotate');
+          }
         }),
         RegionsPlugin.create({
           boundingBox
@@ -77,7 +80,7 @@ class WavesurferMethods {
       ]
     });
     const { history } = this.annotate.props;
-    const unsavedButton = new UnsavedButton(wavesurfer, active);
+    const unsavedButton = new UnsavedButton(wavesurfer, active, this.annotate);
     history.listen(() => {
       wavesurfer.stop();
     });
@@ -116,9 +119,8 @@ class WavesurferMethods {
       this.setState({ spectrogram });
     });
 
-    wavesurfer.on('click', (e) => {
-      console.log("hello?")
-      this.handlePause() 
+    wavesurfer.on('click', () => {
+      this.handlePause();
     });
 
     wavesurfer.on('region-click', (r, e) => {
@@ -148,7 +150,6 @@ class WavesurferMethods {
 
   handlePause() {
     const { wavesurfer } = this.state;
-    console.log("paused")
     this.setState({ isPlaying: false });
     wavesurfer.pause();
   }

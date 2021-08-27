@@ -51,8 +51,9 @@ class Data extends React.Component {
     document.body.addEventListener('scroll', this.trackScrolling);
   }
 
-  getData(next=false) {
-    let { apiUrl, page, active, data } = this.state;
+  getData() {
+    let { apiUrl, page, data } = this.state;
+    const { active } = this.state;
     localStorage.setItem('active', active);
     page += 1;
     apiUrl = `${apiUrl}?page=${page}&active=${active}`;
@@ -63,7 +64,7 @@ class Data extends React.Component {
       .then(response => {
         const { count, active, next_page } = response.data;
         const next_page_data = response.data.data;
-        data = next_page_data.concat(data);
+        data = data.concat(next_page_data);
 
         this.setState({
           data,
@@ -159,14 +160,6 @@ class Data extends React.Component {
                         href={tabUrls.marked_review}
                       >
                         Marked for review ({count.marked_review})
-                      </a>
-                    </li>
-                    <li className="nav-item">
-                      <a
-                        className={`nav-link ${active === 'not_confident' ? 'active' : null}`}
-                        href={tabUrls.not_confident}
-                      >
-                        not_confident ({count.not_confident})
                       </a>
                     </li>
                   </ul>

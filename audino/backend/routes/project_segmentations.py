@@ -104,7 +104,6 @@ def add_segmentations(project_id, data_id, seg_id=None):
 
         if request_user not in project.users:
             return jsonify(message="Unauthorized access!"), 401
-
         segmentation = generate_segmentation(
             data_id=data_id,
             project_id=project.id,
@@ -118,7 +117,6 @@ def add_segmentations(project_id, data_id, seg_id=None):
             username=request_user.username
 
         )
-
         db.session.add(segmentation)
         db.session.commit()
         db.session.refresh(segmentation)

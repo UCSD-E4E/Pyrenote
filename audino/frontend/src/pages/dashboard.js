@@ -32,7 +32,7 @@ class Dashboard extends React.Component {
         this.setState({
           isProjectLoading: false
         });
-        errorLogger.sendLog("Something went wrong with the upload" + e.response.data.message)
+        errorLogger.sendLog(`Something went wrong with the upload${e.response.data.message}`);
       });
   }
 
@@ -42,22 +42,18 @@ class Dashboard extends React.Component {
       url: `api/next_clip/next_rec/project/${projectId}/data/1`
     })
       .then(response => {
-        console.log(response)
         const index = window.location.href.indexOf('/dashboard');
-        const path = window.location.href.substring(0, index)
-        console.log(`${path}/projects/${projectId}/data/${response.data.data_id}/annotate`)
-        localStorage.setItem("active", "recommended")
+        const path = window.location.href.substring(0, index);
+        localStorage.setItem('active', 'recommended');
         localStorage.setItem('previous_links', JSON.stringify([]));
         localStorage.setItem('count', JSON.stringify(0));
-        window.location.href = `${path}/projects/${projectId}/data/${response.data.data_id}/annotate`
+        window.location.href = `${path}/projects/${projectId}/data/${response.data.data_id}/annotate`;
       })
-      .catch(e => {
+      .catch(() => {
         this.setState({
           isProjectLoading: false
         });
       });
-    
-    
   }
 
   render() {
@@ -96,7 +92,11 @@ class Dashboard extends React.Component {
                           </td>
                           <td className="align-middle">{project.created_by}</td>
                           <td className="align-middle">
-                            <Button type="primary" text="Quick Start Anotating" onClick={() => this.getReccomendedData(project.project_id)} />
+                            <Button
+                              type="primary"
+                              text="Quick Start Anotating"
+                              onClick={() => this.getReccomendedData(project.project_id)}
+                            />
                           </td>
                         </tr>
                       );

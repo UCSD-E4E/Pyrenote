@@ -54,7 +54,7 @@ class Annotate extends React.Component {
       initWavesurfer: false,
       maxHeight: document.body.offsetHeight,
       disappear: 'sideMenu',
-      showActiveForm: localStorage.getItem("active") == null,
+      showActiveForm: localStorage.getItem('active') == null
     };
     this.state = this.initalState;
     this.lastTime = 0;
@@ -75,7 +75,7 @@ class Annotate extends React.Component {
     })
       .then(response => {
         // take all the current values of featuresList, include the new ones defined at the line 27
-        console.log(response.data)
+
         boundingBox = response.data.features_list['2D Labels'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
@@ -202,8 +202,10 @@ class Annotate extends React.Component {
     newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
     newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
     newState.dataId = nextDataId;
+    newState.wavesurfer = null;
+
+    wavesurfer.destroy();
     this.setState(newState, () => {
-      wavesurfer.destroy();
       this.componentDidMount();
     });
   }
@@ -225,7 +227,8 @@ class Annotate extends React.Component {
   }
 
   render() {
-    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn, showActiveForm } = this.state;
+    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn, showActiveForm } =
+      this.state;
 
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
@@ -237,11 +240,11 @@ class Annotate extends React.Component {
           <title>Annotate</title>
         </Helmet>
         <FormModal
-          formType={"SET_ACTIVE"}
-          title={"select active"}
+          formType="SET_ACTIVE"
+          title="select active"
           show={showActiveForm}
           annotate={this}
-          onHide={() => this.setState({showActiveForm: false})}
+          onHide={() => this.setState({ showActiveForm: false })}
         />
         {referenceWindowOn ? (
           <div className="containerAnnotate">

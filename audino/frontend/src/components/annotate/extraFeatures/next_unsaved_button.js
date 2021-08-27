@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '../../button';
 
 class UnsavedButton extends React.Component {
-  constructor(ws, active, props) {
+  constructor(ws, active, annotate, props) {
     super(props);
     this.regions = {};
     this.currRegion = null;
@@ -10,6 +10,7 @@ class UnsavedButton extends React.Component {
     this.pos = 0;
     this.wavesurfer = ws;
     this.active = active;
+    this.annotate = annotate;
     this.state = { count: 0 };
   }
 
@@ -35,7 +36,8 @@ class UnsavedButton extends React.Component {
     }
     this.regions[id] = item;
     const { count } = this.state;
-    this.setState({ count: count + 1 });
+    this.state.count = count + 1;
+    this.annotate.setState({ unsavedCount: 'updated?' });
   }
 
   removeSaved(region) {
@@ -65,7 +67,8 @@ class UnsavedButton extends React.Component {
 
     delete this.regions[id];
     const { count } = this.state;
-    this.setState({ count: count - 1 });
+    this.state.count = count - 1;
+    this.annotate.setState({ unsavedCount: 'updated!' });
   }
 
   ifSelectedRegionNull() {

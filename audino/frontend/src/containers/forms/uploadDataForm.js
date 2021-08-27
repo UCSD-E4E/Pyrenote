@@ -61,7 +61,7 @@ class UploadDataForm extends React.Component {
             successMessage: null,
             isLoading: false
           });
-          errorLogger.sendLog(data.message)
+          errorLogger.sendLog(data.message);
         } else {
           this.setState({
             isSubmitting: false,

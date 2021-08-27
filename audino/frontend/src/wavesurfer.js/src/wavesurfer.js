@@ -809,6 +809,7 @@ export default class WaveSurfer extends util.Observer {
    * wavesurfer.play(1, 5);
    */
   play(start, end) {
+    console.log(start, end)
     this.fireEvent('interaction', () => this.play(start, end));
     return this.backend.play(start, end);
   }

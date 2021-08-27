@@ -315,6 +315,8 @@ def update_data(project_id, data_id):
                                 request.json.get("is_marked_for_review", False)
     )
 
+    app.logger.info(is_marked_for_review is True)
+
     try:
         request_user = User.query.filter_by(
                                             username=identity["username"]
@@ -326,11 +328,16 @@ def update_data(project_id, data_id):
 
         data = Data.query.filter_by(id=data_id, project_id=project_id).first()
 
-        data.update_marked_review(is_marked_for_review)
+        data.update_marked_review(is_marked_for_review is True)
+        db.session.add(data)
+        db.session.flush()
+        db.session.commit()
+        db.session.refresh(data)
     except Exception as e:
         type = "DATA_UPDATION_FAILED"
         return general_error(f"Error updating data", e, type=type)
 
+    app.logger.info(data.is_marked_for_review)
     return (
         jsonify(
             data_id=data.id,
