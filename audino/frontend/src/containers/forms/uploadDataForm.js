@@ -47,6 +47,7 @@ class UploadDataForm extends React.Component {
     formData.append('file_length', files.length);
     formData.append('sample', sample);
     formData.append('sampleJson', value);
+    console.log(formData)
     this.setState({ isLoading: true });
     fetch(uploadUrl, {
       method: 'POST',
@@ -54,7 +55,7 @@ class UploadDataForm extends React.Component {
       headers: 
         {
           'Authorization': localStorage.getItem('access_token'),
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': "Multipart/form-data; boundary=----WebKitFormBoundaryphAM2f05pj1AmCw7",
         }
     }).then(response => {
       const msg = response.json();

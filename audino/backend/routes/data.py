@@ -225,6 +225,9 @@ def add_data_from_site():
                                                         False)
     if msg is not None:
         return msg, status
+
+    app.logger.info("look here")
+    app.logger.info(request.files.get(0))
     api_key = request.form.get("apiKey", None)
 
     if not api_key:
