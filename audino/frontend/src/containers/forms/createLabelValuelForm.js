@@ -86,29 +86,17 @@ class CreateLabelValueForm extends React.Component {
       headers: 
         {
           'Authorization': localStorage.getItem('access_token'),
-          'Content-Type': 'multipart/form-data',
         }
     }).then(response => {
-      const msg = response.json();
-      msg.then(data => {
-        if (data.code !== 201 && data.type !== 'DATA_CREATED') {
-          this.setState({
-            isSubmitting: false,
-            errorMessage: data.message,
-            successMessage: null,
-            isLoading: false
-          });
-          errorLogger.sendLog(data.message);
-        } else {
-          this.setState({
-            isSubmitting: false,
-            successMessage: data.message,
-            errorMessage: null,
-            isLoading: false,
-          });
-        }
-      });
-    });
+      if (response.status === 201) {
+        this.resetState();
+        this.form.reset();
+
+        this.setState({
+          successMessage: "labels were added!"
+        });
+      }
+    })
   }
   onChangeHandler(e) {
     const files = e.target.files;

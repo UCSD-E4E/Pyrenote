@@ -73,29 +73,23 @@ def add_value_to_label_from_file(label_id):
         return (
             jsonify(message="Please provide a label value!",
                     type="VALUE_MISSING"), 400,)
-
-    with open(file, newline='') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=",", quotechar='|')
-        for row in spamreader:
-            app.logger.info(row)
-
-    try:
-        label_value = LabelValue(value=value, label_id=label_id)
-        db.session.add(label_value)
-        db.session.commit()
-        db.session.refresh(label_value)
-    except Exception as e:
-        if type(e) == sa.exc.IntegrityError:
-            app.logger.error(e)
-            return (
-                jsonify(
-                    message=f"Label Value: {value} already exists!",
-                    type="DUPLICATE_VALUE",
-                ),
-                409,
-            )
-        msg = f"Error adding value to label"
-        return general_error(msg, e, type="VALUE_CREATION_FAILED")
+    app.logger.info("hello")
+    file = file.read().decode("latin-1")
+    app.logger.info(file)
+    app.logger.info(type(file))
+    data = file.split("\n")
+    for value in data:
+        try:
+            label_value = LabelValue(value=value, label_id=label_id)
+            db.session.add(label_value)
+            db.session.commit()
+            db.session.refresh(label_value)
+        except Exception as e:
+            if type(e) == sa.exc.IntegrityError:
+                app.logger.error(e)
+            else:
+                msg = f"Error adding value to label"
+                return general_error(msg, e, type="VALUE_CREATION_FAILED")
 
     return (
         jsonify(
