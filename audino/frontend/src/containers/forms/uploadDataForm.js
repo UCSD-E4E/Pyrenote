@@ -2,7 +2,6 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 import { FormAlerts } from '../../components/alert';
-import { errorLogger } from '../../logger';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
@@ -47,16 +46,13 @@ class UploadDataForm extends React.Component {
     formData.append('file_length', files.length);
     formData.append('sample', sample);
     formData.append('sampleJson', value);
-    console.log(formData)
     this.setState({ isLoading: true });
     fetch(uploadUrl, {
       method: 'POST',
       body: formData,
-      headers: 
-        {
-          'Authorization': localStorage.getItem('access_token'),
-          'Content-Type': "Multipart/form-data; boundary=----WebKitFormBoundaryphAM2f05pj1AmCw7",
-        }
+      headers: {
+        Authorization: localStorage.getItem('access_token')
+      }
     }).then(response => {
       const msg = response.json();
       msg.then(data => {
@@ -67,7 +63,7 @@ class UploadDataForm extends React.Component {
             successMessage: null,
             isLoading: false
           });
-          errorLogger.sendLog(data.message);
+          // errorLogger.sendLog(data.message);
         } else {
           this.setState({
             isSubmitting: false,

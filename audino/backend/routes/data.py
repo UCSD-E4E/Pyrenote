@@ -226,8 +226,6 @@ def add_data_from_site():
     if msg is not None:
         return msg, status
 
-    app.logger.info("look here")
-    app.logger.info(request.files.get(0))
     api_key = request.form.get("apiKey", None)
 
     if not api_key:
@@ -249,11 +247,10 @@ def add_data_from_site():
 
         username_id[name] = user.id
     is_marked_for_review = True
-    app.logger.info("made it to here!")
     is_sample = request.form.get("sample", 'False')
     sampleJson = request.form.get("sampleJson", "{}")
     is_sample = is_sample == 'true'
-    
+
     if (is_sample):
         sampleJson = json.loads(sampleJson)
 
@@ -270,7 +267,7 @@ def add_data_from_site():
         sample_label = None
         if is_sample:
             sample_label = sampleJson[original_filename]
-            
+
         extension = Path(original_filename).suffix.lower()
 
         if len(extension) > 1 and extension[1:] not in ALLOWED_EXTENSIONS:
