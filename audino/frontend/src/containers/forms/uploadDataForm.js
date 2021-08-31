@@ -50,7 +50,12 @@ class UploadDataForm extends React.Component {
     this.setState({ isLoading: true });
     fetch(uploadUrl, {
       method: 'POST',
-      body: formData
+      body: formData,
+      headers: 
+        {
+          'Authorization': localStorage.getItem('access_token'),
+          'Content-Type': 'multipart/form-data',
+        }
     }).then(response => {
       const msg = response.json();
       msg.then(data => {
