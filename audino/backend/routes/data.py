@@ -13,7 +13,7 @@ from werkzeug.exceptions import BadRequest, NotFound
 from backend import app, db
 from backend.models import Data, Project, User, Segmentation, Label, LabelValue
 import mutagen
-from .helper_functions import general_error
+from .helper_functions import general_error, check_admin_permissions
 from . import api
 
 ALLOWED_EXTENSIONS = ["wav", "mp3", "ogg"]
@@ -219,7 +219,12 @@ def add_data():
 
 
 @api.route("/data/admin_portal", methods=["POST"])
+@jwt_required
 def add_data_from_site():
+    msg, status, request_user = check_admin_permissions(get_jwt_identity(),
+                                                        False)
+    if msg is not None:
+        return msg, status
     api_key = request.form.get("apiKey", None)
 
     if not api_key:
