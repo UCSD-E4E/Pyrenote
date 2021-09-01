@@ -88,7 +88,6 @@ export default class Drawer extends util.Observer {
    * @return {number} Playback position from 0 to 1
    */
   handleEvent(e, noPrevent) {
-    console.log("norm")
     !noPrevent && e.preventDefault();
 
     const clientX = e.targetTouches ? e.targetTouches[0].clientX : e.clientX;
@@ -119,7 +118,6 @@ export default class Drawer extends util.Observer {
    * @return {number} frequency position from 0 to 1
    */
   handleEventVertical(e, noPrevent, height = null) {
-      console.log("vert")
     if (!height) {
       height = this.wrapper.scrollHeight;
     }

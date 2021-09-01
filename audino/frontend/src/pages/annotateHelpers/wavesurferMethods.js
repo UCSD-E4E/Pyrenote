@@ -148,7 +148,6 @@ class WavesurferMethods {
 
   handlePause() {
     const { wavesurfer } = this.state;
-    console.log("paused")
     this.setState({ isPlaying: false });
     wavesurfer.pause();
   }

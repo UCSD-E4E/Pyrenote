@@ -427,8 +427,8 @@ export default class SpectrogramPlugin {
     const getMaxY = frequenciesHeight || 512;
     const labelIndex = 5 * (getMaxY / 256);
     const freqStart = 0;
-    console.log(this.wavesurfer.backend.ac.sampleRate)
-    let sampleRate = 44100
+
+    let sampleRate = sampleRateParam
     if (sampleRate === null) {
         if (this.wavesurfer.backend.offlineAc.sampleRate) {
             sampleRate = this.wavesurfer.backend.offlineAc.sampleRate

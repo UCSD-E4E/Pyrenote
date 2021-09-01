@@ -154,7 +154,7 @@ class Spectrogram {
             newY--
         }
     }
-    console.log(height / newHeight * height)
+
     const result = resizeImageData(imageData, width, height, 'nearest-neighbor')
     //console.log(imageData, result)
     const imageData2 = this.spectrCc.createImageData(width, height);
