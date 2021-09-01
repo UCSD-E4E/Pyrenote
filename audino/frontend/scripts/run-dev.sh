@@ -5,7 +5,7 @@ set -o errexit
 app="/app/frontend"
 echo "npm install"
 {
-    cd "{app}" && npm i bezier-easing
+    cd "${app}" && npm i bezier-easing
     cd "${app}" && npm install
     cd "${app}" && npm install jszip
     cd "${app}" && npm install file-saver

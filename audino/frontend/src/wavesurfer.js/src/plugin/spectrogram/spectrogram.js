@@ -125,7 +125,7 @@ class Spectrogram {
       });
 
     const fftSamples = 256
-    const sampleToFreq = fftSamples/initMaxHz
+    const sampleToFreq = fftSamples/16//initMaxHz
     const minSample = Math.floor(newHzMin * sampleToFreq)
     const maxSample = Math.floor(newHzMax * sampleToFreq)
 
@@ -133,43 +133,31 @@ class Spectrogram {
     const { width, height } = this.imageData;
     const heightFactor = this.heightFactor;
     const newHeight = maxSample - minSample
-    console.log(minSample, maxSample, pixels[0].length)
 
     const imageData = this.spectrCc.createImageData(width, newHeight);
     let i;
-    let j;
+    let y;
     let k;
 
     for (i = 0; i < pixels.length; i++) {
-     let z= 0
-      for (j = minSample; j < pixels[i].length; j++) {
-
-        if (j < minSample || j > maxSample) {
-           continue;
-        }
-        const colorMap = colorMapArray[pixels[i][j]];
+      for (y = minSample; y < pixels[i].length && y < maxSample ; y++) { //&& j < maxSample
+        const colorMap = colorMapArray[pixels[i][y]];
         /* eslint-disable max-depth */
-        for (k = 0; k < heightFactor; k++) {
-          let y = height - z * heightFactor;
-          if (heightFactor === 2 && k === 1) {
-            y--;
-          }
-          const redIndex = y * (width * 4) + i * 4;
-          imageData.data[redIndex] = colorMap[0] * 255;
-          imageData.data[redIndex + 1] = colorMap[1] * 255;
-          imageData.data[redIndex + 2] = colorMap[2] * 255;
-          imageData.data[redIndex + 3] = colorMap[3] * 255;
-        }
-        z++
+          var index = 4 * (i + y * width);
+          //const redIndex = y * (width * 4) + i * 4;
+          imageData.data[index] = colorMap[0] * 255;
+          imageData.data[index + 1] = colorMap[1] * 255;
+          imageData.data[index + 2] = colorMap[2] * 255;
+          imageData.data[index + 3] = colorMap[3] * 255;
         /* eslint-enable max-depth */
       }
     }
-    console.log(this.spectrCc.canvas   )
+    console.log(minSample, maxSample, newHeight, pixels[0].length)
     const result = resizeImageData(imageData, width, height, 'nearest-neighbor')
-    console.log(result)
+    //console.log(imageData, result)
     const imageData2 = this.spectrCc.createImageData(width, height);
     this.spectrCc.putImageData(imageData2, 0, 0)
-    this.spectrCc.putImageData(result, 0, newHeight - height)
+    this.spectrCc.putImageData(result, 0, 0)
 
 
     this.render.loadLabels(
