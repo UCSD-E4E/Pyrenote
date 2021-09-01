@@ -140,26 +140,28 @@ class Spectrogram {
     let k;
 
     for (i = 0; i < pixels.length; i++) {
-      for (y = minSample; y < pixels[i].length && y < maxSample ; y++) { //&& j < maxSample
-        const colorMap = colorMapArray[pixels[i][y]];
-        /* eslint-disable max-depth */
-          var index = 4 * (i + y * width);
-          //const redIndex = y * (width * 4) + i * 4;
-          imageData.data[index] = colorMap[0] * 255;
-          imageData.data[index + 1] = colorMap[1] * 255;
-          imageData.data[index + 2] = colorMap[2] * 255;
-          imageData.data[index + 3] = colorMap[3] * 255;
-        /* eslint-enable max-depth */
-      }
+        let newY = Math.min(maxSample, pixels[i].length)
+        for (y = minSample; y < pixels[i].length; y++) { //&& j < maxSample
+            const colorMap = colorMapArray[pixels[i][y]];
+            /* eslint-disable max-depth */
+            var index = 4 * (i + (newY) * width);
+            //const redIndex = y * (width * 4) + i * 4;
+            imageData.data[index] = colorMap[0] * 255;
+            imageData.data[index + 1] = colorMap[1] * 255;
+            imageData.data[index + 2] = colorMap[2] * 255;
+            imageData.data[index + 3] = colorMap[3] * 255;
+            /* eslint-enable max-depth */
+            newY--
+        }
     }
-    console.log(minSample, maxSample, newHeight, pixels[0].length)
+    console.log(height / newHeight * height)
     const result = resizeImageData(imageData, width, height, 'nearest-neighbor')
     //console.log(imageData, result)
     const imageData2 = this.spectrCc.createImageData(width, height);
     this.spectrCc.putImageData(imageData2, 0, 0)
-    this.spectrCc.putImageData(result, 0, 0)
+    this.spectrCc.putImageData(result, 0, Math.max(0, height - height / newHeight * height))
 
-
+//    console.log(this.wavesurfer.backend.ac.sampleRate)
     this.render.loadLabels(
         'rgba(68,68,68,0.5)',
         '12px',
