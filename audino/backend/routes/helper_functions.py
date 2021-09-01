@@ -34,12 +34,12 @@ def check_admin(identity):
     return None, None, request_user
 
 
-def check_admin_permissions(identity):
+def check_admin_permissions(identity, json=True):
     msg, status, request_user = check_admin(identity)
     if msg is not None:
         return msg, status
 
-    if not request.is_json:
+    if not request.is_json and json:
         return jsonify(message="Missing JSON in request"), 400, request_user
     return None, None, request_user
 
