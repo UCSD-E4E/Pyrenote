@@ -267,7 +267,6 @@ def add_data_from_site():
         sample_label = None
         if is_sample:
             sample_label = sampleJson[original_filename]
-
         extension = Path(original_filename).suffix.lower()
 
         if len(extension) > 1 and extension[1:] not in ALLOWED_EXTENSIONS:
