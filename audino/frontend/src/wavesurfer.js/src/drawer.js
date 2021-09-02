@@ -77,7 +77,7 @@ export default class Drawer extends util.Observer {
       });
     }
 
-    this.setupWrapperEvents()
+    this.setupWrapperEvents();
   }
 
   /**
@@ -149,7 +149,6 @@ export default class Drawer extends util.Observer {
 
   setupWrapperEvents() {
     this.wrapper.addEventListener('click', e => {
-        console.log("hello")
       const orientedEvent = util.withOrientation(e, this.params.vertical);
       const scrollbarHeight = this.wrapper.offsetHeight - this.wrapper.clientHeight;
       if (scrollbarHeight !== 0) {
@@ -162,7 +161,6 @@ export default class Drawer extends util.Observer {
       }
 
       if (this.params.interact) {
-          console.log("assign event")
         this.fireEvent('click', e, this.handleEvent(e));
       }
     });

@@ -1,7 +1,7 @@
 import React from 'react';
+import axios from 'axios';
 import { Button } from '../button';
 import { handleAllSegmentSave } from '../../pages/annotatefunctions';
-import axios from 'axios';
 
 const NavButton = props => {
   const { annotate } = props;
@@ -22,7 +22,7 @@ const NavButton = props => {
     return success;
   };
 
-  const loadNextPage = (noMore,next_data_id) => {
+  const loadNextPage = (noMore, next_data_id) => {
     const { previous_pages, num_of_prev, path, projectId, dataId } = annotate.state;
     const next_page_num = num_of_prev + 1;
 
@@ -40,42 +40,39 @@ const NavButton = props => {
     } else {
       annotate.nextPage(next_data_id);
     }
-  }
+  };
 
   // Go to the next audio recording
   const handleNextClip = (forceNext = false) => {
     handleAllSegmentSave(annotate);
-    const { dataId, projectId } =
-      annotate.state;
+    const { dataId, projectId } = annotate.state;
     const active = localStorage.getItem('active');
     if (active == null) {
-      annotate.setState({showActiveForm: true})
+      annotate.setState({ showActiveForm: true });
       return;
     }
-    console.log("button", active)
+
     let success = true;
     success = checkForSave(success, forceNext, 'next');
     if (!success) {
       return;
     }
-    console.log("send active")
-    let url = '/api/next_clip/project/' + projectId + '/data/' + dataId 
-    url = url + "?active=" + active
-    if (active === "recommended") {
-      url = '/api/next_clip/next_rec/project/' + projectId + '/data/' + dataId 
+
+    let url = `/api/next_clip/project/${projectId}/data/${dataId}`;
+    url = `${url}?active=${active}`;
+    if (active === 'recommended') {
+      url = `/api/next_clip/next_rec/project/${projectId}/data/${dataId}`;
     }
     axios({
       method: 'get',
-      url: url
+      url
     })
       .then(response => {
-        console.log(response)
-        const {data_id} = response.data
-        console.log(response.status === 202 === 202)
-        loadNextPage(response.status === 202, data_id)
+        const { data_id } = response.data;
+        loadNextPage(response.status === 202, data_id);
       })
-      .catch((e) => {
-        console.error(e)
+      .catch(e => {
+        console.error(e);
       });
   };
 

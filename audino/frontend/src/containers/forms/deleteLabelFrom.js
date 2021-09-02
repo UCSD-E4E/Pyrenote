@@ -45,7 +45,7 @@ class DeleteLabelForm extends React.Component {
         }
       })
       .catch(error => {
-        errorLogger.sendLog(error.response.data.message)
+        errorLogger.sendLog(error.response.data.message);
         this.setState({
           errorMessage: error.response.data.message,
           successMessage: null,

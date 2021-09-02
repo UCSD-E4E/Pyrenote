@@ -1,25 +1,24 @@
-import axios from "axios";
+import axios from 'axios';
 
 class Logger {
   constructor(logLvl) {
-    this.logLvl = logLvl
+    this.logLvl = logLvl;
   }
 
   sendLog(message) {
     axios({
-      url: "/api/log_msg",
-      method: "POST",
+      url: '/api/log_msg',
+      method: 'POST',
       data: {
-        "message": message,
-        "logLvl": this.logLvl
+        message,
+        logLvl: this.logLvl
       }
-
-    })
+    });
   }
 }
 
-const errorLogger = new Logger("error")
-const infoLogger = new Logger("info")
+const errorLogger = new Logger('error');
+const infoLogger = new Logger('info');
 
-export default Logger
-export {errorLogger, infoLogger}
+export default Logger;
+export { errorLogger, infoLogger };

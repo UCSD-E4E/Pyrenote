@@ -56,7 +56,7 @@ class DownloadDataForm extends React.Component {
             });
             this.download(csvContent, `${projectName}.csv`, 'text/csv;encoding:utf-8');
           } catch (c) {
-            errorLogger.sendLog(c.response.data.message)
+            errorLogger.sendLog(c.response.data.message);
             console.error(c);
           }
         } else {
@@ -64,7 +64,7 @@ class DownloadDataForm extends React.Component {
         }
       })
       .catch(error => {
-        errorLogger.sendLog(error.response.data.message)
+        errorLogger.sendLog(error.response.data.message);
         this.setState({
           errorMessage: error.response.data.message
         });
@@ -80,17 +80,15 @@ class DownloadDataForm extends React.Component {
       }
     })
       .then(response => {
-       
-
         const { annotations } = response.data;
         if (annotations) {
           const data = annotations; // JSON.stringify(annotations, null, 2)
-          let zip = new JSZip();
+          const zip = new JSZip();
           data.forEach(file => {
-            zip.file(file["original_filename"], file["annotations"]);
-          })
-          zip.generateAsync({type: "blob"}).then(function(content) {
-            FileSaver.saveAs(content, "raven_annotations.zip");
+            zip.file(file.original_filename, file.annotations);
+          });
+          zip.generateAsync({ type: 'blob' }).then(content => {
+            FileSaver.saveAs(content, 'raven_annotations.zip');
           });
         } else {
           console.warn('No annotations found');
@@ -120,7 +118,7 @@ class DownloadDataForm extends React.Component {
         }
       })
       .catch(error => {
-        errorLogger.sendLog(error.response.data.message)
+        errorLogger.sendLog(error.response.data.message);
         console.error(error);
         this.setState({
           errorMessage: error.response.data.message
@@ -169,12 +167,12 @@ class DownloadDataForm extends React.Component {
       save_link.download = name;
       this._fake_click(save_link);
     } else {
-      errorLogger.sendLog('Neither a[download] nor msSaveBlob is available')
+      errorLogger.sendLog('Neither a[download] nor msSaveBlob is available');
       throw new Error('Neither a[download] nor msSaveBlob is available');
     }
   }
 
-  download(content, fileName, mimeType)  {
+  download(content, fileName, mimeType) {
     const a = document.createElement('a');
     mimeType = mimeType || 'application/octet-stream';
 
@@ -198,15 +196,11 @@ class DownloadDataForm extends React.Component {
       a.click();
       document.body.removeChild(a);
     } else {
-      window.location.href = `data:application/octet-stream,${encodeURIComponent(
-        content
-      )}`; // only this mime type is supported
+      window.location.href = `data:application/octet-stream,${encodeURIComponent(content)}`; // only this mime type is supported
     }
-  };
-
-  downloadZIP() {
-
   }
+
+  downloadZIP() {}
 
   resetState() {
     this.setState(this.initialState);

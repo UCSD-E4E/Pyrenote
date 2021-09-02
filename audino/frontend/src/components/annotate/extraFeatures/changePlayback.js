@@ -8,7 +8,7 @@ const ChangePlayback = props => {
   const stickySpeeds = [0, 25, 50, 75, 100, 125, 150, 175, 200];
 
   const changeCallback = value => {
-    wavesurferMethods.handlePause()
+    wavesurferMethods.handlePause();
     wavesurfer.setPlaybackRate(value / 100);
   };
 

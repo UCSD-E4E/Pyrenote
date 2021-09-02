@@ -34,12 +34,12 @@ def check_admin(identity):
     return None, None, request_user
 
 
-def check_admin_permissions(identity):
+def check_admin_permissions(identity, json=True):
     msg, status, request_user = check_admin(identity)
     if msg is not None:
         return msg, status
 
-    if not request.is_json:
+    if not request.is_json and json:
         return jsonify(message="Missing JSON in request"), 400, request_user
     return None, None, request_user
 
@@ -91,11 +91,14 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
 
     if ("marked_review") in categories:
         app.logger.info("made it here")
-        data["marked_review"] = Data.query.filter_by(
-            project_id=project_id,
-            is_marked_for_review=True,
-            sample=False
-        ).order_by(Data.last_modified.desc())
+        data["marked_review"] = (
+             db.session.query(Data)
+             .filter(Data.project_id == project_id)
+             .filter(Data.is_marked_for_review == true())
+             .filter(or_(Data.sample != true(), Data.sample == null()))
+             .order_by(Data.last_modified.desc())
+        )
+    app.logger.info("got data here")
 
     if ("all") in categories:
         app.logger.info("made it here")

@@ -104,11 +104,13 @@ const SideMenu = props => {
           <SampleRateChanger state={state}  annotate={annotate}/>
           <Zoom annotate={annotate} />
 
-          <br/>
-          <Button 
-            type="primary" 
-            text="change next data settings" 
-            onClick={()=> {annotate.setState({showActiveForm: true})}} 
+          <br />
+          <Button
+            type="primary"
+            text="change next data settings"
+            onClick={() => {
+              annotate.setState({ showActiveForm: true });
+            }}
           />
         </div>
       ) : null}

@@ -78,7 +78,7 @@ export default class SpectrogramPlugin {
     this.params = params;
     this.wavesurfer = ws;
     this.util = ws.util;
-
+    this.readyCheck = params.checkCallback;
     this.frequenciesDataUrl = params.frequenciesDataUrl;
     this._onScroll = e => {
       this.updateScroll(e);
@@ -100,63 +100,69 @@ export default class SpectrogramPlugin {
       this._wrapperClickHandler(e);
     };
     this._onReady = () => {
-      this.drawer = ws.drawer;
-      const { drawer } = this;
+      if (this.readyCheck) {
+        this.drawer = ws.drawer;
+        const { drawer } = this;
 
-      this.container =
-        typeof params.container === 'string'
-          ? document.querySelector(params.container)
-          : params.container;
+        this.container =
+          typeof params.container === 'string'
+            ? document.querySelector(params.container)
+            : params.container;
 
-      if (!this.container) {
-        throw Error('No container for WaveSurfer spectrogram');
-      }
-
-      this.labelContainer =
-        typeof params.labelContainer === 'string'
-          ? document.querySelector(params.labelContainer)
-          : params.labelContainer;
-
-      if (!this.labelContainer) {
-        throw Error('No container for WaveSurfer spectrogram');
-      }
-
-      if (params.colorMap) {
-        if (params.colorMap.length < 256) {
-          throw new Error('Colormap must contain 256 elements');
+        if (!this.container) {
+          // throw Error('No container for WaveSurfer spectrogram');
+          console.error('No container for WaveSurfer spectrogram');
+          return;
         }
-        for (let i = 0; i < params.colorMap.length; i++) {
-          const cmEntry = params.colorMap[i];
-          if (cmEntry.length !== 4) {
-            throw new Error('ColorMap entries must contain 4 values');
+
+        this.labelContainer =
+          typeof params.labelContainer === 'string'
+            ? document.querySelector(params.labelContainer)
+            : params.labelContainer;
+
+        if (!this.labelContainer) {
+          // throw Error('No container for WaveSurfer spectrogram');
+          console.error('No container for WaveSurfer spectrogram');
+          return;
+        }
+
+        if (params.colorMap) {
+          if (params.colorMap.length < 256) {
+            throw new Error('Colormap must contain 256 elements');
+          }
+          for (let i = 0; i < params.colorMap.length; i++) {
+            const cmEntry = params.colorMap[i];
+            if (cmEntry.length !== 4) {
+              throw new Error('ColorMap entries must contain 4 values');
+            }
+          }
+          this.colorMap = params.colorMap;
+        } else {
+          this.colorMap = [];
+          for (let i = 0; i < 256; i++) {
+            const val = (255 - i) / 256;
+            this.colorMap.push([val, val, val, 1]);
           }
         }
-        this.colorMap = params.colorMap;
-      } else {
-        this.colorMap = [];
-        for (let i = 0; i < 256; i++) {
-          const val = (255 - i) / 256;
-          this.colorMap.push([val, val, val, 1]);
-        }
+        this.width = params.input_width || drawer.width;
+        this.pixelRatio = this.params.pixelRatio || ws.params.pixelRatio;
+        this.fftSamples = this.params.fftSamples || ws.params.fftSamples || 512;
+        this.height = this.fftSamples / 2;
+        this.noverlap = params.noverlap;
+        this.windowFunc = params.windowFunc;
+        this.alpha = params.alpha;
+        this.ImageData = null;
+
+        this.createWrapper();
+        this.createCanvas();
+        this.render();
+
+        drawer.wrapper.addEventListener('scroll', this._onScroll);
+        ws.on('redraw', this._onRender);
+        ws.on('zoom', () => {
+          this._onRender();
+        });
       }
-      this.width = params.input_width || drawer.width;
-      this.pixelRatio = this.params.pixelRatio || ws.params.pixelRatio;
-      this.fftSamples = this.params.fftSamples || ws.params.fftSamples || 512;
-      this.height = this.fftSamples / 2;
-      this.noverlap = params.noverlap;
-      this.windowFunc = params.windowFunc;
-      this.alpha = params.alpha;
-      this.ImageData = null;
-
-      this.createWrapper();
-      this.createCanvas();
-      this.render();
-
-      drawer.wrapper.addEventListener('scroll', this._onScroll);
-      ws.on('redraw', this._onRender);
-      ws.on('zoom', () => {
-        this._onRender();
-      });
     };
   }
 
