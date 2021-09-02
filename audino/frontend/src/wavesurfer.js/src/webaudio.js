@@ -70,6 +70,35 @@ export default class WebAudio extends util.Observer {
     return !!(window.AudioContext || window.webkitAudioContext);
   }
 
+  createVolumeNode() {
+    // Create gain node using the AudioContext
+    if (this.ac.createGain) {
+      this.gainNode = this.ac.createGain();
+    } else {
+      this.gainNode = this.ac.createGainNode();
+    }
+    // Add the gain node to the graph
+    this.gainNode.connect(this.ac.destination);
+  }
+
+
+/** Create analyser node to perform audio analysis */
+createAnalyserNode() {
+    this.analyser = this.ac.createAnalyser();
+    this.analyser.connect(this.gainNode);
+  }
+
+  createScriptNode() {
+    if (this.params.audioScriptProcessor) {
+      this.scriptNode = this.params.audioScriptProcessor;
+    } else if (this.ac.createScriptProcessor) {
+      this.scriptNode = this.ac.createScriptProcessor(WebAudio.scriptBufferSize);
+    } else {
+      this.scriptNode = this.ac.createJavaScriptNode(WebAudio.scriptBufferSize);
+    }
+    this.scriptNode.connect(this.ac.destination);
+  }
+
   /**
    * Get the audio context used by this backend or create one
    *
@@ -102,24 +131,6 @@ export default class WebAudio extends util.Observer {
    *
    * @param {WavesurferParams} params Wavesurfer parameters
    */
-  constructor(params) {
-    super();
-    /** @private */
-    this.params = params;
-    /** ac: Audio Context instance */
-    this.ac = params.audioContext || (this.supportsWebAudio() ? this.getAudioContext() : {});
-    /** @private */
-    this.lastPlay = this.ac.currentTime;
-    /** @private */
-    this.startPosition = 0;
-    /** @private */
-    this.scheduledPause = null;
-    /** @private */
-    this.states = {
-      [PLAYING]: Object.create(this.stateBehaviors[PLAYING]),
-      [PAUSED]: Object.create(this.stateBehaviors[PAUSED]),
-      [FINISHED]: Object.create(this.stateBehaviors[FINISHED])
-    };
 
     /**
      * Does the browser support this backend
@@ -213,6 +224,49 @@ export default class WebAudio extends util.Observer {
         this.destroyed = false;
     }
 
+     /**
+   * Set the rendered length (different from the length of the audio)
+   *
+   * @param {number} length The rendered length
+   */
+  setLength(length) {
+    // No resize, we can preserve the cached peaks.
+    if (this.mergedPeaks && length == 2 * this.mergedPeaks.length - 1 + 2) {
+      return;
+    }
+
+    this.splitPeaks = [];
+    this.mergedPeaks = [];
+    // Set the last element of the sparse array so the peak arrays are
+    // appropriately sized for other calculations.
+    const channels = this.buffer ? this.buffer.numberOfChannels : 1;
+    let c;
+    for (c = 0; c < channels; c++) {
+      this.splitPeaks[c] = [];
+      this.splitPeaks[c][2 * (length - 1)] = 0;
+      this.splitPeaks[c][2 * (length - 1) + 1] = 0;
+    }
+    this.mergedPeaks[2 * (length - 1)] = 0;
+    this.mergedPeaks[2 * (length - 1) + 1] = 0;
+  }
+
+    /**
+   * @private
+   *
+   * @param {string} state The new state
+   */
+  setState(state) {
+    if (this.state !== this.states[state]) {
+      this.state = this.states[state];
+      this.state.init.call(this);
+    }
+  }
+
+   /** @private */
+   removeOnAudioProcess() {
+    this.scriptNode.onaudioprocess = null;
+  }
+
     /**
      * Initialise the backend, called in `wavesurfer.createBackend()`
      */
@@ -225,36 +279,6 @@ export default class WebAudio extends util.Observer {
         this.setPlaybackRate(this.params.audioRate);
         this.setLength(0);
     }
-
-    /** @private */
-    this.buffer = null;
-    /** @private */
-    this.filters = [];
-    /** gainNode: allows to control audio volume */
-    this.gainNode = null;
-    /** @private */
-    this.mergedPeaks = null;
-    /** @private */
-    this.offlineAc = null;
-    /** @private */
-    this.peaks = null;
-    /** @private */
-    this.playbackRate = 1;
-    /** analyser: provides audio analysis information */
-    this.analyser = null;
-    /** scriptNode: allows processing audio */
-    this.scriptNode = null;
-    /** @private */
-    this.source = null;
-    /** @private */
-    this.splitPeaks = [];
-    /** @private */
-    this.state = null;
-    /** @private */
-    this.explicitDuration = params.duration;
-    /**
-     * Boolean indicating if the backend was destroyed.
-     */
 
     async decodeArrayBuffer(arraybuffer, callback, errback, sampleRate) {
         console.log("in decode array buffer", sampleRate, sampleRate ? sampleRate: this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100)
@@ -302,69 +326,6 @@ export default class WebAudio extends util.Observer {
         }
         this.peaks = peaks;
     }
-
-    /**
-     * The following snippet fixes a buffering data issue on the Safari
-     * browser which returned undefined It creates the missing buffer based
-     * on 1 channel, 4096 samples and the sampleRate from the current
-     * webaudio context 4096 samples seemed to be the best fit for rendering
-     * will review this code once a stable version of Safari TP is out
-     */
-    if (!this.buffer.length) {
-      const newBuffer = this.createBuffer(1, 4096, this.sampleRate);
-      this.buffer = newBuffer.buffer;
-    }
-
-    const sampleSize = this.buffer.length / length;
-    const sampleStep = ~~(sampleSize / 10) || 1;
-    const channels = this.buffer.numberOfChannels;
-    let c;
-
-    for (c = 0; c < channels; c++) {
-      const peaks = this.splitPeaks[c];
-      const chan = this.buffer.getChannelData(c);
-      let i;
-
-      for (i = first; i <= last; i++) {
-        const start = ~~(i * sampleSize);
-        const end = ~~(start + sampleSize);
-        /**
-         * Initialize the max and min to the first sample of this
-         * subrange, so that even if the samples are entirely
-         * on one side of zero, we still return the true max and
-         * min values in the subrange.
-         */
-        let min = chan[start];
-        let max = min;
-        let j;
-
-        for (j = start; j < end; j += sampleStep) {
-          const value = chan[j];
-
-          if (value > max) {
-            max = value;
-          }
-
-          if (value < min) {
-            min = value;
-          }
-        }
-
-        peaks[2 * i] = max;
-        peaks[2 * i + 1] = min;
-
-        if (c == 0 || max > this.mergedPeaks[2 * i]) {
-          this.mergedPeaks[2 * i] = max;
-        }
-
-        if (c == 0 || min < this.mergedPeaks[2 * i + 1]) {
-          this.mergedPeaks[2 * i + 1] = min;
-        }
-      }
-    }
-
-    return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
-  }
 
   /**
    * Get the position from 0 to 1
@@ -626,4 +587,110 @@ export default class WebAudio extends util.Observer {
   setPlayEnd(end) {
     this.scheduledPause = end;
   }
+
+   /**
+   * Compute the max and min value of the waveform when broken into <length> subranges.
+   *
+   * @param {number} length How many subranges to break the waveform into.
+   * @param {number} first First sample in the required range.
+   * @param {number} last Last sample in the required range.
+   * @return {number[]|Number.<Array[]>} Array of 2*<length> peaks or array of arrays of
+   * peaks consisting of (max, min) values for each subrange.
+   */
+    getPeaks(length, first, last) {
+        if (this.peaks) {
+          return this.peaks;
+        }
+        if (!this.buffer) {
+          return [];
+        }
+
+        first = first || 0;
+        last = last || length - 1;
+
+        this.setLength(length);
+
+        if (!this.buffer) {
+          return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
+        }
+
+        /**
+         * The following snippet fixes a buffering data issue on the Safari
+         * browser which returned undefined It creates the missing buffer based
+         * on 1 channel, 4096 samples and the sampleRate from the current
+         * webaudio context 4096 samples seemed to be the best fit for rendering
+         * will review this code once a stable version of Safari TP is out
+         */
+        if (!this.buffer.length) {
+          const newBuffer = this.createBuffer(1, 4096, this.sampleRate);
+          this.buffer = newBuffer.buffer;
+        }
+
+        const sampleSize = this.buffer.length / length;
+        const sampleStep = ~~(sampleSize / 10) || 1;
+        const channels = this.buffer.numberOfChannels;
+        let c;
+
+        for (c = 0; c < channels; c++) {
+          const peaks = this.splitPeaks[c];
+          const chan = this.buffer.getChannelData(c);
+          let i;
+
+          for (i = first; i <= last; i++) {
+            const start = ~~(i * sampleSize);
+            const end = ~~(start + sampleSize);
+            /**
+             * Initialize the max and min to the first sample of this
+             * subrange, so that even if the samples are entirely
+             * on one side of zero, we still return the true max and
+             * min values in the subrange.
+             */
+            let min = chan[start];
+            let max = min;
+            let j;
+
+            for (j = start; j < end; j += sampleStep) {
+              const value = chan[j];
+
+              if (value > max) {
+                max = value;
+              }
+
+              if (value < min) {
+                min = value;
+              }
+            }
+
+            peaks[2 * i] = max;
+            peaks[2 * i + 1] = min;
+
+            if (c == 0 || max > this.mergedPeaks[2 * i]) {
+              this.mergedPeaks[2 * i] = max;
+            }
+
+            if (c == 0 || min < this.mergedPeaks[2 * i + 1]) {
+              this.mergedPeaks[2 * i + 1] = min;
+            }
+          }
+        }
+
+        return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
+      }
+
+       /** @private */
+  addOnAudioProcess() {
+    this.scriptNode.onaudioprocess = () => {
+      const time = this.getCurrentTime();
+
+      if (time >= this.getDuration()) {
+        this.setState(FINISHED);
+        this.fireEvent('pause');
+      } else if (time >= this.scheduledPause) {
+        this.pause();
+      } else if (this.state === this.states[PLAYING]) {
+        this.fireEvent('audioprocess', time);
+      }
+    };
+  }
+
 }
