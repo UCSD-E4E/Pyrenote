@@ -5,8 +5,11 @@ const SampleRateChanger = props => {
     const {annotate, state} =  props
     const {wavesurfer, filename, spectrogram} = state
     const [text, setText] = React.useState("")
-    const [hz, setHz] = React.useState(44.1)
-    const [hz2, setHz2] = React.useState(44.1)
+    console.log("init", wavesurfer.backend.offlineAc.sampleRate)
+    console.log(wavesurfer.backend.offlineAc.sampleRate/2000)
+    const [hz, setHz] = React.useState(Number(wavesurfer.backend.offlineAc.sampleRate/1000))
+    const [hz2, setHz2] = React.useState(Number(wavesurfer.backend.offlineAc.sampleRate/1000))
+    console.log(hz2)
     const handleSubmit = () => {
       const int = parseInt(text, 10)
       console.log(int)
@@ -25,7 +28,7 @@ const SampleRateChanger = props => {
       wavesurfer.empty()
       wavesurfer.load(`/audios/${filename}`, null, null, null, e.target.value * 1000);
     }
-
+    console.log(hz2)
     return (
       <div className="sideMenuItem">
        {/* <input
@@ -40,11 +43,12 @@ const SampleRateChanger = props => {
        <input
         type="range"
         min="0"
-        max="300"
+        max="600"
         value={hz2}
         onChange={e => {
           setHz2(e.target.value);
-          spectrogram.scale(0, e.target.value, wavesurfer.backend.ac.sampleRate/1000 * 2)
+          spectrogram.scale(0, e.target.value, wavesurfer.backend.offlineAc.sampleRate/2000)
+          console.log(wavesurfer.backend.offlineAc.sampleRate)
           Object.values(wavesurfer.regions.list).forEach(segment => {
             segment.scale(e.target.value * 1000)
           })

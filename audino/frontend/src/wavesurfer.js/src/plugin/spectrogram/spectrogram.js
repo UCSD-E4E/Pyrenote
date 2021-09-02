@@ -125,7 +125,7 @@ class Spectrogram {
       });
 
     const fftSamples = 256
-    const sampleToFreq = fftSamples/16//initMaxHz
+    const sampleToFreq = fftSamples/initMaxHz
     const minSample = Math.floor(newHzMin * sampleToFreq)
     const maxSample = Math.floor(newHzMax * sampleToFreq)
 
