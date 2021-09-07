@@ -234,7 +234,7 @@ class Annotate extends React.Component {
 
       maxHeight = Math.max(777, leftWindow.scrollHeight)+ "px"
     } catch {
-      maxHeight = "100%"
+      maxHeight = ""
     }
     
     console.log(maxHeight)
@@ -246,7 +246,7 @@ class Annotate extends React.Component {
     }
 
     return (
-      <div style={{ margin: 0, height: maxHeight, overflow: 'hidden' }} //height: `${maxHeight}px`
+      <div style={{ margin: 0, height: maxHeight, overflow: referenceWindowOn ? 'hidden' : "auto" }} //height: `${maxHeight}px`
       >  
         <Helmet>
           <title>Annotate</title>
