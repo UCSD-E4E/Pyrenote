@@ -204,7 +204,7 @@ def add_data():
         new_segmentations.append(new_segment)
 
     data.set_segmentations(new_segmentations)
-
+    db.session.add(new_segmentations)
     db.session.commit()
     db.session.refresh(data)
 
