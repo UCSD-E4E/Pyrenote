@@ -6,9 +6,10 @@ import LabelSection from './labelsSection';
 import LabelButton from './labelButtons';
 import RenderingMsg from './renderingMsg';
 import ToggleYesNo from './toggleYesNo';
+import Button from 'react-bootstrap/Button';
 
 const AnnotationWindow = props => {
-  const { annotate } = props;
+  const { annotate, setAddRegionMode } = props;
   const { state } = annotate;
   const {
     isDataLoading,
@@ -17,7 +18,7 @@ const AnnotationWindow = props => {
     successMessage,
     isRendering,
     original_filename,
-    navButtonsEnabled
+    navButtonsEnabled,
   } = state;
 
   return (
@@ -32,7 +33,19 @@ const AnnotationWindow = props => {
           overlay
           callback={e => annotate.handleAlertDismiss(e)}
         />
-        {!isRendering && <div id="filename">{original_filename}</div>}
+        {!isRendering && 
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <div style={{flex: 1}}></div>
+            <div id="filename">{original_filename}</div>
+            <div style={{display: 'flex', flex: 1, justifyContent: 'flex-end'}}>
+              {
+                state.addRegionMode 
+                ? <Button id="add-edit-toggle-button" className="addRegion" variant="primary" onClick={() => {setAddRegionMode(!state.addRegionMode)}}>Add Regions: On</Button>
+                : <Button id="add-edit-toggle-button" className="editRegion" variant="secondary" onClick={() => {setAddRegionMode(!state.addRegionMode)}}>Add Regions: Off</Button>
+              }
+            </div>
+          </div>
+        }
 
         <RenderingMsg isRendering={isRendering} />
         <Spectrogram isRendering={isRendering} />

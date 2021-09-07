@@ -258,6 +258,9 @@ export default class RegionsPlugin {
     };
 
     const eventDown = e => {
+      if (!document.getElementById("add-edit-toggle-button").className.includes("addRegion")) {
+        return;
+      }
       if (e.touches && e.touches.length > 1) {
         return;
       }

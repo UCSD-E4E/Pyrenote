@@ -54,7 +54,8 @@ class Annotate extends React.Component {
       initWavesurfer: false,
       maxHeight: document.body.offsetHeight,
       disappear: 'sideMenu',
-      showActiveForm: localStorage.getItem('active') == null
+      showActiveForm: localStorage.getItem('active') == null,
+      addRegionMode: true
     };
     this.state = this.initalState;
     this.lastTime = 0;
@@ -226,6 +227,10 @@ class Annotate extends React.Component {
     }
   }
 
+  setAddRegionMode = (addRegionMode) => {
+    this.setState({addRegionMode: addRegionMode})
+  }
+
   render() {
     const { wavesurferMethods, maxHeight, disappear, referenceWindowOn, showActiveForm } =
       this.state;
@@ -263,18 +268,17 @@ class Annotate extends React.Component {
               leftID="leftWindow"
               propertySwapCallabck={() => this.collapseSideBar()}
             />
-
             <span
               className="AnnotationRegion"
               id="leftWindow"
               style={{ float: 'left', flex: '1 1 0%', marginLeft: '2%', marginRight: '2%' }}
             >
-              <AnnotationWindow annotate={this} />
+              <AnnotationWindow annotate={this} setAddRegionMode={this.setAddRegionMode} />
             </span>
           </div>
         ) : (
           <div className="container h-100">
-            <AnnotationWindow annotate={this} />
+            <AnnotationWindow annotate={this} setAddRegionMode={this.setAddRegionMode} />
           </div>
         )}
       </div>
