@@ -52,7 +52,7 @@ class Annotate extends React.Component {
       // applyPreviousAnnotations: false,
       boundingBox: true,
       initWavesurfer: false,
-      maxHeight: document.body.offsetHeight,
+      
       disappear: 'sideMenu',
       showActiveForm: localStorage.getItem('active') == null
     };
@@ -227,7 +227,18 @@ class Annotate extends React.Component {
   }
 
   render() {
-    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn, showActiveForm } =
+    let maxHeight;
+    try {
+      const leftWindow = document.getElementById("leftWindow")
+      console.log(leftWindow.scrollHeight)
+
+      maxHeight = Math.max(777, leftWindow.scrollHeight)+ "px"
+    } catch {
+      maxHeight = "100%"
+    }
+    
+    console.log(maxHeight)
+    const { wavesurferMethods, disappear, referenceWindowOn, showActiveForm } =
       this.state;
 
     if (wavesurferMethods) {
@@ -235,7 +246,8 @@ class Annotate extends React.Component {
     }
 
     return (
-      <div style={{ margin: 0, height: `${maxHeight}px`, overflow: 'hidden' }}>
+      <div style={{ margin: 0, height: maxHeight, overflow: 'hidden' }} //height: `${maxHeight}px`
+      >  
         <Helmet>
           <title>Annotate</title>
         </Helmet>
@@ -251,7 +263,7 @@ class Annotate extends React.Component {
             <span
               className={disappear}
               id="rightWindow"
-              style={{ float: 'left', height: `${maxHeight}px` }}
+              style={{ float: 'left', height: maxHeight, }} //`
             >
               <SideMenu annotate={this} />
             </span>
