@@ -28,15 +28,15 @@ const SampleRateChanger = props => {
 
     return (
       <div className="sideMenuItem">
-       {/*<input
-        /*type="range"
+       <input
+        type="range"
         min="0"
         max="600"
         value={hz}
         onChange={e => {
           setHz(e.target.value)
           spectrogram.scale(e.target.value, hz2, wavesurfer.backend.offlineAc.sampleRate/2000)
-        } />*/}
+        }} />
        <input
         type="range"
         min="0"
