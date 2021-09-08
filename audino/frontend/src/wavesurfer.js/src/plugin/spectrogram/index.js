@@ -418,7 +418,8 @@ export default class SpectrogramPlugin {
     textColorUnit,
     textAlign,
     container,
-    sampleRateParam=null
+    sampleRateParam=null,
+    sampleRateMin=null
   ) {
     const frequenciesHeight = this.height;
     bgFill = bgFill || 'rgba(68,68,68,0)';
@@ -432,7 +433,7 @@ export default class SpectrogramPlugin {
     const bgWidth = 55;
     const getMaxY = frequenciesHeight || 512;
     const labelIndex = 5 * (getMaxY / 256);
-    const freqStart = 0;
+    const freqStart = sampleRateMin || 0;
 
     let sampleRate = sampleRateParam
     if (sampleRate === null) {
