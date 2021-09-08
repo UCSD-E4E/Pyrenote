@@ -102,7 +102,7 @@ class Data extends React.Component {
   isBottom() {
     // https://stackoverflow.com/questions/3898130/check-if-a-user-has-scrolled-to-the-bottom/3898152
     const element = document.body;
-    return element.scrollHeight - element.scrollTop === element.clientHeight;
+    return element.scrollHeight - element.scrollTop > element.clientHeight * 0.8;
   }
 
   prepareUrl(projectId, page, active) {
@@ -200,13 +200,14 @@ class Data extends React.Component {
                   }}
                 >
                   {nextPage ? (
-                   <Button
+                   /*<Button
                    type="primary"
                    text="load more data"
                    onClick={() => {
                     this.getData(true);
                    }}
-                 />
+                 />*/
+                   <Loader/>
                   ) : (
                     <text>
                       <b>End Of Data</b>
