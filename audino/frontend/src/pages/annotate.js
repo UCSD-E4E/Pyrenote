@@ -212,8 +212,9 @@ class Annotate extends React.Component {
     newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
     newState.dataId = nextDataId;
     newState.wavesurfer = null;
-
+    console.log("configed new state")
     wavesurfer.destroy();
+    console.log("wavesurfer destroied")
     this.setState(newState, () => {
       this.componentDidMount();
     });

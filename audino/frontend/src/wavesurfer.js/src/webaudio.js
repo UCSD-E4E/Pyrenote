@@ -343,6 +343,18 @@ createAnalyserNode() {
     }
   }
 
+   /** @private */
+   disconnectFilters() {
+    if (this.filters) {
+        this.filters.forEach(filter => {
+            filter && filter.disconnect();
+        });
+        this.filters = null;
+        // Reconnect direct path
+        this.analyser.connect(this.gainNode);
+    }
+}
+
   /**
    * Destroy all references with WebAudio, disconnecting audio nodes and closing Audio Context
    */
