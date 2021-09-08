@@ -2,7 +2,7 @@ import axios from 'axios';
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { withRouter } from 'react-router-dom';
-
+import { Button } from '../components/button';
 import Loader from '../components/loader';
 
 const datas = [];
@@ -200,7 +200,13 @@ class Data extends React.Component {
                   }}
                 >
                   {nextPage ? (
-                    <Loader />
+                   <Button
+                   type="primary"
+                   text="load more data"
+                   onClick={() => {
+                    this.getData(true);
+                   }}
+                 />
                   ) : (
                     <text>
                       <b>End Of Data</b>
