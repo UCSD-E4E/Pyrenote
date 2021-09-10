@@ -2,7 +2,6 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { withStore } from '@spyna/react-store';
 import { FormAlerts } from '../../components/alert';
-import { errorLogger } from '../../logger';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 import {LoadingBar} from '../../components/loader';
@@ -62,7 +61,10 @@ class UploadDataForm extends React.Component {
     this.setState({ isLoading: true, currentFile: i });
     fetch(uploadUrl, {
       method: 'POST',
-      body: formData
+      body: formData,
+      headers: {
+        Authorization: localStorage.getItem('access_token')
+      }
     }).then(response => {
       const msg = response.json();
       msg.then(data => {
@@ -73,7 +75,7 @@ class UploadDataForm extends React.Component {
             successMessage: null,
             isLoading: false
           });
-          errorLogger.sendLog(data.message);
+          // errorLogger.sendLog(data.message);
         } else {
           if (isThereMoreData) {
             console.log("next upload", i, chunk)

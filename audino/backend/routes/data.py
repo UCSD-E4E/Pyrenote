@@ -13,7 +13,7 @@ from werkzeug.exceptions import BadRequest, NotFound
 from backend import app, db
 from backend.models import Data, Project, User, Segmentation, Label, LabelValue
 import mutagen
-from .helper_functions import general_error
+from .helper_functions import general_error, check_admin_permissions
 from . import api
 
 ALLOWED_EXTENSIONS = ["wav", "mp3", "ogg"]
@@ -219,7 +219,13 @@ def add_data():
 
 
 @api.route("/data/admin_portal", methods=["POST"])
+@jwt_required
 def add_data_from_site():
+    msg, status, request_user = check_admin_permissions(get_jwt_identity(),
+                                                        False)
+    if msg is not None:
+        return msg, status
+
     api_key = request.form.get("apiKey", None)
 
     if not api_key:
@@ -241,12 +247,12 @@ def add_data_from_site():
 
         username_id[name] = user.id
     is_marked_for_review = True
-    app.logger.info("made it to here!")
     is_sample = request.form.get("sample", 'False')
     app.logger.info(is_sample)
     sampleJson = request.form.get("sampleJson", "{}")
     is_sample = is_sample == 'true'
-    if is_sample:
+    
+    if (is_sample):
         sampleJson = json.loads(sampleJson)
 
     err = "no label value with id `{is_sample}` in }`"
@@ -264,7 +270,7 @@ def add_data_from_site():
         sample_label = None
         if is_sample:
             sample_label = sampleJson[original_filename]
-            
+
         extension = Path(original_filename).suffix.lower()
 
         if len(extension) > 1 and extension[1:] not in ALLOWED_EXTENSIONS:
