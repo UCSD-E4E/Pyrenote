@@ -117,7 +117,7 @@ def add_segmentations(project_id, data_id, seg_id=None):
             username=request_user.username
 
         )
-        app.logger.info(segmentation.last_modified_by)
+        
         flag_modified(segmentation, "last_modified_by")
         db.session.add(segmentation)
         app.logger.info(segmentation.last_modified_by)
