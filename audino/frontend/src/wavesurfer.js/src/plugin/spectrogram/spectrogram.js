@@ -113,7 +113,7 @@ class Spectrogram {
   }
 
   scale(newHzMin, newHzMax, initMaxHz) {
-    //newHzMax = 44.1
+    console.log(newHzMin, newHzMax, initMaxHz)
     const resizeImageData = require('resize-image-data')
     newHzMin /= 2
     newHzMax /= 2

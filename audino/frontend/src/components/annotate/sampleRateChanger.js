@@ -35,7 +35,7 @@ const SampleRateChanger = props => {
         value={hz}
         onChange={e => {
           setHz(e.target.value)
-          spectrogram.scale(e.target.value, hz2, wavesurfer.backend.offlineAc.sampleRate/2000)
+          spectrogram.scale(e.target.value, hz2, wavesurfer.backend.offlineAc.sampleRate/1000)
         }} />
        <input
         type="range"
@@ -44,7 +44,7 @@ const SampleRateChanger = props => {
         value={hz2}
         onChange={e => {
           setHz2(e.target.value);
-          spectrogram.scale(0, e.target.value, Math.ceil(wavesurfer.backend.offlineAc.sampleRate/2000))
+          spectrogram.scale(0, e.target.value, Math.ceil(wavesurfer.backend.offlineAc.sampleRate/1000))
           /*Object.values(wavesurfer.regions.list).forEach(segment => {
             segment.scale(e.target.value * 1000)
           })*/
