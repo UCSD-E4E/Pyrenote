@@ -37,10 +37,10 @@ const SideMenu = props => {
   const { annotate } = props;
   const { state } = annotate;
   const { projectId, referenceWindowOn, spectrogramDemoOn, toUnsavedClipOn, isRendering } = state;
-
+  console.log(referenceWindowOn)
   const initTabOpen = {
-    refrences: true,
-    SpectrogramChanger: false
+    refrences:  referenceWindowOn != null && referenceWindowOn,
+    SpectrogramChanger: referenceWindowOn == null || !referenceWindowOn
   };
   const [tabOpen, setTab] = React.useState(initTabOpen);
   const [height, setHeight] = React.useState('0px');
@@ -66,7 +66,7 @@ const SideMenu = props => {
           width: '100%'
         }}
       >
-        <SideMenuTab tab="refrences" icon={faAtlas} tabOpen={tabOpen} setTab={tab => setTab(tab)} />
+        {referenceWindowOn != null && referenceWindowOn? <SideMenuTab tab="refrences" icon={faAtlas} tabOpen={tabOpen} setTab={tab => setTab(tab)} /> : null }
         <SideMenuTab
           tab="SpectrogramChanger"
           icon={faCog}
@@ -85,7 +85,8 @@ const SideMenu = props => {
       >
         <b>{tabOpened}</b>
       </text>
-      {referenceWindowOn && tabOpen.refrences ? (
+      {console.log(referenceWindowOn != null && referenceWindowOn && tabOpen.refrences)}
+      {referenceWindowOn != null && referenceWindowOn && tabOpen.refrences ? (
         <ReferenceWindow annotate={annotate} projectId={projectId} />
       ) : null}
 

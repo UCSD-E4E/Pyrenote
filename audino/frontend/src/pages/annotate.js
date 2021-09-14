@@ -78,13 +78,17 @@ class Annotate extends React.Component {
         // take all the current values of featuresList, include the new ones defined at the line 27
 
         boundingBox = response.data.features_list['2D Labels'];
+        const referenceWindowOn = response.data.features_list['reference window'];
+        const applyPreviousAnnotations= response.data.features_list['auto annotate'];
+        const toUnsavedClipOn= response.data.features_list['to unsaved cliped'];
+        const playbackOn= response.data.features_list.playbackOn;
+        const spectrogramDemoOn= response.data.features_list['spectrogram demo'];
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
-          applyPreviousAnnotations: response.data.features_list['auto annotate'],
-          toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
-          referenceWindowOn: response.data.features_list['reference window'],
-          playbackOn: response.data.features_list.playbackOn,
-          spectrogramDemoOn: response.data.features_list['spectrogram demo']
+
+          //SideMenu enabled if Tabs / Tools in Side Menu are enabled
+          sideMenu: response.data.features_list['side menu'],
+          referenceWindowOn, spectrogramDemoOn, applyPreviousAnnotations, toUnsavedClipOn,  playbackOn
         });
 
         const wavesurferMethods = new WavesurferMethods({
@@ -243,7 +247,7 @@ class Annotate extends React.Component {
     }
     
     console.log(maxHeight)
-    const { wavesurferMethods, disappear, referenceWindowOn, showActiveForm } =
+    const { wavesurferMethods, disappear, showActiveForm, sideMenu } =
       this.state;
 
     if (wavesurferMethods) {
@@ -251,7 +255,7 @@ class Annotate extends React.Component {
     }
 
     return (
-      <div style={{ margin: 0, height: maxHeight, overflow: referenceWindowOn ? 'hidden' : "auto" }} //height: `${maxHeight}px`
+      <div style={{ margin: 0, height: maxHeight, overflow: sideMenu ? 'hidden' : "auto" }} //height: `${maxHeight}px`
       >  
         <Helmet>
           <title>Annotate</title>
@@ -263,7 +267,7 @@ class Annotate extends React.Component {
           annotate={this}
           onHide={() => this.setState({ showActiveForm: false })}
         />
-        {referenceWindowOn ? (
+        {sideMenu ? (
           <div className="containerAnnotate">
             <span
               className={disappear}
