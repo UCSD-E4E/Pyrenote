@@ -29,6 +29,7 @@ from .project_segmentations import (
     get_segmentations_for_data,
     add_segmentations,
     delete_segmentations,
+    add_no_label_segmentation
 )
 
 from .project_labels import (

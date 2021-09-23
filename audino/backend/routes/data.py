@@ -63,6 +63,7 @@ def generate_segmentation(
             max_freq=max_freq,
             min_freq=min_freq,
         )
+        app.logger.info(segmentation)
     else:
         # segmentation updated for existing data
         segmentation = Segmentation.query.filter_by(
@@ -122,6 +123,7 @@ def generate_segmentation(
             values.append(value)
 
     segmentation.values = values
+    app.logger.info(segmentation)
     return segmentation
 
 

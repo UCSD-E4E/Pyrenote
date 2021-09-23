@@ -2,7 +2,7 @@ from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.orm.attributes import flag_modified
 from backend import app, db
-from backend.models import Project, User, Data, Segmentation
+from backend.models import Project, User, Data, Segmentation, Label, LabelValue
 from . import api
 from .data import generate_segmentation
 from .helper_functions import general_error, missing_data
@@ -201,3 +201,65 @@ def get_segmentations_for_data(project_id, data_id):
         return missing_data(message, additional_log=e)
 
     return (jsonify(response), 200)
+
+
+@api.route("/projects/<int:project_id>/data/<int:data_id>/no-label",
+           methods=["POST"])
+@jwt_required
+def add_no_label_segmentation(project_id, data_id, seg_id=None):
+    identity = get_jwt_identity()
+    segmentation_id = seg_id
+    if not request.is_json:
+        return jsonify(message="Missing JSON in request"), 400
+
+    project = Project.query.get(project_id)
+    data = Data.query.filter_by(id=data_id, project_id=project_id).first()
+
+    end_time = data.clip_length
+    start_time = 0
+    max_freq = 44100
+    min_freq = 0
+    time_spent = request.json.get("time_spent", 0) / 1000
+    request_user = User.query.filter_by(username=identity["username"]
+                                        ).first()
+
+    label = Label.query.filter_by(project_id=project_id).first()
+    labelValue = LabelValue.query.filter_by(value="no audio event",
+                                            label_id=label.id
+                                            ).first()
+    if labelValue is None:
+        labelValue = LabelValue(value="no audio event", label_id=label.id)
+        db.session.add(labelValue)
+        db.session.commit()
+        db.session.refresh(labelValue)
+
+    annotations = dict({
+        label.name: {
+            "values": [labelValue.id]
+        }
+    })
+
+    segmentation = generate_segmentation(
+            data_id=data_id,
+            project_id=project.id,
+            end_time=end_time,
+            start_time=start_time,
+            max_freq=max_freq,
+            min_freq=min_freq,
+            annotations=annotations,
+            time_spent=time_spent,
+            segmentation_id=None,
+            username=request_user.username
+
+        )
+    flag_modified(segmentation, "last_modified_by")
+    db.session.add(segmentation)
+    db.session.commit()
+    db.session.refresh(segmentation)
+
+    return (
+        jsonify(segmentation_id=segmentation.id, end_time=end_time,
+                message="success",
+                type="NO AUDIO PLACED"),
+        200,
+    )

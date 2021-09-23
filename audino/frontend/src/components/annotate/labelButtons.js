@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../button';
 import { handleAllSegmentSave, handleSegmentDelete } from '../../pages/annotatefunctions';
+import NoneButton from './NoneButton';
 
 const LabelButton = props => {
   const { annotate } = props;
@@ -29,6 +30,9 @@ const LabelButton = props => {
           onClick={() => handleAllSegmentSave(annotate)}
           text="Save All"
         />
+      </div> <div className="col-4">
+        
+        <NoneButton annotate={annotate}/>
       </div>
     </div>
   );
