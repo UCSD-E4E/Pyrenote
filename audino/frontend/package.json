@@ -24,7 +24,7 @@
     "popper.js": "^1.16.1",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
-    "react-bootstrap": "^1.0.1",
+    "react-bootstrap": "^1.6.4",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.0.0",
     "react-redux": "^7.2.5",

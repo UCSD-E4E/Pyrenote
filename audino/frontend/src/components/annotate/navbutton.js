@@ -101,7 +101,7 @@ const NavButton = props => {
     const { isSegmentSaving } = annotate.state;
     return (
       <div className="buttons-container-item">
-        <div className={className}>
+        <div className={className} id={className}>
           <Button
             size="lg"
             type="primary"

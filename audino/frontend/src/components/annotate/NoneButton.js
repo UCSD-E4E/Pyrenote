@@ -13,12 +13,7 @@ const NoneButton = props => {
           let time_spent = 0;
           time_spent = now - annotate.lastTime;
           console.log(annotate.state.wavesurfer.regions)
-          console.log(annotate.state.wavesurfer.regions.add({
-            top: 0,
-            bot: 1000,
-            start: 0,
-            end: 10
-          }))
+          
             axios({
               method: 'post',
               url:    `/api/projects/${projectId}/data/${dataId}/no-label`,
@@ -27,7 +22,14 @@ const NoneButton = props => {
               }
             })
               .then(response => {
-                  console.log(response)
+                const region = annotate.state.wavesurfer.regions.add({
+                  start: 0,
+                  end: response.data.end_time,
+                  color: 'rgba(0, 0, 0, 0.7)'
+                })
+                annotate.setState({selectedSegment: null});
+                region._onSave()
+                document.getElementById('next').children[0].click();
               })
               .catch(error => {
                 console.error(error)
@@ -39,14 +41,12 @@ const NoneButton = props => {
 
   return (
     <div>
-       <div className="buttons-container-item">
           <Button
             size="lg"
             type="primary"
             onClick={() => submitNewLabel()}
             text={"No audio event"}
           />
-      </div>
     </div>
   );
 };
