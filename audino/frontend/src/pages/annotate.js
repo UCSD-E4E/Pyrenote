@@ -255,7 +255,7 @@ class Annotate extends React.Component {
     }
 
     return (
-      <div style={{ margin: 0, height: maxHeight, overflow: sideMenu ? 'hidden' : "auto" }} //height: `${maxHeight}px`
+      <div style={{ margin: 0, height: `${maxHeight}px`, overflow: sideMenu ? 'hidden' : "auto" }} //height: `${maxHeight}px`
       >  
         <Helmet>
           <title>Annotate</title>
@@ -272,7 +272,7 @@ class Annotate extends React.Component {
             <span
               className={disappear}
               id="rightWindow"
-              style={{ float: 'left', height: maxHeight, }} //`
+              style={{ float: 'left', height: `${maxHeight}px`, }} //maxHeight
             >
               <SideMenu annotate={this} />
             </span>
