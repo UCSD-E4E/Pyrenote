@@ -318,7 +318,6 @@ def give_users_examples_json():
     return give_users_examples(user.id)
 
 
- 
 @api.route("/projects/<int:project_id>/annotations", methods=["GET"])
 @jwt_required
 def get_project_annotations(project_id):

@@ -2,6 +2,7 @@ import json
 import csv
 from pprint import pprint
 from backend import app
+from datetime import datetime
 
 
 def test(filename):
@@ -50,9 +51,10 @@ def JsonToText(data):
     csv = []
     text = write_row(text, ['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION',
                             'MAX FREQ', 'MIN FREQ', 'SAMPLE RATE', 'MANUAL ID'
-                            'TIME_SPENT'])
+                            'TIME_SPENT', 'LAST MOD BY'])
     csv.append(['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION', 'MAX FREQ',
-                'MIN FREQ', 'SAMPLE RATE', 'MANUAL ID', 'TIME_SPENT'])
+                'MIN FREQ', 'SAMPLE RATE', 'MANUAL ID', 'TIME_SPENT',
+                'LAST MOD BY'])
     for audio in data:
         sampling_rate = audio['sampling_rate']
         clip_length = audio['clip_length']
@@ -65,16 +67,17 @@ def JsonToText(data):
             max_freq = region['max_freq']
             min_freq = region['min_freq']
             time_spent = region['time_spent']
+            last_mod = datetime_json_compare(region['last_modified_by'])
             if len(region['annotations']) == 0:
                 label = "NO LABEL"
                 text = write_row(text, [original_filename, clip_length, start,
                                  round((end-start), 4),  max_freq, min_freq,
                                  sampling_rate, label,
-                                 time_spent])
+                                 time_spent, last_mod])
                 csv.append([original_filename, clip_length, start,
                             round((end-start), 4),  max_freq, min_freq,
                             sampling_rate, label,
-                            time_spent])
+                            time_spent, last_mod])
             else:
                 for labelCate in region['annotations'].values():
                     print(labelCate)
@@ -88,21 +91,22 @@ def JsonToText(data):
                                              round((end-start), 4),
                                              max_freq, min_freq,
                                              sampling_rate, label,
-                                             time_spent])
+                                             time_spent, last_mod])
                             csv.append([original_filename, clip_length, start,
                                         round((end-start), 4),
                                         max_freq, min_freq,  sampling_rate,
-                                        label, time_spent])
+                                        label, time_spent, last_mod])
                     except Exception as e:
                         label = values['value']
                         text = write_row(text, [original_filename, clip_length,
                                                 start, round((end-start), 4),
                                                 max_freq, min_freq,
                                                 sampling_rate, label,
-                                                time_spent])
+                                                time_spent, last_mod])
                         csv.append([original_filename, clip_length, start,
                                     round((end-start), 4), max_freq, min_freq,
-                                    sampling_rate, label, time_spent])
+                                    sampling_rate, label, time_spent,
+                                    last_mod])
     return text, csv
 
 
@@ -161,3 +165,16 @@ def write_row(text, row, delimeter=","):
         else:
             text = text + delimeter
     return text
+
+
+def datetime_json_compare(datetime_dir):
+    latest_date = None
+    latest_user = ""
+    app.logger.info(datetime_dir)
+    for user in datetime_dir:
+        date = datetime_dir[user]
+        datetime_object = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S")
+        if (latest_date is None or datetime_object > latest_date):
+            latest_date = datetime_object
+            latest_user = user + " " + date
+    return latest_user
