@@ -2,7 +2,9 @@ import sqlalchemy as sa
 
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import csv
 
+from sqlalchemy.sql.expression import false
 from backend import app, db
 from backend.models import Label, LabelValue, Project
 from .helper_functions import (
@@ -45,6 +47,49 @@ def add_value_to_label(label_id):
             )
         msg = f"Error adding value to label"
         return general_error(msg, e, type="VALUE_CREATION_FAILED")
+
+    return (
+        jsonify(
+            value_id=label_value.id,
+            message=f"Value assigned to label",
+            type="VALUE_ASSIGNED_TO_LABEL",
+        ),
+        201,
+    )
+
+
+@api.route("/labels/<int:label_id>/values/file", methods=["POST"])
+@jwt_required
+def add_value_to_label_from_file(label_id):
+    app.logger.info("hello")
+    msg, status, request_user = check_admin_permissions(get_jwt_identity(),
+                                                        False)
+    if msg is not None:
+        return msg, status
+
+    file = request.files.get(str(0))
+
+    if not file:
+        return (
+            jsonify(message="Please provide a label value!",
+                    type="VALUE_MISSING"), 400,)
+    app.logger.info("hello")
+    file = file.read().decode("latin-1")
+    app.logger.info(file)
+    app.logger.info(type(file))
+    data = file.split("\n")
+    for value in data:
+        try:
+            label_value = LabelValue(value=value, label_id=label_id)
+            db.session.add(label_value)
+            db.session.commit()
+            db.session.refresh(label_value)
+        except Exception as e:
+            if type(e) == sa.exc.IntegrityError:
+                app.logger.error(e)
+            else:
+                msg = f"Error adding value to label"
+                return general_error(msg, e, type="VALUE_CREATION_FAILED")
 
     return (
         jsonify(

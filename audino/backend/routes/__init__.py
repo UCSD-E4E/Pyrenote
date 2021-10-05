@@ -42,6 +42,7 @@ from .project_labels import (
 from .labels import (
     add_value_to_label,
     get_values_for_label,
+    add_value_to_label_from_file,
     fetch_label_value,
     delete_label_value,
     update_value_for_label,
