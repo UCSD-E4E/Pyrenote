@@ -4,6 +4,7 @@ import { withStore } from '@spyna/react-store';
 import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
+import {LoadingBar} from '../../components/loader';
 
 class UploadDataForm extends React.Component {
   constructor(props) {
@@ -26,27 +27,38 @@ class UploadDataForm extends React.Component {
       uploadUrl: 'api/data/admin_portal',
       updateUsersProject: `/api/projects/${projectId}/users`,
       value: '',
-      files: {}
+      files: {},
+      currentFile: 0
     };
 
     this.state = { ...this.initialState };
   }
 
-  handleUpload(sample = false) {
+  handleUpload(sample = false, start = 0, chunk = 5) {
+    console.log(sample, start, chunk)
     const { uploadUrl, apiKey, files, value } = this.state;
     const formData = new FormData();
-
-    for (let i = 0; i < files.length; i++) {
+    let isThereMoreData = true;
+    let i = start
+    let count = 0
+    for (; i < files.length && i - start < chunk; i++) {
+      
+     
       const file = files[i];
+      console.log(i, file, count)
+      formData.append(count, file);
+      count++
+    }
 
-      formData.append(i, file);
+    if (i >= files.length) {
+      isThereMoreData = false
     }
     formData.append('apiKey', apiKey);
     formData.append('username', ['admin', 'admin']);
-    formData.append('file_length', files.length);
+    formData.append('file_length', count);
     formData.append('sample', sample);
     formData.append('sampleJson', value);
-    this.setState({ isLoading: true });
+    this.setState({ isLoading: true, currentFile: i });
     fetch(uploadUrl, {
       method: 'POST',
       body: formData,
@@ -65,13 +77,19 @@ class UploadDataForm extends React.Component {
           });
           // errorLogger.sendLog(data.message);
         } else {
-          this.setState({
-            isSubmitting: false,
-            successMessage: data.message,
-            errorMessage: null,
-            isLoading: false,
-            files: {}
-          });
+          if (isThereMoreData) {
+            console.log("next upload", i, chunk)
+            this.handleUpload(sample, i, chunk)
+          } else {
+            this.setState({
+              isSubmitting: false,
+              successMessage: data.message,
+              errorMessage: null,
+              isLoading: false,
+              files: {},
+              currentFile: 0,
+            });
+          }
         }
       });
     });
@@ -108,11 +126,12 @@ class UploadDataForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, isLoading, isSample, value } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isLoading, isSample, value, files, currentFile } = this.state;
     return (
       <div className="container h-75 text-center">
         <div>
-          {isLoading ? <Loader /> : null}
+          {isLoading ? <Loader/> : null}
+          <LoadingBar total={files.length} current={currentFile} />
           <FormAlerts
             errorMessage={errorMessage}
             successMessage={successMessage}
