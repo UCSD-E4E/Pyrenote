@@ -80,12 +80,12 @@ def JsonToText(data):
                             time_spent, last_mod])
             else:
                 for labelCate in region['annotations'].values():
-                    print(labelCate)
+                    #print(labelCate)
                     values = labelCate["values"]
                     try:
                         for label in values:
-                            print(label)
-                            label = label['value']
+                            #print(label)
+                            label = strip_nl(label['value'])
                             text = write_row(text, [original_filename,
                                              clip_length, start,
                                              round((end-start), 4),
@@ -95,7 +95,7 @@ def JsonToText(data):
                             csv.append([original_filename, clip_length, start,
                                         round((end-start), 4),
                                         max_freq, min_freq,  sampling_rate,
-                                        label, time_spent, last_mod])
+                                        strip_nl(label), time_spent, last_mod])
                     except Exception as e:
                         label = values['value']
                         text = write_row(text, [original_filename, clip_length,
@@ -105,7 +105,7 @@ def JsonToText(data):
                                                 time_spent, last_mod])
                         csv.append([original_filename, clip_length, start,
                                     round((end-start), 4), max_freq, min_freq,
-                                    sampling_rate, label, time_spent,
+                                    sampling_rate, strip_nl(label), time_spent,
                                     last_mod])
     return text, csv
 
@@ -137,11 +137,11 @@ def JsonToRaven(data):
                              delimeter="	")
         else:
             for labelCate in region['annotations'].values():
-                print(labelCate)
+                #print(labelCate)
                 values = labelCate["values"]
                 try:
                     for label in values:
-                        print(label)
+                        #print(label)
                         label = label['value']
                         text = write_row(text, [count, 'Spectrogram 1',
                                                 '1', start,  end, min_freq,
@@ -158,8 +158,9 @@ def JsonToRaven(data):
 
 
 def write_row(text, row, delimeter=","):
+    print("writing row")
     for i in range(len(row)):
-        text = text + str(row[i])
+        text = text + strip_nl(str(row[i]).rstrip("\n").rstrip("\r"))
         if (i == (len(row) - 1)):
             text = text + "\n"
         else:
@@ -178,3 +179,6 @@ def datetime_json_compare(datetime_dir):
             latest_date = datetime_object
             latest_user = user + " " + date
     return latest_user
+
+def strip_nl(str):
+    return str.rstrip("\n").rstrip("\r")
