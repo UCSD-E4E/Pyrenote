@@ -16,7 +16,8 @@ class EditProjectForm extends React.Component {
       successMessage: '',
       isSubmitting: false,
       url: `/api/projects/${projectId}`,
-      isMarkedExample: false
+      isMarkedExample: false,
+      isIOU: false,
     };
 
     this.state = { ...this.initialState };
@@ -30,8 +31,8 @@ class EditProjectForm extends React.Component {
     })
       .then(response => {
         if (response.status === 200) {
-          const { name, is_example } = response.data;
-          this.setState({ name, isMarkedExample: is_example });
+          const { name, is_example, isIOU } = response.data;
+          this.setState({ name, isMarkedExample: is_example, isIOU: isIOU});
         }
       })
       .catch(error => {
@@ -56,19 +57,29 @@ class EditProjectForm extends React.Component {
     }
   }
 
+  handleQualityControl() {
+    const { isIOU } = this.state;
+    if (isIOU) {
+      this.setState({ isIOU: false });
+    } else {
+      this.setState({ isIOU: true });
+    }
+  }
+
   handleProjectCreation(e) {
     e.preventDefault();
 
     this.setState({ isSubmitting: true });
 
-    const { name, url, isMarkedExample } = this.state;
+    const { name, url, isMarkedExample, isIOU } = this.state;
 
     axios({
       method: 'patch',
       url,
       data: {
         name,
-        is_example: isMarkedExample
+        is_example: isMarkedExample,
+        isIOU: isIOU
       }
     })
       .then(response => {
@@ -102,7 +113,7 @@ class EditProjectForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, isMarkedExample, name } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isMarkedExample, name, isIOU } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
@@ -142,6 +153,18 @@ class EditProjectForm extends React.Component {
               />
               <label className="form-check-label" htmlFor="isMarkedForReview">
                 Mark is Example Project
+              </label>
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="isExample"
+                value
+                checked={isIOU}
+                onChange={() => this.handleQualityControl()}
+                // disabled={isMarkedForReviewLoading}
+              />
+              <label className="form-check-label" htmlFor="isMarkedForReview">
+                Enable experimental quality control?
               </label>
             </div>
             <div className="form-row">

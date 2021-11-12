@@ -12,11 +12,89 @@ from backend.models import Project, User, Data, Segmentation
 
 from . import api
 
+THRESHOLD = 0.5
 
+@api.route("next_clip/next_rec/project/<int:project_id>/data/<int:data_id>",
+           methods=["GET"])
 @api.route("/next_clip/project/<int:project_id>/data/<int:data_id>",
            methods=["GET"])
 @jwt_required
 def getNextClip(project_id, data_id):
+    identity = get_jwt_identity()
+    app.logger.info(request.path)
+    url = request.path
+
+    project = Project.query.get(project_id)
+    app.logger.info(project.is_iou)
+    if(project.is_iou):
+        getNextViaConfidence(project_id, data_id, request, identity)
+    else:    
+        if (url.startswith("/api/next_clip/next_rec/project/")):
+            
+            return getNextClipFromNextButton(project_id, data_id, request, identity)
+        else:
+            return getNextReccomendedData(project_id, data_id, request, identity)
+
+
+
+def getNextViaConfidence(project_id, data_id, request, identity):
+    #app.logger.info("hello2?")
+    #app.logger.info(data_id)
+    #identity = get_jwt_identity()
+    ## page = request.args.get("page", 1, type=int)
+    #active = request.args.get("active", "completed", type=str)
+    #
+    #try:
+    #    app.logger.info("made it here")
+    #    request_user = User.query.filter_by(username=identity["username"]
+    #                                        ).first()
+    #    app.logger.info("made it here")
+    #    project = Project.query.get(project_id)
+    #    app.logger.info("made it here")
+    #    if request_user not in project.users:
+    #        return jsonify(message="Unauthorized access!"), 401
+    #    app.logger.info("made it here")
+    #    segmentations = db.session.query(Segmentation.data_id
+    #                                     ).distinct().subquery()
+    #    data_pt = Data.query.get(data_id)
+    #    data ={}
+    #    data["pending"] = (
+    #        db.session.query(Data)
+    #        .filter(or_(Data.sample != true(), Data.sample == null()))
+    #        .filter(Data.project_id == project_id)
+    #        .filter(or_(Data.confidence < THRESHOLD, Data.confidence == null))
+    #        .distinct()
+    #        .order_by(Data.last_modified.desc())
+    #    )
+#
+    #    data["marked_review"] = Data.query.filter_by(
+    #        project_id=project_id,
+    #        is_marked_for_review=True,
+    #    ).order_by(Data.last_modified.desc())
+#
+    #    data["all"] = Data.query.filter_by(
+    #        project_id=project_id
+    #    ).order_by(Data.last_modified.desc())
+#
+    #    data["completed"] = (
+    #        db.session.query(Data)
+    #        .filter(or_(Data.sample != true(), Data.sample == null()))
+    #        .filter(Data.project_id == project_id)
+    #        .filter(Data.id.in_(segmentations))
+    #        .distinct()
+    #        .order_by(Data.last_modified.desc())
+    #    )
+    #except Exception as e:
+    #    message = "Error fetching all data points"
+    #    app.logger.error(message)
+    #    app.logger.error(e)
+    #    return jsonify(message=message), 501
+    #message = f"Error data value `{data_id}` not in project"
+    #app.logger.error(message)
+    #return jsonify(message=message), 200
+    return jsonify(message="success"), 200
+
+def getNextClipFromNextButton(project_id, data_id, request, identity):
     identity = get_jwt_identity()
     # page = request.args.get("page", 1, type=int)
     active = request.args.get("active", "completed", type=str)
@@ -132,10 +210,9 @@ def getNextClip(project_id, data_id):
     return jsonify(message=message), 404
 
 
-@api.route("next_clip/next_rec/project/<int:project_id>/data/<int:data_id>",
-           methods=["GET"])
-@jwt_required
-def getNextReccomendedData(project_id, data_id):
+
+def getNextReccomendedData(project_id, data_id, request, identity):
+    app.logger.info("USING THIS ONE")
     identity = get_jwt_identity()
     active = "pending"
 

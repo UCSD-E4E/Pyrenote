@@ -139,12 +139,16 @@ def edit_project(project_id):
         project = Project.query.get(project_id)
         newUserName = request.json.get("name", None)
         is_example = request.json.get("is_example", None)
+        enable_IOU = request.json.get("isIOU", None)
+        app.logger.info(enable_IOU)
+        app.logger.info("look here")
         if (newUserName is not None or newUserName == ''):
             project.set_name(newUserName)
 
-        if (is_example is not None):
+        if (is_example is not None and enable_IOU is not None):
             app.logger.info(is_example)
             project.set_is_example(is_example)
+            project.set_is_iou(enable_IOU)
         # user = User.query.get(user_id)
         # user.set_role(role_id)
         # user.set_username(newUserName)

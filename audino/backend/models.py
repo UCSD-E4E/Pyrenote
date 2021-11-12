@@ -101,6 +101,10 @@ class Data(db.Model):
 
     confident_check = db.Column("confident_check", db.Boolean(), default=False)
 
+    confidence = db.Column("confidence", db.Float(), default=0.0, nullable=False)
+
+    users_reviewed = db.Column("users_reviewed", db.JSON(), nullable=False, default={})
+
     def update_marked_review(self, marked_review):
         self.is_marked_for_review = marked_review
 
@@ -109,6 +113,18 @@ class Data(db.Model):
 
     def set_confident_check(self, confident_check):
         self.confident_check = confident_check
+
+    def set_previous_users(self, user):
+        app.logger.info("MADE IT TO HERE")
+        if (self.users_reviewed is None):
+            self.users_reviewed = {}
+        app.logger.info("MADE IT TO HERE")
+        test = self.users_reviewed
+        app.logger.info("MADE IT TO HERE")
+        test[user] = user
+        app.logger.info("MADE IT TO HERE")
+        self.users_reviewed = test
+        app.logger.info("MADE IT TO HERE")
 
     def to_dict(self):
         return {
@@ -255,6 +271,10 @@ class Project(db.Model):
         "is_example", db.Boolean(), nullable=True, default=False
     )
 
+    is_iou = db.Column(
+        "is_iou", db.Boolean(), nullable=True, default=False
+    )
+
     users = db.relationship(
         "User", secondary=user_project_table, back_populates="projects"
     )
@@ -264,7 +284,8 @@ class Project(db.Model):
 
     def set_is_example(self, is_example):
         self.is_example = is_example
-        app.logger.info(self.is_example)
+    def set_is_iou(self, is_iou):
+        self.is_iou = is_iou
 
     def set_name(self, newUsername):
         self.name = newUsername
@@ -345,6 +366,12 @@ class Segmentation(db.Model):
         secondary=annotation_table,
         back_populates="segmentations",
     )
+
+    counted = db.Column("counted", db.Boolean(), default=False)
+
+    def set_counted(self, counted):
+        self.counted = counted
+
 
     def set_start_time(self, start_time):
         self.start_time = start_time

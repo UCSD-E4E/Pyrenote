@@ -114,6 +114,13 @@ class Annotate extends React.Component {
       });
   }
 
+  componentWillUnmount() {
+    axios({
+      method: 'put',
+      url: `/api/update_confidence/${this.state.projectId}/${this.state.dataId}`
+    })
+  }
+
   handleAlertDismiss(e) {
     e.preventDefault(e);
     this.setState({
