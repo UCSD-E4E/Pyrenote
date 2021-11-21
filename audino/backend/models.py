@@ -114,20 +114,15 @@ class Data(db.Model):
     def set_confident_check(self, confident_check):
         self.confident_check = confident_check
 
-    def set_confident(self, confidence):
+    def set_confidence(self, confidence):
         self.confidence = confidence
 
     def set_previous_users(self, user):
-        app.logger.info("MADE IT TO HERE")
         if (self.users_reviewed is None):
             self.users_reviewed = {}
-        app.logger.info("MADE IT TO HERE")
         test = self.users_reviewed
-        app.logger.info("MADE IT TO HERE")
         test[user] = user
-        app.logger.info("MADE IT TO HERE")
         self.users_reviewed = test
-        app.logger.info("MADE IT TO HERE")
 
     def to_dict(self):
         return {

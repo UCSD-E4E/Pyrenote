@@ -12,7 +12,7 @@ from backend.models import Project, User, Data, Segmentation
 
 from . import api
 
-THRESHOLD = 0.5
+THRESHOLD = 0.75
 
 @api.route("next_clip/next_rec/project/<int:project_id>/data/<int:data_id>",
            methods=["GET"])
@@ -38,61 +38,88 @@ def getNextClip(project_id, data_id):
 
 
 def getNextViaConfidence(project_id, data_id, request, identity):
-    #app.logger.info("hello2?")
-    #app.logger.info(data_id)
-    #identity = get_jwt_identity()
-    ## page = request.args.get("page", 1, type=int)
-    #active = request.args.get("active", "completed", type=str)
-    #
-    #try:
-    #    app.logger.info("made it here")
-    #    request_user = User.query.filter_by(username=identity["username"]
-    #                                        ).first()
-    #    app.logger.info("made it here")
-    #    project = Project.query.get(project_id)
-    #    app.logger.info("made it here")
-    #    if request_user not in project.users:
-    #        return jsonify(message="Unauthorized access!"), 401
-    #    app.logger.info("made it here")
-    #    segmentations = db.session.query(Segmentation.data_id
-    #                                     ).distinct().subquery()
-    #    data_pt = Data.query.get(data_id)
-    #    data ={}
-    #    data["pending"] = (
-    #        db.session.query(Data)
-    #        .filter(or_(Data.sample != true(), Data.sample == null()))
-    #        .filter(Data.project_id == project_id)
-    #        .filter(or_(Data.confidence < THRESHOLD, Data.confidence == null))
-    #        .distinct()
-    #        .order_by(Data.last_modified.desc())
-    #    )
-#
-    #    data["marked_review"] = Data.query.filter_by(
-    #        project_id=project_id,
-    #        is_marked_for_review=True,
-    #    ).order_by(Data.last_modified.desc())
-#
-    #    data["all"] = Data.query.filter_by(
-    #        project_id=project_id
-    #    ).order_by(Data.last_modified.desc())
-#
-    #    data["completed"] = (
-    #        db.session.query(Data)
-    #        .filter(or_(Data.sample != true(), Data.sample == null()))
-    #        .filter(Data.project_id == project_id)
-    #        .filter(Data.id.in_(segmentations))
-    #        .distinct()
-    #        .order_by(Data.last_modified.desc())
-    #    )
-    #except Exception as e:
-    #    message = "Error fetching all data points"
-    #    app.logger.error(message)
-    #    app.logger.error(e)
-    #    return jsonify(message=message), 501
-    #message = f"Error data value `{data_id}` not in project"
-    #app.logger.error(message)
-    #return jsonify(message=message), 200
-    return jsonify(message="success"), 200
+    app.logger.info("USING THIS ONE WITH CONFIDENCE")
+    identity = get_jwt_identity()
+    active = "pending"
+    dataReview = None
+    dataPending = None
+    try:
+        request_user = User.query.filter_by(username=identity["username"]
+                                            ).first()
+        segmentations = db.session.query(Segmentation.data_id
+                                         ).distinct().subquery()
+        data = None
+        try:
+            dataPendingList = list(
+                db.session.query(Data)
+                .filter(Data.project_id == project_id)
+                .filter(Data.id != data_id)
+                .filter(Data.id.notin_(segmentations))
+                .filter(Data.confidence < THRESHOLD)
+                .distinct()
+                .all()
+            )
+            dataPending = dataPendingList[randint(0, len(dataPendingList) - 1)]
+        except Exception as e:
+            app.logger.info(e)
+            dataPending = None
+
+        key = identity["username"]
+        try:
+            dataReviewList = list(
+                    db.session.query(Data)
+                    .filter(Data.project_id == project_id)
+                    .filter(Data.is_marked_for_review)
+                    .filter(Data.id.in_(segmentations))
+                    .filter(Data.id != data_id)
+                    .filter(Data.assigned_user_id[key] != request_user.id)
+                    .filter(Data.confidence < THRESHOLD)
+                    .distinct()
+                    .all()
+                )
+            dataReview = dataReviewList[randint(0, len(dataReviewList) - 1)]
+        except Exception as e:
+            app.logger.info(e)
+            dataPending = None
+        app.logger.info("made it here")
+        app.logger.info(dataReview)
+        app.logger.info(dataPending)
+        review_chance = (dataPending is None or randint(0, 5) == 0)
+        if (dataPending is None and dataReview is None):
+            return (405)
+        elif (review_chance and dataReview is not None):
+            data = dataReview
+            active = "marked_review"
+        else:
+            data = dataPending
+        app.logger.info(data)
+        response = list(
+            [
+                {
+                    "data_id": data.id,
+                    "filename": data.filename,
+                    "original_filename": data.original_filename,
+                    "created_on": data.created_at.strftime("%B %d, %Y"),
+                    "is_marked_for_review": data.is_marked_for_review,
+                    "number_of_segmentations": len(data.segmentations),
+                    "sampling_rate": data.sampling_rate,
+                    "clip_length": data.clip_length,
+                }
+            ]
+        )
+        return (
+            jsonify(
+                data=response,
+                data_id=data.id,
+                active=active,
+            ),
+            200,
+        )
+    except Exception as e:
+        message = "Error fetching all data points"
+        app.logger.error(message)
+        app.logger.error(e)
+        return jsonify(message=message), 501
 
 def getNextClipFromNextButton(project_id, data_id, request, identity):
     identity = get_jwt_identity()

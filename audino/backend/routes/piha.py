@@ -14,6 +14,7 @@ from .helper_functions import (
     general_error,
     missing_data
 )
+import numpy as np
 ##
 ## Calculates IOU scores for review and quality control
 ## Code mostly taken from  https://github.com/UCSD-E4E/PyHa
@@ -30,8 +31,6 @@ from .helper_functions import (
 @jwt_required
 def update_confidence(project_id, data_id):
     identity = get_jwt_identity()
-    app.logger.info(project_id)
-    app.logger.info(data_id)
     project = Project.query.get(project_id)
     if not project.is_iou:
         return jsonify(message="iou meterics not used"), 202
@@ -39,45 +38,21 @@ def update_confidence(project_id, data_id):
     request_user = User.query.filter_by(username=identity["username"]
                                         ).first()
    
-
-    # 1) no sementations counted, set them as counted 
-    # 2) compare old and new segmentations
-    app.logger.info("MADE IT TO HERE Final")
     segmentations_new = Segmentation.query.filter_by(data_id=data_id, counted=0).distinct()
     segmentations_old =  Segmentation.query.filter_by(data_id=data_id, counted=1).distinct()
 
     if(True):#len(data.users_reviewed) > 0):
-        
         old_df = make_dataframe(data_id, segmentations_old)
-        app.logger.info("old_df")
-        app.logger.info(old_df)
-        new_df = make_dataframe(data_id, segmentations_new)
-        app.logger.info("new_df")
-        app.logger.info(new_df)
-        app.logger.info("lets compute states")  
+        new_df = make_dataframe(data_id, segmentations_new) 
         thing = clip_statistics(new_df, old_df)
-        
-        app.logger.info(thing)
-
-
-        #TODO: 
-        # 2) pull global IOU SCORE
-        #     statistics_df = clip_statistics(automated_df,manual_df)
-        # 3) set global IOU as confidence section 
-        # 4) push to database and #flag_modified(data, "users_reviewed") 
-        
-        
-        #segmentation = 
-
-        #clip_statistics
-
+    
     for segment in segmentations_new:
         segment.set_counted(1)
         db.session.add(segment)  
         db.session.commit()
 
-    confidence = thing.iloc[0]['PRECISION']
-    app.logger.info(confidence)
+    app.logger.info(thing)
+    confidence = float(thing.iloc[0]['PRECISION'])
     data_pt.set_previous_users(identity["username"])
     data_pt.set_confidence(confidence)
     flag_modified(data_pt, "users_reviewed") 
