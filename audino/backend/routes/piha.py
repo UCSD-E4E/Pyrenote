@@ -3,7 +3,7 @@ from sqlalchemy import or_, not_
 from sqlalchemy.sql.expression import true, false
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-
+from sqlalchemy.orm.attributes import flag_modified
 from backend import app, db
 from backend.models import Project, User, Label, Data, Segmentation
 from backend.models import LabelType
@@ -38,20 +38,22 @@ def update_confidence(project_id, data_id):
     data_pt = Data.query.get(data_id)
     request_user = User.query.filter_by(username=identity["username"]
                                         ).first()
-    data_pt.set_previous_users(request_user)
+   
 
     # 1) no sementations counted, set them as counted 
     # 2) compare old and new segmentations
     app.logger.info("MADE IT TO HERE Final")
-    segmentations_old =  Segmentation.query.filter_by(data_id=data_id).filter_by(counted=true()).distinct()
-    segmentations_new = Segmentation.query.filter_by(data_id=data_id).filter_by(counted=false()).distinct()
-    for segment in segmentations_new:
-        segment.set_counted(True)
+    segmentations_new = Segmentation.query.filter_by(data_id=data_id, counted=0).distinct()
+    segmentations_old =  Segmentation.query.filter_by(data_id=data_id, counted=1).distinct()
 
     if(True):#len(data.users_reviewed) > 0):
         
         old_df = make_dataframe(data_id, segmentations_old)
+        app.logger.info("old_df")
+        app.logger.info(old_df)
         new_df = make_dataframe(data_id, segmentations_new)
+        app.logger.info("new_df")
+        app.logger.info(new_df)
         app.logger.info("lets compute states")  
         thing = clip_statistics(new_df, old_df)
         
@@ -69,8 +71,17 @@ def update_confidence(project_id, data_id):
 
         #clip_statistics
 
-    flag_modified(data, "users_reviewed") 
-    db.session.add(data)  
+    for segment in segmentations_new:
+        segment.set_counted(1)
+        db.session.add(segment)  
+        db.session.commit()
+
+    confidence = thing.iloc[0]['PRECISION']
+    app.logger.info(confidence)
+    data_pt.set_previous_users(identity["username"])
+    data_pt.set_confidence(confidence)
+    flag_modified(data_pt, "users_reviewed") 
+    db.session.add(data_pt)  
     db.session.commit()
     app.logger.info("sent!")
     return 200
@@ -92,6 +103,7 @@ def make_dataframe(data_id, segmentations):
     OFFSET = []
     DURATION = []
     MANUAL_ID = []
+    SAMPLE_RATE = []
     data = {'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
     for segment in segmentations:
         start = segment.start_time
@@ -102,15 +114,15 @@ def make_dataframe(data_id, segmentations):
                     manual_id = "bird"
                     #for label in values:
                     #manual_id = label['value']
-                    app.logger.info(manual_id)
                     FOLDER.append(folder)
                     FILE.append(filename)
                     CHANNEL.append(0)
                     CLIP_LENGTH.append(clip_length)
                     OFFSET.append(start)
+                    SAMPLE_RATE.append(sample_rate)
                     DURATION.append(duration)
                     MANUAL_ID.append(manual_id)
-    df = {"FOLDER":tuple(FOLDER), "IN FILE": tuple(FILE), "CHANNEL":  tuple(CHANNEL), "CLIP LENGTH":  tuple(CLIP_LENGTH), "OFFSET":  tuple(OFFSET), "DURATION": tuple(DURATION), "MANUAL ID":  tuple(MANUAL_ID)}
+    df = {"FOLDER":tuple(FOLDER), "IN FILE": tuple(FILE), "CHANNEL":  tuple(CHANNEL), "CLIP LENGTH":  tuple(CLIP_LENGTH), "SAMPLE RATE": tuple(SAMPLE_RATE), "OFFSET":  tuple(OFFSET), "DURATION": tuple(DURATION), "MANUAL ID":  tuple(MANUAL_ID)}
     return pd.DataFrame.from_dict(df)
 
 
@@ -330,7 +342,7 @@ def automated_labeling_statistics(
                     statistics_df = statistics_df.append(clip_stats_df)
 
         except BaseException:
-            print("Something went wrong with: " + clip)
+            app.logger.error("Something went wrong with: " + clip)
             continue
     statistics_df.reset_index(inplace=True, drop=True)
     return statistics_df

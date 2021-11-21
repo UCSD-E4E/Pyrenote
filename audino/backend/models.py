@@ -114,6 +114,9 @@ class Data(db.Model):
     def set_confident_check(self, confident_check):
         self.confident_check = confident_check
 
+    def set_confident(self, confidence):
+        self.confidence = confidence
+
     def set_previous_users(self, user):
         app.logger.info("MADE IT TO HERE")
         if (self.users_reviewed is None):
@@ -367,7 +370,7 @@ class Segmentation(db.Model):
         back_populates="segmentations",
     )
 
-    counted = db.Column("counted", db.Boolean(), default=False)
+    counted = db.Column("counted", db.Integer(), default=0)
 
     def set_counted(self, counted):
         self.counted = counted
