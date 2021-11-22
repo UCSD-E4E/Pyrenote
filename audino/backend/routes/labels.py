@@ -80,6 +80,7 @@ def add_value_to_label_from_file(label_id):
     data = file.split("\n")
     for value in data:
         try:
+            value = value.strip(' \t\n\r')
             label_value = LabelValue(value=value, label_id=label_id)
             db.session.add(label_value)
             db.session.commit()
