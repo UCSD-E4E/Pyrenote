@@ -73,11 +73,13 @@ def JsonToText(data):
                 text = write_row(text, [original_filename, clip_length, start,
                                  round((end-start), 4),  max_freq, min_freq,
                                  sampling_rate, label,
+
                                  time_spent, last_mod])
                 csv.append([original_filename, clip_length, start,
                             round((end-start), 4),  max_freq, min_freq,
                             sampling_rate, label,
                             time_spent, last_mod])
+                                 time_spent])
             else:
                 for labelCate in region['annotations'].values():
                     #print(labelCate)
@@ -158,7 +160,6 @@ def JsonToRaven(data):
 
 
 def write_row(text, row, delimeter=","):
-    print("writing row")
     for i in range(len(row)):
         text = text + strip_nl(str(row[i]).rstrip("\n").rstrip("\r"))
         if (i == (len(row) - 1)):

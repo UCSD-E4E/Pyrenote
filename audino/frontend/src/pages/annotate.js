@@ -51,8 +51,7 @@ class Annotate extends React.Component {
       storedAnnotations: null,
       // applyPreviousAnnotations: false,
       boundingBox: true,
-      initWavesurfer: false,
-      
+      initWavesurfer: false,   
       disappear: 'sideMenu',
       showActiveForm: localStorage.getItem('active') == null,
       addRegionMode: true
@@ -209,6 +208,13 @@ class Annotate extends React.Component {
     this.setState(newState, () => {
       this.componentDidMount();
     });
+
+    wavesurfer.load(`/audios/${filename}`);
+    const { zoom } = this.state;
+    wavesurfer.zoom(zoom);
+
+    this.setState({ wavesurfer, wavesurferMethods });
+    this.loadRegions(regions);
   }
 
   ChangeColorChange(e) {
@@ -244,6 +250,7 @@ class Annotate extends React.Component {
     
     console.log(maxHeight)
     const { wavesurferMethods, disappear, referenceWindowOn, showActiveForm } =
+
       this.state;
 
     if (wavesurferMethods) {
