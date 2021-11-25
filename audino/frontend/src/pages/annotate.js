@@ -208,13 +208,6 @@ class Annotate extends React.Component {
     this.setState(newState, () => {
       this.componentDidMount();
     });
-
-    wavesurfer.load(`/audios/${filename}`);
-    const { zoom } = this.state;
-    wavesurfer.zoom(zoom);
-
-    this.setState({ wavesurfer, wavesurferMethods });
-    this.loadRegions(regions);
   }
 
   ChangeColorChange(e) {

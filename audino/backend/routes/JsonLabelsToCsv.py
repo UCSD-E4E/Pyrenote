@@ -79,7 +79,6 @@ def JsonToText(data):
                             round((end-start), 4),  max_freq, min_freq,
                             sampling_rate, label,
                             time_spent, last_mod])
-                                 time_spent])
             else:
                 for labelCate in region['annotations'].values():
                     #print(labelCate)
