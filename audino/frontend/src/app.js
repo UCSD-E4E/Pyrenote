@@ -15,7 +15,8 @@ import {
   Labels,
   LabelValues,
   Data,
-  CreateUser
+  CreateUser,
+  Profile
 } from './pages';
 import NavBar from './containers/navbar';
 
@@ -150,6 +151,7 @@ class App extends React.Component {
               <PublicRoute exact path="/newUser" component={CreateUser} />
               <Route path="/empty" component={null} key="empty" />
               <PrivateRoute exact path="/admin" component={Admin} />
+              <PrivateRoute exact path="/profilePage" component={Profile} />
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
               <PrivateRoute exact path="/projects/:id/labels" component={Labels} />
               <PrivateRoute exact path="/projects/:id/data" component={Data} />

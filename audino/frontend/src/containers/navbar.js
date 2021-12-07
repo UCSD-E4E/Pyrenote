@@ -65,6 +65,11 @@ class NavBar extends React.Component {
                 </li>
               )}
               <li className="nav-item">
+                <Link className="nav-link" to="/profilePage">
+                  <u>My Profile </u>
+                </Link>
+              </li>
+              <li className="nav-item">
                 <button
                   type="button"
                   className="nav-link btn btn-link"
