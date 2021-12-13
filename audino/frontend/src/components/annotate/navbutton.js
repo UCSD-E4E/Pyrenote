@@ -45,6 +45,10 @@ const NavButton = props => {
   // Go to the next audio recording
   const handleNextClip = (forceNext = false) => {
     handleAllSegmentSave(annotate);
+    axios({
+      method: 'put',
+      url: `/api/update_confidence/${annotate.state.projectId}/${annotate.state.dataId}`
+    })
     const { dataId, projectId } = annotate.state;
     const active = localStorage.getItem('active');
     if (active == null) {
@@ -69,6 +73,9 @@ const NavButton = props => {
     })
       .then(response => {
         const { data_id } = response.data;
+        if (response.status == 405) {
+          window.location.href = './dashboard'
+        }
         loadNextPage(response.status === 202, data_id);
       })
       .catch(e => {

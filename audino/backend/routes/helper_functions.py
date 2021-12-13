@@ -128,3 +128,14 @@ def check_login(username, password, role_id):
         return (jsonify(message="Please provide your role!",
                 type="ROLE_MISSING"), 400)
     return None, None
+
+def remove_previously_viewed_clips(data_pts, user):
+    new_data_pts = []
+    if (data_pts is not None and user is not None):
+        for data in data_pts:
+            try:
+                if (len(data.users_reviewed) == 0 or data.users_reviewed[user] != user):
+                    new_data_pts.append(data)
+            except:
+                continue
+    return new_data_pts

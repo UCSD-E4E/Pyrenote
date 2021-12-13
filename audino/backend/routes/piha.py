@@ -40,24 +40,32 @@ def update_confidence(project_id, data_id):
    
     segmentations_new = Segmentation.query.filter_by(data_id=data_id, counted=0).distinct()
     segmentations_old =  Segmentation.query.filter_by(data_id=data_id, counted=1).distinct()
+    confidence = 0.0
 
-    if(True):#len(data.users_reviewed) > 0):
+    if(len(data_pt.users_reviewed) > 0):#len(data.users_reviewed) > 0):
         old_df = make_dataframe(data_id, segmentations_old)
         new_df = make_dataframe(data_id, segmentations_new) 
         thing = clip_statistics(new_df, old_df)
+        app.logger.info(thing)
+        confidence = float(thing.iloc[0]['PRECISION'])
     
     for segment in segmentations_new:
         segment.set_counted(1)
         db.session.add(segment)  
         db.session.commit()
 
-    app.logger.info(thing)
-    confidence = float(thing.iloc[0]['PRECISION'])
+    app.logger.info(data_pt)
+    app.logger.info(data_pt.users_reviewed)
+    app.logger.info(data_pt.get_previous_users())
     data_pt.set_previous_users(identity["username"])
     data_pt.set_confidence(confidence)
     flag_modified(data_pt, "users_reviewed") 
+    flag_modified(data_pt, "confidence") 
     db.session.add(data_pt)  
     db.session.commit()
+    db.session.refresh(data_pt)
+    app.logger.info("CHANGED CONFIDENCE LEVEL")
+    app.logger.info(data_pt.users_reviewed)
     app.logger.info("sent!")
     return 200
 

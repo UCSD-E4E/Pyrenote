@@ -60,7 +60,7 @@ def JsonToText(data):
         clip_length = audio['clip_length']
         original_filename = audio['original_filename']
         segments = audio['segmentations']
-
+        app.logger.info(audio)
         for region in segments:
             end = region['end_time']
             start = region['start_time']

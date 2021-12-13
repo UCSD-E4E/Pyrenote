@@ -115,7 +115,9 @@ class Data(db.Model):
         self.confident_check = confident_check
 
     def set_confidence(self, confidence):
-        self.confidence = confidence
+        if (self.users_reviewed is not None):
+            if (len(self.users_reviewed) > 1): ##TODO Deterimine how to set this
+                self.confidence = confidence
 
     def set_previous_users(self, user):
         if (self.users_reviewed is None):
@@ -123,6 +125,9 @@ class Data(db.Model):
         test = self.users_reviewed
         test[user] = user
         self.users_reviewed = test
+
+    def get_previous_users(self):
+        return self.users_reviewed
 
     def to_dict(self):
         return {

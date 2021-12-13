@@ -9,7 +9,7 @@ from werkzeug.urls import url_parse
 from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
-
+from .helper_functions import remove_previously_viewed_clips
 from . import api
 
 THRESHOLD = 0.75
@@ -27,7 +27,10 @@ def getNextClip(project_id, data_id):
     project = Project.query.get(project_id)
     app.logger.info(project.is_iou)
     if(project.is_iou):
-        getNextViaConfidence(project_id, data_id, request, identity)
+        exit_info, exit_code = getNextViaConfidence(project_id, data_id, request, identity)
+        app.logger.info(exit_info)
+        app.logger.info(exit_code)
+        return exit_info, exit_code
     else:    
         if (url.startswith("/api/next_clip/next_rec/project/")):
             
@@ -43,6 +46,7 @@ def getNextViaConfidence(project_id, data_id, request, identity):
     active = "pending"
     dataReview = None
     dataPending = None
+    key = identity["username"]
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
@@ -53,18 +57,25 @@ def getNextViaConfidence(project_id, data_id, request, identity):
             dataPendingList = list(
                 db.session.query(Data)
                 .filter(Data.project_id == project_id)
-                .filter(Data.id != data_id)
+                #.filter(Data.users_reviewed[key] != None)
                 .filter(Data.id.notin_(segmentations))
                 .filter(Data.confidence < THRESHOLD)
+                .filter(Data.id != data_id)
                 .distinct()
                 .all()
             )
-            dataPending = dataPendingList[randint(0, len(dataPendingList) - 1)]
+
+            app.logger.info(dataPendingList)
+            item = randint(0, len(dataPendingList) - 1)
+            app.logger.info(item)
+            dataPending = dataPendingList[item]
         except Exception as e:
+            app.logger.info("ERROR")
             app.logger.info(e)
             dataPending = None
-
-        key = identity["username"]
+        app.logger.info("PENDING DATA")
+        app.logger.info(dataPending)
+        
         try:
             dataReviewList = list(
                     db.session.query(Data)
@@ -72,26 +83,49 @@ def getNextViaConfidence(project_id, data_id, request, identity):
                     .filter(Data.is_marked_for_review)
                     .filter(Data.id.in_(segmentations))
                     .filter(Data.id != data_id)
-                    .filter(Data.assigned_user_id[key] != request_user.id)
                     .filter(Data.confidence < THRESHOLD)
                     .distinct()
                     .all()
                 )
-            dataReview = dataReviewList[randint(0, len(dataReviewList) - 1)]
+            
+           
+
+            app.logger.info(dataReviewList)
+            app.logger.info("id test")
+            for data in dataReviewList:
+                 app.logger.info(data)
+                 app.logger.info(data.users_reviewed)
+
+
+            dataReviewList = remove_previously_viewed_clips(dataReviewList, identity["username"])
+            app.logger.info("FINAL DATA HERE")
+            app.logger.info(dataReviewList)
+            #app.logger.info(dataReviewList2[0].users_reviewed)
+            #app.logger.info(dataReviewList2[0].users_reviewed[key])
+            app.logger.info(request_user.id)
+            app.logger.info("id test end")
+            item = randint(0, len(dataReviewList) - 1)
+            app.logger.info("get data review")
+            app.logger.info(item)
+            dataReview = dataReviewList[item]
         except Exception as e:
+            app.logger.info("ERROR")
             app.logger.info(e)
-            dataPending = None
+            dataReview = None
         app.logger.info("made it here")
         app.logger.info(dataReview)
         app.logger.info(dataPending)
         review_chance = (dataPending is None or randint(0, 5) == 0)
         if (dataPending is None and dataReview is None):
-            return (405)
+            message = "No more data left for this user to annotate"
+            app.logger.error(message)
+            return jsonify(message=message), 405
         elif (review_chance and dataReview is not None):
             data = dataReview
             active = "marked_review"
         else:
             data = dataPending
+        app.logger.info("FINAL DATA POINT")
         app.logger.info(data)
         response = list(
             [
@@ -107,6 +141,8 @@ def getNextViaConfidence(project_id, data_id, request, identity):
                 }
             ]
         )
+        app.logger.info("RETURN?")
+        app.logger.info(response)
         return (
             jsonify(
                 data=response,
@@ -120,6 +156,7 @@ def getNextViaConfidence(project_id, data_id, request, identity):
         app.logger.error(message)
         app.logger.error(e)
         return jsonify(message=message), 501
+    return 100
 
 def getNextClipFromNextButton(project_id, data_id, request, identity):
     identity = get_jwt_identity()
