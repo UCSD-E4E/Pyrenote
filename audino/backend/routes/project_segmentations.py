@@ -160,9 +160,14 @@ def get_segmentations_for_data(project_id, data_id):
             return jsonify(message=msg), 401
 
         data = Data.query.filter_by(id=data_id, project_id=project_id).first()
-
+       
+        
         segmentations = []
         for segment in data.segmentations:
+            previous_users = segment.created_by
+            app.logger.info(previous_users)
+            if (not identity["username"] in previous_users): 
+                continue
             resp = {
                 "segmentation_id": segment.id,
                 "start_time": segment.start_time,
