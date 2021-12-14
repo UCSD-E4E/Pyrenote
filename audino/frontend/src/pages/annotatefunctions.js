@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { errorLogger } from '../logger';
 
-const handleAllSegmentSave = annotate => {
+const handleAllSegmentSave = (annotate, callback=()=>{}) => {
   const { segmentationUrl, wavesurfer, wavesurferMethods } = annotate.state;
   Object.values(wavesurfer.regions.list).forEach(segment => {
     if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {

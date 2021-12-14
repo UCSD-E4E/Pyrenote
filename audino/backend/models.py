@@ -141,6 +141,7 @@ class Data(db.Model):
             "sampling_rate": self.sampling_rate,
             "clip_length": self.clip_length,
             "confident_check": self.confident_check,
+            "confidence": self.confidence,
         }
 
 

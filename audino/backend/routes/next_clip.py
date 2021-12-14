@@ -119,7 +119,7 @@ def getNextViaConfidence(project_id, data_id, request, identity):
         if (dataPending is None and dataReview is None):
             message = "No more data left for this user to annotate"
             app.logger.error(message)
-            return jsonify(message=message), 405
+            return jsonify(message=message), 210
         elif (review_chance and dataReview is not None):
             data = dataReview
             active = "marked_review"
