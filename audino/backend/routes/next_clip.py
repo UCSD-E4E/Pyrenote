@@ -88,6 +88,8 @@ def getNextViaConfidence(project_id, data_id, request, identity):
                     .all()
                 )
             
+            for data_pt in dataPendingList:
+                app.logger.info(data_pt.confidence)
            
 
             app.logger.info(dataReviewList)

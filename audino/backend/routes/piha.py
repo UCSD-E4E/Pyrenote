@@ -56,6 +56,7 @@ def update_confidence(project_id, data_id):
 
     app.logger.info(data_pt)
     app.logger.info(data_pt.users_reviewed)
+    app.logger.info(data_pt.confidence)
     app.logger.info(data_pt.get_previous_users())
     data_pt.set_previous_users(identity["username"])
     data_pt.set_confidence(confidence)
@@ -65,7 +66,9 @@ def update_confidence(project_id, data_id):
     db.session.commit()
     db.session.refresh(data_pt)
     app.logger.info("CHANGED CONFIDENCE LEVEL")
+    app.logger.info(data_pt.confidence)
     app.logger.info(data_pt.users_reviewed)
+
     app.logger.info("sent!")
     return 200
 
