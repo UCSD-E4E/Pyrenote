@@ -45,7 +45,7 @@ def update_confidence(project_id, data_id):
     if(len(data_pt.users_reviewed) > 0):#len(data.users_reviewed) > 0):
         old_df = make_dataframe(data_id, segmentations_old)
         new_df = make_dataframe(data_id, segmentations_new) 
-        thing = clip_statistics(new_df, old_df)
+        thing = clip_statistics(new_df, old_df, stats_type="general")
         app.logger.info(thing)
         confidence = float(thing.iloc[0]['PRECISION'])
     
