@@ -162,6 +162,19 @@ def retrieve_database_iou(project_id, segmentations, request_user, big_key):
             .filter(or_(Data.sample != true(), Data.sample == null()))
             .order_by(Data.last_modified.desc())
     )
+
+    data["retired"] = (
+        db.session.query(Data)
+        .filter(or_(Data.sample != true(), Data.sample == null()))
+        .filter(or_(request_user.id == Data.assigned_user_id[big_key], Data.assigned_user_id[big_key] == null()))
+        .filter(Data.project_id == project_id)
+        .filter(or_(
+            Data.num_reviewed >= MAX_USERS,
+            Data.confidence >= THRESHOLD,
+        ))
+        .distinct()
+        .order_by(Data.last_modified.desc())
+    )
     data["all"] = Data.query.filter_by(
         project_id=project_id,
         sample=False

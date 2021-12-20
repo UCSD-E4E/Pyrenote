@@ -31,7 +31,8 @@ class Data extends React.Component {
         completed: this.prepareUrl(projectId, 1, 'completed'),
         all: this.prepareUrl(projectId, 1, 'all'),
         marked_review: this.prepareUrl(projectId, 1, 'marked_review'),
-        not_confident: this.prepareUrl(projectId, 1, 'not_confident')
+        not_confident: this.prepareUrl(projectId, 1, 'not_confident'),
+        retired: this.prepareUrl(projectId, 1, 'retired')
       },
       nextPage: null,
       isDataLoading: false
@@ -160,6 +161,15 @@ class Data extends React.Component {
                         href={tabUrls.marked_review}
                       >
                         Marked for review ({count.marked_review})
+                      </a>
+                    </li>
+                    {/* TODO IF USER IS ADMIN ONLY FIGURE THAT OUT*/}
+                    <li className="nav-item">
+                      <a
+                        className={`nav-link ${active === 'retired' ? 'active' : null}`}
+                        href={tabUrls.retired}
+                      >
+                        RETIRED CLIPS ({count.retired})
                       </a>
                     </li>
                   </ul>
