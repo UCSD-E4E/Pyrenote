@@ -12,8 +12,6 @@ from backend.models import Project, User, Data, Segmentation
 from .helper_functions import remove_previously_viewed_clips
 from . import api
 
-THRESHOLD = 0.75
-
 @api.route("next_clip/next_rec/project/<int:project_id>/data/<int:data_id>",
            methods=["GET"])
 @api.route("/next_clip/project/<int:project_id>/data/<int:data_id>",
@@ -47,6 +45,13 @@ def getNextViaConfidence(project_id, data_id, request, identity):
     dataReview = None
     dataPending = None
     key = identity["username"]
+    project = Project.query.get(project_id)
+    THRESHOLD = project.threshold
+    MAX_USERS = project.max_users
+    app.logger.info("THRESHOLD")
+    app.logger.info(THRESHOLD)
+    app.logger.info(MAX_USERS)
+
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
@@ -60,6 +65,7 @@ def getNextViaConfidence(project_id, data_id, request, identity):
                 #.filter(Data.users_reviewed[key] != None)
                 .filter(Data.id.notin_(segmentations))
                 .filter(Data.confidence < THRESHOLD)
+                .filter(Data.num_reviewed < MAX_USERS)
                 .filter(Data.id != data_id)
                 .distinct()
                 .all()
@@ -82,6 +88,7 @@ def getNextViaConfidence(project_id, data_id, request, identity):
                     .filter(Data.project_id == project_id)
                     .filter(Data.is_marked_for_review)
                     .filter(Data.id.in_(segmentations))
+                    .filter(Data.num_reviewed < MAX_USERS)
                     .filter(Data.id != data_id)
                     .filter(Data.confidence < THRESHOLD)
                     .distinct()

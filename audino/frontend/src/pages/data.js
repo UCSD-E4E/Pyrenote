@@ -170,11 +170,13 @@ class Data extends React.Component {
                       <tr>
                         <th scope="col">File Name</th>
                         <th scope="col">No. of segmentations</th>
-                        <th scope="col">Created On</th>
+                        <th scope="col">Confidence</th>
+                        <th scope="col">Number Reviewed</th>
                       </tr>
                     </thead>
                     <tbody>
                       {data.map((item, index) => {
+                        console.log(item)
                         return (
                           <tr key={index}>
                             <td className="align-middle">
@@ -183,7 +185,8 @@ class Data extends React.Component {
                               </a>
                             </td>
                             <td className="align-middle">{item.number_of_segmentations}</td>
-                            <td className="align-middle">{item.created_on}</td>
+                            <td className="align-middle">{item.confidence}</td>
+                            <td className="align-middle">{item.num_users_viewed}</td>
                           </tr>
                         );
                       })}

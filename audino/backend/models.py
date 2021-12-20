@@ -104,6 +104,7 @@ class Data(db.Model):
     confidence = db.Column("confidence", db.Float(), default=0.0, nullable=False)
 
     users_reviewed = db.Column("users_reviewed", db.JSON(), nullable=False, default={})
+    num_reviewed = db.Column("num_reviewed", db.Integer(), nullable=False, default=0)
 
     def update_marked_review(self, marked_review):
         self.is_marked_for_review = marked_review
@@ -125,6 +126,7 @@ class Data(db.Model):
         test = self.users_reviewed
         test[user] = user
         self.users_reviewed = test
+        self.num_reviewed = len(test)
 
     def get_previous_users(self):
         return self.users_reviewed
@@ -279,6 +281,13 @@ class Project(db.Model):
         "is_iou", db.Boolean(), nullable=True, default=False
     )
 
+    threshold = db.Column(
+        "threshold", db.Float(), default=0.75, nullable=False
+    )
+    max_users = db.Column(
+        "max_users", db.Integer(), default=5, nullable=False
+    )
+
     users = db.relationship(
         "User", secondary=user_project_table, back_populates="projects"
     )
@@ -288,8 +297,12 @@ class Project(db.Model):
 
     def set_is_example(self, is_example):
         self.is_example = is_example
-    def set_is_iou(self, is_iou):
+    def set_is_iou(self, is_iou, threshold, max_users):
         self.is_iou = is_iou
+        if (threshold is not None):
+            self.threshold = threshold / 100
+        if (max_users is not None):
+            self.max_users = max_users
 
     def set_name(self, newUsername):
         self.name = newUsername

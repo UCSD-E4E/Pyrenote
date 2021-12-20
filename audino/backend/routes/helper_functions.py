@@ -120,7 +120,10 @@ def check_entry(data, big_key):
         return false()
 
 def retrieve_database_iou(project_id, segmentations, request_user, big_key):
-    THRESHOLD = 0.75
+    project = Project.query.get(project_id)
+    THRESHOLD = project.threshold
+    MAX_USERS = project.max_users
+    app.logger.info(MAX_USERS)
     #get all non annotated data
     data = {}
     app.logger.info(request_user.username)
@@ -132,6 +135,7 @@ def retrieve_database_iou(project_id, segmentations, request_user, big_key):
                 .filter(Data.project_id == project_id)
                 .filter(or_(Data.id.notin_(segmentations), Data.users_reviewed[big_key] == null()))
                 .filter(Data.confidence < THRESHOLD)
+                .filter(Data.num_reviewed < MAX_USERS)
                 .distinct()
                 .order_by(Data.last_modified.desc())
             )
@@ -142,8 +146,11 @@ def retrieve_database_iou(project_id, segmentations, request_user, big_key):
         .filter(or_(request_user.id == Data.assigned_user_id[big_key], Data.assigned_user_id[big_key] == null()))
         .filter(Data.project_id == project_id)
         .filter(or_(
+            Data.num_reviewed >= MAX_USERS,
             Data.confidence >= THRESHOLD,
-            and_(Data.id.in_(segmentations), Data.users_reviewed[big_key] != null(),  request_user.username == Data.users_reviewed[big_key]))
+            and_(Data.id.in_(segmentations), 
+            Data.users_reviewed[big_key] != null(),  
+            request_user.username == Data.users_reviewed[big_key]))
         )
         .distinct()
         .order_by(Data.last_modified.desc())

@@ -140,15 +140,20 @@ def edit_project(project_id):
         newUserName = request.json.get("name", None)
         is_example = request.json.get("is_example", None)
         enable_IOU = request.json.get("isIOU", None)
+        threshold = int(request.json.get("conThres", None))
+        max_users = int(request.json.get("maxUsers", None))
+
         app.logger.info(enable_IOU)
         app.logger.info("look here")
+        app.logger.info(max_users)
+        app.logger.info(threshold)
+   
         if (newUserName is not None or newUserName == ''):
             project.set_name(newUserName)
-
-        if (is_example is not None and enable_IOU is not None):
-            app.logger.info(is_example)
+        if (is_example is not None):
             project.set_is_example(is_example)
-            project.set_is_iou(enable_IOU)
+        if (enable_IOU is not None):
+            project.set_is_iou(enable_IOU, threshold, max_users)
         # user = User.query.get(user_id)
         # user.set_role(role_id)
         # user.set_username(newUserName)

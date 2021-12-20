@@ -18,6 +18,8 @@ class EditProjectForm extends React.Component {
       url: `/api/projects/${projectId}`,
       isMarkedExample: false,
       isIOU: false,
+      maxUsers: 10,
+      conThres: 75,
     };
 
     this.state = { ...this.initialState };
@@ -66,20 +68,29 @@ class EditProjectForm extends React.Component {
     }
   }
 
+  handleMaxUsers(e) {
+    this.setState({ maxUsers: e.target.value });
+  }
+
+  handleConThresh(e) {
+    this.setState({ conThres: e.target.value });
+  }
+
   handleProjectCreation(e) {
     e.preventDefault();
 
     this.setState({ isSubmitting: true });
 
-    const { name, url, isMarkedExample, isIOU } = this.state;
+    const { name, url, isMarkedExample, isIOU, conThres, maxUsers } = this.state;
 
     axios({
       method: 'patch',
       url,
       data: {
-        name,
+        name,conThres, maxUsers ,
         is_example: isMarkedExample,
-        isIOU: isIOU
+        isIOU: isIOU,
+        
       }
     })
       .then(response => {
@@ -154,6 +165,8 @@ class EditProjectForm extends React.Component {
               <label className="form-check-label" htmlFor="isMarkedForReview">
                 Mark is Example Project
               </label>
+              </div>
+              <div>
               <input
                 className="form-check-input"
                 type="checkbox"
@@ -166,6 +179,15 @@ class EditProjectForm extends React.Component {
               <label className="form-check-label" htmlFor="isMarkedForReview">
                 Enable experimental quality control?
               </label>
+            </div>
+            <div>
+            <label for="MaxUsers">Max users for quality control</label>
+            <input type="number" id="MaxUsers" name="MaxUsers" min="1" onChange={e => this.handleMaxUsers(e)}/>
+            </div>
+
+            <div>
+            <label for="conThresh">Confidence Threshold</label>
+            <input type="number" id="conThresh" name="conThresh" min="1" onChange={e => this.handleConThresh(e)}/>
             </div>
             <div className="form-row">
               <div className="form-group col">

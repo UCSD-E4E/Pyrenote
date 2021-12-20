@@ -82,7 +82,9 @@ def fetch_data_for_project(project_id):
                     "number_of_segmentations": len(data_point.segmentations),
                     "sampling_rate": data_point.sampling_rate,
                     "clip_length": data_point.clip_length,
-                    "sample": data_point.sample
+                    "sample": data_point.sample,
+                    "confidence": data_point.confidence,
+                    "num_users_viewed": data_point.num_reviewed
                 }
                 for data_point in paginate_data.items
             ]
@@ -156,6 +158,7 @@ def get_next_data(project_id, data_value):
                     "number_of_segmentations": len(data_point.segmentations),
                     "sampling_rate": data_point.sampling_rate,
                     "clip_length": data_point.clip_length,
+                    "confidence": data_point.confidence,
                 }
                 for data_point in paginate_data.items
             ]
@@ -231,6 +234,7 @@ def get_next_data2(project_id, dv, page_data):
                     "number_of_segmentations": len(data_point.segmentations),
                     "sampling_rate": data_point.sampling_rate,
                     "clip_length": data_point.clip_length,
+                    "confidence": data_point.confidence,
                 }
                 for data_point in paginate_data.items
             ]
