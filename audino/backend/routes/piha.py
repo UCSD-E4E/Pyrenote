@@ -1,5 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy import or_, not_
+from sqlalchemy import or_, and_, not_
 from sqlalchemy.sql.expression import true, false
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -39,7 +39,7 @@ def update_confidence(project_id, data_id):
                                         ).first()
    
     segmentations_new = Segmentation.query.filter_by(data_id=data_id, counted=0).distinct()
-    segmentations_old =  Segmentation.query.filter_by(data_id=data_id, counted=1).distinct()
+    segmentations_old =  Segmentation.query.filter(Segmentation.data_id==data_id).filter(or_(Segmentation.counted==1, Segmentation.counted==2)).distinct()
     confidence = 0.0
 
     if(len(data_pt.users_reviewed) > 0):#len(data.users_reviewed) > 0):
@@ -49,10 +49,15 @@ def update_confidence(project_id, data_id):
         app.logger.info(thing)
         confidence = float(thing.iloc[0]['PRECISION'])
     
+    for segment in segmentations_old:
+        segment.set_counted(2)
+        db.session.add(segment)  
+        
+    
     for segment in segmentations_new:
         segment.set_counted(1)
         db.session.add(segment)  
-        db.session.commit()
+    db.session.commit()
 
     app.logger.info(data_pt)
     app.logger.info(data_pt.users_reviewed)
