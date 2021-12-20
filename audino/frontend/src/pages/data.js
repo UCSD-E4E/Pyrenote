@@ -12,7 +12,6 @@ class Data extends React.Component {
     super(props);
     const { location, match } = this.props;
     const projectId = Number(match.params.id);
-
     const params = new URLSearchParams(location.search);
     this.state = {
       projectId,
@@ -162,16 +161,15 @@ class Data extends React.Component {
                       >
                         Marked for review ({count.marked_review})
                       </a>
-                    </li>
-                    {/* TODO IF USER IS ADMIN ONLY FIGURE THAT OUT*/}
-                    <li className="nav-item">
+                      </li>
+                      {this.props.showRetired? <li className="nav-item">                    
                       <a
                         className={`nav-link ${active === 'retired' ? 'active' : null}`}
                         href={tabUrls.retired}
                       >
                         RETIRED CLIPS ({count.retired})
                       </a>
-                    </li>
+                    </li> : null}
                   </ul>
                 </div>
                 {data.length > 0 ? (
@@ -186,7 +184,6 @@ class Data extends React.Component {
                     </thead>
                     <tbody>
                       {data.map((item, index) => {
-                        console.log(item)
                         return (
                           <tr key={index}>
                             <td className="align-middle">
