@@ -75,7 +75,6 @@ class UploadDataForm extends React.Component {
             successMessage: null,
             isLoading: false
           });
-          // errorLogger.sendLog(data.message);
         } else {
           if (isThereMoreData) {
             console.log("next upload", i, chunk)

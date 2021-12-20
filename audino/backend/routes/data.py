@@ -13,6 +13,7 @@ from werkzeug.exceptions import BadRequest, NotFound
 from backend import app, db
 from backend.models import Data, Project, User, Segmentation, Label, LabelValue
 import mutagen
+
 from .helper_functions import general_error, check_admin_permissions
 from . import api
 
@@ -265,7 +266,6 @@ def add_data_from_site():
     app.logger.info(audio_files)
 
     for file in audio_files:
-        app.logger.info(file)
         original_filename = secure_filename(file.filename)
 
         sample_label = None

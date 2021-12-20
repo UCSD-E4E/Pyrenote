@@ -83,12 +83,12 @@ def JsonToText(data):
                             time_spent, last_mod, confidence, retired, counted])
             else:
                 for labelCate in region['annotations'].values():
-                    print(labelCate)
+                    #print(labelCate)
                     values = labelCate["values"]
                     try:
                         for label in values:
-                            print(label)
-                            label = label['value']
+                            #print(label)
+                            label = strip_nl(label['value'])
                             text = write_row(text, [original_filename,
                                              clip_length, start,
                                              round((end-start), 4),
@@ -140,11 +140,11 @@ def JsonToRaven(data):
                              delimeter="	")
         else:
             for labelCate in region['annotations'].values():
-                print(labelCate)
+                #print(labelCate)
                 values = labelCate["values"]
                 try:
                     for label in values:
-                        print(label)
+                        #print(label)
                         label = label['value']
                         text = write_row(text, [count, 'Spectrogram 1',
                                                 '1', start,  end, min_freq,
@@ -162,7 +162,7 @@ def JsonToRaven(data):
 
 def write_row(text, row, delimeter=","):
     for i in range(len(row)):
-        text = text + str(row[i])
+        text = text + strip_nl(str(row[i]).rstrip("\n").rstrip("\r"))
         if (i == (len(row) - 1)):
             text = text + "\n"
         else:
@@ -181,3 +181,6 @@ def datetime_json_compare(datetime_dir):
             latest_date = datetime_object.strftime("%m/%d/%Y-%H:%M:%S")
             latest_user = user + " " + latest_date
     return latest_user
+
+def strip_nl(str):
+    return str.rstrip("\n").rstrip("\r")
