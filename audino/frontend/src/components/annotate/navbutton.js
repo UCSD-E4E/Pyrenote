@@ -68,6 +68,7 @@ const NavButton = props => {
     if (active === 'recommended') {
       url = `/api/next_clip/next_rec/project/${projectId}/data/${dataId}`;
     }
+    console.log(url)
     axios({
       method: 'get',
       url

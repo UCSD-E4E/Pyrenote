@@ -21,10 +21,11 @@ def getNextClip(project_id, data_id):
     identity = get_jwt_identity()
     app.logger.info(request.path)
     url = request.path
-
+    active = request.args.get("active", "pending", type=str)
     project = Project.query.get(project_id)
-    app.logger.info(project.is_iou)
-    if(project.is_iou):
+    app.logger.info("HEY HYE HEY RIGHT HERE")
+    app.logger.info(active)
+    if(project.is_iou and active =="pending"):
         exit_info, exit_code = getNextViaConfidence(project_id, data_id, request, identity)
         app.logger.info(exit_info)
         app.logger.info(exit_code)
@@ -32,9 +33,9 @@ def getNextClip(project_id, data_id):
     else:    
         if (url.startswith("/api/next_clip/next_rec/project/")):
             
-            return getNextClipFromNextButton(project_id, data_id, request, identity)
-        else:
             return getNextReccomendedData(project_id, data_id, request, identity)
+        else:
+            return getNextClipFromNextButton(project_id, data_id, request, identity)
 
 
 
@@ -178,6 +179,8 @@ def getNextClipFromNextButton(project_id, data_id, request, identity):
                                             ).first()
         app.logger.info("made it here")
         project = Project.query.get(project_id)
+        THRESHOLD = project.threshold
+        MAX_USERS = project.max_users
         app.logger.info("made it here")
         if request_user not in project.users:
             return jsonify(message="Unauthorized access!"), 401
@@ -216,6 +219,19 @@ def getNextClipFromNextButton(project_id, data_id, request, identity):
             .filter(or_(Data.sample != true(), Data.sample == null()))
             .filter(Data.project_id == project_id)
             .filter(Data.id.in_(segmentations))
+            .distinct()
+            .order_by(Data.last_modified.desc())
+        )
+
+        data["retired"] = (
+            db.session.query(Data)
+            .filter(or_(Data.sample != true(), Data.sample == null()))
+            .filter(or_(request_user.id == Data.assigned_user_id[identity["username"]], Data.assigned_user_id[identity["username"]] == null()))
+            .filter(Data.project_id == project_id)
+            .filter(or_(
+                Data.num_reviewed >= MAX_USERS,
+                Data.confidence >= THRESHOLD,
+            ))
             .distinct()
             .order_by(Data.last_modified.desc())
         )
