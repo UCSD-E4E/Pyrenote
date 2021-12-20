@@ -431,6 +431,7 @@ class Segmentation(db.Model):
             "last_modified": self.last_modified,
             "last_modified_by": self.last_modified_by["data"],
             "time_spent": self.time_spent,
+            "counted": self.counted
         }
 
 

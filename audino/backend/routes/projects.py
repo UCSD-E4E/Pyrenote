@@ -340,6 +340,8 @@ def get_project_annotations(project_id):
     download_csv = request.headers["Csv"]
     try:
         project = Project.query.get(project_id)
+        THRESHOLD = project.threshold
+        MAX_USERS = project.max_users
         annotations = []
 
         for data in project.data:
@@ -347,6 +349,7 @@ def get_project_annotations(project_id):
                 continue
 
             data_dict = data.to_dict()
+            data_dict["retired"] =  data.num_reviewed >= MAX_USERS or data.confidence >= THRESHOLD
             data_dict["segmentations"] = []
 
             for segmentation in data.segmentations:
