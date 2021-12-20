@@ -118,6 +118,9 @@ def fetch_project(project_id):
             project_id=project.id,
             name=project.name,
             is_example=project.is_example,
+            isIOU=project.is_iou,
+            threshold=project.threshold,
+            max_users=project.max_users,
             users=users,
             labels=labels,
             api_key=project.api_key,
@@ -145,6 +148,7 @@ def edit_project(project_id):
 
         app.logger.info(enable_IOU)
         app.logger.info("look here")
+        app.logger.info(enable_IOU)
         app.logger.info(max_users)
         app.logger.info(threshold)
    
