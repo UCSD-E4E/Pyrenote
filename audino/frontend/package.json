@@ -22,7 +22,7 @@
     "jszip": "^3.7.1",
     "load-script": "^1.0.0",
     "popper.js": "^1.16.1",
-    "prop-types": "^15.7.2",
+    "prop-types": "^15.8.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1",
     "react-dom": "^16.13.1",

@@ -329,7 +329,6 @@ def get_project_annotations(project_id):
     try:
         project = Project.query.get(project_id)
         annotations = get_project_annotations_raw(project)
-        
     except Exception as e:
         message = "Error fetching annotations for project"
         return general_error(message, e, type="FETCH_ANNOTATIONS_FAILED")
@@ -359,7 +358,7 @@ def get_project_annotations(project_id):
         200,
     )
 
-def get_project_annotations_raw(project, only_user=False):
+def get_project_annotations_raw(project, only_user=None):
     annotations = []
 
     for data in project.data:
