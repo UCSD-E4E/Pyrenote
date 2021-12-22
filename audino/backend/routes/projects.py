@@ -328,42 +328,8 @@ def get_project_annotations(project_id):
     download_csv = request.headers["Csv"]
     try:
         project = Project.query.get(project_id)
-        annotations = []
-
-        for data in project.data:
-            if (data.sample):
-                continue
-
-            data_dict = data.to_dict()
-            data_dict["segmentations"] = []
-
-            for segmentation in data.segmentations:
-                segmentation_dict = segmentation.to_dict()
-
-                values = dict()
-                for value in segmentation.values:
-                    if value.label.name not in values:
-                        values[value.label.name] = {
-                            "id": value.label.id,
-                            "values": []
-                            if value.label.label_type.type == "Multi-select"
-                            else None,
-                        }
-
-                    if value.label.label_type.type == "Multi-select":
-                        values[value.label.name]["values"].append(
-                            {"id": value.id, "value": value.value}
-                        )
-                    else:
-                        values[value.label.name]["values"] = {
-                            "id": value.id,
-                            "value": value.value,
-                        }
-
-                segmentation_dict["annotations"] = values
-
-                data_dict["segmentations"].append(segmentation_dict)
-            annotations.append(data_dict)
+        annotations = get_project_annotations_raw(project)
+        
     except Exception as e:
         message = "Error fetching annotations for project"
         return general_error(message, e, type="FETCH_ANNOTATIONS_FAILED")
@@ -392,3 +358,45 @@ def get_project_annotations(project_id):
         ),
         200,
     )
+
+def get_project_annotations_raw(project, only_user=False):
+    annotations = []
+
+    for data in project.data:
+        if (data.sample):
+            continue
+
+        data_dict = data.to_dict()
+        data_dict["segmentations"] = []
+
+        for segmentation in data.segmentations:
+            app.logger.info(segmentation.created_by)
+            if (only_user is not None and segmentation.created_by != only_user):
+                continue
+            segmentation_dict = segmentation.to_dict()
+
+            values = dict()
+            for value in segmentation.values:
+                if value.label.name not in values:
+                    values[value.label.name] = {
+                        "id": value.label.id,
+                        "values": []
+                        if value.label.label_type.type == "Multi-select"
+                        else None,
+                    }
+
+                if value.label.label_type.type == "Multi-select":
+                    values[value.label.name]["values"].append(
+                        {"id": value.id, "value": value.value}
+                    )
+                else:
+                    values[value.label.name]["values"] = {
+                        "id": value.id,
+                        "value": value.value,
+                    }
+
+            segmentation_dict["annotations"] = values
+
+            data_dict["segmentations"].append(segmentation_dict)
+        annotations.append(data_dict)
+    return annotations
