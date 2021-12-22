@@ -51,10 +51,10 @@ class Annotate extends React.Component {
       storedAnnotations: null,
       // applyPreviousAnnotations: false,
       boundingBox: true,
-      initWavesurfer: false,
-      maxHeight: document.body.offsetHeight,
+      initWavesurfer: false,   
       disappear: 'sideMenu',
-      showActiveForm: localStorage.getItem('active') == null
+      showActiveForm: localStorage.getItem('active') == null,
+      addRegionMode: true
     };
     this.state = this.initalState;
     this.lastTime = 0;
@@ -236,8 +236,24 @@ class Annotate extends React.Component {
     }
   }
 
+  setAddRegionMode = (addRegionMode) => {
+    this.setState({addRegionMode: addRegionMode})
+  }
+
   render() {
-    const { wavesurferMethods, maxHeight, disappear, referenceWindowOn, showActiveForm } =
+    let maxHeight;
+    try {
+      const leftWindow = document.getElementById("leftWindow")
+      console.log(leftWindow.scrollHeight)
+
+      maxHeight = Math.max(777, leftWindow.scrollHeight)+ "px"
+    } catch {
+      maxHeight = ""
+    }
+    
+    console.log(maxHeight)
+    const { wavesurferMethods, disappear, referenceWindowOn, showActiveForm } =
+
       this.state;
 
     if (wavesurferMethods) {
@@ -245,7 +261,8 @@ class Annotate extends React.Component {
     }
 
     return (
-      <div style={{ margin: 0, height: `${maxHeight}px`, overflow: 'hidden' }}>
+      <div style={{ margin: 0, height: maxHeight, overflow: referenceWindowOn ? 'hidden' : "auto" }} //height: `${maxHeight}px`
+      >  
         <Helmet>
           <title>Annotate</title>
         </Helmet>
@@ -261,7 +278,7 @@ class Annotate extends React.Component {
             <span
               className={disappear}
               id="rightWindow"
-              style={{ float: 'left', height: `${maxHeight}px` }}
+              style={{ float: 'left', height: maxHeight, }} //`
             >
               <SideMenu annotate={this} />
             </span>
@@ -273,18 +290,17 @@ class Annotate extends React.Component {
               leftID="leftWindow"
               propertySwapCallabck={() => this.collapseSideBar()}
             />
-
             <span
               className="AnnotationRegion"
               id="leftWindow"
               style={{ float: 'left', flex: '1 1 0%', marginLeft: '2%', marginRight: '2%' }}
             >
-              <AnnotationWindow annotate={this} />
+              <AnnotationWindow annotate={this} setAddRegionMode={this.setAddRegionMode} />
             </span>
           </div>
         ) : (
           <div className="container h-100">
-            <AnnotationWindow annotate={this} />
+            <AnnotationWindow annotate={this} setAddRegionMode={this.setAddRegionMode} />
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-
+from sqlalchemy.orm.attributes import flag_modified
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
 from . import api
@@ -117,9 +117,13 @@ def add_segmentations(project_id, data_id, seg_id=None):
             username=request_user.username
 
         )
+        
+        flag_modified(segmentation, "last_modified_by")
         db.session.add(segmentation)
+        app.logger.info(segmentation.last_modified_by)
+        
         db.session.commit()
-        db.session.refresh(segmentation)
+        app.logger.info(segmentation.last_modified_by)
     except Exception as e:
         msg = f"Could not create segmentation"
         return general_error(msg, e, type="USERS_ASSIGNMENT_FAILED")

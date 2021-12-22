@@ -19,7 +19,8 @@ class CreateLabelValueForm extends React.Component {
       errorMessage: '',
       successMessage: '',
       isSubmitting: false,
-      createLabelValueUrl: `/api/labels/${labelId}/values`
+      files: {},
+      createLabelValueUrl: `/api/labels/${labelId}/values`,
     };
 
     this.state = { ...this.initialState };
@@ -70,6 +71,36 @@ class CreateLabelValueForm extends React.Component {
           isSubmitting: false
         });
       });
+  }
+
+  handleUpload() {
+    const {files,labelId } = this.state;
+    const formData = new FormData();
+    const uploadUrl = `/api/labels/${labelId}/values/file`
+    const file = files[0];
+    formData.append(0, file);
+
+    fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
+      headers: 
+        {
+          'Authorization': localStorage.getItem('access_token'),
+        }
+    }).then(response => {
+      if (response.status === 201) {
+        this.resetState();
+        this.form.reset();
+
+        this.setState({
+          successMessage: "labels were added!"
+        });
+      }
+    })
+  }
+  onChangeHandler(e) {
+    const files = e.target.files;
+    this.setState({ files });
   }
 
   handleAlertDismiss(e) {
@@ -124,6 +155,25 @@ class CreateLabelValueForm extends React.Component {
                 />
               </div>
             </div>
+            -----------------------------------------------------------
+            <div className="form-group">
+            <input
+              type="file"
+              name="file"
+              onChange={e => {
+                this.onChangeHandler(e);
+              }}
+              multiple
+            />
+            </div>
+             <Button
+                  size="lg"
+                  type="primary"
+                  disabled={!!isSubmitting}
+                  onClick={e => this.handleUpload(e)}
+                  isSubmitting={isSubmitting}
+                  text="upload labels"
+                />
           </form>
         </div>
       </div>

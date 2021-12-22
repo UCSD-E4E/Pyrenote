@@ -71,7 +71,7 @@ class FeatureForm extends React.Component {
     })
       .then(() => {
         this.setState({
-          successMessage: 'successfully updated features'
+          successMessage: 'Successfully updated features'
         });
       })
       .catch(error => {
@@ -91,7 +91,6 @@ class FeatureForm extends React.Component {
   }
 
   renderFeatureCols(start, end, feature_list) {
-    const { errorMessage, successMessage } = this.state;
     return (
       <div>
         <form
@@ -100,11 +99,6 @@ class FeatureForm extends React.Component {
             width: '25%'
           }}
         >
-          <FormAlerts
-            errorMessage={errorMessage}
-            successMessage={successMessage}
-            callback={e => this.handleAlertDismiss(e)}
-          />
           {feature_list.slice(start, end).map(([key, value]) => {
             return (
               <FeatureChecklist
@@ -122,11 +116,16 @@ class FeatureForm extends React.Component {
   }
 
   render() {
-    const { featuresEnabled } = this.state;
+    const { featuresEnabled, errorMessage, successMessage } = this.state;
     const feature_list = Object.entries(featuresEnabled);
     const numPerCol = feature_list.length / 4;
     return (
       <div>
+        <FormAlerts
+            errorMessage={errorMessage}
+            successMessage={successMessage}
+            callback={e => this.handleAlertDismiss(e)}
+          />
         <div style={{ display: 'table', justifyContent: 'space-evenly', width: '100%' }}>
           {this.renderFeatureCols(0, numPerCol, feature_list)}
           {this.renderFeatureCols(numPerCol * 1, numPerCol * 2, feature_list)}

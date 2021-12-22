@@ -67,7 +67,7 @@ const SideMenu = props => {
           width: '100%'
         }}
       >
-        <SideMenuTab tab="refrences" icon={faAtlas} tabOpen={tabOpen} setTab={tab => setTab(tab)} />
+        <SideMenuTab tab="references" icon={faAtlas} tabOpen={tabOpen} setTab={tab => setTab(tab)} />
         <SideMenuTab
           tab="SpectrogramChanger"
           icon={faCog}
