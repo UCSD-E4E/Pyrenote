@@ -58,7 +58,7 @@ def fetch_data_for_project(project_id):
                                          ).distinct().subquery()
 
         categories = ["pending", "completed", "marked_review", "all"]
-        data = retrieve_database(project_id, segmentations, categories)
+        data = retrieve_database(project_id, segmentations, categories, request_user)
         app.logger.info(data)
         paginate_data = data[active].paginate(page, 10, False)
 

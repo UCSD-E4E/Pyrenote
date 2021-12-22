@@ -1,7 +1,7 @@
 from flask import jsonify, request
 
 from backend import app, db
-from backend.models import User, Data, Project
+from backend.models import User, Data, Project,Segmentation
 from sqlalchemy.sql.expression import false, true, null
 from sqlalchemy import or_
 """return and log an error message that is not a specific error"""
@@ -51,26 +51,15 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
     project = Project.query.get(project_id)
     app.logger.info(project)
     if (project.is_example):
-        if (request_user is not None):
-            data["pending"] = (
-                db.session.query(Data)
-                .filter(or_(Data.sample != true(), Data.sample == null()))
-                .filter(request_user.id == Data.assigned_user_id[big_key])
-                .filter(Data.project_id == project_id)
-                .distinct()
-                .order_by(Data.last_modified.desc())
-            )
-        else:
-            data["pending"] = (
-                db.session.query(Data)
-                .filter(or_(Data.sample != true(), Data.sample == null()))
-                .filter(Data.project_id == project_id)
-                .distinct()
-                .order_by(Data.last_modified.desc())
-            )
-        return data
+        segmentations = (   
+            db.session.query(Segmentation.data_id)
+            .filter(request_user.username == Segmentation.created_by)
+            .distinct().subquery()
+        )
+        
+    app.logger.info("hello?")
     if ("pending" in categories):
-        if (request_user is not None):
+        if (request_user is not None and big_key is not None):
             data["pending"] = (
                 db.session.query(Data)
                 .filter(or_(Data.sample != true(), Data.sample == null()))
@@ -91,7 +80,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
             )
 
     if ("completed" in categories):
-        if (request_user is not None):
+        if (request_user is not None and big_key is not None):
             data["completed"] = (
                 db.session.query(Data)
                 .filter(or_(Data.sample != true(), Data.sample == null()))
