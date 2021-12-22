@@ -4,7 +4,7 @@ This project, Pyrenote, creates moment to moment or strong labels for audio data
 
  If you want to use Pyrenote, use the following to get started!
 
-**NOTE** Before making any changes to the code, make sure to create a branch to safetly make changes. Never commit directly to main.
+**NOTE** Before making any changes to the code, make sure to create a branch to safetly make changes. Never commit directly to main or production branch.
 **Read github_procedures.md for more detailed information before contributing to the repo** 
 
 ## Usage
@@ -29,9 +29,6 @@ $ cd audino
 ```sh
 $ git clone https://github.com/UCSD-E4E/Pyrenote.git --config core.autocrlf=input
 ```
-
-### NOTE BEFORE RUNNING THE DOCKER
-**Access [this link](https://drive.google.com/file/d/15y_j27Jn3aS2BKt17_3g8T2C07R5p3H5/view?usp=sharing) to get the Scripts.zip folder. Once you get it extract the files to audino/backend/venv/**
 
 ### For Development (Note this is the one we will test on and use)
 
@@ -111,3 +108,13 @@ Then, in browser, go to [http://0.0.0.0/](http://0.0.0.0/) to view the applicati
 $ docker-compose -f docker-compose.prod.yml down
 ```
 
+### For Dev Team:
+Features should be turned on and off by admins for indivual projects. When adding a new feature to ethier a project's data page or
+annotation page, make sure to do the following:
+1) Go to .\audino\frontend\src\containers\forms\featureForm.js
+2) Add a new item in the featuresEnabled directory. This will be the name of the feature_toggle varible. 
+3) Return to the page you are working on. 
+  -  For example, if you are working on the annotation page, navigate to the componentDidMount() method
+  - about 20 lines down in the setState callback, add to the list SOME_VAR: response.data.features_list['VARIBLE_NAMED_IN_STEP_2'].
+
+  
