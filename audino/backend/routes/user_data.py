@@ -75,7 +75,7 @@ def get_requested_user_annotations(user_id):
 
 @api.route("/user_data_previous_viewed", methods=["GET"])
 @jwt_required
-def get_last_ten_data_viewed():
+def get_last_ten_data_viewed(): ## ITS not really viewed, more of last annotated clips. Should we do the same for viewed only clips
     identity = get_jwt_identity()
     request_user = User.query.filter_by(username=identity["username"]
                                         ).first()
