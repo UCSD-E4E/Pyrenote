@@ -70,5 +70,5 @@ from .next_clip import (
 )
 
 from .user_data import (
-    get_user_annotations_api, fetch_user_data
+    get_self_annotations, get_requested_user_annotations, fetch_user_data
 )

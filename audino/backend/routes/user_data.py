@@ -43,10 +43,28 @@ def fetch_user_data():
 
 @api.route("/user_data_annotations", methods=["GET"])
 @jwt_required
-def get_user_annotations_api():
+def get_self_annotations():
     identity = get_jwt_identity()
     request_user = User.query.filter_by(username=identity["username"]
                                         ).first()
+    annotations = get_user_annotations(request_user)
+    return (
+        jsonify(
+            annotations
+        ),
+        200,
+    )
+@api.route("/user_data_annotations/<int:user_id>", methods=["GET"])
+@jwt_required
+def get_requested_user_annotations(user_id):
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if msg is not None:
+        return msg, status
+    
+    request_user = User.query.filter_by(id=user_id).distinct().first()
+    if (request_user is None):
+        return jsonify(message="No such user exists"), 404
+
     annotations = get_user_annotations(request_user)
     return (
         jsonify(
@@ -59,7 +77,7 @@ def get_user_annotations(user):
     projects = Project.query.join(Project.users, aliased=True)\
                     .filter_by(username=user.username)
     app.logger.info(projects)
-    annotations = {}
+    annotations = {"_User_": user.username}
     for project in projects:
         annotations[project.name] = get_project_annotations_raw(project, user.username)
         # use project and pull all annotations that the user made
