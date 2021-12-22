@@ -162,8 +162,6 @@ def get_segmentations_for_data(project_id, data_id):
         data = Data.query.filter_by(id=data_id, project_id=project_id).first()
 
         segmentations = []
-        app.logger.info(data.segmentations[0].created_by + " " +
-                        request_user.username)
         for segment in data.segmentations:
             if (project.is_example and
                segment.created_by != request_user.username):

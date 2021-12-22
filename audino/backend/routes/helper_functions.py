@@ -1,7 +1,7 @@
 from flask import jsonify, request
 
 from backend import app, db
-from backend.models import User, Data
+from backend.models import User, Data, Project
 from sqlalchemy.sql.expression import false, true, null
 from sqlalchemy import or_
 """return and log an error message that is not a specific error"""
@@ -47,6 +47,28 @@ def check_admin_permissions(identity, json=True):
 def retrieve_database(project_id, segmentations, categories, request_user=None,
                       big_key=None):
     data = {}
+    app.logger.info(project_id)
+    project = Project.query.get(project_id)
+    app.logger.info(project)
+    if (project.is_example):
+        if (request_user is not None):
+            data["pending"] = (
+                db.session.query(Data)
+                .filter(or_(Data.sample != true(), Data.sample == null()))
+                .filter(request_user.id == Data.assigned_user_id[big_key])
+                .filter(Data.project_id == project_id)
+                .distinct()
+                .order_by(Data.last_modified.desc())
+            )
+        else:
+            data["pending"] = (
+                db.session.query(Data)
+                .filter(or_(Data.sample != true(), Data.sample == null()))
+                .filter(Data.project_id == project_id)
+                .distinct()
+                .order_by(Data.last_modified.desc())
+            )
+        return data
     if ("pending" in categories):
         if (request_user is not None):
             data["pending"] = (
@@ -128,3 +150,14 @@ def check_login(username, password, role_id):
         return (jsonify(message="Please provide your role!",
                 type="ROLE_MISSING"), 400)
     return None, None
+
+def count_segmentations(data_point, project, request_user):
+    size = len(data_point.segmentations)
+    count = 0
+    if project.is_example:
+        for i in range (0, size):
+            segment = data_point.segmentations[i]
+            if segment.created_by == request_user.username:
+                count += 1
+    else: count = size
+    return count
