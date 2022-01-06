@@ -6,7 +6,7 @@ from backend.models import Project, User, Data, Segmentation
 from . import api
 from .data import generate_segmentation
 from .helper_functions import general_error, missing_data
-
+from .piha import (update_confidence)
 
 @api.route(
     "/projects/<int:project_id>/data/<int:data_id>/segmentations/<int:seg_id>",
@@ -55,6 +55,7 @@ def delete_segmentations(project_id, data_id, seg_id):
 @jwt_required
 def add_segmentations(project_id, data_id, seg_id=None):
     identity = get_jwt_identity()
+    username = identity["username"]
     segmentation_id = seg_id
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400
@@ -98,7 +99,7 @@ def add_segmentations(project_id, data_id, seg_id=None):
     min_freq = round(min_freq, 4)
 
     try:
-        request_user = User.query.filter_by(username=identity["username"]
+        request_user = User.query.filter_by(username=username
                                             ).first()
         project = Project.query.get(project_id)
 
@@ -123,11 +124,13 @@ def add_segmentations(project_id, data_id, seg_id=None):
         app.logger.info(segmentation.last_modified_by)
         
         db.session.commit()
+        db.session.refresh(segmentation)
         app.logger.info(segmentation.last_modified_by)
     except Exception as e:
         msg = f"Could not create segmentation"
         return general_error(msg, e, type="USERS_ASSIGNMENT_FAILED")
 
+    update_confidence(project_id, data_id, username)
     if request.method == "POST":
         message = "Segmentation created"
         operation_type = "SEGMENTATION_CREATED"

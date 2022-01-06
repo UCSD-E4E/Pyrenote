@@ -59,10 +59,10 @@ const NavButton = props => {
       return;
     }
 
-    axios({
-      method: 'put',
-      url: `/api/update_confidence/${annotate.state.projectId}/${annotate.state.dataId}`
-    })
+    //axios({
+    //  method: 'put',
+    //  url: `/api/update_confidence/${annotate.state.projectId}/${annotate.state.dataId}`
+    //})
     let url = `/api/next_clip/project/${projectId}/data/${dataId}`;
     url = `${url}?active=${active}`;
     if (active === 'recommended') {

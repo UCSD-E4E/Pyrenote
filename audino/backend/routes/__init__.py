@@ -69,4 +69,4 @@ from .next_clip import (
     getNextClip, get_next_data_unknown
 )
 
-from .piha import (update_confidence)
+from .piha import (update_confidence_api)

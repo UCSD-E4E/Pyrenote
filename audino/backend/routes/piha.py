@@ -29,47 +29,61 @@ import numpy as np
 
 @api.route("/update_confidence/<int:project_id>/<int:data_id>", methods=["PUT"])
 @jwt_required
-def update_confidence(project_id, data_id):
+def update_confidence_api(project_id, data_id):
     identity = get_jwt_identity()
+    username = identity["username"]
+    #return jsonify(message="not being used"), 202
+    return update_confidence(project_id, data_id, username)
+
+def update_confidence(project_id, data_id, username):
     project = Project.query.get(project_id)
     if not project.is_iou:
         return jsonify(message="iou meterics not used"), 202
     data_pt = Data.query.get(data_id)
-    request_user = User.query.filter_by(username=identity["username"]
+    request_user = User.query.filter_by(username=username
                                         ).first()
-   
-    segmentations_new = Segmentation.query.filter_by(data_id=data_id, counted=0).distinct()
-    segmentations_old =  Segmentation.query.filter(Segmentation.data_id==data_id).filter(or_(Segmentation.counted==1, Segmentation.counted==2)).distinct()
-    confidence = 0.0
+    # TODO
+    # Do a literature review
+    # COMPARE FROM AUTHOR USER ONLY 
+    # Pairwise comparision **** Look into pairwise statistiics
+    segmentations_new = Segmentation.query.filter_by(data_id=data_id, created_by=username).distinct()
+    segmentations_old =  Segmentation.query.filter(
+                    Segmentation.data_id==data_id
+                ).filter(
+                    or_(Segmentation.counted==1, Segmentation.counted==2)
+                    ).filter(Segmentation.created_by!=username).distinct()
+
+    confidence = data_pt.confidence
 
     if(len(data_pt.users_reviewed) > 0):#len(data.users_reviewed) > 0):
         old_df = make_dataframe(data_id, segmentations_old)
-        new_df = make_dataframe(data_id, segmentations_new) 
-        thing = clip_statistics(new_df, old_df, stats_type="general")
-        app.logger.info(thing)
-        confidence = float(thing.iloc[0]['PRECISION'])
+        new_df = make_dataframe(data_id, segmentations_new)
+        if not (old_df.empty or new_df.empty):
+            app.logger.info(old_df)
+            app.logger.info(new_df)
+            thing = clip_statistics(new_df, old_df, stats_type="general")#, #
+            app.logger.info(thing)
+            confidence = float(thing.iloc[0]['PRECISION'])
+            app.logger.info(confidence)
     
     for segment in segmentations_old:
         segment.set_counted(2)
         db.session.add(segment)  
         
-    
     for segment in segmentations_new:
         segment.set_counted(1)
         db.session.add(segment)  
     db.session.commit()
 
-    app.logger.info(data_pt)
-    app.logger.info(data_pt.users_reviewed)
-    app.logger.info(data_pt.confidence)
-    app.logger.info(data_pt.get_previous_users())
-    data_pt.set_previous_users(identity["username"])
+    data_pt.set_previous_users(username)
     data_pt.set_confidence(confidence)
     flag_modified(data_pt, "users_reviewed") 
     flag_modified(data_pt, "confidence") 
     db.session.add(data_pt)  
     db.session.commit()
+    app.logger.info(data_pt.confidence)
     db.session.refresh(data_pt)
+    app.logger.info(confidence)
     app.logger.info("CHANGED CONFIDENCE LEVEL")
     app.logger.info(data_pt.confidence)
     app.logger.info(data_pt.users_reviewed)
