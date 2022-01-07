@@ -63,7 +63,7 @@ def update_confidence(project_id, data_id, username):
             app.logger.info(new_df)
             thing = clip_statistics(new_df, old_df, stats_type="general")#, #
             app.logger.info(thing)
-            confidence = float(thing.iloc[0]['PRECISION'])
+            confidence = float(thing.iloc[0]['Global IoU'])
             app.logger.info(confidence)
     
     for segment in segmentations_old:
