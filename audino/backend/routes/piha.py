@@ -118,7 +118,7 @@ def make_dataframe(data_id, segmentations):
         duration = segment.end_time - start
         for labelCate in segment.values:
             #for values in labelCate["values"]:
-                    #TODO DEBUIG THIS ISSUE WITH VALUES AND LABELS
+                    #TODO HANDLE EDGE CASES OF MUTLIPLE VALUES OF LABELS
                     manual_id = labelCate.value
                     #for label in values:
                     #manual_id = label['value']
