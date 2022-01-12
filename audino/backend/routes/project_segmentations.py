@@ -15,9 +15,10 @@ from .piha import (update_confidence)
 @jwt_required
 def delete_segmentations(project_id, data_id, seg_id):
     identity = get_jwt_identity()
+    username = identity["username"]
     segmentation_id = seg_id
     try:
-        request_user = User.query.filter_by(username=identity["username"]
+        request_user = User.query.filter_by(username=username
                                             ).first()
         project = Project.query.get(project_id)
 
@@ -30,6 +31,12 @@ def delete_segmentations(project_id, data_id, seg_id):
 
         db.session.delete(segmentation)
         db.session.commit()
+        #db.session.refresh(segmentation)
+        app.logger.info(project_id)
+        app.logger.info(data_id)
+        app.logger.info(username)
+        update_confidence(project_id, data_id, username)
+        
     except Exception as e:
         msg = f"Could not delete segmentation"
         return general_error(msg, e, type="SEGMENTATION_DELETION_FAILED")

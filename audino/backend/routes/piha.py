@@ -54,16 +54,19 @@ def update_confidence(project_id, data_id, username):
                     ).filter(Segmentation.created_by!=username).distinct()
 
     confidence = data_pt.confidence
-
-    if(len(data_pt.users_reviewed) > 0):#len(data.users_reviewed) > 0):
+    if(len(data_pt.users_reviewed) > 1):#len(data.users_reviewed) > 0):
         old_df = make_dataframe(data_id, segmentations_old)
         new_df = make_dataframe(data_id, segmentations_new)
         if not (old_df.empty or new_df.empty):
             app.logger.info(old_df)
             app.logger.info(new_df)
-            thing = clip_statistics(new_df, old_df, stats_type="general")#, #
-            app.logger.info(thing)
-            confidence = float(thing.iloc[0]['Global IoU'])
+            overlap = clip_statistics(new_df, old_df, stats_type="general")#, #
+            app.logger.info(overlap)
+            if (len(overlap) == 0):
+                confidence = 0
+            else:
+                app.logger.info(overlap.iloc[0])
+                confidence = float(overlap.iloc[0]['Global IoU'])
             app.logger.info(confidence)
     
     for segment in segmentations_old:
@@ -116,7 +119,7 @@ def make_dataframe(data_id, segmentations):
         for labelCate in segment.values:
             #for values in labelCate["values"]:
                     #TODO DEBUIG THIS ISSUE WITH VALUES AND LABELS
-                    manual_id = "bird"
+                    manual_id = labelCate.value
                     #for label in values:
                     #manual_id = label['value']
                     FOLDER.append(folder)
