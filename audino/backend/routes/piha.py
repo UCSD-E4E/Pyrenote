@@ -46,6 +46,7 @@ def update_confidence(project_id, data_id, username):
     # Do a literature review
     # COMPARE FROM AUTHOR USER ONLY 
     # Pairwise comparision **** Look into pairwise statistiics
+    # TODO ISSUE WHERE LABELS INITALLY NOT ADDED TO SEGMENTATIONS_NEW ON NEW NEW CLIPS AND USERS
     segmentations_new = Segmentation.query.filter_by(data_id=data_id, created_by=username).distinct()
     segmentations_old =  Segmentation.query.filter(
                     Segmentation.data_id==data_id
@@ -54,12 +55,13 @@ def update_confidence(project_id, data_id, username):
                     ).filter(Segmentation.created_by!=username).distinct()
 
     confidence = data_pt.confidence
-    if(len(data_pt.users_reviewed) > 1):#len(data.users_reviewed) > 0):
+    if(len(data_pt.users_reviewed) > 0):#len(data.users_reviewed) > 0):
         old_df = make_dataframe(data_id, segmentations_old)
         new_df = make_dataframe(data_id, segmentations_new)
+        app.logger.info(old_df)
+        app.logger.info(new_df)
         if not (old_df.empty or new_df.empty):
-            app.logger.info(old_df)
-            app.logger.info(new_df)
+            
             overlap = clip_statistics(new_df, old_df, stats_type="general")#, #
             app.logger.info(overlap)
             if (len(overlap) == 0):
