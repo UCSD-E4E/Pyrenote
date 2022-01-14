@@ -79,6 +79,8 @@ def add_value_to_label_from_file(label_id):
     app.logger.info(type(file))
     data = file.split("\n")
     for value in data:
+        if value == "":
+            continue
         try:
             value = value.strip(' \t\n\r')
             label_value = LabelValue(value=value, label_id=label_id)
