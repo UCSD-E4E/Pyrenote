@@ -37,6 +37,7 @@ def update_confidence_api(project_id, data_id):
 
 def update_confidence(project_id, data_id, username):
     project = Project.query.get(project_id)
+    THRESHOLD = project.threshold
     if not project.is_iou:
         return jsonify(message="iou meterics not used"), 202
     data_pt = Data.query.get(data_id)
@@ -48,39 +49,60 @@ def update_confidence(project_id, data_id, username):
     # Pairwise comparision **** Look into pairwise statistiics
     # TODO ISSUE WHERE LABELS INITALLY NOT ADDED TO SEGMENTATIONS_NEW ON NEW NEW CLIPS AND USERS
     segmentations_new = Segmentation.query.filter_by(data_id=data_id, created_by=username).distinct()
-    segmentations_old =  Segmentation.query.filter(
-                    Segmentation.data_id==data_id
-                ).filter(
-                    or_(Segmentation.counted==1, Segmentation.counted==2)
-                    ).filter(Segmentation.created_by!=username).distinct()
+    
 
     confidence = data_pt.confidence
-    if(len(data_pt.users_reviewed) > 0):#len(data.users_reviewed) > 0):
-        old_df = make_dataframe(data_id, segmentations_old)
-        new_df = make_dataframe(data_id, segmentations_new)
-        app.logger.info(old_df)
-        app.logger.info(new_df)
-        if not (old_df.empty or new_df.empty):
-            
-            overlap = clip_statistics(new_df, old_df, stats_type="general")#, #
-            app.logger.info(overlap)
-            if (len(overlap) == 0):
-                confidence = 0
-            else:
-                app.logger.info(overlap.iloc[0])
-                confidence = float(overlap.iloc[0]['Global IoU'])
-            app.logger.info(confidence)
-    
-    for segment in segmentations_old:
-        segment.set_counted(2)
-        db.session.add(segment)  
-        
-    for segment in segmentations_new:
-        segment.set_counted(1)
-        db.session.add(segment)  
+    confidence_adv = 0
+    num_reviewers = len(data_pt.users_reviewed) + 1 #users_reviewed not updated yet
+    total = -1 #NOTE CHANGE FOR OTHERS< THIS IS ONLY BECAUSE OF THE EARLIER ERROR
+    if(num_reviewers > 0):#len(data.users_reviewed) > 0):
+        for user in data_pt.users_reviewed: 
+            if (user == username): 
+                app.logger.info("skipped")
+                continue
+            segmentations_old = Segmentation.query.filter_by(data_id=data_id, created_by=user).distinct()
+            old_df = make_dataframe(data_id, segmentations_old)
+            new_df = make_dataframe(data_id, segmentations_new)
+            app.logger.info(old_df)
+            app.logger.info(new_df)
+            if not (old_df.empty or new_df.empty):
+                
+                overlap = clip_statistics(new_df, old_df, stats_type="general")#, #
+                app.logger.info(overlap)
+                if (len(overlap) == 0):
+                    #pass
+                    confidence = 0
+                else:
+                    app.logger.info(overlap.iloc[0])
+                    confidence = float(overlap.iloc[0]['Global IoU'])
+
+                confidence_adv += confidence
+                app.logger.info(confidence)
+                app.logger.info(confidence_adv)
+
+                count = 0
+                if (confidence > THRESHOLD):
+                    count = 1
+
+                for segment in segmentations_new:
+                    segment.set_counted(count)
+                    db.session.add(segment)
+
+                for segment in segmentations_new:
+                    segment.set_counted(count)
+                    db.session.add(segment)    
+            total += 1
     db.session.commit()
+        
+        #for segment in segmentations_old:
+        #    segment.set_counted(2)
+        #    db.session.add(segment)  
+            
+
+    confidence = confidence_adv/(total)
 
     data_pt.set_previous_users(username)
+    app.logger.info(total)
     data_pt.set_confidence(confidence)
     flag_modified(data_pt, "users_reviewed") 
     flag_modified(data_pt, "confidence") 
