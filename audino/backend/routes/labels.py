@@ -74,7 +74,7 @@ def add_value_to_label_from_file(label_id):
             jsonify(message="Please provide a label value!",
                     type="VALUE_MISSING"), 400,)
     app.logger.info("hello")
-    file = file.read().decode("latin-1")
+    file = file.read().decode("utf-8-sig")
     app.logger.info(file)
     app.logger.info(type(file))
     data = file.split("\n")
