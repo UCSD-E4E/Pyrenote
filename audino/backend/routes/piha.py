@@ -47,14 +47,15 @@ def update_confidence(project_id, data_id, username):
     # Do a literature review
     # COMPARE FROM AUTHOR USER ONLY 
     # Pairwise comparision **** Look into pairwise statistiics
-    # TODO ISSUE WHERE LABELS INITALLY NOT ADDED TO SEGMENTATIONS_NEW ON NEW NEW CLIPS AND USERS
+    # Do I take adverage or median?
+    
     segmentations_new = Segmentation.query.filter_by(data_id=data_id, created_by=username).distinct()
     
 
     confidence = data_pt.confidence
     confidence_adv = 0
     num_reviewers = len(data_pt.users_reviewed) + 1 #users_reviewed not updated yet
-    total = -1 #NOTE CHANGE FOR OTHERS< THIS IS ONLY BECAUSE OF THE EARLIER ERROR
+    total = 0 #NOTE CHANGE FOR OTHERS< THIS IS ONLY BECAUSE OF THE EARLIER ERROR
     if(num_reviewers > 0):#len(data.users_reviewed) > 0):
         for user in data_pt.users_reviewed: 
             if (user == username): 
