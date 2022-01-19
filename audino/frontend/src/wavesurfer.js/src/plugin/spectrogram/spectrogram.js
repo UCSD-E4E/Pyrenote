@@ -3,7 +3,7 @@
 const colormap = require('colormap');
 
 class Spectrogram {
-  constructor(wavesurfer, spectrCc, imageData, pixels, heightFactor) {
+  constructor(wavesurfer, spectrCc, imageData, pixels, heightFactor, render) {
     this.wavesurfer = wavesurfer;
     this.spectrCc = spectrCc;
     this.imageData = imageData;
@@ -13,6 +13,7 @@ class Spectrogram {
     this.wavesurfer.fireEvent('spectrogram_created', this);
     const { width, height, data } = this.imageData;
     this.copyID = this.copy(width, height, data);
+    this.render = render
 
     // TODO: capture frequency data output then use it to import new colormaps
   }
@@ -109,6 +110,74 @@ class Spectrogram {
     }
     this.spectrCc.putImageData(imageData, 0, 0);
     this.imageData = imageData;
+  }
+
+  scale(newHzMin, newHzMax, initMaxHz) {
+    console.log(newHzMin, newHzMax, initMaxHz)
+    const resizeImageData = require('resize-image-data')
+    newHzMin /= 2
+    newHzMax /= 2
+    const colorMapArray = colormap({
+        colormap: "warm",
+        nshades: 256,
+        format: 'float',
+        alpha: 1
+      });
+
+    const fftSamples = 256
+    const sampleToFreq = fftSamples/initMaxHz
+    const minSample = Math.floor(newHzMin * sampleToFreq)
+    console.log("minSample", minSample)
+    const maxSample = Math.floor(newHzMax * sampleToFreq)
+    console.log("maxSample", maxSample)
+    const pixels = this.pixels;
+    const { width, height } = this.imageData;
+    const heightFactor = this.heightFactor;
+    const newHeight = maxSample - (minSample)
+    console.log("maxSample", newHeight, height) // 531
+
+    const imageData = this.spectrCc.createImageData(width, newHeight);
+    let i;
+    let y;
+    let k;
+
+    for (i = 0; i < pixels.length; i++) {
+        let count = 0;
+        let newY = Math.min(maxSample - minSample, pixels[i].length)
+        for (y = minSample; y < pixels[i].length ; y++) { //&& j < maxSample
+            const colorMap = colorMapArray[pixels[i][y]];
+            /* eslint-disable max-depth */
+            var index = 4 * (i + (newY) * width);
+            //const redIndex = y * (width * 4) + i * 4;
+            imageData.data[index] = colorMap[0] * 255;
+            imageData.data[index + 1] = colorMap[1] * 255;
+            imageData.data[index + 2] = colorMap[2] * 255;
+            imageData.data[index + 3] = colorMap[3] * 255;
+            /* eslint-enable max-depth */
+            newY--
+            count++
+        }
+    }
+
+    const result = resizeImageData(imageData, width, height, 'nearest-neighbor')
+    console.log(result.height)
+    const imageData2 = this.spectrCc.createImageData(width, height);
+    this.spectrCc.putImageData(imageData2, 0, 0)
+    this.spectrCc.putImageData(result, 0, Math.max(0, height - height / newHeight * height))
+    console.log(Math.max(0, height - height / newHeight * height))
+    this.render.loadLabels(
+        'rgba(68,68,68,0.5)',
+        '12px',
+        '10px',
+        '',
+        '#fff',
+        '#f7f7f7',
+        'center',
+        '#specLabels',
+        newHzMax * 2000,
+        newHzMin * 1000
+      );
+
   }
 }
 

@@ -83,7 +83,8 @@ class Annotate extends React.Component {
           toUnsavedClipOn: response.data.features_list['to unsaved cliped'],
           referenceWindowOn: response.data.features_list['reference window'],
           playbackOn: response.data.features_list.playbackOn,
-          spectrogramDemoOn: response.data.features_list['spectrogram demo']
+          spectrogramDemoOn: response.data.features_list['spectrogram demo'],
+          zoomOn: response.data.features_list['zoom']
         });
 
         const wavesurferMethods = new WavesurferMethods({
@@ -146,13 +147,19 @@ class Annotate extends React.Component {
   }
 
   loadFileMetadata(response, boundingBox, wavesurfer, wavesurferMethods) {
+    console.log("hello?????????????????????????")
     this.setState({
       isDataLoading: false,
-      labels: response[0].data
+      labels: response[0].data,
+      wavesurfer,
+      wavesurferMethods
     });
 
-    const { is_marked_for_review, segmentations, filename, original_filename } = response[1].data;
-
+    const { is_marked_for_review, segmentations, filename, original_filename, sampling_rate } = response[1].data;
+    let {sampleRate} = this.state
+    if (!sampleRate) {
+      sampleRate = sampling_rate
+    }
     const regions = segmentations.map(segmentation => {
       if (boundingBox) {
         return {
@@ -180,18 +187,20 @@ class Annotate extends React.Component {
         boundingBox
       };
     });
-
+    console.log("hello?????????????????????????", this.state.wavesurfer)
     this.setState({
       isDataLoading: false,
       isMarkedForReview: is_marked_for_review,
       original_filename
     });
+    console.log("hello?????????????????????????")
 
-    wavesurfer.load(`/audios/${filename}`);
+    console.log("start load", sampleRate)
+    wavesurfer.load(`/audios/${filename}`, null, null, null, sampleRate);
     const { zoom } = this.state;
     wavesurfer.zoom(zoom);
 
-    this.setState({ wavesurfer, wavesurferMethods });
+    this.setState({ wavesurfer, wavesurferMethods, filename });
     this.loadRegions(regions);
   }
 
@@ -203,8 +212,9 @@ class Annotate extends React.Component {
     newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
     newState.dataId = nextDataId;
     newState.wavesurfer = null;
-
+    console.log("configed new state")
     wavesurfer.destroy();
+    console.log("wavesurfer destroied")
     this.setState(newState, () => {
       this.componentDidMount();
     });

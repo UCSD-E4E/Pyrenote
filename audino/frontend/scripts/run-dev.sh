@@ -9,6 +9,7 @@ echo "npm install"
     cd "${app}" && npm install
     cd "${app}" && npm install jszip
     cd "${app}" && npm install file-saver
+    cd "${app}" && npm i resize-image-data
 } || {
     echo "package update broke install, deleting node_modules"
     cd "${app}" && rm -rf node_modules

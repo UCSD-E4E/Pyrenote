@@ -70,6 +70,35 @@ export default class WebAudio extends util.Observer {
     return !!(window.AudioContext || window.webkitAudioContext);
   }
 
+  createVolumeNode() {
+    // Create gain node using the AudioContext
+    if (this.ac.createGain) {
+      this.gainNode = this.ac.createGain();
+    } else {
+      this.gainNode = this.ac.createGainNode();
+    }
+    // Add the gain node to the graph
+    this.gainNode.connect(this.ac.destination);
+  }
+
+
+/** Create analyser node to perform audio analysis */
+createAnalyserNode() {
+    this.analyser = this.ac.createAnalyser();
+    this.analyser.connect(this.gainNode);
+  }
+
+  createScriptNode() {
+    if (this.params.audioScriptProcessor) {
+      this.scriptNode = this.params.audioScriptProcessor;
+    } else if (this.ac.createScriptProcessor) {
+      this.scriptNode = this.ac.createScriptProcessor(WebAudio.scriptBufferSize);
+    } else {
+      this.scriptNode = this.ac.createJavaScriptNode(WebAudio.scriptBufferSize);
+    }
+    this.scriptNode.connect(this.ac.destination);
+  }
+
   /**
    * Get the audio context used by this backend or create one
    *
@@ -102,280 +131,100 @@ export default class WebAudio extends util.Observer {
    *
    * @param {WavesurferParams} params Wavesurfer parameters
    */
-  constructor(params) {
-    super();
-    /** @private */
-    this.params = params;
-    /** ac: Audio Context instance */
-    this.ac = params.audioContext || (this.supportsWebAudio() ? this.getAudioContext() : {});
-    /** @private */
-    this.lastPlay = this.ac.currentTime;
-    /** @private */
-    this.startPosition = 0;
-    /** @private */
-    this.scheduledPause = null;
-    /** @private */
-    this.states = {
-      [PLAYING]: Object.create(this.stateBehaviors[PLAYING]),
-      [PAUSED]: Object.create(this.stateBehaviors[PAUSED]),
-      [FINISHED]: Object.create(this.stateBehaviors[FINISHED])
-    };
-    /** @private */
-    this.buffer = null;
-    /** @private */
-    this.filters = [];
-    /** gainNode: allows to control audio volume */
-    this.gainNode = null;
-    /** @private */
-    this.mergedPeaks = null;
-    /** @private */
-    this.offlineAc = null;
-    /** @private */
-    this.peaks = null;
-    /** @private */
-    this.playbackRate = 1;
-    /** analyser: provides audio analysis information */
-    this.analyser = null;
-    /** scriptNode: allows processing audio */
-    this.scriptNode = null;
-    /** @private */
-    this.source = null;
-    /** @private */
-    this.splitPeaks = [];
-    /** @private */
-    this.state = null;
-    /** @private */
-    this.explicitDuration = params.duration;
+
     /**
-     * Boolean indicating if the backend was destroyed.
+     * Does the browser support this backend
+     *
+     * @return {boolean} Whether or not this browser supports this backend
      */
-    this.destroyed = false;
-  }
-
-  /**
-   * Initialise the backend, called in `wavesurfer.createBackend()`
-   */
-  init() {
-    this.createVolumeNode();
-    this.createScriptNode();
-    this.createAnalyserNode();
-
-    this.setState(PAUSED);
-    this.setPlaybackRate(this.params.audioRate);
-    this.setLength(0);
-  }
-
-  /** @private */
-  disconnectFilters() {
-    if (this.filters) {
-      this.filters.forEach(filter => {
-        filter && filter.disconnect();
-      });
-      this.filters = null;
-      // Reconnect direct path
-      this.analyser.connect(this.gainNode);
+    supportsWebAudio() {
+        return !!(window.AudioContext || window.webkitAudioContext);
     }
-  }
 
-  /**
-   * @private
-   *
-   * @param {string} state The new state
-   */
-  setState(state) {
-    if (this.state !== this.states[state]) {
-      this.state = this.states[state];
-      this.state.init.call(this);
+    /**
+     * Get the audio context used by this backend or create one
+     *
+     * @return {AudioContext} Existing audio context, or creates a new one
+     */
+    getAudioContext() {
+        if (!window.WaveSurferAudioContext) {
+            window.WaveSurferAudioContext = new (window.AudioContext ||
+                window.webkitAudioContext)();
+        }
+        return window.WaveSurferAudioContext;
     }
-  }
 
-  /**
-   * Unpacked `setFilters()`
-   *
-   * @param {...AudioNode} filters One or more filters to set
-   */
-  setFilter(...filters) {
-    this.setFilters(filters);
-  }
-
-  /**
-   * Insert custom Web Audio nodes into the graph
-   *
-   * @param {AudioNode[]} filters Packed filters array
-   * @example
-   * const lowpass = wavesurfer.backend.ac.createBiquadFilter();
-   * wavesurfer.backend.setFilter(lowpass);
-   */
-  setFilters(filters) {
-    // Remove existing filters
-    this.disconnectFilters();
-
-    // Insert filters if filter array not empty
-    if (filters && filters.length) {
-      this.filters = filters;
-
-      // Disconnect direct path before inserting filters
-      this.analyser.disconnect();
-
-      // Connect each filter in turn
-      filters
-        .reduce((prev, curr) => {
-          prev.connect(curr);
-          return curr;
-        }, this.analyser)
-        .connect(this.gainNode);
+    /**
+     * Get the offline audio context used by this backend or create one
+     *
+     * @param {number} sampleRate The sample rate to use
+     * @return {OfflineAudioContext} Existing offline audio context, or creates
+     * a new one
+     */
+    getOfflineAudioContext(sampleRate) {
+        window.WaveSurferOfflineAudioContext = new (window.OfflineAudioContext ||
+            window.webkitOfflineAudioContext)(1, 2, sampleRate);
+        return window.WaveSurferOfflineAudioContext;
     }
-  }
 
-  /** Create ScriptProcessorNode to process audio */
-  createScriptNode() {
-    if (this.params.audioScriptProcessor) {
-      this.scriptNode = this.params.audioScriptProcessor;
-    } else if (this.ac.createScriptProcessor) {
-      this.scriptNode = this.ac.createScriptProcessor(WebAudio.scriptBufferSize);
-    } else {
-      this.scriptNode = this.ac.createJavaScriptNode(WebAudio.scriptBufferSize);
+    /**
+     * Construct the backend
+     *
+     * @param {WavesurferParams} params Wavesurfer parameters
+     */
+    constructor(params) {
+        super();
+        /** @private */
+        this.params = params;
+        /** ac: Audio Context instance */
+        this.ac =
+            params.audioContext ||
+            (this.supportsWebAudio() ? this.getAudioContext() : {});
+        /**@private */
+        this.lastPlay = this.ac.currentTime;
+        /** @private */
+        this.startPosition = 0;
+        /** @private */
+        this.scheduledPause = null;
+        /** @private */
+        this.states = {
+            [PLAYING]: Object.create(this.stateBehaviors[PLAYING]),
+            [PAUSED]: Object.create(this.stateBehaviors[PAUSED]),
+            [FINISHED]: Object.create(this.stateBehaviors[FINISHED])
+        };
+        /** @private */
+        this.buffer = null;
+        /** @private */
+        this.filters = [];
+        /** gainNode: allows to control audio volume */
+        this.gainNode = null;
+        /** @private */
+        this.mergedPeaks = null;
+        /** @private */
+        this.offlineAc = null;
+        /** @private */
+        this.peaks = null;
+        /** @private */
+        this.playbackRate = 1;
+        /** analyser: provides audio analysis information */
+        this.analyser = null;
+        /** scriptNode: allows processing audio */
+        this.scriptNode = null;
+        /** @private */
+        this.source = null;
+        /** @private */
+        this.splitPeaks = [];
+        /** @private */
+        this.state = null;
+        /** @private */
+        this.explicitDuration = params.duration;
+        /**
+         * Boolean indicating if the backend was destroyed.
+         */
+        this.destroyed = false;
     }
-    this.scriptNode.connect(this.ac.destination);
-  }
 
-  /** @private */
-  addOnAudioProcess() {
-    this.scriptNode.onaudioprocess = () => {
-      const time = this.getCurrentTime();
-
-      if (time >= this.getDuration()) {
-        this.setState(FINISHED);
-        this.fireEvent('pause');
-      } else if (time >= this.scheduledPause) {
-        this.pause();
-      } else if (this.state === this.states[PLAYING]) {
-        this.fireEvent('audioprocess', time);
-      }
-    };
-  }
-
-  /** @private */
-  removeOnAudioProcess() {
-    this.scriptNode.onaudioprocess = null;
-  }
-
-  /** Create analyser node to perform audio analysis */
-  createAnalyserNode() {
-    this.analyser = this.ac.createAnalyser();
-    this.analyser.connect(this.gainNode);
-  }
-
-  /**
-   * Create the gain node needed to control the playback volume.
-   *
-   */
-  createVolumeNode() {
-    // Create gain node using the AudioContext
-    if (this.ac.createGain) {
-      this.gainNode = this.ac.createGain();
-    } else {
-      this.gainNode = this.ac.createGainNode();
-    }
-    // Add the gain node to the graph
-    this.gainNode.connect(this.ac.destination);
-  }
-
-  /**
-   * Set the sink id for the media player
-   *
-   * @param {string} deviceId String value representing audio device id.
-   * @returns {Promise} A Promise that resolves to `undefined` when there
-   * are no errors.
-   */
-  setSinkId(deviceId) {
-    if (deviceId) {
-      /**
-       * The webaudio API doesn't currently support setting the device
-       * output. Here we create an HTMLAudioElement, connect the
-       * webaudio stream to that element and setSinkId there.
-       */
-      const audio = new window.Audio();
-      if (!audio.setSinkId) {
-        return Promise.reject(new Error('setSinkId is not supported in your browser'));
-      }
-      audio.autoplay = true;
-      const dest = this.ac.createMediaStreamDestination();
-      this.gainNode.disconnect();
-      this.gainNode.connect(dest);
-      audio.srcObject = dest.stream;
-
-      return audio.setSinkId(deviceId);
-    }
-    return Promise.reject(new Error(`Invalid deviceId: ${deviceId}`));
-  }
-
-  /**
-   * Set the audio volume
-   *
-   * @param {number} value A floating point value between 0 and 1.
-   */
-  setVolume(value) {
-    this.gainNode.gain.setValueAtTime(value, this.ac.currentTime);
-  }
-
-  /**
-   * Get the current volume
-   *
-   * @return {number} value A floating point value between 0 and 1.
-   */
-  getVolume() {
-    return this.gainNode.gain.value;
-  }
-
-  /**
-   * Decode an array buffer and pass data to a callback
-   *
-   * @private
-   * @param {ArrayBuffer} arraybuffer The array buffer to decode
-   * @param {function} callback The function to call on complete.
-   * @param {function} errback The function to call on error.
-   */
-  async decodeArrayBuffer(arraybuffer, callback, errback) {
-    if (!this.offlineAc) {
-      this.offlineAc = this.getOfflineAudioContext(
-        this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100
-      );
-    }
-    if ('webkitAudioContext' in window) {
-      // Safari: no support for Promise-based decodeAudioData enabled
-      // Enable it in Safari using the Experimental Features > Modern WebAudio API option
-      this.offlineAc.decodeAudioData(arraybuffer, data => callback(data), errback);
-    } else {
-      /* const context = new (window.AudioContext || window.webkitAudioContext)();
-            const audiobuffer = await context.decodeAudioData( arraybuffer );
-            console.log(audiobuffer)
-            callback(audiobuffer) */
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      await audioCtx.decodeAudioData(
-        arraybuffer,
-        data => {
-          callback(data);
-        },
-        err => errback(err)
-      );
-    }
-  }
-
-  /**
-   * Set pre-decoded peaks
-   *
-   * @param {number[]|Number.<Array[]>} peaks Peaks data
-   * @param {?number} duration Explicit duration
-   */
-  setPeaks(peaks, duration) {
-    if (duration != null) {
-      this.explicitDuration = duration;
-    }
-    this.peaks = peaks;
-  }
-
-  /**
+     /**
    * Set the rendered length (different from the length of the audio)
    *
    * @param {number} length The rendered length
@@ -401,94 +250,82 @@ export default class WebAudio extends util.Observer {
     this.mergedPeaks[2 * (length - 1) + 1] = 0;
   }
 
-  /**
-   * Compute the max and min value of the waveform when broken into <length> subranges.
+    /**
+   * @private
    *
-   * @param {number} length How many subranges to break the waveform into.
-   * @param {number} first First sample in the required range.
-   * @param {number} last Last sample in the required range.
-   * @return {number[]|Number.<Array[]>} Array of 2*<length> peaks or array of arrays of
-   * peaks consisting of (max, min) values for each subrange.
+   * @param {string} state The new state
    */
-  getPeaks(length, first, last) {
-    if (this.peaks) {
-      return this.peaks;
+  setState(state) {
+    if (this.state !== this.states[state]) {
+      this.state = this.states[state];
+      this.state.init.call(this);
     }
-    if (!this.buffer) {
-      return [];
+  }
+
+   /** @private */
+   removeOnAudioProcess() {
+    this.scriptNode.onaudioprocess = null;
+  }
+
+    /**
+     * Initialise the backend, called in `wavesurfer.createBackend()`
+     */
+    init() {
+        this.createVolumeNode();
+        this.createScriptNode();
+        this.createAnalyserNode();
+
+        this.setState(PAUSED);
+        this.setPlaybackRate(this.params.audioRate);
+        this.setLength(0);
     }
 
-    first = first || 0;
-    last = last || length - 1;
+    async decodeArrayBuffer(arraybuffer, callback, errback, sampleRate) {
+        console.log("in decode array buffer", sampleRate, sampleRate ? sampleRate: this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100)
+        this.offlineAc = this.getOfflineAudioContext(
+            sampleRate ? sampleRate: this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100
+        );
 
-    this.setLength(length);
+        console.log(this.offlineAc)
 
-    if (!this.buffer) {
-      return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
+        if ('webkitAudioContext' in window) {
+            // Safari: no support for Promise-based decodeAudioData enabled
+            // Enable it in Safari using the Experimental Features > Modern WebAudio API option
+            this.offlineAc.decodeAudioData(
+                arraybuffer,
+                data => callback(data),
+                errback
+            );
+        } else {
+
+            /*const context = new (window.AudioContext || window.webkitAudioContext)();
+            const audiobuffer = await context.decodeAudioData( arraybuffer );
+            console.log(audiobuffer)
+            callback(audiobuffer)*/
+            console.log("here")
+            //var audioCtx = new (window.AudioContext || window.webkitAudioContext)(1, 2, sampleRate);
+            console.log(arraybuffer)
+            await this.offlineAc.decodeAudioData(arraybuffer,  (data) => {
+                callback(data)
+                console.log("here", data)
+            },
+            err => errback(err))
+
+        }
     }
 
     /**
-     * The following snippet fixes a buffering data issue on the Safari
-     * browser which returned undefined It creates the missing buffer based
-     * on 1 channel, 4096 samples and the sampleRate from the current
-     * webaudio context 4096 samples seemed to be the best fit for rendering
-     * will review this code once a stable version of Safari TP is out
+     * Set pre-decoded peaks
+     *
+     * @param {number[]|Number.<Array[]>} peaks Peaks data
+     * @param {?number} duration Explicit duration
      */
-    if (!this.buffer.length) {
-      const newBuffer = this.createBuffer(1, 4096, this.sampleRate);
-      this.buffer = newBuffer.buffer;
+    setPeaks(peaks, duration) {
+        if (duration != null) {
+            this.explicitDuration = duration;
+        }
+        this.peaks = peaks;
     }
-
-    const sampleSize = this.buffer.length / length;
-    const sampleStep = ~~(sampleSize / 10) || 1;
-    const channels = this.buffer.numberOfChannels;
-    let c;
-
-    for (c = 0; c < channels; c++) {
-      const peaks = this.splitPeaks[c];
-      const chan = this.buffer.getChannelData(c);
-      let i;
-
-      for (i = first; i <= last; i++) {
-        const start = ~~(i * sampleSize);
-        const end = ~~(start + sampleSize);
-        /**
-         * Initialize the max and min to the first sample of this
-         * subrange, so that even if the samples are entirely
-         * on one side of zero, we still return the true max and
-         * min values in the subrange.
-         */
-        let min = chan[start];
-        let max = min;
-        let j;
-
-        for (j = start; j < end; j += sampleStep) {
-          const value = chan[j];
-
-          if (value > max) {
-            max = value;
-          }
-
-          if (value < min) {
-            min = value;
-          }
-        }
-
-        peaks[2 * i] = max;
-        peaks[2 * i + 1] = min;
-
-        if (c == 0 || max > this.mergedPeaks[2 * i]) {
-          this.mergedPeaks[2 * i] = max;
-        }
-
-        if (c == 0 || min < this.mergedPeaks[2 * i + 1]) {
-          this.mergedPeaks[2 * i + 1] = min;
-        }
-      }
-    }
-
-    return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
-  }
 
   /**
    * Get the position from 0 to 1
@@ -505,6 +342,18 @@ export default class WebAudio extends util.Observer {
       this.source.disconnect();
     }
   }
+
+   /** @private */
+   disconnectFilters() {
+    if (this.filters) {
+        this.filters.forEach(filter => {
+            filter && filter.disconnect();
+        });
+        this.filters = null;
+        // Reconnect direct path
+        this.analyser.connect(this.gainNode);
+    }
+}
 
   /**
    * Destroy all references with WebAudio, disconnecting audio nodes and closing Audio Context
@@ -750,4 +599,110 @@ export default class WebAudio extends util.Observer {
   setPlayEnd(end) {
     this.scheduledPause = end;
   }
+
+   /**
+   * Compute the max and min value of the waveform when broken into <length> subranges.
+   *
+   * @param {number} length How many subranges to break the waveform into.
+   * @param {number} first First sample in the required range.
+   * @param {number} last Last sample in the required range.
+   * @return {number[]|Number.<Array[]>} Array of 2*<length> peaks or array of arrays of
+   * peaks consisting of (max, min) values for each subrange.
+   */
+    getPeaks(length, first, last) {
+        if (this.peaks) {
+          return this.peaks;
+        }
+        if (!this.buffer) {
+          return [];
+        }
+
+        first = first || 0;
+        last = last || length - 1;
+
+        this.setLength(length);
+
+        if (!this.buffer) {
+          return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
+        }
+
+        /**
+         * The following snippet fixes a buffering data issue on the Safari
+         * browser which returned undefined It creates the missing buffer based
+         * on 1 channel, 4096 samples and the sampleRate from the current
+         * webaudio context 4096 samples seemed to be the best fit for rendering
+         * will review this code once a stable version of Safari TP is out
+         */
+        if (!this.buffer.length) {
+          const newBuffer = this.createBuffer(1, 4096, this.sampleRate);
+          this.buffer = newBuffer.buffer;
+        }
+
+        const sampleSize = this.buffer.length / length;
+        const sampleStep = ~~(sampleSize / 10) || 1;
+        const channels = this.buffer.numberOfChannels;
+        let c;
+
+        for (c = 0; c < channels; c++) {
+          const peaks = this.splitPeaks[c];
+          const chan = this.buffer.getChannelData(c);
+          let i;
+
+          for (i = first; i <= last; i++) {
+            const start = ~~(i * sampleSize);
+            const end = ~~(start + sampleSize);
+            /**
+             * Initialize the max and min to the first sample of this
+             * subrange, so that even if the samples are entirely
+             * on one side of zero, we still return the true max and
+             * min values in the subrange.
+             */
+            let min = chan[start];
+            let max = min;
+            let j;
+
+            for (j = start; j < end; j += sampleStep) {
+              const value = chan[j];
+
+              if (value > max) {
+                max = value;
+              }
+
+              if (value < min) {
+                min = value;
+              }
+            }
+
+            peaks[2 * i] = max;
+            peaks[2 * i + 1] = min;
+
+            if (c == 0 || max > this.mergedPeaks[2 * i]) {
+              this.mergedPeaks[2 * i] = max;
+            }
+
+            if (c == 0 || min < this.mergedPeaks[2 * i + 1]) {
+              this.mergedPeaks[2 * i + 1] = min;
+            }
+          }
+        }
+
+        return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
+      }
+
+       /** @private */
+  addOnAudioProcess() {
+    this.scriptNode.onaudioprocess = () => {
+      const time = this.getCurrentTime();
+
+      if (time >= this.getDuration()) {
+        this.setState(FINISHED);
+        this.fireEvent('pause');
+      } else if (time >= this.scheduledPause) {
+        this.pause();
+      } else if (this.state === this.states[PLAYING]) {
+        this.fireEvent('audioprocess', time);
+      }
+    };
+  }
+
 }

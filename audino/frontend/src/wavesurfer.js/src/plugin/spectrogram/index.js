@@ -283,6 +283,16 @@ export default class SpectrogramPlugin {
   }
 
   render(zoom = false) {
+    this.loadLabels(
+        'rgba(68,68,68,0.5)',
+        '12px',
+        '10px',
+        '',
+        '#fff',
+        '#f7f7f7',
+        'center',
+        '#specLabels'
+      );
     this.updateCanvasStyle(zoom);
 
     if (this.frequenciesDataUrl) {
@@ -334,7 +344,7 @@ export default class SpectrogramPlugin {
       }
       spectrCc.putImageData(imageData, 0, 0);
       try {
-        const test = new Spectrogram(my.wavesurfer, spectrCc, imageData, pixels, heightFactor);
+        const test = new Spectrogram(my.wavesurfer, spectrCc, imageData, pixels, heightFactor, my);
       } catch (e) {
         console.error(e);
       }
@@ -349,7 +359,9 @@ export default class SpectrogramPlugin {
     const { buffer } = this;
     const channelOne = buffer.getChannelData(0);
     // const bufferLength = buffer.length;
-    const { sampleRate } = buffer;
+    let { sampleRate } = buffer;
+    //sampleRate = 18000 * 2
+    console.log(sampleRate)
     const frequencies = [];
 
     if (!buffer) {
@@ -405,7 +417,9 @@ export default class SpectrogramPlugin {
     textColorFreq,
     textColorUnit,
     textAlign,
-    container
+    container,
+    sampleRateParam=null,
+    sampleRateMin=null
   ) {
     const frequenciesHeight = this.height;
     bgFill = bgFill || 'rgba(68,68,68,0)';
@@ -419,8 +433,21 @@ export default class SpectrogramPlugin {
     const bgWidth = 55;
     const getMaxY = frequenciesHeight || 512;
     const labelIndex = 5 * (getMaxY / 256);
-    const freqStart = 0;
-    const step = (this.wavesurfer.backend.ac.sampleRate / 2 - freqStart) / labelIndex;
+    const freqStart = sampleRateMin || 0;
+
+    let sampleRate = sampleRateParam
+    if (sampleRate === null) {
+        if (this.wavesurfer.backend.offlineAc.sampleRate) {
+            sampleRate = this.wavesurfer.backend.offlineAc.sampleRate
+        } else if (this.wavesurfer.backend.ac.sampleRate) {
+            sampleRate = this.wavesurfer.backend.ac.sampleRate
+        }
+    } else {
+        sampleRate = sampleRateParam
+    }
+
+
+    const step = (sampleRate / 2 - freqStart) / labelIndex;
 
     // prepare canvas element for labels
     const ctx = this.labelsEl.getContext('2d');

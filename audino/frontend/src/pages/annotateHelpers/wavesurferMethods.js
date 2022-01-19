@@ -164,13 +164,6 @@ class WavesurferMethods {
     wavesurfer.skipBackward(5);
   }
 
-  handleZoom(e) {
-    const { wavesurfer } = this.state;
-    const zoom = Number(e.target.value);
-    wavesurfer.zoom(zoom);
-    this.setState({ zoom });
-  }
-
   styleRegionColor(region, color) {
     region.style(region.element, {
       backgroundColor: color

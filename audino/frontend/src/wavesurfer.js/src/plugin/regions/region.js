@@ -110,6 +110,17 @@ export default class Region {
     };
   }
 
+    async scale(newMaxFrequency) {
+
+        const freqRatio = newMaxFrequency / this.maxFrequency
+        console.log(this.maxFrequency, newMaxFrequency, freqRatio )
+        this.maxFrequency = newMaxFrequency
+        console.log(this.top, this.top / freqRatio )
+        this.top = this.top * freqRatio
+        this.bot = this.bot * freqRatio
+        this.update({})
+    }
+
   /* Update region params. */
   update(params) {
     if (params.start != null) {

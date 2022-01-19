@@ -29,6 +29,14 @@ body,
   float: left;
 }
 
+#wavegraph-fliped {
+  width: 200%;
+  top: 256px;
+  position: relative;
+  float: left;
+  transform: scaleY(-1);
+}
+
 #waveform-labels {
   width: 100%;
   position: relative;

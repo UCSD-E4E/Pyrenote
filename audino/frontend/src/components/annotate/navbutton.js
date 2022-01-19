@@ -34,7 +34,7 @@ const NavButton = props => {
     previous_pages[num_of_prev] = dataId;
     localStorage.setItem('previous_links', JSON.stringify(previous_pages));
     localStorage.setItem('count', JSON.stringify(next_page_num));
-
+    console.log("configed browser settings")
     if (noMore) {
       window.location.href = `${path}/projects/${projectId}/data`;
     } else {
@@ -69,6 +69,7 @@ const NavButton = props => {
     })
       .then(response => {
         const { data_id } = response.data;
+        console.log("successfully prepared next data point")
         loadNextPage(response.status === 202, data_id);
       })
       .catch(e => {

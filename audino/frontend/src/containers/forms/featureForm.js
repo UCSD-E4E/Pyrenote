@@ -21,7 +21,8 @@ class FeatureForm extends React.Component {
         '2D Labels': false,
         'to unsaved cliped': false,
         playbackOn: false,
-        'spectrogram demo': false
+        'spectrogram demo': false,
+        'zoom': true,
       }
     };
 
