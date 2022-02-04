@@ -123,6 +123,7 @@ def update_confidence(project_id, data_id, username):
     app.logger.info(score)
     scores_df = pd.DataFrame(score)
     app.logger.info(scores_df)
+    app.logger.info(scores_df >= THRESHOLD)
 
     data_pt.set_confidence(confidence)
     flag_modified(data_pt, "users_reviewed") 
