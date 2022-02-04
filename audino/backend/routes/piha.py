@@ -61,8 +61,10 @@ def update_confidence(project_id, data_id, username):
     num_reviewers = len(data_pt.users_reviewed) # + 1 #users_reviewed not updated yet
     total = 0 #NOTE CHANGE FOR OTHERS< THIS IS ONLY BECAUSE OF THE EARLIER ERROR
     score = []
+    columns = []
     if(num_reviewers > 0):#len(data.users_reviewed) > 0):
         for user_prime in data_pt.users_reviewed: 
+            columns.append(user_prime)
             mini_scores = []
             #if (user_prime in username): 
             #        app.logger.info([1, user_prime, user_prime])
@@ -92,7 +94,7 @@ def update_confidence(project_id, data_id, username):
                     
                     app.logger.info([confidence, user_prime, user])
                     mini_scores, confidence_adv = add_confidence(mini_scores, confidence_adv, confidence)
-                    #app.logger.info(confidence)
+                    
                     #app.logger.info(confidence_adv)
 
                     count = 0
@@ -107,7 +109,7 @@ def update_confidence(project_id, data_id, username):
                         segment.set_counted(count)
                         db.session.add(segment)    
                 total += 1
-                score.append(mini_scores)
+            score.append(mini_scores)
     db.session.commit()
         
         #for segment in segmentations_old:
@@ -120,8 +122,8 @@ def update_confidence(project_id, data_id, username):
 
 
     
-    app.logger.info(score)
-    scores_df = pd.DataFrame(score)
+    app.logger.info(columns)
+    scores_df = pd.DataFrame(score, columns=columns)
     app.logger.info(scores_df)
     app.logger.info(scores_df >= THRESHOLD)
 
