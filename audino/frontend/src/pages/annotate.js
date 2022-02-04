@@ -87,6 +87,7 @@ class Annotate extends React.Component {
           navButtonsEnabled: response.data.features_list['next button'],
           referenceWindowOn: response.data.features_list['reference window'],
           sideMenuOn: response.data.features_list['side menu'],
+          spectrogramDemoOn, toUnsavedClipOn,
           //SideMenuEnabled is true if Tabs / Tools in Side Menu are enabled
           sideMenuEnabled: response.data.features_list['side menu']||referenceWindowOn||spectrogramDemoOn||applyPreviousAnnotations||toUnsavedClipOn||playbackOn
         });
