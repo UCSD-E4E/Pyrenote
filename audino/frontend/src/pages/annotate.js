@@ -51,8 +51,7 @@ class Annotate extends React.Component {
       storedAnnotations: null,
       // applyPreviousAnnotations: false,
       boundingBox: true,
-      initWavesurfer: false,
-      
+      initWavesurfer: false,   
       disappear: 'sideMenu',
       showActiveForm: localStorage.getItem('active') == null,
       addRegionMode: true

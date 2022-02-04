@@ -13,6 +13,7 @@ from werkzeug.exceptions import BadRequest, NotFound
 from backend import app, db
 from backend.models import Data, Project, User, Segmentation, Label, LabelValue
 import mutagen
+
 from .helper_functions import general_error, check_admin_permissions
 from . import api
 
@@ -204,7 +205,7 @@ def add_data():
         new_segmentations.append(new_segment)
 
     data.set_segmentations(new_segmentations)
-
+    db.session.add(new_segmentations)
     db.session.commit()
     db.session.refresh(data)
 
@@ -248,18 +249,20 @@ def add_data_from_site():
         username_id[name] = user.id
     is_marked_for_review = True
     is_sample = request.form.get("sample", 'False')
+    app.logger.info(is_sample)
     sampleJson = request.form.get("sampleJson", "{}")
     is_sample = is_sample == 'true'
-
+    
     if (is_sample):
         sampleJson = json.loads(sampleJson)
 
     err = "no label value with id `{is_sample}` in }`"
-    app.logger.info(err)
     file_length = request.form.get("file_length", None)
+    app.logger.info(file_length)
     audio_files = []
     for n in range(int(file_length)):
         audio_files.append(request.files.get(str(n)))
+    app.logger.info(audio_files)
 
     for file in audio_files:
         original_filename = secure_filename(file.filename)
