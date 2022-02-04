@@ -36,11 +36,12 @@ const SideMenuTab = props => {
 const SideMenu = props => {
   const { annotate } = props;
   const { state } = annotate;
-  const { projectId, referenceWindowOn, spectrogramDemoOn, toUnsavedClipOn, isRendering } = state;
-  console.log(referenceWindowOn)
+  const { projectId, referenceWindowOn, spectrogramDemoOn, toUnsavedClipOn, isRendering, sideMenuOn } = state;
+  const sideMenuEnabled = sideMenuOn;
+
   const initTabOpen = {
     refrences:  referenceWindowOn != null && referenceWindowOn,
-    SpectrogramChanger: referenceWindowOn == null || !referenceWindowOn
+    SpectrogramChanger: sideMenuEnabled != null && sideMenuEnabled
   };
   const [tabOpen, setTab] = React.useState(initTabOpen);
   const [height, setHeight] = React.useState('0px');
@@ -51,7 +52,10 @@ const SideMenu = props => {
 
   let tabOpened = null;
   Object.keys(tabOpen).forEach(key => {
-    if (tabOpen[key]) tabOpened = key;
+    if (tabOpen[key]){
+      tabOpened = key;
+      console.log(key);
+    } 
   });
 
   return (
@@ -67,12 +71,13 @@ const SideMenu = props => {
         }}
       >
         {referenceWindowOn != null && referenceWindowOn? <SideMenuTab tab="refrences" icon={faAtlas} tabOpen={tabOpen} setTab={tab => setTab(tab)} /> : null }
-        <SideMenuTab
+        {sideMenuEnabled != null && sideMenuEnabled? <SideMenuTab
           tab="SpectrogramChanger"
           icon={faCog}
           tabOpen={tabOpen}
           setTab={tab => setTab(tab)}
-        />
+        />:null}
+        
       </div>
       <text
         style={{
@@ -95,7 +100,7 @@ const SideMenu = props => {
           {spectrogramDemoOn && (
             <div>
               <SpectroChanger annotate={annotate} />
-              <br />
+              <br /> 
             </div>
           )}
           <ChangePlayback annotate={annotate} />

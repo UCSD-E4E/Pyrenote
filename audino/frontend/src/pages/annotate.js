@@ -83,12 +83,13 @@ class Annotate extends React.Component {
         const toUnsavedClipOn= response.data.features_list['to unsaved cliped'];
         const playbackOn= response.data.features_list.playbackOn;
         const spectrogramDemoOn= response.data.features_list['spectrogram demo'];
+        console.log(response.data.features_list);
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'],
-
-          //SideMenu enabled if Tabs / Tools in Side Menu are enabled
-          sideMenu: response.data.features_list['side menu'],
-          referenceWindowOn, spectrogramDemoOn, applyPreviousAnnotations, toUnsavedClipOn,  playbackOn
+          referenceWindowOn: response.data.features_list['reference window'],
+          sideMenuOn: response.data.features_list['side menu'],
+          //SideMenuEnabled is true if Tabs / Tools in Side Menu are enabled
+          sideMenuEnabled: response.data.features_list['side menu']||referenceWindowOn||spectrogramDemoOn||applyPreviousAnnotations||toUnsavedClipOn||playbackOn
         });
 
         const wavesurferMethods = new WavesurferMethods({
@@ -247,7 +248,7 @@ class Annotate extends React.Component {
     }
     
     console.log(maxHeight)
-    const { wavesurferMethods, disappear, showActiveForm, sideMenu } =
+    const { wavesurferMethods, disappear, showActiveForm, sideMenuEnabled, sideMenuOn } =
       this.state;
 
     if (wavesurferMethods) {
@@ -255,7 +256,7 @@ class Annotate extends React.Component {
     }
 
     return (
-      <div style={{ margin: 0, height: `${maxHeight}px`, overflow: sideMenu ? 'hidden' : "auto" }} //height: `${maxHeight}px`
+      <div style={{ margin: 0, height: `${maxHeight}px`, overflow: sideMenuEnabled ? 'hidden' : "auto" }} //height: `${maxHeight}px`
       >  
         <Helmet>
           <title>Annotate</title>
@@ -267,7 +268,7 @@ class Annotate extends React.Component {
           annotate={this}
           onHide={() => this.setState({ showActiveForm: false })}
         />
-        {sideMenu ? (
+        {sideMenuEnabled? (
           <div className="containerAnnotate">
             <span
               className={disappear}
