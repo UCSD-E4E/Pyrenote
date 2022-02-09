@@ -25,6 +25,8 @@ const LabelSection = props => {
     wavesurferMethods.styleRegionColor(selectedSegment, 'rgba(0, 102, 255, 0.3)');
     selectedSegment._onUnSave();
     annotate.setState({ selectedSegment, storedAnnotations: selectedSegment.data.annotations });
+    console.log(key);
+    console.log(e.target.value);
   };
 
   return (

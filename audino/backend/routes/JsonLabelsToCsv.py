@@ -69,7 +69,7 @@ def JsonToText(data):
             time_spent = region['time_spent']
             last_mod = datetime_json_compare(region['last_modified_by'])
             if len(region['annotations']) == 0:
-                label = "NO LABEL"
+                label = "No class of interest"
                 text = write_row(text, [original_filename, clip_length, start,
                                  round((end-start), 4),  max_freq, min_freq,
                                  sampling_rate, label,
