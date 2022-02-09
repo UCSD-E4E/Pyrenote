@@ -15,13 +15,14 @@ class FeatureForm extends React.Component {
       errorMessage: '',
       successMessage: '',
       featuresEnabled: {
-        'next button': true,
+        'next button': false,
         'reference window': false,
         'auto annotate': false,
         '2D Labels': false,
         'to unsaved cliped': false,
         playbackOn: false,
-        'spectrogram demo': false
+        'spectrogram demo': false,
+        'side menu': false,
       }
     };
 
