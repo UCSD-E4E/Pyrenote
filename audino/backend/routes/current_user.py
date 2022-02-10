@@ -9,7 +9,7 @@ from werkzeug.urls import url_parse
 from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
-from .helper_functions import retrieve_database, general_error, missing_data
+from .helper_functions import retrieve_database, general_error, missing_data, count_segmentations
 from .logger import post_log_msg
 from . import api
 
@@ -58,7 +58,7 @@ def fetch_data_for_project(project_id):
                                          ).distinct().subquery()
 
         categories = ["pending", "completed", "marked_review", "all"]
-        data = retrieve_database(project_id, segmentations, categories)
+        data = retrieve_database(project_id, segmentations, categories, request_user)
         app.logger.info(data)
         paginate_data = data[active].paginate(page, 10, False)
 
@@ -74,7 +74,7 @@ def fetch_data_for_project(project_id):
                     "created_on": "a date",
                     # data_point.created_at.strftime("%B %d, %Y"),
                     "is_marked_for_review": data_point.is_marked_for_review,
-                    "number_of_segmentations": len(data_point.segmentations),
+                    "number_of_segmentations": count_segmentations(data_point, project, request_user),
                     "sampling_rate": data_point.sampling_rate,
                     "clip_length": data_point.clip_length,
                     "sample": data_point.sample
@@ -85,7 +85,7 @@ def fetch_data_for_project(project_id):
         count_data = {key: value.count() for key, value in data.items()}
         app.logger.info("HELLO")
     except Exception as e:
-        return general_error("Error fetching all projects", e)
+        return general_error("Error fetching all projects 1", e)
 
     return (
         jsonify(
@@ -157,7 +157,7 @@ def get_next_data(project_id, data_value):
         )
         count_data = {key: value.count() for key, value in data.items()}
     except Exception as e:
-        return general_error("Error fetching all projects", e)
+        return general_error("Error fetching all projects 2", e)
 
     return (
         jsonify(
@@ -232,7 +232,7 @@ def get_next_data2(project_id, dv, page_data):
         )
         count_data = {key: value.count() for key, value in data.items()}
     except Exception as e:
-        return general_error("Error fetching all projects", e)
+        return general_error("Error fetching all projects 3", e)
 
     return (
         jsonify(

@@ -163,6 +163,9 @@ def get_segmentations_for_data(project_id, data_id):
 
         segmentations = []
         for segment in data.segmentations:
+            if (project.is_example and
+               segment.created_by != request_user.username):
+                break
             resp = {
                 "segmentation_id": segment.id,
                 "start_time": segment.start_time,
