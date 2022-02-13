@@ -128,6 +128,9 @@ def update_confidence(project_id, data_id, username):
     app.logger.info(scores_df >= THRESHOLD)
 
     data_pt.set_confidence(confidence)
+
+    #DISPLAY CSV FORM OF DATA
+    data_pt.set_iou_matrix(scores_df.to_csv())
     flag_modified(data_pt, "users_reviewed") 
     flag_modified(data_pt, "confidence") 
     db.session.add(data_pt)  

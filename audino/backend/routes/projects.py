@@ -345,6 +345,26 @@ def get_project_annotations(project_id):
         MAX_USERS = project.max_users
         annotations = []
 
+        ##HEY CHANGE THIS TO A DIFFRENT DOWNLOAD AREA
+        if ((download_csv) == "iou"):
+            annotations_to_download = []
+            for data in project.data:
+                if (data.sample):
+                    continue
+                filename = os.path.splitext(data.original_filename + ".txt")
+                annotations_to_download.append({
+                    "original_filename": filename,
+                    "annotations": data.iou_matrix}
+                )
+            return (
+                jsonify(
+                    message="Annotations fetched successfully",
+                    annotations=annotations_to_download,
+                    type="FETCH_ANNOTATION_SUCCESS",
+                ),
+                200,
+            )
+
         for data in project.data:
             if (data.sample):
                 continue
