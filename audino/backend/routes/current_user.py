@@ -50,9 +50,9 @@ def fetch_data_for_project(project_id):
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
-        project = Project.query.filter(Project.is_deleted == (False)).get(project_id)
+        project = Project.query.get(project_id)
 
-        if request_user not in project.users:
+        if request_user not in project.users or project.is_deleted:
             return jsonify(message="Unauthorized access!"), 401
 
         segmentations = db.session.query(Segmentation.data_id

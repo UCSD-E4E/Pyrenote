@@ -122,7 +122,8 @@ def fetch_project(project_id):
         return msg, status
 
     try:
-        project = Project.query.filter(and_(Project.is_deleted == (False)), Project.id == project_id)
+        #and_(Project.is_deleted == (False)), I'm not sure this is needed since admin only access this
+        project = Project.query.filter( Project.id == project_id)
         users = [
             {"user_id": user.id, "username": user.username}
             for user in project.users
