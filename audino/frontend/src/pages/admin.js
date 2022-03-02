@@ -246,7 +246,7 @@ const Admin = props => {
                     <IconButton
                       icon={faTrashRestore}
                       size="lg"
-                      title="Show undeleted project"
+                      title="Show current project"
                       onClick={(e) => {
                         setShowDeletedProjects(false);
                         fetchProjects();
