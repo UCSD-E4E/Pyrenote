@@ -172,7 +172,7 @@ def recover_projects():
         app.logger.error("Projects to be recover: ")
         app.logger.error(project_ids)
         
-        projects = db.session.query(Project).filter(Project.id.in_(project_ids))
+        projects = db.session.query(Project).filter(Project.id.in_(project_ids)).all()
         
         for project in projects:
             app.logger.error("inside")
@@ -204,7 +204,7 @@ def delete_projects():
         app.logger.error("Projects to be deleted: ")
         app.logger.error(project_ids)
         
-        projects = db.session.query(Project).filter(Project.id.in_(project_ids))
+        projects = db.session.query(Project).filter(Project.id.in_(project_ids)).all()
         
         for project in projects:
             app.logger.error("inside")
