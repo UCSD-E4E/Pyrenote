@@ -4,6 +4,8 @@ import UploadDataForm from './forms/uploadDataForm';
 import CreateUserForm from './forms/createUserForm';
 import EditUserForm from './forms/editUserForm';
 import CreateProjectForm from './forms/createProjectForm';
+import DeleteProjectForm from './forms/deleteProject';
+import RecoverProjectForm from './forms/recoverProject';
 import CreateLabelForm from './forms/createLabelForm';
 import EditLabelForm from './forms/editLabelForm';
 import ManageUsersProjectForm from './forms/manageUsersProjectForm';
@@ -30,8 +32,13 @@ const FormModal = props => {
     labelValueId,
     api_key,
     projectName,
-    annotate
+    annotate,
+    projectsToDelete,
+    projectsToRecover,
+    clearProjectsToDelete,
+    clearProjectsToRecover
   } = props;
+
   return (
     <Modal
       show={show}
@@ -47,6 +54,8 @@ const FormModal = props => {
       <Modal.Body>
         {formType === 'NEW_USER' ? <CreateUserForm authNeeded="true" /> : null}
         {formType === 'NEW_PROJECT' ? <CreateProjectForm /> : null}
+        {formType === 'DELETE_PROJECT' ? <DeleteProjectForm projectsToDelete={projectsToDelete} clearProjectsToDelete={clearProjectsToDelete} onDelete={onExited}/> : null}
+        {formType === 'RECOVER_PROJECT' ? <RecoverProjectForm projectsToRecover={projectsToRecover} clearProjectsToRecover={clearProjectsToRecover} onRecover={onExited}/> : null}
         {formType === 'EDIT_USER' ? <EditUserForm userId={userId} /> : null}
         {formType === 'Edit_PROJECT' ? <EditProjectForm projectId={projectId} /> : null}
         {formType === 'DELETE_USER' ? <DeleteUserForm userId={userId} onDelete={onExited} /> : null}

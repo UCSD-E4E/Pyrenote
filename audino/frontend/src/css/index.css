@@ -197,3 +197,29 @@ body,
   top: 0px;
   position: relative;
 }
+
+.deletedProjectTextIcon {
+  background-color: red;
+  display: inline-block;
+  text-align: center;
+  width: 100px;
+  color: white;
+  border-radius: 25px;
+  margin-left: 10px;
+  padding: 6px;
+  font-size: 15px;
+  
+}
+
+.currentProjectTextIcon {
+  background-color: green;
+  display: inline-block;
+  text-align: center;
+  width: 100px;
+  color: white;
+  border-radius: 25px;
+  margin-left: 10px;
+  padding: 6px;
+  font-size: 15px;
+  
+}
