@@ -292,7 +292,7 @@ const Admin = props => {
                           />
                       }
                     </th>
-                    <th scope="col">#</th>
+                    <th scope="col">ID</th>
                     <th scope="col">Name</th>
                     <th scope="col">Created By</th>
                     <th scope="col">API Key</th>
@@ -301,7 +301,7 @@ const Admin = props => {
                 </thead>
                 <tbody>
                   {projectState.projects.map((project, index) => (
-                    <tr key={index}>
+                    <tr key={project.project_id}>
                       <th scope="row" className="align-middle">
                         {!showDeletedProjects 
                           ? <input 
@@ -344,7 +344,7 @@ const Admin = props => {
                         
                       </th>
                       <th scope="row" className="align-middle">
-                        {index + 1}
+                        {project.project_id}
                       </th>
                       <td className="align-middle">{project.name}</td>
                       <td className="align-middle">{project.created_by}</td>

@@ -117,13 +117,15 @@ def fetch_all_deleted_projects():
 @api.route("/projects/<int:project_id>", methods=["GET"])
 @jwt_required
 def fetch_project(project_id):
+    app.logger.info(project_id)
     msg, status, request_user = check_admin(get_jwt_identity())
     if (msg is not None):
         return msg, status
 
     try:
-        #and_(Project.is_deleted == (False)), I'm not sure this is needed since admin only access this
-        project = Project.query.filter( Project.id == project_id)
+        #and_(Project.is_deleted == (False)), I'm not sure this is needed since admin only access
+        project = Project.query.filter( and_(Project.is_deleted == (False), Project.id == project_id)).first()
+        app.logger.info(project)
         users = [
             {"user_id": user.id, "username": user.username}
             for user in project.users
