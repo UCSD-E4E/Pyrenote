@@ -18,6 +18,8 @@ from .projects import (
     generate_api_key,
     create_project,
     fetch_all_projects,
+    fetch_all_deleted_projects,
+    delete_projects,
     fetch_project,
     edit_project,
     update_project_users,

@@ -5,6 +5,7 @@ import os
 from flask import jsonify, flash, redirect, url_for, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.orm import query
+from sqlalchemy import and_
 from backend import app, db
 from backend.models import Project, User
 from . import api
@@ -43,7 +44,7 @@ def create_project():
 
     try:
         project = Project(name=name, api_key=api_key,
-                          creator_user_id=request_user.id)
+                          creator_user_id=request_user.id, is_deleted=(False))
         db.session.add(project)
         db.session.commit()
         db.session.refresh(project)
@@ -68,7 +69,33 @@ def fetch_all_projects():
     if (msg is not None):
         return msg, status
     try:
-        projects = Project.query.all()
+        projects = Project.query.filter(Project.is_deleted == (False)).all()
+        response = list(
+            [
+                {
+                    "project_id": project.id,
+                    "name": project.name,
+                    "api_key": project.api_key,
+                    "created_by": project.creator_user.username,
+                    "created_on": project.created_at.strftime("%B %d, %Y"),
+                }
+                for project in projects
+            ]
+        )
+    except Exception as e:
+        return general_error("Error fetching all projects", e)
+
+    return jsonify(projects=response), 200
+
+
+@api.route("/projects/get_deleted_projects", methods=["GET"])
+@jwt_required
+def fetch_all_deleted_projects():
+    msg, status, request_user = check_admin(get_jwt_identity())
+    if (msg is not None):
+        return msg, status
+    try:
+        projects = Project.query.filter(Project.is_deleted == (True)).all()
         response = list(
             [
                 {
@@ -90,12 +117,15 @@ def fetch_all_projects():
 @api.route("/projects/<int:project_id>", methods=["GET"])
 @jwt_required
 def fetch_project(project_id):
+    app.logger.info(project_id)
     msg, status, request_user = check_admin(get_jwt_identity())
     if (msg is not None):
         return msg, status
 
     try:
-        project = Project.query.get(project_id)
+        #and_(Project.is_deleted == (False)), I'm not sure this is needed since admin only access
+        project = Project.query.filter( and_(Project.is_deleted == (False), Project.id == project_id)).first()
+        app.logger.info(project)
         users = [
             {"user_id": user.id, "username": user.username}
             for user in project.users
@@ -126,6 +156,70 @@ def fetch_project(project_id):
         ),
         200,
     )
+
+
+@api.route("/projects/recover_projects", methods=["POST"])
+@jwt_required
+def recover_projects():
+    msg, status, request_user = check_admin_permissions(get_jwt_identity())
+    if (msg is not None):
+        return msg, status
+
+    try:
+        project_ids = request.json.get("project_ids", None)
+        project_ids = list(map(int, project_ids))
+
+        app.logger.error("Projects to be recover: ")
+        app.logger.error(project_ids)
+        
+        projects = db.session.query(Project).filter(Project.id.in_(project_ids)).all()
+        
+        for project in projects:
+            app.logger.error("inside")
+            app.logger.error(project.is_deleted)
+            project.is_deleted = False
+            app.logger.error(project.is_deleted)
+
+        db.session.commit()
+
+    except Exception as e:
+        message = "No projects exist with given project_ids"
+        return missing_data(message, additional_log=e, query=project_ids)
+    
+    app.logger.error("Projects have been recovered!")
+    return (jsonify(message="Projects have been recovered!"), 200)
+
+
+@api.route("/projects/clear_projects", methods=["POST"])
+@jwt_required
+def delete_projects():
+    msg, status, request_user = check_admin_permissions(get_jwt_identity())
+    if (msg is not None):
+        return msg, status
+
+    try:
+        project_ids = request.json.get("project_ids", None)
+        project_ids = list(map(int, project_ids))
+
+        app.logger.error("Projects to be deleted: ")
+        app.logger.error(project_ids)
+        
+        projects = db.session.query(Project).filter(Project.id.in_(project_ids)).all()
+        
+        for project in projects:
+            app.logger.error("inside")
+            app.logger.error(project.is_deleted)
+            project.is_deleted = True
+            app.logger.error(project.is_deleted)
+
+        db.session.commit()
+
+    except Exception as e:
+        message = "No projects exist with given project_ids"
+        return missing_data(message, additional_log=e, query=project_ids)
+    
+    app.logger.error("Projects have been deleted!")
+    return (jsonify(message="Projects have been deleted!"), 200)
 
 
 @api.route("/projects/<int:project_id>", methods=["PATCH"])

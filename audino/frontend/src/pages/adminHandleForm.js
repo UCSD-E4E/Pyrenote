@@ -13,8 +13,9 @@ import { IconButton } from '../components/button';
 class AdminHandleFormProjects extends React.Component {
   constructor(props) {
     super(props);
-    this.adminProps = props.adminProps;
+    this.adminProps = props.adminProps; 
     this.project = props.project;
+    this.showDeletedProjects = props.showDeletedProjects;
     this.showModal = modalProps => {
       props.showModal(modalProps);
     };
@@ -72,8 +73,10 @@ class AdminHandleFormProjects extends React.Component {
   }
 
   render() {
-    return (
-      <td className="align-middle">
+    let adminHandleFormIcons;
+
+    if (!this.showDeletedProjects) {
+      adminHandleFormIcons = <td className="align-middle">
         <IconButton
           icon={faUserPlus}
           size="sm"
@@ -133,6 +136,25 @@ class AdminHandleFormProjects extends React.Component {
           }
         />
       </td>
+    } else {
+      adminHandleFormIcons = <td className="align-middle">
+        <IconButton
+          icon={faDownload}
+          size="sm"
+          title="Download Data"
+          onClick={e =>
+            this.handleDownloadDataToProject(
+              e,
+              this.project.name,
+              this.project.project_id,
+              this.project.api_key
+            )
+          }
+        />
+      </td>
+    }
+    return (
+      adminHandleFormIcons
     );
   }
 }

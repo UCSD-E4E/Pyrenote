@@ -1,3 +1,4 @@
+from pickle import FALSE
 from sqlalchemy.orm import defaultload
 from sqlalchemy.sql.expression import false, null
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -47,7 +48,7 @@ user_project_table = db.Table(
         nullable=False,
         default=db.func.now(),
         onupdate=db.func.utc_timestamp(),
-    ),
+    )
 )
 
 
@@ -253,6 +254,13 @@ class Project(db.Model):
 
     is_example = db.Column(
         "is_example", db.Boolean(), nullable=True, default=False
+    )
+
+    is_deleted = db.Column(
+        "is_deleted",
+        db.Boolean(),
+        nullable=False,
+        default=False
     )
 
     users = db.relationship(
