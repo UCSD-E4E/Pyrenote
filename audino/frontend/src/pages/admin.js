@@ -350,6 +350,7 @@ const Admin = props => {
                       <td className="align-middle">{project.created_by}</td>
                       <td className="align-middle">{project.api_key}</td>
                       <AdminHandleFormProjects
+                        showDeletedProjects={showDeletedProjects}
                         showModal={showModal}
                         adminProps={props}
                         project={project}
