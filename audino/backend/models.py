@@ -107,8 +107,13 @@ class Data(db.Model):
     users_reviewed = db.Column("users_reviewed", db.JSON(), nullable=False, default={})
     num_reviewed = db.Column("num_reviewed", db.Integer(), nullable=False, default=0)
 
+    iou_matrix = db.Column("iou_matrix", db.String(5000), nullable=False, default="")
+
     def update_marked_review(self, marked_review):
         self.is_marked_for_review = marked_review
+
+    def set_iou_matrix(self, iou_matrix):
+        self.iou_matrix = iou_matrix
 
     def set_segmentations(self, segmentations):
         self.segmentations = segmentations

@@ -37,6 +37,7 @@ def update_confidence_api(project_id, data_id):
 
 def update_confidence(project_id, data_id, username):
     project = Project.query.get(project_id)
+    THRESHOLD = project.threshold
     if not project.is_iou:
         return jsonify(message="iou meterics not used"), 202
     data_pt = Data.query.get(data_id)
@@ -46,56 +47,110 @@ def update_confidence(project_id, data_id, username):
     # Do a literature review
     # COMPARE FROM AUTHOR USER ONLY 
     # Pairwise comparision **** Look into pairwise statistiics
-    # TODO ISSUE WHERE LABELS INITALLY NOT ADDED TO SEGMENTATIONS_NEW ON NEW NEW CLIPS AND USERS
-    segmentations_new = Segmentation.query.filter_by(data_id=data_id, created_by=username).distinct()
-    segmentations_old =  Segmentation.query.filter(
-                    Segmentation.data_id==data_id
-                ).filter(
-                    or_(Segmentation.counted==1, Segmentation.counted==2)
-                    ).filter(Segmentation.created_by!=username).distinct()
-
-    confidence = data_pt.confidence
-    if(len(data_pt.users_reviewed) > 0):#len(data.users_reviewed) > 0):
-        old_df = make_dataframe(data_id, segmentations_old)
-        new_df = make_dataframe(data_id, segmentations_new)
-        app.logger.info(old_df)
-        app.logger.info(new_df)
-        if not (old_df.empty or new_df.empty):
-            
-            overlap = clip_statistics(new_df, old_df, stats_type="general")#, #
-            app.logger.info(overlap)
-            if (len(overlap) == 0):
-                confidence = 0
-            else:
-                app.logger.info(overlap.iloc[0])
-                confidence = float(overlap.iloc[0]['Global IoU'])
-            app.logger.info(confidence)
+    # Do I take adverage or median?
     
-    for segment in segmentations_old:
-        segment.set_counted(2)
-        db.session.add(segment)  
-        
-    for segment in segmentations_new:
-        segment.set_counted(1)
-        db.session.add(segment)  
-    db.session.commit()
-
     data_pt.set_previous_users(username)
+    flag_modified(data_pt, "users_reviewed") 
+    db.session.add(data_pt)  
+    db.session.commit()
+    db.session.refresh(data_pt)
+
+    app.logger.info(data_pt.users_reviewed)
+    confidence = data_pt.confidence
+    confidence_adv = 0
+    num_reviewers = len(data_pt.users_reviewed) # + 1 #users_reviewed not updated yet
+    total = 0 #NOTE CHANGE FOR OTHERS< THIS IS ONLY BECAUSE OF THE EARLIER ERROR
+    score = []
+    columns = []
+    if(num_reviewers > 0):#len(data.users_reviewed) > 0):
+        for user_prime in data_pt.users_reviewed: 
+            columns.append(user_prime)
+            mini_scores = []
+            #if (user_prime in username): 
+            #        app.logger.info([1, user_prime, user_prime])
+            #        mini_scores, confidence_adv = add_confidence(mini_scores, confidence_adv, 1)
+            #        continue
+            segmentations_new = Segmentation.query.filter_by(data_id=data_id, created_by=user_prime).distinct()
+            for user in data_pt.users_reviewed: 
+                #if (user in username): 
+                #    app.logger.info([1, user_prime, user])
+                #    mini_scores, confidence_adv = add_confidence(mini_scores, confidence_adv, 1)
+                #    continue
+                segmentations_old = Segmentation.query.filter_by(data_id=data_id, created_by=user).distinct()
+                old_df = make_dataframe(data_id, segmentations_old)
+                new_df = make_dataframe(data_id, segmentations_new)
+                #app.logger.info(old_df)
+                #app.logger.info(new_df)
+                if not (old_df.empty or new_df.empty):
+                    
+                    overlap = clip_statistics(new_df, old_df, stats_type="general")#, #
+                    #app.logger.info(overlap)
+                    if (len(overlap) == 0):
+                        #pass
+                        confidence = 0
+                    else:
+                        #app.logger.info(overlap.iloc[0])
+                        confidence = float(overlap.iloc[0]['Global IoU'])
+                    
+                    app.logger.info([confidence, user_prime, user])
+                    mini_scores, confidence_adv = add_confidence(mini_scores, confidence_adv, confidence)
+                    
+                    #app.logger.info(confidence_adv)
+
+                    count = 0
+                    if (confidence > THRESHOLD):
+                        count = 1
+
+                    for segment in segmentations_new:
+                        segment.set_counted(count)
+                        db.session.add(segment)
+
+                    for segment in segmentations_new:
+                        segment.set_counted(count)
+                        db.session.add(segment)    
+                total += 1
+            score.append(mini_scores)
+    db.session.commit()
+        
+        #for segment in segmentations_old:
+        #    segment.set_counted(2)
+        #    db.session.add(segment)  
+            
+    if (total == 0):
+        total = 1
+    confidence = confidence_adv/(total)
+
+
+    
+    app.logger.info(columns)
+    scores_df = pd.DataFrame(score, columns=columns)
+    app.logger.info(scores_df)
+    app.logger.info(scores_df >= THRESHOLD)
+
     data_pt.set_confidence(confidence)
+
+    #DISPLAY CSV FORM OF DATA
+    data_pt.set_iou_matrix(scores_df.to_csv())
     flag_modified(data_pt, "users_reviewed") 
     flag_modified(data_pt, "confidence") 
     db.session.add(data_pt)  
     db.session.commit()
-    app.logger.info(data_pt.confidence)
+    ##app.logger.info(data_pt.confidence)
     db.session.refresh(data_pt)
-    app.logger.info(confidence)
+    ##app.logger.info(confidence)
     app.logger.info("CHANGED CONFIDENCE LEVEL")
     app.logger.info(data_pt.confidence)
-    app.logger.info(data_pt.users_reviewed)
+    ##app.logger.info(data_pt.users_reviewed)
 
-    app.logger.info("sent!")
+    ##app.logger.info("sent!")
     return 200
 
+
+def add_confidence(mini_scores, confidence_adv, confidence):
+
+    mini_scores.append(confidence)
+    confidence_adv += confidence
+    return mini_scores, confidence_adv
 
 
 def make_dataframe(data_id, segmentations):
