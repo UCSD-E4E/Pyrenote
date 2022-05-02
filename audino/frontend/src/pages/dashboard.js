@@ -94,7 +94,7 @@ class Dashboard extends React.Component {
                           <td className="align-middle">
                             <Button
                               type="primary"
-                              text="Quick Start Anotating"
+                              text="Quick Start Annotating"
                               onClick={() => this.getReccomendedData(project.project_id)}
                             />
                           </td>

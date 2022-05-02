@@ -22,6 +22,7 @@ def fetch_current_user_projects():
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
         give_users_examples(request_user.id)
+
         response = list(
             [
                 {
@@ -30,7 +31,7 @@ def fetch_current_user_projects():
                     "created_by": project.creator_user.username,
                     "created_on": project.created_at.strftime("%B %d, %Y"),
                 }
-                for project in request_user.projects
+                for project in request_user.projects if not project.is_deleted
             ]
         )
     except Exception as e:
@@ -51,7 +52,7 @@ def fetch_data_for_project(project_id):
                                             ).first()
         project = Project.query.get(project_id)
 
-        if request_user not in project.users:
+        if request_user not in project.users or project.is_deleted:
             return jsonify(message="Unauthorized access!"), 401
 
         segmentations = db.session.query(Segmentation.data_id
