@@ -137,7 +137,12 @@ def add_segmentations(project_id, data_id, seg_id=None):
         msg = f"Could not create segmentation"
         return general_error(msg, e, type="USERS_ASSIGNMENT_FAILED")
 
-    update_confidence(project_id, data_id, username)
+    try:
+        update_confidence(project_id, data_id, username)
+    except Exception as e:
+        msg = f"Could not create CONFIDENCE"
+        return general_error(msg, e, type="CONFIDENCE FAILED")
+
     if request.method == "POST":
         message = "Segmentation created"
         operation_type = "SEGMENTATION_CREATED"
