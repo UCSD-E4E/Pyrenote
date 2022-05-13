@@ -13,7 +13,7 @@ const Home = () => {
           onClick={() => {
             window.location.href = `/newUser`;
           }}
-          text="No Account? Sign up here!"
+          text="No account? Sign up here!"
         />
       </div>
     </div>

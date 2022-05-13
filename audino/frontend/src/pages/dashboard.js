@@ -36,7 +36,7 @@ class Dashboard extends React.Component {
       });
   }
 
-  getReccomendedData(projectId) {
+  getRecommendedData(projectId) {
     axios({
       method: 'get',
       url: `api/next_clip/next_rec/project/${projectId}/data/1`
@@ -95,7 +95,7 @@ class Dashboard extends React.Component {
                             <Button
                               type="primary"
                               text="Quick Start Annotating"
-                              onClick={() => this.getReccomendedData(project.project_id)}
+                              onClick={() => this.getRecommendedData(project.project_id)}
                             />
                           </td>
                         </tr>
@@ -108,7 +108,7 @@ class Dashboard extends React.Component {
             <div className="row my-4 justify-content-center align-items-center">
               {isProjectLoading ? <Loader /> : null}
               {!isProjectLoading && projects.length === 0 ? (
-                <div className="font-weight-bold">No projects exists!</div>
+                <div className="font-weight-bold">No projects exist!</div>
               ) : null}
             </div>
           </div>

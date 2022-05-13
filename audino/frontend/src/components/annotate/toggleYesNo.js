@@ -53,8 +53,8 @@ class ToggleYesNo extends React.Component {
   render() {
     const { yes } = this.state;
     let msg = ': ';
-    if (yes) msg = ': yes';
-    else msg = ': no';
+    if (yes) msg = ': Yes';
+    else msg = ': No';
     return (
       <div className="row justify-content-center my-4">
         <div className="col-4">
@@ -62,7 +62,7 @@ class ToggleYesNo extends React.Component {
             text={`Feeling Confident In \n your labels?${msg}`}
             size="lg"
             type={yes ? 'primary' : 'danger'}
-            onClick={() => this.handleClick(yes ? 'no' : 'yes')}
+            onClick={() => this.handleClick(yes ? 'No' : 'Yes')}
           />
         </div>
       </div>

@@ -69,7 +69,7 @@ class Labels extends React.Component {
     this.setModalShow(true);
     this.setState({
       formType: 'DELETE_LABEL',
-      title: "DELETE LABEL CATEGORY AND IT's LABEL VALUES",
+      title: "DELETE LABEL CATEGORY AND ITS LABEL VALUES",
       labelId
     });
   }
@@ -167,7 +167,7 @@ class Labels extends React.Component {
             <div className="row my-4 justify-content-center align-items-center">
               {isLabelsLoading ? <Loader /> : null}
               {!isLabelsLoading && labels.length === 0 ? (
-                <div className="font-weight-bold">No labels exists!</div>
+                <div className="font-weight-bold">No labels exist!</div>
               ) : null}
             </div>
           </div>
