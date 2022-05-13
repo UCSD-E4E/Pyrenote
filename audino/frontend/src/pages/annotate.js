@@ -18,7 +18,7 @@ class Annotate extends React.Component {
     const dataId = Number(match.params.dataid);
     const index = window.location.href.indexOf('/projects');
 
-    this.initalState = {
+    this.initialState = {
       colorChange: 0,
       next_data_url: '',
       next_data_id: -1,
@@ -56,7 +56,7 @@ class Annotate extends React.Component {
       showActiveForm: localStorage.getItem('active') == null,
       addRegionMode: true
     };
-    this.state = this.initalState;
+    this.state = this.initialState;
     this.lastTime = 0;
     this.labelRef = {};
     this.UnsavedButton = null;
@@ -79,7 +79,7 @@ class Annotate extends React.Component {
         boundingBox = response.data.features_list['2D Labels'];
         const referenceWindowOn = response.data.features_list['reference window'];
         const applyPreviousAnnotations= response.data.features_list['auto annotate'];
-        const toUnsavedClipOn= response.data.features_list['to unsaved cliped'];
+        const toUnsavedClipOn= response.data.features_list['to unsaved clip'];
         const playbackOn= response.data.features_list.playbackOn;
         const spectrogramDemoOn= response.data.features_list['spectrogram demo'];
         console.log(response.data.features_list);
@@ -203,7 +203,7 @@ class Annotate extends React.Component {
 
   nextPage(nextDataId) {
     const { wavesurfer, projectId } = this.state;
-    const newState = this.initalState;
+    const newState = this.initialState;
     newState.labelsUrl = `/api/projects/${projectId}/labels`;
     newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
     newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;

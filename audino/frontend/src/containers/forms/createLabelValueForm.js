@@ -93,7 +93,7 @@ class CreateLabelValueForm extends React.Component {
         this.form.reset();
 
         this.setState({
-          successMessage: "labels were added!"
+          successMessage: "Labels were added!"
         });
       }
     })

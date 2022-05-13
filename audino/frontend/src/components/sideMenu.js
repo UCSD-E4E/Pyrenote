@@ -40,7 +40,7 @@ const SideMenu = props => {
   const sideMenuEnabled = sideMenuOn;
 
   const initTabOpen = {
-    refrences:  referenceWindowOn != null && referenceWindowOn,
+    references:  referenceWindowOn != null && referenceWindowOn,
     SpectrogramChanger: sideMenuEnabled != null && sideMenuEnabled
   };
   const [tabOpen, setTab] = React.useState(initTabOpen);
@@ -70,7 +70,7 @@ const SideMenu = props => {
           width: '100%'
         }}
       >
-        {referenceWindowOn != null && referenceWindowOn? <SideMenuTab tab="refrences" icon={faAtlas} tabOpen={tabOpen} setTab={tab => setTab(tab)} /> : null }
+        {referenceWindowOn != null && referenceWindowOn? <SideMenuTab tab="References" icon={faAtlas} tabOpen={tabOpen} setTab={tab => setTab(tab)} /> : null }
         {sideMenuEnabled != null && sideMenuEnabled? <SideMenuTab
           tab="SpectrogramChanger"
           icon={faCog}
@@ -90,8 +90,8 @@ const SideMenu = props => {
       >
         <b>{tabOpened}</b>
       </text>
-      {console.log(referenceWindowOn != null && referenceWindowOn && tabOpen.refrences)}
-      {referenceWindowOn != null && referenceWindowOn && tabOpen.refrences ? (
+      {console.log(referenceWindowOn != null && referenceWindowOn && tabOpen.references)}
+      {referenceWindowOn != null && referenceWindowOn && tabOpen.references ? (
         <ReferenceWindow annotate={annotate} projectId={projectId} />
       ) : null}
 
@@ -110,7 +110,7 @@ const SideMenu = props => {
           <br />
           <Button
             type="primary"
-            text="change next data settings"
+            text="Change next data settings"
             onClick={() => {
               annotate.setState({ showActiveForm: true });
             }}
