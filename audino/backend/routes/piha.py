@@ -77,10 +77,11 @@ def update_confidence(project_id, data_id, username):
                 #    mini_scores, confidence_adv = add_confidence(mini_scores, confidence_adv, 1)
                 #    continue
                 segmentations_old = Segmentation.query.filter_by(data_id=data_id, created_by=user).distinct()
+
                 old_df = make_dataframe(data_id, segmentations_old)
                 new_df = make_dataframe(data_id, segmentations_new)
-                #app.logger.info(old_df)
-                #app.logger.info(new_df)
+                app.logger.info(old_df)
+                app.logger.info(new_df)
                 if not (old_df.empty or new_df.empty):
                     
                     overlap = clip_statistics(new_df, old_df, stats_type="general")#, #
@@ -170,15 +171,26 @@ def make_dataframe(data_id, segmentations):
     MANUAL_ID = []
     SAMPLE_RATE = []
     data = {'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
+
+    
     for segment in segmentations:
+        app.logger.info(segment.start_time)
         start = segment.start_time
         duration = segment.end_time - start
+        if (len(segment.values) == 0):
+            FOLDER.append(folder)
+            FILE.append(filename)
+            CHANNEL.append(0)
+            CLIP_LENGTH.append(clip_length)
+            OFFSET.append(start)
+            SAMPLE_RATE.append(sample_rate)
+            DURATION.append(duration)
+            MANUAL_ID.append("No class of interest")
+
         for labelCate in segment.values:
             #for values in labelCate["values"]:
                     #TODO HANDLE EDGE CASES OF MUTLIPLE VALUES OF LABELS
                     manual_id = labelCate.value
-                    #for label in values:
-                    #manual_id = label['value']
                     FOLDER.append(folder)
                     FILE.append(filename)
                     CHANNEL.append(0)
