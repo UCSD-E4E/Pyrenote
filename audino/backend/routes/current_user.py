@@ -9,7 +9,7 @@ from werkzeug.urls import url_parse
 from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
-from .helper_functions import retrieve_database, general_error, missing_data
+from .helper_functions import retrieve_database, general_error, missing_data, retrieve_database_iou
 from .logger import post_log_msg
 from . import api
 
@@ -59,7 +59,12 @@ def fetch_data_for_project(project_id):
                                          ).distinct().subquery()
 
         categories = ["pending", "completed", "marked_review", "all"]
-        data = retrieve_database(project_id, segmentations, categories)
+        
+        data = {}
+        if(project.is_iou):
+            data = retrieve_database_iou(project_id, segmentations, request_user, identity["username"])
+        else:
+            data = retrieve_database(project_id, segmentations, categories, request_user)
         app.logger.info(data)
         paginate_data = data[active].paginate(page, 10, False)
 
@@ -78,7 +83,9 @@ def fetch_data_for_project(project_id):
                     "number_of_segmentations": len(data_point.segmentations),
                     "sampling_rate": data_point.sampling_rate,
                     "clip_length": data_point.clip_length,
-                    "sample": data_point.sample
+                    "sample": data_point.sample,
+                    "confidence": data_point.confidence,
+                    "num_users_viewed": data_point.num_reviewed
                 }
                 for data_point in paginate_data.items
             ]
@@ -152,6 +159,7 @@ def get_next_data(project_id, data_value):
                     "number_of_segmentations": len(data_point.segmentations),
                     "sampling_rate": data_point.sampling_rate,
                     "clip_length": data_point.clip_length,
+                    "confidence": data_point.confidence,
                 }
                 for data_point in paginate_data.items
             ]
@@ -227,6 +235,7 @@ def get_next_data2(project_id, dv, page_data):
                     "number_of_segmentations": len(data_point.segmentations),
                     "sampling_rate": data_point.sampling_rate,
                     "clip_length": data_point.clip_length,
+                    "confidence": data_point.confidence,
                 }
                 for data_point in paginate_data.items
             ]

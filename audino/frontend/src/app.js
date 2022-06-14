@@ -39,11 +39,11 @@ const PrivateRoute = withStore(({ component: Component, ...rest }) => {
         if (isUserLoggedIn === true) {
           if (rest.location.pathname === '/admin') {
             if (isAdmin) {
-              return <Component {...props} />;
+              return <Component isAdmin={true} {...props} />;
             }
             return <Redirect to="/dashboard" />;
           }
-          return <Component {...props} />;
+          return <Component showRetired={isAdmin} {...props} />;
         }
         return <Redirect to="/" />;
       }}

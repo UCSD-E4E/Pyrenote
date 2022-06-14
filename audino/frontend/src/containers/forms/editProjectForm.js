@@ -16,7 +16,10 @@ class EditProjectForm extends React.Component {
       successMessage: '',
       isSubmitting: false,
       url: `/api/projects/${projectId}`,
-      isMarkedExample: false
+      isMarkedExample: false,
+      isIOU: false,
+      maxUsers: 10,
+      conThres: 75,
     };
 
     this.state = { ...this.initialState };
@@ -30,8 +33,9 @@ class EditProjectForm extends React.Component {
     })
       .then(response => {
         if (response.status === 200) {
-          const { name, is_example } = response.data;
-          this.setState({ name, isMarkedExample: is_example });
+          const { name, is_example, isIOU, max_users, threshold } = response.data;
+          console.log(isIOU)
+          this.setState({ name, isMarkedExample: is_example, isIOU: isIOU, maxUsers: max_users, conThres: threshold * 100});
         }
       })
       .catch(error => {
@@ -56,19 +60,46 @@ class EditProjectForm extends React.Component {
     }
   }
 
+  handleQualityControl() {
+    const { isIOU } = this.state;
+    if (isIOU) {
+      this.setState({ isIOU: false });
+    } else {
+      this.setState({ isIOU: true });
+    }
+  }
+
+  handleMaxUsers(e) {
+    let value = e.target.value
+    this.setState({ maxUsers: value });
+  }
+
+  handleConThresh(e) {
+    let value = e.target.value
+    if (value > 100) {
+      value = 100
+    } 
+    this.setState({ conThres: value });
+  }
+
   handleProjectCreation(e) {
     e.preventDefault();
 
     this.setState({ isSubmitting: true });
-
-    const { name, url, isMarkedExample } = this.state;
-
+    let {  conThres, maxUsers } = this.state;
+    const { name, url, isMarkedExample, isIOU, } = this.state;
+    
+    if (conThres < 1) conThres = 1
+    if (maxUsers < 1) maxUsers = 1
+    
     axios({
       method: 'patch',
       url,
       data: {
-        name,
-        is_example: isMarkedExample
+        name,conThres, maxUsers ,
+        is_example: isMarkedExample,
+        isIOU: isIOU,
+        
       }
     })
       .then(response => {
@@ -102,7 +133,7 @@ class EditProjectForm extends React.Component {
   }
 
   render() {
-    const { isSubmitting, errorMessage, successMessage, isMarkedExample, name } = this.state;
+    const { isSubmitting, errorMessage, successMessage, isMarkedExample, name, isIOU, maxUsers, conThres } = this.state;
     return (
       <div className="container h-75 text-center">
         <div className="row h-100 justify-content-center align-items-center">
@@ -143,6 +174,29 @@ class EditProjectForm extends React.Component {
               <label className="form-check-label" htmlFor="isMarkedForReview">
                 Mark is Example Project
               </label>
+              </div>
+              <div>
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="isExample"
+                value
+                checked={isIOU}
+                onChange={() => this.handleQualityControl()}
+                // disabled={isMarkedForReviewLoading}
+              />
+              <label className="form-check-label" htmlFor="isMarkedForReview">
+                Enable experimental quality control?
+              </label>
+            </div>
+            <div>
+            <label for="MaxUsers">Max users for quality control</label>
+            <input type="number" id="MaxUsers" name="MaxUsers" min="1" value={maxUsers} onChange={e => this.handleMaxUsers(e)}/>
+            </div>
+
+            <div>
+            <label for="conThresh">Confidence Threshold</label>
+            <input type="number" id="conThresh" name="conThresh" min="1" max="100" value={conThres} onChange={e => this.handleConThresh(e)}/>
             </div>
             <div className="form-row">
               <div className="form-group col">

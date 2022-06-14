@@ -6,7 +6,7 @@ from backend.models import Project, User, Data, Segmentation
 from . import api
 from .data import generate_segmentation
 from .helper_functions import general_error, missing_data
-
+from .piha import (update_confidence)
 
 @api.route(
     "/projects/<int:project_id>/data/<int:data_id>/segmentations/<int:seg_id>",
@@ -15,9 +15,10 @@ from .helper_functions import general_error, missing_data
 @jwt_required
 def delete_segmentations(project_id, data_id, seg_id):
     identity = get_jwt_identity()
+    username = identity["username"]
     segmentation_id = seg_id
     try:
-        request_user = User.query.filter_by(username=identity["username"]
+        request_user = User.query.filter_by(username=username
                                             ).first()
         project = Project.query.get(project_id)
 
@@ -30,6 +31,12 @@ def delete_segmentations(project_id, data_id, seg_id):
 
         db.session.delete(segmentation)
         db.session.commit()
+        #db.session.refresh(segmentation)
+        app.logger.info(project_id)
+        app.logger.info(data_id)
+        app.logger.info(username)
+        update_confidence(project_id, data_id, username)
+        
     except Exception as e:
         msg = f"Could not delete segmentation"
         return general_error(msg, e, type="SEGMENTATION_DELETION_FAILED")
@@ -55,6 +62,7 @@ def delete_segmentations(project_id, data_id, seg_id):
 @jwt_required
 def add_segmentations(project_id, data_id, seg_id=None):
     identity = get_jwt_identity()
+    username = identity["username"]
     segmentation_id = seg_id
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400
@@ -98,7 +106,7 @@ def add_segmentations(project_id, data_id, seg_id=None):
     min_freq = round(min_freq, 4)
 
     try:
-        request_user = User.query.filter_by(username=identity["username"]
+        request_user = User.query.filter_by(username=username
                                             ).first()
         project = Project.query.get(project_id)
 
@@ -123,10 +131,17 @@ def add_segmentations(project_id, data_id, seg_id=None):
         app.logger.info(segmentation.last_modified_by)
         
         db.session.commit()
+        db.session.refresh(segmentation)
         app.logger.info(segmentation.last_modified_by)
     except Exception as e:
         msg = f"Could not create segmentation"
         return general_error(msg, e, type="USERS_ASSIGNMENT_FAILED")
+
+    try:
+        update_confidence(project_id, data_id, username)
+    except Exception as e:
+        msg = f"Could not create CONFIDENCE"
+        return general_error(msg, e, type="CONFIDENCE FAILED")
 
     if request.method == "POST":
         message = "Segmentation created"
@@ -160,9 +175,14 @@ def get_segmentations_for_data(project_id, data_id):
             return jsonify(message=msg), 401
 
         data = Data.query.filter_by(id=data_id, project_id=project_id).first()
-
+       
+        
         segmentations = []
         for segment in data.segmentations:
+            previous_users = segment.created_by
+            app.logger.info(previous_users)
+            if (not identity["username"] in previous_users): 
+                continue
             resp = {
                 "segmentation_id": segment.id,
                 "start_time": segment.start_time,
