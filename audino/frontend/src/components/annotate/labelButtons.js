@@ -1,6 +1,6 @@
 import React , {useState, useEffect} from 'react';
 import { Button } from '../button';
-import { handleAllSegmentSave, handleSegmentDelete } from '../../pages/annotatefunctions';
+import { handleAllSegmentApply, handleAllSegmentSave, handleSegmentDelete } from '../../pages/annotatefunctions';
 
 const LabelButton = props => {
   const { annotate } = props;
@@ -50,6 +50,7 @@ const LabelButton = props => {
           />
         </div>
       ) : null}
+
       <div className="col-4">
         <Button
           size="lg"
@@ -59,6 +60,17 @@ const LabelButton = props => {
           text="Save All"
         />
       </div>
+
+      <div className="col-4">
+        <Button
+          size="lg"
+          type="primary"
+          onClick={()=> handleAllSegmentApply(annotate)}
+          text="Apply All"
+        />
+      </div>
+
+
       <div className="col-4">
         <Button
           size="lg"
