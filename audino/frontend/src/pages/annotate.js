@@ -28,7 +28,7 @@ class Annotate extends React.Component {
       labels: {},
       labelsUrl: `/api/projects/${projectId}/labels`,
       dataUrl: `/api/projects/${projectId}/data/${dataId}`,
-      segmentationUrl: `/api/projects/${projectId}/data/${dataId}/segmentations`,
+      segmentationUrl: `/api/projects/${projectId}/data/${dataId}/segmentations_batch`,
       isDataLoading: false,
       wavesurfer: null,
       zoom: 100,
