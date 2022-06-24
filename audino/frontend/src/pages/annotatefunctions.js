@@ -40,6 +40,7 @@ const handleAllSegmentSave = (annotate, callback=()=>{}) => {
 
 
   console.log(segmentationData)
+  console.log(segmentationUrl)
 
   axios({
     method: 'post',
@@ -52,18 +53,27 @@ const handleAllSegmentSave = (annotate, callback=()=>{}) => {
       console.log(response.data.segmentation_data)
 
       let output = response.data.segmentation_data;
-      for (var key in output){
-        let segment = segmentationId[key]
-        segment.data.segmentation_id = output[key];
+      try {
+        for (var key in output){
+          let segment = segmentationId[key]
+          segment.data.segmentation_id = output[key];
+          annotate.setState({
+            isSegmentSaving: false,
+            selectedSegment: segment,
+            successMessage: 'Segment saved',
+            errorMessage: null
+          });
+          wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
+          segment._onSave();
+          annotate.UnsavedButton.removeSaved(segment);
+        }
+      } catch {
+        console.log("Data couldn't be change, was it unloaded?")
         annotate.setState({
           isSegmentSaving: false,
-          selectedSegment: segment,
-          successMessage: 'Segment saved',
+          successMessage: null,
           errorMessage: null
         });
-        wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
-        segment._onSave();
-        annotate.UnsavedButton.removeSaved(segment);
       }
     })
     .catch(error => {

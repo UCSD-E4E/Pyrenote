@@ -213,7 +213,7 @@ class Annotate extends React.Component {
     const newState = this.initalState;
     newState.labelsUrl = `/api/projects/${projectId}/labels`;
     newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
-    newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
+    newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations_batch`;
     newState.dataId = nextDataId;
     newState.wavesurfer = null;
 
@@ -247,14 +247,14 @@ class Annotate extends React.Component {
     let maxHeight;
     try {
       const leftWindow = document.getElementById("leftWindow")
-      console.log(leftWindow.scrollHeight)
+      //console.log(leftWindow.scrollHeight)
 
       maxHeight = Math.max(777, leftWindow.scrollHeight)+ "px"
     } catch {
       maxHeight = ""
     }
     
-    console.log(maxHeight)
+    //console.log(maxHeight)
     const { wavesurferMethods, disappear, showActiveForm, sideMenuEnabled, sideMenuOn } =
       this.state;
 

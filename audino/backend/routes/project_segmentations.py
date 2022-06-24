@@ -57,13 +57,13 @@ def delete_segmentations(project_id, data_id, seg_id):
 )
 @jwt_required
 def add_segmentations_batch(project_id, data_id):
+    app.logger.info("HERE")
     identity = get_jwt_identity()
     username = identity["username"]
     if not request.is_json:
         return jsonify(message="Missing JSON in request"), 400
 
     segmentation_data = dict(request.json.get("segmentationData", None))
-
     app.logger.info(segmentation_data)
     id_list = {}
 
