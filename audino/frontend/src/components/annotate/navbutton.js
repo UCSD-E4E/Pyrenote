@@ -35,6 +35,12 @@ const NavButton = props => {
     localStorage.setItem('previous_links', JSON.stringify(previous_pages));
     localStorage.setItem('count', JSON.stringify(next_page_num));
 
+    annotate.setState({
+      isSegmentSaving: false,
+      successMessage: null,
+      errorMessage: null
+    });
+
     if (noMore) {
       window.location.href = `${path}/projects/${projectId}/data`;
     } else {

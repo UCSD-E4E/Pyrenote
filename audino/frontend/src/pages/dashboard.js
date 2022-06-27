@@ -42,12 +42,14 @@ class Dashboard extends React.Component {
       url: `api/next_clip/next_rec/project/${projectId}/data/1`
     })
       .then(response => {
-        const index = window.location.href.indexOf('/dashboard');
-        const path = window.location.href.substring(0, index);
-        localStorage.setItem('active', 'recommended');
-        localStorage.setItem('previous_links', JSON.stringify([]));
-        localStorage.setItem('count', JSON.stringify(0));
-        window.location.href = `${path}/projects/${projectId}/data/${response.data.data_id}/annotate`;
+        if (response.status == 200) {
+          const index = window.location.href.indexOf('/dashboard');
+          const path = window.location.href.substring(0, index);
+          localStorage.setItem('active', 'recommended');
+          localStorage.setItem('previous_links', JSON.stringify([]));
+          localStorage.setItem('count', JSON.stringify(0));
+          window.location.href = `${path}/projects/${projectId}/data/${response.data.data_id}/annotate`;
+        } 
       })
       .catch(() => {
         this.setState({

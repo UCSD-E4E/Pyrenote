@@ -55,7 +55,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
             data["pending"] = (
                 db.session.query(Data)
                 .filter(or_(Data.sample != true(), Data.sample == null()))
-                .filter(request_user.id == Data.assigned_user_id[big_key])
+                .filter(or_(request_user.id == Data.assigned_user_id[big_key], Data.assigned_user_id[big_key] == null()))
                 .filter(Data.project_id == project_id)
                 .filter(Data.id.notin_(segmentations))
                 .distinct()
@@ -76,7 +76,7 @@ def retrieve_database(project_id, segmentations, categories, request_user=None,
             data["completed"] = (
                 db.session.query(Data)
                 .filter(or_(Data.sample != true(), Data.sample == null()))
-                .filter(request_user.id == Data.assigned_user_id[big_key])
+                .filter(or_(request_user.id == Data.assigned_user_id[big_key], Data.assigned_user_id[big_key] == null()))
                 .filter(Data.project_id == project_id)
                 .filter(Data.id.in_(segmentations))
                 .distinct()

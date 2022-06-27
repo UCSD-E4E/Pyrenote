@@ -122,7 +122,7 @@ def update_confidence(project_id, data_id, username):
     confidence = confidence_adv/(total)
 
 
-    
+
     app.logger.info(columns)
     scores_df = pd.DataFrame(score, columns=columns)
     app.logger.info(scores_df)
@@ -174,7 +174,6 @@ def make_dataframe(data_id, segmentations):
 
     
     for segment in segmentations:
-        app.logger.info(segment.start_time)
         start = segment.start_time
         duration = segment.end_time - start
         if (len(segment.values) == 0):
