@@ -74,6 +74,14 @@ class CreateProjectForm extends React.Component {
     this.setState(this.initialState);
   }
 
+  handleAlertDismiss(e) {
+    //e.preventDefault();
+    this.setState({
+      successMessage: '',
+      errorMessage: ''
+    });
+  }
+
   render() {
     const { isSubmitting, errorMessage, successMessage } = this.state;
     return (
