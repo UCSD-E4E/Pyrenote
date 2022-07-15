@@ -24,7 +24,8 @@ from .projects import (
     edit_project,
     update_project_users,
     give_users_examples,
-    get_project_annotations
+    get_project_annotations,
+    user_add_project
 )
 
 from .project_segmentations import (

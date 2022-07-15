@@ -522,3 +522,44 @@ def get_project_annotations(project_id):
         ),
         200,
     )
+
+
+@api.route("/projects/user_add_project", methods=["POST"])
+@jwt_required
+def user_add_project():
+    app.logger.info("HERE")
+    request_user = User.query.filter_by(username=get_jwt_identity()["username"]).first()
+    api_code = request.json.get("apicode", "nothing")
+    app.logger.info(api_code)
+    project = Project.query.filter(Project.api_key == (api_code)).first()
+    app.logger.info("HERE")
+    if (project == None):
+        return jsonify(
+            message="Wrong ApiCode",
+            type="INCORRECT APICODE",
+        ),205
+    
+    app.logger.info("HERE users")
+    try:
+        final_users = [user for user in project.users]
+        app.logger.info(final_users)
+        final_users.append(request_user)
+        app.logger.info(final_users)
+        project.users = final_users
+
+        db.session.add(project)
+        db.session.commit()
+    except Exception as e:
+        app.logger.info(e)
+        message = f"Error adding users to project: {project.id}"
+        return general_error(message, e, type="USERS_ASSIGNMENT_FAILED")
+    app.logger.info("HERE")
+
+    return (
+        jsonify(
+            project_id=project.id,
+            message=f"Users assigned to project: {project.name}",
+            type="USERS_ASSIGNED_TO_PROJECT",
+        ),
+        200,
+    )
