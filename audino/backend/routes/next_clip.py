@@ -25,17 +25,21 @@ def getNextClip(project_id, data_id):
     project = Project.query.get(project_id)
     app.logger.info("HEY HYE HEY RIGHT HERE")
     app.logger.info(active)
+
+    segmentations = None
     if(project.is_iou and active =="pending"):
         exit_info, exit_code = getNextViaConfidence(project_id, data_id, request, identity)
         app.logger.info(exit_info)
         app.logger.info(exit_code)
         return exit_info, exit_code
-    else:    
-        if (url.startswith("/api/next_clip/next_rec/project/")):
-            
-            return getNextReccomendedData(project_id, data_id, request, identity)
-        else:
-            return getNextClipFromNextButton(project_id, data_id, request, identity)
+    elif(project.is_iou):
+        segmentations = db.session.query(Segmentation.data_id).distinct().filter_by(created_by=identity["username"]).subquery()
+    app.logger.info(url)    
+    if (url.startswith("/api/next_clip/next_rec/project/")):
+        
+        return getNextReccomendedData(project_id, data_id, request, identity, segmentations=segmentations)
+    else:
+        return getNextClipFromNextButton(project_id, data_id, request, identity, segmentations=segmentations)
 
 
 
@@ -56,15 +60,13 @@ def getNextViaConfidence(project_id, data_id, request, identity):
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
-        segmentations = db.session.query(Segmentation.data_id
-                                         ).distinct().subquery()
+        segmentations = db.session.query(Segmentation.data_id).distinct().filter_by(created_by=identity["username"]).subquery()
         data = None
         try:
             dataPendingList = list(
                 db.session.query(Data)
                 .filter(Data.project_id == project_id)
-                .filter(Data.users_reviewed[key] == None)
-                #.filter(Data.id.notin_(segmentations))
+                .filter(or_(Data.id.notin_(segmentations), Data.users_reviewed[key] == null()))
                 .filter(Data.confidence < THRESHOLD)
                 .filter(Data.num_reviewed < MAX_USERS)
                 .filter(Data.id != data_id)
@@ -101,7 +103,6 @@ def getNextViaConfidence(project_id, data_id, request, identity):
         )
         app.logger.info("RETURN?")
         app.logger.info(response)
-        app.logger.info(active)
         return (
             jsonify(
                 data=response,
@@ -117,7 +118,7 @@ def getNextViaConfidence(project_id, data_id, request, identity):
         return jsonify(message=message), 501
     return 100
 
-def getNextClipFromNextButton(project_id, data_id, request, identity):
+def getNextClipFromNextButton(project_id, data_id, request, identity, segmentations=None):
     identity = get_jwt_identity()
     # page = request.args.get("page", 1, type=int)
     active = request.args.get("active", "completed", type=str)
@@ -134,8 +135,9 @@ def getNextClipFromNextButton(project_id, data_id, request, identity):
         if request_user not in project.users:
             return jsonify(message="Unauthorized access!"), 401
         app.logger.info("made it here")
-        segmentations = db.session.query(Segmentation.data_id
-                                         ).distinct().subquery()
+        if (segmentations == None):
+            segmentations = db.session.query(Segmentation.data_id
+                                            ).distinct().subquery()
         # Lets set big id to the {username.idenity, username.id}
         # this would make it fast but aslo render serval data points
         data = {}
@@ -249,7 +251,7 @@ def getNextClipFromNextButton(project_id, data_id, request, identity):
 
 
 
-def getNextReccomendedData(project_id, data_id, request, identity):
+def getNextReccomendedData(project_id, data_id, request, identity, segmentations=None):
     app.logger.info("USING THIS ONE")
     identity = get_jwt_identity()
     active = "pending"
@@ -257,8 +259,9 @@ def getNextReccomendedData(project_id, data_id, request, identity):
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
-        segmentations = db.session.query(Segmentation.data_id
-                                         ).distinct().subquery()
+        if (segmentations == None):
+            segmentations = db.session.query(Segmentation.data_id
+                                            ).distinct().subquery()
         data = None
         try:
             dataPendingList = list(

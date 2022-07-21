@@ -62,6 +62,7 @@ def fetch_data_for_project(project_id):
         
         data = {}
         if(project.is_iou):
+            segmentations = db.session.query(Segmentation.data_id).distinct().filter_by(created_by=identity["username"]).subquery()
             data = retrieve_database_iou(project_id, segmentations, request_user, identity["username"])
         else:
             data = retrieve_database(project_id, segmentations, categories, request_user)
