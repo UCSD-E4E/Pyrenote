@@ -144,7 +144,8 @@ def add_segmentations_batch(project_id, data_id):
     status = 201
 
     try:
-        update_confidence(project_id, data_id, username)
+        if (segmentation_data != None):
+            update_confidence(project_id, data_id, username)
     except Exception as e:
         message = f"Could not create CONFIDENCE"
 

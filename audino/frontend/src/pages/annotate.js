@@ -9,6 +9,7 @@ import { animateWidth } from '../components/annotate/animation';
 import Resizer from '../components/resizerElement';
 import AnnotationWindow from '../components/annotate/annotationWindow.js';
 import FormModal from '../containers/modal';
+import { handleAllSegmentSave, handleSegmentDelete } from './annotatefunctions';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -119,12 +120,9 @@ class Annotate extends React.Component {
       });
   }
 
-  componentWillUnmount() {
-    axios({
-      method: 'put',
-      url: `/api/update_confidence/${this.state.projectId}/${this.state.dataId}`
-    })
-  }
+  /*componentWillUnmount() {
+    handleAllSegmentSave(this)
+  }*/
 
   handleAlertDismiss(e) {
     e.preventDefault(e);
