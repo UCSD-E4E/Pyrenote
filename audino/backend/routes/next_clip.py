@@ -66,7 +66,7 @@ def getNextViaConfidence(project_id, data_id, request, identity):
             dataPendingList = list(
                 db.session.query(Data)
                 .filter(Data.project_id == project_id)
-                .filter(or_(Data.id.notin_(segmentations), Data.users_reviewed[key] == null()))
+                .filter(or_(Data.id.notin_(segmentations)))#, Data.users_reviewed[key] == null()))
                 .filter(Data.confidence < THRESHOLD)
                 .filter(Data.num_reviewed < MAX_USERS)
                 .filter(Data.id != data_id)

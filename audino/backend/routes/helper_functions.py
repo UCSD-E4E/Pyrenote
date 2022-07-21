@@ -133,7 +133,7 @@ def retrieve_database_iou(project_id, segmentations, request_user, big_key):
                 .filter(or_(Data.sample != true(), Data.sample == null()))
                 .filter(or_(request_user.id == Data.assigned_user_id[big_key], Data.assigned_user_id[big_key] == null()))
                 .filter(Data.project_id == project_id)
-                .filter(or_(Data.id.notin_(segmentations), Data.users_reviewed[big_key] == null()))
+                .filter(or_(Data.id.notin_(segmentations)))#, Data.users_reviewed[big_key] == null()))
                 .filter(Data.confidence < THRESHOLD)
                 .filter(Data.num_reviewed < MAX_USERS)
                 .distinct()
