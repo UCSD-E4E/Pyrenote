@@ -21,6 +21,12 @@ class Annotate extends React.Component {
 
     this.initalState = {
       colorChange: 0,
+      count: {
+        pending: 0,
+        completed: 0,
+        all: 0,
+        marked_review: 0
+      },
       next_data_url: '',
       next_data_id: -1,
       isPlaying: false,
@@ -30,6 +36,7 @@ class Annotate extends React.Component {
       labelsUrl: `/api/projects/${projectId}/labels`,
       dataUrl: `/api/projects/${projectId}/data/${dataId}`,
       segmentationUrl: `/api/projects/${projectId}/data/${dataId}/segmentations_batch`,
+      apiUrl: `/api/current_user/projects/${projectId}/data`,
       isDataLoading: false,
       wavesurfer: null,
       zoom: 100,
@@ -118,11 +125,27 @@ class Annotate extends React.Component {
           isDataLoading: false
         });
       });
+
+      this.getData()
   }
 
-  /*componentWillUnmount() {
-    handleAllSegmentSave(this)
-  }*/
+  getData() {
+    let { apiUrl} = this.state;
+    apiUrl = `${apiUrl}?page=${1}&active=pending`;
+    axios({
+      method: 'get',
+      url: apiUrl
+    })
+      .then(response => {
+        const { count } = response.data;
+        this.setState({
+          count
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
 
   handleAlertDismiss(e) {
     e.preventDefault(e);
@@ -207,13 +230,14 @@ class Annotate extends React.Component {
   }
 
   nextPage(nextDataId) {
-    const { wavesurfer, projectId } = this.state;
+    const { wavesurfer, projectId, count } = this.state;
     const newState = this.initalState;
     newState.labelsUrl = `/api/projects/${projectId}/labels`;
     newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
     newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations_batch`;
     newState.dataId = nextDataId;
     newState.wavesurfer = null;
+    newState.count = count
 
     wavesurfer.destroy();
     this.setState(newState, () => {
@@ -253,7 +277,7 @@ class Annotate extends React.Component {
     }
     
     //console.log(maxHeight)
-    const { wavesurferMethods, disappear, showActiveForm, sideMenuEnabled, sideMenuOn } =
+    const { wavesurferMethods, disappear, showActiveForm, sideMenuEnabled, sideMenuOn, count } =
       this.state;
 
     if (wavesurferMethods) {

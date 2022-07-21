@@ -19,11 +19,13 @@ const AnnotationWindow = props => {
     isRendering,
     original_filename,
     navButtonsEnabled,
+    count
   } = state;
 
   return (
     <div>
       <div className="h-100 mt-5 text-center">
+      
         <AlertSection
           messages={[
             { message: errorUnsavedMessage, type: 'danger' },
@@ -44,6 +46,7 @@ const AnnotationWindow = props => {
                 : <Button id="add-edit-toggle-button" className="editRegion" variant="secondary" onClick={() => {setAddRegionMode(!state.addRegionMode)}}>Add Regions: Off</Button>
               }
             </div>
+            {`                 labeled ` + count.completed + ` out of ` + count.all}
           </div>
         }
 
