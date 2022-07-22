@@ -178,8 +178,8 @@ def datetime_json_compare(datetime_dir):
         date = datetime_dir[user]
         datetime_object = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S")
         if (latest_date is None or datetime_object > latest_date):
-            latest_date = datetime_object.strftime("%m/%d/%Y-%H:%M:%S")
-            latest_user = user + " " + latest_date
+            latest_date = datetime_object
+            latest_user = user + " " + latest_date.strftime("%m/%d/%Y-%H:%M:%S")
     return latest_user
 
 def strip_nl(str):
