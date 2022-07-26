@@ -15,7 +15,8 @@ import {
   Labels,
   LabelValues,
   Data,
-  CreateUser
+  CreateUser,
+  LoginPage
 } from './pages';
 import NavBar from './containers/navbar';
 
@@ -142,11 +143,12 @@ class App extends React.Component {
                       // window.location.href.includes("/newUser")
                       return <Redirect {...props} to="/newUser" />;
                     }
-                    return <Home {...props} />;
+                    return <Home {...props} history={history}/>;
                   }
                   return <Redirect {...props} to="/dashboard" />;
                 }}
               />
+              <PublicRoute exact path="/login" component={LoginPage} history={history} />
               <PublicRoute exact path="/newUser" component={CreateUser} />
               <Route path="/empty" component={null} key="empty" />
               <PrivateRoute exact path="/admin" component={Admin} />

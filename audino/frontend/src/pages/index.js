@@ -7,5 +7,6 @@ import Home from './home';
 import Labels from './labels';
 import LabelValues from './labelValues';
 import CreateUser from './createUser';
+import LoginPage from './LoginPage';
 
-export { Admin, Dashboard, Error, Home, Labels, LabelValues, Data, Annotate, CreateUser };
+export { Admin, Dashboard, Error, Home, Labels, LabelValues, Data, Annotate, CreateUser, LoginPage };

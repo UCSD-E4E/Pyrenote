@@ -35,8 +35,8 @@ class NavBar extends React.Component {
     const isAdmin = store.get('isAdmin');
 
     return (
-      <nav className="navbar navbar-expand-md bg-dark navbar-dark">
-        <Link to="/" className="navbar-brand">
+      <nav className="navbar navbar-expand-md bg-dark navbar-dark" >
+        <Link to="/" className="navbar-brand" style={{marginRight: 0}}>
           Pyrenote
         </Link>
 
@@ -45,12 +45,21 @@ class NavBar extends React.Component {
           type="button"
           data-toggle="collapse"
           data-target="#collapsibleNavbar"
+          style={{marginLeft: 0}}
         >
           <span className="navbar-toggler-icon" />
         </button>
 
+
+        <div className="collapse navbar-collapse" id="collapsibleNavbar"
+          style={{
+            marginLeft: 0,
+            justifyContent: "right"
+          
+          }}
+        >
         {isUserLoggedIn && (
-          <div className="collapse navbar-collapse" id="collapsibleNavbar">
+         
             <ul className="navbar-nav">
               <li className="nav-item">
                 <Link className="nav-link" to="/dashboard">
@@ -74,8 +83,26 @@ class NavBar extends React.Component {
                 </button>
               </li>
             </ul>
-          </div>
         )}
+        
+        {!isUserLoggedIn && window.location.href.includes('/login') && (
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <Link className="nav-link" to="/">
+                  Head back to landing page!
+                </Link>
+              </li>
+            </ul>
+        ) || (
+          <ul className="navbar-nav">
+            <li className="nav-item">
+              <Link className="nav-link" to="/login">
+                login
+              </Link>
+            </li>
+          </ul>
+        )}
+        </div>
       </nav>
     );
   }
