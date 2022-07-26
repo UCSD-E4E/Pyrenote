@@ -68,7 +68,7 @@ class Dashboard extends React.Component {
 
   getReccomendedData(projectId) {
     axios({
-      method: 'post',
+      method: 'get',
       url: `api/next_clip/next_rec/project/${projectId}/data/1`
     })
       .then(response => {
