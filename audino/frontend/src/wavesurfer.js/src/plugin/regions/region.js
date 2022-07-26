@@ -108,6 +108,33 @@ export default class Region {
     this.setLastTime = time => {
       this.lastTime = time;
     };
+
+    this.selected = false
+    this._onSelect = (selected) => {
+      if (selected && this.selectionIcon) {
+        this.style(this.selectionIcon, {
+          position: 'absolute',
+          zIndex: 2,
+          height: '20px',
+          width: '20px',
+          top: '20px',
+          right: '20px',
+          backgroundColor: 'blue',
+          borderRadius: '20px'
+        });
+      } else if (this.selectionIcon) {
+        this.style(this.selectionIcon, {
+          position: 'absolute',
+          zIndex: 2,
+          height: '0px',
+          width: '0px',
+          top: '20px',
+          right: '20px',
+          backgroundColor: 'blue',
+          borderRadius: '20px'
+        });
+      }
+    }
   }
 
   /* Update region params. */
@@ -235,6 +262,19 @@ export default class Region {
       zIndex: 2,
       height,
       top: '0px'
+    });
+
+    this.selectionIcon = regionEl.appendChild(document.createElement('selectionIcon'));
+    this.selectionIcon.className = 'wavesurfer-selectionIcon';
+    this.style(this.selectionIcon, {
+      position: 'absolute',
+      zIndex: 2,
+      height: '20px',
+      width: '20px',
+      top: '20px',
+      right: '20px',
+      backgroundColor: 'blue',
+      borderRadius: '20px'
     });
 
     /* Resize handles */
