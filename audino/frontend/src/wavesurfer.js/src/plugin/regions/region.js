@@ -117,8 +117,8 @@ export default class Region {
           zIndex: 2,
           height: '20px',
           width: '20px',
-          top: '20px',
-          right: '20px',
+          top: '5px',
+          right: '5px',
           backgroundColor: 'blue',
           borderRadius: '20px'
         });
@@ -128,8 +128,8 @@ export default class Region {
           zIndex: 2,
           height: '0px',
           width: '0px',
-          top: '20px',
-          right: '20px',
+          top: '5px',
+          right: '5px',
           backgroundColor: 'blue',
           borderRadius: '20px'
         });
@@ -271,8 +271,8 @@ export default class Region {
       zIndex: 2,
       height: '20px',
       width: '20px',
-      top: '20px',
-      right: '20px',
+      top: '5px',
+      right: '5px',
       backgroundColor: 'blue',
       borderRadius: '20px'
     });
