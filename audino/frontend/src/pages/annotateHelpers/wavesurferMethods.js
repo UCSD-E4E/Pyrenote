@@ -75,6 +75,8 @@ class WavesurferMethods {
           }
         }),
         RegionsPlugin.create({
+          scroll: true,
+          edgeScrollWidth: 50,
           boundingBox
         })
       ]

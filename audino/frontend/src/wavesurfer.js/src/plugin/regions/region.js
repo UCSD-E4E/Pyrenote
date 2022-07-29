@@ -70,8 +70,10 @@ export default class Region {
     this._onRedraw = () => this.updateRender();
 
     this.scroll = params.scroll !== false && ws.params.scrollParent;
+    //console.log(this.scroll)
     this.scrollSpeed = params.scrollSpeed || 1;
-    this.scrollThreshold = params.scrollThreshold || 10;
+    this.scrollThreshold = params.scrollThreshold || 0;
+    this.edgeScrollWidth = params.edgeScrollWidth || 0;
 
     // Determines whether the context menu is prevented from being opened.
     this.preventContextMenu =
@@ -94,7 +96,6 @@ export default class Region {
     }
 
     this.formatTimeCallback = params.formatTimeCallback;
-    this.edgeScrollWidth = params.edgeScrollWidth;
     this.boundingBox = params.boundingBox || false;
     this.bindInOut();
     this.render();
@@ -363,7 +364,7 @@ export default class Region {
           ? { bottom: '-1px', left: '-1px', ...corner_css, ...this.handleStyle.bot }
           : null;
 
-      console.log(handleTopCss && this.boundingBox)
+      //console.log(handleTopCss && this.boundingBox)
 
       if (handleLeftCss) {
         this.style(this.handleLeftEl, handleLeftCss);
@@ -598,7 +599,7 @@ export default class Region {
       let range = this.regionsUtil.getRegionSnapToGridValue(
         this.wavesurfer.drawer.handleEventVertical(e, false, max_Height) * max_Height
       );
-      const frequencyBot = this.handleBotE1.style.bottom;
+      //const frequencyBot = this.handleBotE1.style.bottom;
 
       if (drag) {
         // Considering the point of contact with the region while edgescrolling
@@ -618,7 +619,7 @@ export default class Region {
 
         if (resize === 'start') {
           if (time > this.end - minLength) {
-            time = this.end - minLength;
+            time = this.end - minLength - scrollSpeed * scrollDirection;
             adjustment = scrollSpeed * scrollDirection;
           }
 
@@ -627,7 +628,7 @@ export default class Region {
           }
         } else if (resize === 'end') {
           if (time < this.start + minLength) {
-            time = this.start + minLength;
+            time = this.start + minLength + scrollSpeed * scrollDirection;
             adjustment = scrollSpeed * scrollDirection;
           }
 
@@ -702,7 +703,8 @@ export default class Region {
       const deltaX = range - currTop;
       currTop = range;
       const deltaY = time - startTime;
-      startTime = time;
+      //startTime = time;
+      //console.log(startTime, deltaX)
       drag ? this.onDrag(deltaX, deltaY) : this.onResize(deltaX, deltaY, resize);
 
       // Repeat
@@ -739,6 +741,7 @@ export default class Region {
       // Store for scroll calculations
       maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
       wrapperRect = this.wrapper.getBoundingClientRect();
+      //console.log(wrapperRect)
 
       this.isResizing = false;
       this.isDragging = false;
@@ -914,32 +917,36 @@ export default class Region {
         updated = updated || !!deltaX || !!deltaY;
         this.onResize(deltaX, deltaY, resize);
       }
-
+      
+      //console.log(this.scroll && container.clientWidth < this.wrapper.scrollWidth)
       if (this.scroll && container.clientWidth < this.wrapper.scrollWidth) {
         // Triggering edgescroll from within edgeScrollWidth
+        const x = e.clientX;
         if (drag) {
-          const x = e.clientX;
+          //const x = e.clientX;
 
           // Check direction
-          if (x < wrapperRect.left + this.edgeScrollWidth) {
+          if (x < wrapperRect.x + this.edgeScrollWidth) {
             scrollDirection = -1;
-          } else if (x > wrapperRect.right - this.edgeScrollWidth) {
+          } else if (x > wrapperRect.x + wrapperRect.width - this.edgeScrollWidth) {
             scrollDirection = 1;
           } else {
             scrollDirection = null;
           }
         } else {
-          const x = e.clientX;
+          //const x = e.clientX;
 
           // Check direction
-          if (x < wrapperRect.left + this.edgeScrollWidth) {
+          if (x < wrapperRect.x + this.edgeScrollWidth) { // 
             scrollDirection = -1;
-          } else if (x > wrapperRect.right - this.edgeScrollWidth) {
+          } else if (x > wrapperRect.x + wrapperRect.width - this.edgeScrollWidth) { // 
             scrollDirection = 1;
           } else {
             scrollDirection = null;
           }
         }
+
+        //console.log(drag, scrollDirection, x,  wrapperRect.x, wrapperRect.width, this.edgeScrollWidth)
 
         if (scrollDirection) {
           edgeScroll(e);
@@ -1006,6 +1013,7 @@ export default class Region {
    * @param {string} direction 'start 'or 'end'
    */
   onResize(deltaX, deltaY, direction) {
+    console.log("update", deltaX)
     const duration = this.wavesurfer.getDuration();
     const maxFrequency = this.maxFrequency;
     const max_Height = this.maxHeight;
