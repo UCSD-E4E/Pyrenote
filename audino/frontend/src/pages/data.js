@@ -97,8 +97,7 @@ class Data extends React.Component {
 
   isScrollLessThanWindow() {
     const yMax = document.body.scrollHeight - document.body.clientHeight;
-    console.log("isScrollLess", yMax)
-    return yMax <= 0;
+    return yMax <= document.body.clientHeight * 0.05;
   }
 
   isBottom() {
