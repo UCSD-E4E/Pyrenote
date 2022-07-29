@@ -87,6 +87,7 @@ class Data extends React.Component {
   }
 
   trackScrolling = () => {
+    const element = document.body;
     const { nextPage } = this.state;
     if (this.isBottom() && nextPage) {
       // this.setState({ isDataLoading: true });
@@ -96,13 +97,15 @@ class Data extends React.Component {
 
   isScrollLessThanWindow() {
     const yMax = document.body.scrollHeight - document.body.clientHeight;
+    console.log("isScrollLess", yMax)
     return yMax <= 0;
   }
 
   isBottom() {
     // https://stackoverflow.com/questions/3898130/check-if-a-user-has-scrolled-to-the-bottom/3898152
     const element = document.body;
-    return element.scrollHeight - element.scrollTop === element.clientHeight;
+    //DETERMINE IF USER SCROLLS WITHIN 5% OF BOTTOM
+    return element.scrollHeight - element.scrollTop <= element.clientHeight + element.clientHeight * 0.05;
   }
 
   prepareUrl(projectId, page, active) {
@@ -110,6 +113,8 @@ class Data extends React.Component {
   }
 
   render() {
+    const element = document.body;
+    console.log(element.scrollHeight - element.scrollTop,  element.clientHeight)
     localStorage.setItem('previous_links', JSON.stringify([]));
     localStorage.setItem('count', JSON.stringify(0));
     const { projectId, isDataLoading, data, count, active, nextPage, tabUrls } = this.state;
