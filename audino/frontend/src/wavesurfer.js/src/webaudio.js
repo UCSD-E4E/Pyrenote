@@ -108,6 +108,7 @@ export default class WebAudio extends util.Observer {
     this.params = params;
     /** ac: Audio Context instance */
     this.ac = params.audioContext || (this.supportsWebAudio() ? this.getAudioContext() : {});
+    console.log("AUDIO CONTEXT", this.ac, params.audioContext, this.supportsWebAudio(), this.getAudioContext() )
     /** @private */
     this.lastPlay = this.ac.currentTime;
     /** @private */
@@ -666,6 +667,7 @@ export default class WebAudio extends util.Observer {
    * @param {number} end When to stop relative to the beginning of a clip.
    */
   play(start, end) {
+    console.log("playing")
     if (!this.buffer) {
       return;
     }
@@ -682,6 +684,11 @@ export default class WebAudio extends util.Observer {
 
     this.source.start(0, start);
 
+    //scale up audio to avoid cracking on start
+    while (this.getVolume() < 1){
+      this.setVolume(this.getVolume() + 0.05) 
+    }
+
     this.resumeAudioContext();
 
     this.setState(PLAYING);
@@ -693,10 +700,16 @@ export default class WebAudio extends util.Observer {
    * Pauses the loaded audio.
    */
   pause() {
+    console.log("pausing")
     this.scheduledPause = null;
 
     this.startPosition += this.getPlayedTime();
     try {
+      //Scale the audio to avoid crackling
+      while (this.getVolume() > 0){
+        this.setVolume(this.getVolume() - 0.05) 
+      }
+
       this.source && this.source.stop(0);
     } catch (err) {
       // Calling stop can throw the following 2 errors:
