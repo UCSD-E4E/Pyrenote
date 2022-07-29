@@ -53,7 +53,7 @@ class CreateUserForm extends React.Component {
       return;
     }
 
-    if (usernameData && usernameData.contains(",")) {
+    if (usernameData && usernameData.includes(",")) {
       this.setState({
         isSubmitting: false,
         errorMessage: "Do not use ',' in your username!!!",

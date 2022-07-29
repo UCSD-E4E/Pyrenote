@@ -51,10 +51,11 @@ def JsonToText(data):
     csv = []
     text = write_row(text, ['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION',
                             'MAX FREQ', 'MIN FREQ', 'SAMPLE RATE', 'MANUAL ID'
-                            'TIME_SPENT', 'CREATED BY', 'LAST MOD BY', 'CONFIDENCE', 'RETIRED', 'COUNTED',]) #Added 3 columns
+                            'TIME_SPENT', 'CREATED BY', 'LAST MOD BY','LAST MOD BY TIME', 'CONFIDENCE', 'RETIRED', 'COUNTED',]) #Added 3 columns
     csv.append(['IN FILE', 'CLIP LENGTH', 'OFFSET', 'DURATION', 'MAX FREQ',
                 'MIN FREQ', 'SAMPLE RATE', 'MANUAL ID', 'TIME_SPENT',
-                'CREATED BY', 'LAST MOD BY', 'CONFIDENCE', 'RETIRED', 'COUNTED',])
+                'CREATED BY', 'LAST MOD BY', 'LAST MOD BY TIME','CONFIDENCE',
+                'RETIRED', 'COUNTED',])
     for audio in data:
         sampling_rate = audio['sampling_rate']
         clip_length = audio['clip_length']
@@ -180,7 +181,7 @@ def datetime_json_compare(datetime_dir):
         datetime_object = datetime.strptime(date, "%m/%d/%Y, %H:%M:%S")
         if (latest_date is None or datetime_object > latest_date):
             latest_date = datetime_object
-            latest_user = user + " " + latest_date.strftime("%m/%d/%Y-%H:%M:%S")
+            latest_user = user + "," + latest_date.strftime("%m/%d/%Y-%H:%M:%S")
     return latest_user
 
 def strip_nl(str):
