@@ -79,6 +79,15 @@ class EditUserForm extends React.Component {
       return;
     }
 
+    if (newUserName && newUserName.includes(",")) {
+      this.setState({
+        isSubmitting: false,
+        errorMessage: "Do not use ',' in your username!!!",
+        successMessage: ''
+      });
+      return;
+    }
+
     axios({
       method: 'patch',
       url,
