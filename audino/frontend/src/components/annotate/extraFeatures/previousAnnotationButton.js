@@ -16,8 +16,8 @@ const PreviousAnnotationButton = props => {
           onClick={() => annotate.setState({ applyPreviousAnnotations: !applyPreviousAnnotations })}
           text={
             applyPreviousAnnotations
-              ? 'apply previous annotations enabled'
-              : 'apply previous annotations disabled'
+              ? 'Apply previous annotations enabled'
+              : 'Apply previous annotations disabled'
           }
         />
       ) : null}

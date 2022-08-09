@@ -173,7 +173,7 @@ class AdminHandleFormUsers extends React.Component {
   }
 
   handleDeleteUser(e, userId) {
-    // TODO: CREATE MODAL TO CONFRIM BUT FOR NOW MAKE DEV BUTTON
+    // TODO: CREATE MODAL TO CONFIRM BUT FOR NOW MAKE DEV BUTTON
     this.showModal({ formType: 'DELETE_USER', title: 'Delete User', userId });
   }
 

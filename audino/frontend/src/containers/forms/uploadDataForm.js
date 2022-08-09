@@ -153,7 +153,7 @@ class UploadDataForm extends React.Component {
                 type="primary"
                 disabled={isSubmitting}
                 onClick={() => this.setState({ isSample: !isSample })}
-                text={isSample ? 'This is a sample data uplaod' : 'not a sample data upload'}
+                text={isSample ? 'This is a sample data upload' : 'Not a sample data upload'}
               />
               <Button
                 size="lg"

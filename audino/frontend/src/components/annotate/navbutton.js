@@ -13,7 +13,7 @@ const NavButton = props => {
       if (segment.saved === false && !forceClip) {
         if (segment.data.annotations == null) {
           annotate.setState({
-            errorUnsavedMessage: `There are regions without a label! You can't leave yet! If you are sure, click "force ${dir}"`
+            errorUnsavedMessage: `There are regions without a label! You can't leave yet! If you are sure, click "Force ${dir}"`
           });
           success = false;
         }
@@ -60,7 +60,7 @@ const NavButton = props => {
     }
 
     let success = true;
-    success = checkForSave(success, forceNext, 'next');
+    success = checkForSave(success, forceNext, 'Next');
     if (!success) {
       return;
     }
@@ -96,7 +96,7 @@ const NavButton = props => {
     handleAllSegmentSave(annotate);
     const { previous_pages, num_of_prev, path, projectId, dataId } = annotate.state;
     let success = true;
-    success = checkForSave(success, forcePrev, 'previous');
+    success = checkForSave(success, forcePrev, 'Previous');
     if (success) {
       if (num_of_prev > 0) {
         const page_num = num_of_prev - 1;
@@ -134,11 +134,11 @@ const NavButton = props => {
     const dir = annotate.state.direction;
     let func;
     let text;
-    if (dir === 'next') {
+    if (dir === 'Next') {
       func = handleNextClip;
       text = 'Force Next';
     }
-    if (dir === 'previous') {
+    if (dir === 'Previous') {
       func = handlePreviousClip;
       text = 'Force Prev';
     }
@@ -162,8 +162,8 @@ const NavButton = props => {
   return (
     <div>
       <div className="buttons-container">
-        {renderNavButtons('previous', () => handlePreviousClip())}
-        {renderNavButtons('next', () => handleNextClip())}
+        {renderNavButtons('Previous', () => handlePreviousClip())}
+        {renderNavButtons('Next', () => handleNextClip())}
       </div>
       <div
         className="buttons-container"

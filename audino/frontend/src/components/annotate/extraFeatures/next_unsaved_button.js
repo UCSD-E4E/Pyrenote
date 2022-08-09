@@ -37,7 +37,7 @@ class UnsavedButton extends React.Component {
     this.regions[id] = item;
     const { count } = this.state;
     this.state.count = count + 1;
-    this.annotate.setState({ unsavedCount: 'updated?' });
+    this.annotate.setState({ unsavedCount: 'Updated?' });
   }
 
   removeSaved(region) {
@@ -47,13 +47,13 @@ class UnsavedButton extends React.Component {
     try {
       this.regions[item[2]][1] = this.regions[id][1];
     } catch (e) {
-      console.warn('no region ahead');
+      console.warn('No region ahead');
     }
 
     try {
       this.regions[item[1]][2] = this.regions[id][2];
     } catch (e) {
-      console.warn('no region previous');
+      console.warn('No region previous');
     }
 
     if (this.selectedRegion === id) {
@@ -68,7 +68,7 @@ class UnsavedButton extends React.Component {
     delete this.regions[id];
     const { count } = this.state;
     this.state.count = count - 1;
-    this.annotate.setState({ unsavedCount: 'updated!' });
+    this.annotate.setState({ unsavedCount: 'Updated!' });
   }
 
   ifSelectedRegionNull() {

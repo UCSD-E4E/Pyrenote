@@ -68,7 +68,7 @@ class LabelValues extends React.Component {
     this.setModalShow(true);
     this.setState({
       formType: 'DELETE_LABEL_VALUE',
-      title: 'DELETE Label Value',
+      title: 'Delete Label Value',
       labelId,
       labelValueId
     });
@@ -143,7 +143,7 @@ class LabelValues extends React.Component {
                             <IconButton
                               icon={faTrash}
                               size="sm"
-                              title="Delete Label"
+                              title="Delete label"
                               onClick={e => this.handleDeleteLabel(e, labelId, labelValue.value_id)}
                             />
                           </td>
@@ -157,7 +157,7 @@ class LabelValues extends React.Component {
             <div className="row my-4 justify-content-center align-items-center">
               {isLabelValuesLoading ? <Loader /> : null}
               {!isLabelValuesLoading && labelValues.length === 0 ? (
-                <div className="font-weight-bold">No label values exists!</div>
+                <div className="font-weight-bold">No label values exist!</div>
               ) : null}
             </div>
           </div>
