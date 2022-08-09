@@ -54,7 +54,6 @@ const SideMenu = props => {
   Object.keys(tabOpen).forEach(key => {
     if (tabOpen[key]){
       tabOpened = key;
-      console.log(key);
     } 
   });
 
@@ -90,8 +89,7 @@ const SideMenu = props => {
       >
         <b>{tabOpened}</b>
       </text>
-      {console.log(referenceWindowOn != null && referenceWindowOn && tabOpen.references)}
-      {referenceWindowOn != null && referenceWindowOn && tabOpen.references ? (
+      {referenceWindowOn != null && referenceWindowOn && tabOpen.refrences ? (
         <ReferenceWindow annotate={annotate} projectId={projectId} />
       ) : null}
 

@@ -24,7 +24,8 @@ from .projects import (
     edit_project,
     update_project_users,
     give_users_examples,
-    get_project_annotations
+    get_project_annotations,
+    user_add_project
 )
 
 from .project_segmentations import (
@@ -68,5 +69,7 @@ from .data import (
 from .audios import send_audio_file
 
 from .next_clip import (
-    getNextReccomendedData, getNextClip, get_next_data_unknown
+    getNextClip, get_next_data_unknown
 )
+
+from .piha import (update_confidence_api)

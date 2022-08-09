@@ -9,6 +9,7 @@ import { animateWidth } from '../components/annotate/animation';
 import Resizer from '../components/resizerElement';
 import AnnotationWindow from '../components/annotate/annotationWindow.js';
 import FormModal from '../containers/modal';
+import { handleAllSegmentSave, handleSegmentDelete } from './annotatefunctions';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -28,7 +29,7 @@ class Annotate extends React.Component {
       labels: {},
       labelsUrl: `/api/projects/${projectId}/labels`,
       dataUrl: `/api/projects/${projectId}/data/${dataId}`,
-      segmentationUrl: `/api/projects/${projectId}/data/${dataId}/segmentations`,
+      segmentationUrl: `/api/projects/${projectId}/data/${dataId}/segmentations_batch`,
       isDataLoading: false,
       wavesurfer: null,
       zoom: 100,
@@ -119,6 +120,10 @@ class Annotate extends React.Component {
       });
   }
 
+  /*componentWillUnmount() {
+    handleAllSegmentSave(this)
+  }*/
+
   handleAlertDismiss(e) {
     e.preventDefault(e);
     this.setState({
@@ -206,7 +211,7 @@ class Annotate extends React.Component {
     const newState = this.initialState;
     newState.labelsUrl = `/api/projects/${projectId}/labels`;
     newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
-    newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations`;
+    newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations_batch`;
     newState.dataId = nextDataId;
     newState.wavesurfer = null;
 
@@ -240,14 +245,14 @@ class Annotate extends React.Component {
     let maxHeight;
     try {
       const leftWindow = document.getElementById("leftWindow")
-      console.log(leftWindow.scrollHeight)
+      //console.log(leftWindow.scrollHeight)
 
       maxHeight = Math.max(777, leftWindow.scrollHeight)+ "px"
     } catch {
       maxHeight = ""
     }
     
-    console.log(maxHeight)
+    //console.log(maxHeight)
     const { wavesurferMethods, disappear, showActiveForm, sideMenuEnabled, sideMenuOn } =
       this.state;
 

@@ -12,7 +12,6 @@ class Data extends React.Component {
     super(props);
     const { location, match } = this.props;
     const projectId = Number(match.params.id);
-
     const params = new URLSearchParams(location.search);
     this.state = {
       projectId,
@@ -31,7 +30,8 @@ class Data extends React.Component {
         completed: this.prepareUrl(projectId, 1, 'completed'),
         all: this.prepareUrl(projectId, 1, 'all'),
         marked_review: this.prepareUrl(projectId, 1, 'marked_review'),
-        not_confident: this.prepareUrl(projectId, 1, 'not_confident')
+        not_confident: this.prepareUrl(projectId, 1, 'not_confident'),
+        retired: this.prepareUrl(projectId, 1, 'retired')
       },
       nextPage: null,
       isDataLoading: false
@@ -87,6 +87,7 @@ class Data extends React.Component {
   }
 
   trackScrolling = () => {
+    const element = document.body;
     const { nextPage } = this.state;
     if (this.isBottom() && nextPage) {
       // this.setState({ isDataLoading: true });
@@ -96,13 +97,14 @@ class Data extends React.Component {
 
   isScrollLessThanWindow() {
     const yMax = document.body.scrollHeight - document.body.clientHeight;
-    return yMax <= 0;
+    return yMax <= document.body.clientHeight * 0.05;
   }
 
   isBottom() {
     // https://stackoverflow.com/questions/3898130/check-if-a-user-has-scrolled-to-the-bottom/3898152
     const element = document.body;
-    return element.scrollHeight - element.scrollTop === element.clientHeight;
+    //DETERMINE IF USER SCROLLS WITHIN 5% OF BOTTOM
+    return element.scrollHeight - element.scrollTop <= element.clientHeight + element.clientHeight * 0.05;
   }
 
   prepareUrl(projectId, page, active) {
@@ -110,6 +112,8 @@ class Data extends React.Component {
   }
 
   render() {
+    const element = document.body;
+    console.log(element.scrollHeight - element.scrollTop,  element.clientHeight)
     localStorage.setItem('previous_links', JSON.stringify([]));
     localStorage.setItem('count', JSON.stringify(0));
     const { projectId, isDataLoading, data, count, active, nextPage, tabUrls } = this.state;
@@ -161,7 +165,15 @@ class Data extends React.Component {
                       >
                         Marked for review ({count.marked_review})
                       </a>
-                    </li>
+                      </li>
+                      {this.props.showRetired? <li className="nav-item">                    
+                      <a
+                        className={`nav-link ${active === 'retired' ? 'active' : null}`}
+                        href={tabUrls.retired}
+                      >
+                        RETIRED CLIPS ({count.retired})
+                      </a>
+                    </li> : null}
                   </ul>
                 </div>
                 {data.length > 0 ? (
@@ -170,7 +182,8 @@ class Data extends React.Component {
                       <tr>
                         <th scope="col">File Name</th>
                         <th scope="col">No. of segmentations</th>
-                        <th scope="col">Created On</th>
+                        <th scope="col">Confidence</th>
+                        <th scope="col">Number Reviewed</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -183,7 +196,8 @@ class Data extends React.Component {
                               </a>
                             </td>
                             <td className="align-middle">{item.number_of_segmentations}</td>
-                            <td className="align-middle">{item.created_on}</td>
+                            <td className="align-middle">{item.confidence}</td>
+                            <td className="align-middle">{item.num_users_viewed}</td>
                           </tr>
                         );
                       })}

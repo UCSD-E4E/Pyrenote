@@ -680,20 +680,20 @@ export default class WaveSurfer extends util.Observer {
         }
 
         this.drawer.on('redraw', () => {
-            console.log(
+            /*console.log(
                 "clicked",
                 progress, e
-            )
+            )*/
             this.drawBuffer();
             this.drawer.progress(this.backend.getPlayedPercents());
         });
 
         // Click-to-seek
         this.drawer.on('click', (e, progress) => {
-            console.log(
+            /*console.log(
                 "clicked",
                 progress, e
-            )
+            )*/
             setTimeout(() => this.seekTo(progress), 0);
         });
 
@@ -951,7 +951,7 @@ export default class WaveSurfer extends util.Observer {
     }
 
     this.params.scrollParent = oldScrollParent;
-    console.log("progression")
+    //console.log("progression")
     this.fireEvent('seek', progress);
 }
 

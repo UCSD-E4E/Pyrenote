@@ -148,6 +148,9 @@ def fetch_project(project_id):
             project_id=project.id,
             name=project.name,
             is_example=project.is_example,
+            isIOU=project.is_iou,
+            threshold=project.threshold,
+            max_users=project.max_users,
             users=users,
             labels=labels,
             api_key=project.api_key,
@@ -233,12 +236,22 @@ def edit_project(project_id):
         project = Project.query.get(project_id)
         newUserName = request.json.get("name", None)
         is_example = request.json.get("is_example", None)
+        enable_IOU = request.json.get("isIOU", None)
+        threshold = int(request.json.get("conThres", None))
+        max_users = int(request.json.get("maxUsers", None))
+
+        app.logger.info(enable_IOU)
+        app.logger.info("look here")
+        app.logger.info(enable_IOU)
+        app.logger.info(max_users)
+        app.logger.info(threshold)
+   
         if (newUserName is not None or newUserName == ''):
             project.set_name(newUserName)
-
         if (is_example is not None):
-            app.logger.info(is_example)
             project.set_is_example(is_example)
+        if (enable_IOU is not None):
+            project.set_is_iou(enable_IOU, threshold, max_users)
         # user = User.query.get(user_id)
         # user.set_role(role_id)
         # user.set_username(newUserName)
@@ -422,13 +435,36 @@ def get_project_annotations(project_id):
     download_csv = request.headers["Csv"]
     try:
         project = Project.query.get(project_id)
+        THRESHOLD = project.threshold
+        MAX_USERS = project.max_users
         annotations = []
+
+        ##HEY CHANGE THIS TO A DIFFRENT DOWNLOAD AREA
+        if ((download_csv) == "iou"):
+            annotations_to_download = []
+            for data in project.data:
+                if (data.sample):
+                    continue
+                filename = os.path.splitext(data.original_filename + ".txt")
+                annotations_to_download.append({
+                    "original_filename": filename,
+                    "annotations": data.iou_matrix}
+                )
+            return (
+                jsonify(
+                    message="Annotations fetched successfully",
+                    annotations=annotations_to_download,
+                    type="FETCH_ANNOTATION_SUCCESS",
+                ),
+                200,
+            )
 
         for data in project.data:
             if (data.sample):
                 continue
 
             data_dict = data.to_dict()
+            data_dict["retired"] =  data.num_reviewed >= MAX_USERS or data.confidence >= THRESHOLD
             data_dict["segmentations"] = []
 
             for segmentation in data.segmentations:
@@ -483,6 +519,47 @@ def get_project_annotations(project_id):
             message="Annotations fetched successfully",
             annotations=annotations_to_download,
             type="FETCH_ANNOTATION_SUCCESS",
+        ),
+        200,
+    )
+
+
+@api.route("/projects/user_add_project", methods=["POST"])
+@jwt_required
+def user_add_project():
+    app.logger.info("HERE")
+    request_user = User.query.filter_by(username=get_jwt_identity()["username"]).first()
+    api_code = request.json.get("apicode", "nothing")
+    app.logger.info(api_code)
+    project = Project.query.filter(Project.api_key == (api_code)).first()
+    app.logger.info("HERE")
+    if (project == None):
+        return jsonify(
+            message="Wrong ApiCode",
+            type="INCORRECT APICODE",
+        ),205
+    
+    app.logger.info("HERE users")
+    try:
+        final_users = [user for user in project.users]
+        app.logger.info(final_users)
+        final_users.append(request_user)
+        app.logger.info(final_users)
+        project.users = final_users
+
+        db.session.add(project)
+        db.session.commit()
+    except Exception as e:
+        app.logger.info(e)
+        message = f"Error adding users to project: {project.id}"
+        return general_error(message, e, type="USERS_ASSIGNMENT_FAILED")
+    app.logger.info("HERE")
+
+    return (
+        jsonify(
+            project_id=project.id,
+            message=f"Users assigned to project: {project.name}",
+            type="USERS_ASSIGNED_TO_PROJECT",
         ),
         200,
     )

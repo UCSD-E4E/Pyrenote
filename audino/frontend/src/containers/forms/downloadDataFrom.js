@@ -101,6 +101,36 @@ class DownloadDataForm extends React.Component {
       });
   }
 
+  handleDownloadAnnotationsIOUData(e, projectName, projectId) {
+    axios({
+      method: 'get',
+      url: `/api/projects/${projectId}/annotations`,
+      headers: {
+        csv: 'iou'
+      }
+    })
+      .then(response => {
+        const { annotations } = response.data;
+        if (annotations) {
+          const data = annotations; // JSON.stringify(annotations, null, 2)
+          const zip = new JSZip();
+          data.forEach(file => {
+            zip.file(file.original_filename, file.annotations);
+          });
+          zip.generateAsync({ type: 'blob' }).then(content => {
+            FileSaver.saveAs(content, 'iou_matrices_by_file.zip');
+          });
+        } else {
+          console.warn('No annotations found');
+        }
+      })
+      .catch(error => {
+        this.setState({
+          errorMessage: error.response.data.message
+        });
+      });
+  }
+
   handleDownloadAnnotationsJSON(e, projectName, projectId) {
     axios({
       method: 'get',
@@ -259,6 +289,20 @@ class DownloadDataForm extends React.Component {
               size="lg"
               title="Download Annotations - RAVEN"
               onClick={e => this.handleDownloadAnnotationsRaven(e, projectName, projectId)}
+            />
+          </div>
+          <div
+            style={{
+              float: 'right',
+              width: '30%'
+            }}
+          >
+            <text>DOWNLOAD IOU SCORES </text>
+            <IconButton
+              icon={faDownload}
+              size="lg"
+              title="Download IOU"
+              onClick={e => this.handleDownloadAnnotationsIOUData(e, projectName, projectId)}
             />
           </div>
         </div>

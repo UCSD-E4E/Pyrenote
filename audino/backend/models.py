@@ -102,14 +102,40 @@ class Data(db.Model):
 
     confident_check = db.Column("confident_check", db.Boolean(), default=False)
 
+    confidence = db.Column("confidence", db.Float(), default=0.0, nullable=False)
+
+    users_reviewed = db.Column("users_reviewed", db.JSON(), nullable=False, default={})
+    num_reviewed = db.Column("num_reviewed", db.Integer(), nullable=False, default=0)
+
+    iou_matrix = db.Column("iou_matrix", db.String(5000), nullable=False, default="")
+
     def update_marked_review(self, marked_review):
         self.is_marked_for_review = marked_review
+
+    def set_iou_matrix(self, iou_matrix):
+        self.iou_matrix = iou_matrix
 
     def set_segmentations(self, segmentations):
         self.segmentations = segmentations
 
     def set_confident_check(self, confident_check):
         self.confident_check = confident_check
+
+    def set_confidence(self, confidence):
+        if (self.users_reviewed is not None):
+            if (len(self.users_reviewed) > 1): ##TODO Deterimine how to set this
+                self.confidence = confidence
+
+    def set_previous_users(self, user):
+        if (self.users_reviewed is None):
+            self.users_reviewed = {}
+        test = self.users_reviewed
+        test[user] = user
+        self.users_reviewed = test
+        self.num_reviewed = len(test)
+
+    def get_previous_users(self):
+        return self.users_reviewed
 
     def to_dict(self):
         return {
@@ -123,6 +149,7 @@ class Data(db.Model):
             "sampling_rate": self.sampling_rate,
             "clip_length": self.clip_length,
             "confident_check": self.confident_check,
+            "confidence": self.confidence,
         }
 
 
@@ -256,6 +283,16 @@ class Project(db.Model):
         "is_example", db.Boolean(), nullable=True, default=False
     )
 
+    is_iou = db.Column(
+        "is_iou", db.Boolean(), nullable=True, default=False
+    )
+
+    threshold = db.Column(
+        "threshold", db.Float(), default=0.75, nullable=False
+    )
+    max_users = db.Column(
+        "max_users", db.Integer(), default=5, nullable=False
+    )
     is_deleted = db.Column(
         "is_deleted",
         db.Boolean(),
@@ -272,7 +309,12 @@ class Project(db.Model):
 
     def set_is_example(self, is_example):
         self.is_example = is_example
-        app.logger.info(self.is_example)
+    def set_is_iou(self, is_iou, threshold, max_users):
+        self.is_iou = is_iou
+        if (threshold is not None):
+            self.threshold = threshold / 100
+        if (max_users is not None):
+            self.max_users = max_users
 
     def set_name(self, newUsername):
         self.name = newUsername
@@ -354,6 +396,12 @@ class Segmentation(db.Model):
         back_populates="segmentations",
     )
 
+    counted = db.Column("counted", db.Integer(), default=0)
+
+    def set_counted(self, counted):
+        self.counted = counted
+
+
     def set_start_time(self, start_time):
         self.start_time = start_time
 
@@ -395,6 +443,7 @@ class Segmentation(db.Model):
             "last_modified": self.last_modified,
             "last_modified_by": self.last_modified_by["data"],
             "time_spent": self.time_spent,
+            "counted": self.counted
         }
 
 

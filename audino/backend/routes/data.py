@@ -63,6 +63,7 @@ def generate_segmentation(
             created_by=username,
             max_freq=max_freq,
             min_freq=min_freq,
+            counted=False,
         )
     else:
         # segmentation updated for existing data
@@ -76,8 +77,8 @@ def generate_segmentation(
         segmentation.set_max_freq(max_freq)
 
     segmentation.append_modifers(username)
-    app.logger.info(segmentation.last_modified_by)
-
+    app.logger.info(segmentation.counted)
+    app.logger.info("LOOOOOOOOOOOOOOOOOK HERE")
     values = []
 
     for label_name, val in annotations.items():

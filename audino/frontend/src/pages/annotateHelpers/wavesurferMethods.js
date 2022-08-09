@@ -81,6 +81,8 @@ class WavesurferMethods {
     });
     const { history } = this.annotate.props;
     const unsavedButton = new UnsavedButton(wavesurfer, active, this.annotate);
+
+
     history.listen(() => {
       wavesurfer.stop();
     });
@@ -106,6 +108,10 @@ class WavesurferMethods {
     wavesurfer.on('region-created', region => {
       this.handlePause();
       const { storedAnnotations, applyPreviousAnnotations } = this.annotate.state;
+      const {selectedSegment} = this.state
+      if (selectedSegment) {
+        selectedSegment._onSelect(false);
+      }
       if (applyPreviousAnnotations) {
         region.data.annotations = storedAnnotations;
       }
@@ -113,6 +119,7 @@ class WavesurferMethods {
         selectedSegment: region
       });
       unsavedButton.addUnsaved(region, !region.saved);
+      //region._onSelect(true)
     });
 
     wavesurfer.on('spectrogram_created', spectrogram => {
@@ -124,13 +131,32 @@ class WavesurferMethods {
     });
 
     wavesurfer.on('region-click', (r, e) => {
+      const {selectedSegment} = this.state
+      if (selectedSegment) {
+        selectedSegment._onSelect(false);
+      }
+      
+      e.stopPropagation();
+      this.setState({
+        selectedSegment: r
+      });
+      r._onSelect(true);
+    });
+
+    wavesurfer.on('region-dblclick', (r, e) => {
+      const {selectedSegment} = this.state
+      if (selectedSegment) {
+        selectedSegment._onSelect(false);
+      }
       e.stopPropagation();
       this.setState({
         isPlaying: true,
         selectedSegment: r
       });
       r.play();
+      r._onSelect(true);
     });
+
     wavesurfer.on('pause', () => {
       this.setState({ isPlaying: false });
     });

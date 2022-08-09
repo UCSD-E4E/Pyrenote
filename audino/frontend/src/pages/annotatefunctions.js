@@ -1,21 +1,95 @@
 import axios from 'axios';
 import { errorLogger } from '../logger';
 
-const handleAllSegmentSave = annotate => {
+const handleAllSegmentSave = (annotate, callback=()=>{}) => {
   const { segmentationUrl, wavesurfer, wavesurferMethods } = annotate.state;
+
+  let segmentationData = {}
+  let segmentationId = {}
+  let key = 0;
+
   Object.values(wavesurfer.regions.list).forEach(segment => {
     if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
+      const { start, end, regionTopFrequency, regionBotFrequency } = segment;
+      const { annotations = '', segmentation_id = null } = segment.data;
+      annotate.setState({ isSegmentSaving: true });
+      const now = Date.now();
+      let time_spent = 0;
+      if (segment.lastTime === 0) {
+        time_spent = now - annotate.lastTime;
+      } else {
+        time_spent = now - segment.lastTime;
+      }
+      
+      //Create a segmentationData to add
+      //Save sement so we can change it's id after its been saved!
+      segmentationData[key] = {
+          start,
+          end,
+          regionTopFrequency,
+          regionBotFrequency,
+          annotations,
+          time_spent,
+          segmentation_id
+      }
+      segmentationId[key] = segment
+
+      key++;
+    }
+  }, key)
+
+
+  console.log(segmentationData)
+  console.log(segmentationUrl)
+
+  axios({
+    method: 'post',
+    url: segmentationUrl,
+    data: {
+      segmentationData
+    }
+  })
+    .then(response => {
+      console.log(response.data.segmentation_data)
+
+      let output = response.data.segmentation_data;
       try {
-        const { start, end, regionTopFrequency, regionBotFrequency } = segment;
-        const { annotations = '', segmentation_id = null } = segment.data;
-        annotate.setState({ isSegmentSaving: true });
-        const now = Date.now();
-        let time_spent = 0;
-        if (segment.lastTime === 0) {
-          time_spent = now - annotate.lastTime;
-        } else {
-          time_spent = now - segment.lastTime;
+        for (var key in output){
+          let segment = segmentationId[key]
+          segment.data.segmentation_id = output[key];
+          annotate.setState({
+            isSegmentSaving: false,
+            selectedSegment: segment,
+            successMessage: 'Segment saved',
+            errorMessage: null
+          });
+          wavesurferMethods.styleRegionColor(segment, 'rgba(0, 0, 0, 0.7)');
+          segment._onSave();
+          annotate.UnsavedButton.removeSaved(segment);
         }
+      } catch {
+        console.log("Data couldn't be change, was it unloaded?")
+        annotate.setState({
+          isSegmentSaving: false,
+          successMessage: null,
+          errorMessage: null
+        });
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      annotate.setState({
+        isSegmentSaving: false,
+        errorMessage: 'Error saving segment',
+        successMessage: null
+      });
+    });
+}
+
+    /*
+    if (!segment.saved && segment.data.annotations !== '' && segment.data.annotations != null) {
+      try {
+        
         segment.setLastTime(now);
         if (segmentation_id === null) {
           axios({
@@ -49,7 +123,7 @@ const handleAllSegmentSave = annotate => {
                 errorMessage: 'Error saving segment',
                 successMessage: null
               });
-              errorLogger.sendLog('Error saving segment');
+              //errorLogger.sendLog('Error saving segment');
             });
         } else {
           axios({
@@ -89,6 +163,8 @@ const handleAllSegmentSave = annotate => {
     }
   });
 };
+*/
+
 
 const removeSegment = (wavesurfer, selectedSegment, annotate) => {
   wavesurfer.regions.list[selectedSegment.id].remove();

@@ -41,6 +41,7 @@ services:
       - frontend-network
 
   mysql:
+    platform: linux/x86_64
     image: mysql:5.7
     volumes:
       - ./mysql:/mysql
@@ -60,13 +61,11 @@ services:
     volumes:
       - redis_data:/data
     environment:
-       - REDIS_PASSWORD="audino"
-       - ALLOW_EMPTY_PASSWORD=yes"
+      REDIS_PASSWORD: "audino"
     ports:
       - 6379:6379
     networks:
       - backend-network
-    command: redis-server --save 20 1 --loglevel warning --requirepass audino
 
 volumes:
   mysql_data:

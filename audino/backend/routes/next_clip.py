@@ -9,14 +9,116 @@ from werkzeug.urls import url_parse
 from .projects import give_users_examples
 from backend import app, db
 from backend.models import Project, User, Data, Segmentation
-
+from .helper_functions import remove_previously_viewed_clips
 from . import api
 
-
+@api.route("next_clip/next_rec/project/<int:project_id>/data/<int:data_id>",
+           methods=["GET"])
 @api.route("/next_clip/project/<int:project_id>/data/<int:data_id>",
            methods=["GET"])
 @jwt_required
 def getNextClip(project_id, data_id):
+    identity = get_jwt_identity()
+    app.logger.info(request.path)
+    url = request.path
+    active = request.args.get("active", "pending", type=str)
+    project = Project.query.get(project_id)
+    app.logger.info("HEY HYE HEY RIGHT HERE")
+    app.logger.info(active)
+
+    segmentations = None
+    if(project.is_iou and active =="pending"):
+        exit_info, exit_code = getNextViaConfidence(project_id, data_id, request, identity)
+        app.logger.info(exit_info)
+        app.logger.info(exit_code)
+        return exit_info, exit_code
+    elif(project.is_iou):
+        segmentations = db.session.query(Segmentation.data_id).distinct().filter_by(created_by=identity["username"]).subquery()
+    app.logger.info(url)    
+    if (url.startswith("/api/next_clip/next_rec/project/")):
+        
+        return getNextReccomendedData(project_id, data_id, request, identity, segmentations=segmentations)
+    else:
+        return getNextClipFromNextButton(project_id, data_id, request, identity, segmentations=segmentations)
+
+
+
+def getNextViaConfidence(project_id, data_id, request, identity):
+    app.logger.info("USING THIS ONE WITH CONFIDENCE")
+    identity = get_jwt_identity()
+    active = "pending"
+    dataReview = None
+    dataPending = None
+    key = identity["username"]
+    project = Project.query.get(project_id)
+    THRESHOLD = project.threshold
+    MAX_USERS = project.max_users
+    app.logger.info("THRESHOLD")
+    app.logger.info(THRESHOLD)
+    app.logger.info(MAX_USERS)
+
+    try:
+        request_user = User.query.filter_by(username=identity["username"]
+                                            ).first()
+        segmentations = db.session.query(Segmentation.data_id).distinct().filter_by(created_by=identity["username"]).subquery()
+        data = None
+        try:
+            dataPendingList = list(
+                db.session.query(Data)
+                .filter(Data.project_id == project_id)
+                .filter(or_(Data.id.notin_(segmentations), Data.users_reviewed[key] == null()))
+                .filter(Data.confidence < THRESHOLD)
+                .filter(Data.num_reviewed < MAX_USERS)
+                .filter(Data.id != data_id)
+                .distinct()
+                .all()
+            )
+
+            app.logger.info(dataPendingList)
+            item = randint(0, len(dataPendingList) - 1)
+            app.logger.info(item)
+            dataPending = dataPendingList[item]
+        except Exception as e:
+            app.logger.info("ERROR")
+            app.logger.info(e)
+            dataPending = None
+        app.logger.info("PENDING DATA")
+        app.logger.info(dataPending)
+        data = dataPending
+        app.logger.info("FINAL DATA POINT")
+        app.logger.info(data)
+        response = list(
+            [
+                {
+                    "data_id": data.id,
+                    "filename": data.filename,
+                    "original_filename": data.original_filename,
+                    "created_on": data.created_at.strftime("%B %d, %Y"),
+                    "is_marked_for_review": data.is_marked_for_review,
+                    "number_of_segmentations": len(data.segmentations),
+                    "sampling_rate": data.sampling_rate,
+                    "clip_length": data.clip_length,
+                }
+            ]
+        )
+        app.logger.info("RETURN?")
+        app.logger.info(response)
+        return (
+            jsonify(
+                data=response,
+                data_id=data.id,
+                active=active,
+            ),
+            200,
+        )
+    except Exception as e:
+        message = "Error fetching all data points"
+        app.logger.error(message)
+        app.logger.error(e)
+        return jsonify(message=message), 501
+    return 100
+
+def getNextClipFromNextButton(project_id, data_id, request, identity, segmentations=None):
     identity = get_jwt_identity()
     # page = request.args.get("page", 1, type=int)
     active = request.args.get("active", "completed", type=str)
@@ -27,12 +129,15 @@ def getNextClip(project_id, data_id):
                                             ).first()
         app.logger.info("made it here")
         project = Project.query.get(project_id)
+        THRESHOLD = project.threshold
+        MAX_USERS = project.max_users
         app.logger.info("made it here")
         if request_user not in project.users:
             return jsonify(message="Unauthorized access!"), 401
         app.logger.info("made it here")
-        segmentations = db.session.query(Segmentation.data_id
-                                         ).distinct().subquery()
+        if (segmentations == None):
+            segmentations = db.session.query(Segmentation.data_id
+                                            ).distinct().subquery()
         # Lets set big id to the {username.idenity, username.id}
         # this would make it fast but aslo render serval data points
         data = {}
@@ -65,6 +170,19 @@ def getNextClip(project_id, data_id):
             .filter(or_(Data.sample != true(), Data.sample == null()))
             .filter(Data.project_id == project_id)
             .filter(Data.id.in_(segmentations))
+            .distinct()
+            .order_by(Data.last_modified.desc())
+        )
+
+        data["retired"] = (
+            db.session.query(Data)
+            .filter(or_(Data.sample != true(), Data.sample == null()))
+            .filter(or_(request_user.id == Data.assigned_user_id[identity["username"]], Data.assigned_user_id[identity["username"]] == null()))
+            .filter(Data.project_id == project_id)
+            .filter(or_(
+                Data.num_reviewed >= MAX_USERS,
+                Data.confidence >= THRESHOLD,
+            ))
             .distinct()
             .order_by(Data.last_modified.desc())
         )
@@ -132,18 +250,18 @@ def getNextClip(project_id, data_id):
     return jsonify(message=message), 404
 
 
-@api.route("next_clip/next_rec/project/<int:project_id>/data/<int:data_id>",
-           methods=["GET"])
-@jwt_required
-def getNextReccomendedData(project_id, data_id):
+
+def getNextReccomendedData(project_id, data_id, request, identity, segmentations=None):
+    app.logger.info("USING THIS ONE")
     identity = get_jwt_identity()
     active = "pending"
 
     try:
         request_user = User.query.filter_by(username=identity["username"]
                                             ).first()
-        segmentations = db.session.query(Segmentation.data_id
-                                         ).distinct().subquery()
+        if (segmentations == None):
+            segmentations = db.session.query(Segmentation.data_id
+                                            ).distinct().subquery()
         data = None
         try:
             dataPendingList = list(
