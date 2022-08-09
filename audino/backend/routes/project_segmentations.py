@@ -285,9 +285,13 @@ def get_segmentations_for_data(project_id, data_id):
         
         segmentations = []
         for segment in data.segmentations:
+            app.logger.info("THERE ARE SEGMENTATIONS!!")
             previous_users = segment.created_by
             app.logger.info(previous_users)
-            if (not identity["username"] in previous_users): 
+            is_admin = True if request_user.role.role == "admin" else False
+            
+            # Only show annotations if the projct is normal, the user made annotations, or  the user is an admin
+            if ((project.is_example or project.is_iou) and not is_admin and not identity["username"] in previous_users): 
                 continue
             resp = {
                 "segmentation_id": segment.id,
@@ -313,9 +317,11 @@ def get_segmentations_for_data(project_id, data_id):
                     values[value.label.name]["values"] = value.id
 
             resp["annotations"] = values
-
+            app.logger.info(resp)
+            app.logger.info(segmentations)
             segmentations.append(resp)
 
+        app.logger.info(segmentations)
         response = {
             "filename": data.filename,
             "original_filename": data.original_filename,
