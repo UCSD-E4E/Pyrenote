@@ -12,7 +12,7 @@ class ToggleYesNo extends React.Component {
     this.dataID = dataID;
     this.dataUrl = dataUrl;
     this.state = {
-      yes: !isMarkedForReview
+      yes: isMarkedForReview
     };
   }
 
