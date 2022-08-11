@@ -85,7 +85,7 @@ class Annotate extends React.Component {
         const spectrogramDemoOn= response.data.features_list['spectrogram demo'];
         console.log(response.data.features_list);
         this.setState({
-          navButtonsEnabled: response.data.features_list['next button'],
+          navButtonsEnabled: response.data.features_list['next button'] == null || response.data.features_list['next button'],
           referenceWindowOn: response.data.features_list['reference window'],
           sideMenuOn: response.data.features_list['side menu'],
           spectrogramDemoOn, toUnsavedClipOn,
