@@ -1,5 +1,10 @@
 import React from 'react';
 
+/*
+ * Error
+ * Genertic Error Page
+ * Shown to use for a critical error
+ */
 const Error = props => {
   const { message } = props;
   return (

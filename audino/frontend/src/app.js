@@ -29,6 +29,11 @@ const initialState = {
   isLoading: false
 };
 
+/**
+ * PrivateRoutes 
+ * Renders components if the url leads to that page and 
+ * The user is logged in
+ */
 const PrivateRoute = withStore(({ component: Component, ...rest }) => {
   const isUserLoggedIn = rest.store.get('isUserLoggedIn');
   const isAdmin = rest.store.get('isAdmin');
@@ -51,6 +56,10 @@ const PrivateRoute = withStore(({ component: Component, ...rest }) => {
   );
 });
 
+/**
+ * PrivateRoutes
+ * Render components that anyone can access regradless of if the user is logged in or not. 
+ */
 const PublicRoute = withStore(({ component: Component, ...rest }) => {
   return (
     <Route
@@ -62,9 +71,23 @@ const PublicRoute = withStore(({ component: Component, ...rest }) => {
   );
 });
 
+/**
+ * <App/>
+ * This component takes care of all redirection work for each page
+ * Handles login and logout stuff here too 
+ */
 class App extends React.Component {
+  /**
+   * Starting command for frist loading website
+   * Determines if user is logged in, if they are an admin.
+   * If they are logged in, they are send to the main site
+   * If not they are given the login page
+   * 
+   * Also handles issues with server restarts and creating new users
+   */
   componentDidMount() {
     const { store } = this.props;
+    //Determine if the users is trying to create a new account
     let isUserCreatingAccount = store.get('isUserCreatingAccount');
     if (window.location.href.includes('/newUser')) {
       isUserCreatingAccount = true;
@@ -72,6 +95,8 @@ class App extends React.Component {
       isUserCreatingAccount = false;
       store.set('isUserCreatingAccount', false);
     }
+    
+    //If the user is a normal user
     if (!isUserCreatingAccount) {
       const apiUrl = '/auth/is_logged_in';
       axios({
@@ -79,30 +104,46 @@ class App extends React.Component {
         url: apiUrl
       })
         .then(response => {
+          //get if the user is logged in and save it to storage
           const { is_logged_in } = response.data;
           store.set('isUserLoggedIn', is_logged_in);
+
+          //If the user is logged in, set thier account information
+          //This way we can retrive this information locally
           if (is_logged_in === true) {
             const { username, is_admin } = response.data;
             store.set('isAdmin', is_admin);
             store.set('username', username);
           }
+
+          //If there is no path, attempt to send the user to the dashboard
+          //Otherwise just send the user to the same location they were before
           if (history.location.pathname === '/') {
             history.push('/dashboard');
           } else {
+            //This case is likely in the case of a refresh or using history to go
+            //back to a user
             history.push(history.location.pathname);
           }
         })
         .catch(error => {
+          //If they are not quite signed in yet, there may be some other things
+          //the user is trying to do
           if (error.response.status === 401) {
+            //Check if the user is trying to create a new account
             if (history.location.pathname === '/newUser') {
               store.set('isUserCreatingAccount', true);
               history.push('/newUser');
             } else {
+              //If they are not, push them to the main page to login
               history.push('/');
               store.set('isUserLoggedIn', false);
               store.set('isUserCreatingAccount', false);
             }
           }
+          //In the case of a server reset, the redis tokens will
+          //be reset, hence we will no longer recongize the user
+          //requring them to sign in again
           if (error.response.status === 422) {
             localStorage.removeItem('access_token');
             history.push('/');
@@ -111,12 +152,17 @@ class App extends React.Component {
           }
         });
     } else {
+      //If the user is creating an account, send them to that page
       store.set('isUserCreatingAccount', true);
       store.set('isUserLoggedIn', false);
       history.push('/newUser');
     }
   }
 
+  /**
+   * Create a router to send the user everwhere in the site!
+   * @returns A component containing all the possible pages that a user may go to
+   */
   render() {
     const { store } = this.props;
     const isUserLoggedIn = store.get('isUserLoggedIn');
@@ -129,10 +175,14 @@ class App extends React.Component {
     return (
       <Router>
         <div className="app">
+          {/* Creates top nav bar */}
           <Helmet titleTemplate="%s | Pyrenote" defaultTitle="Pyrenote" />
           <NavBar />
+
+          {/* swtich for the diffrent pages a user may be on */}
           <Suspense fallback={<div>Loading...</div>}>
             <Switch>
+              {/* depending on if the user is logged in or not, send them to the starting webpages */}
               <Route
                 exact
                 path="/"
@@ -147,6 +197,8 @@ class App extends React.Component {
                   return <Redirect {...props} to="/dashboard" />;
                 }}
               />
+
+              {/* This section of code renders these pages when the user goes to the spefified path */}
               <PublicRoute exact path="/newUser" component={CreateUser} />
               <Route path="/empty" component={null} key="empty" />
               <PrivateRoute exact path="/admin" component={Admin} />

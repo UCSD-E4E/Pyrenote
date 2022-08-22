@@ -9,6 +9,15 @@ import { IconButton } from '../components/button';
 import Loader from '../components/loader';
 import FormModal from '../containers/labelValueModal';
 
+
+/**
+ * LabelValues
+ * Admin Page
+ * Displays the diffrent label values that are possible selections
+ * For that spefified label category
+ * 
+ * Unlike other forms, this is is own webpage accessible via admin protal -> labels categories -> label values. 
+ */
 class LabelValues extends React.Component {
   constructor(props) {
     super(props);

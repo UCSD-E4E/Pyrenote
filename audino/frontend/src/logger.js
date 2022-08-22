@@ -1,10 +1,19 @@
 import axios from 'axios';
 
+/**
+ * Sends error messages to server
+ * This way we can see browser errors without needing users to open
+ * the inspect tool!
+ */
 class Logger {
   constructor(logLvl) {
     this.logLvl = logLvl;
   }
 
+  /**
+   * function to give server error info from frontend
+   * @param message str containing error message
+   */
   sendLog(message) {
     axios({
       url: '/api/log_msg',
