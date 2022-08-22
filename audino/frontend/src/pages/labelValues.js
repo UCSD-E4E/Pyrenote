@@ -33,6 +33,11 @@ class LabelValues extends React.Component {
     };
   }
 
+  /**
+   * Starting method, runs when the component runs for the frist time
+   * For this case: if there are already label values create for that label category,
+   * pull those label values from the backend so the admins can see them
+   */
   componentDidMount() {
     const { getLabelValuesUrl } = this.state;
     this.setState({ isLabelValuesLoading: true });
@@ -55,6 +60,10 @@ class LabelValues extends React.Component {
       });
   }
 
+  /**
+   * If we want to create a new label values, pull up the
+   * create label values modal
+   */
   handleNewLabelValues() {
     this.setModalShow(true);
     this.setState({
@@ -63,6 +72,13 @@ class LabelValues extends React.Component {
     });
   }
 
+  /**
+   * If we want to edit a label value, pull up the
+   * edit label values modal
+   * @param {*} e 
+   * @param {*} labelId ID of label category
+   * @param {*} labelValueId ID of label value to edit
+   */
   handleEditLabelValue(e, labelId, labelValueId) {
     this.setModalShow(true);
     this.setState({
@@ -73,6 +89,13 @@ class LabelValues extends React.Component {
     });
   }
 
+  /**
+   * If we want to edit a label value, pull up the
+   * delete label values modal
+   * @param {*} e 
+   * @param {*} labelId ID of label category
+   * @param {*} labelValueId ID of label value to delete
+   */
   handleDeleteLabel(e, labelId, labelValueId) {
     this.setModalShow(true);
     this.setState({
@@ -83,20 +106,32 @@ class LabelValues extends React.Component {
     });
   }
 
+  /**
+   * Wrapper for letting the state know if a modal is displayed or not
+   * @param {*} modalShow 
+   */
   setModalShow(modalShow) {
     this.setState({ modalShow });
   }
 
+  /**
+   * Reset the label values by recalling the setup function
+   */
   refreshPage() {
     this.componentDidMount();
   }
 
+  /**
+   * @returns React Component for Displaying, deleting, editing, and creating label values for a spefific
+   * label category
+   */
   render() {
     const { labelValues, labelId, labelValueId, formType, title, modalShow, isLabelValuesLoading } =
       this.state;
     return (
       <div>
         <div className="container h-100">
+          {/* Set up Generic Modal For editing, delting, and creating label values */}
           <FormModal
             onExited={() => this.refreshPage()}
             formType={formType}
@@ -106,9 +141,12 @@ class LabelValues extends React.Component {
             labelValueId={labelValueId}
             onHide={() => this.setModalShow(false)}
           />
+
+          {/* Table to dispaly label values that exist already */}
           <div className="h-100 mt-5">
             <div className="row border-bottom my-3">
               <hr />
+              {/* Header that contains button for creating labels */}
               <div className="float-right">
                 <h1 className="text-right">
                   <IconButton
@@ -119,6 +157,11 @@ class LabelValues extends React.Component {
                   />
                 </h1>
               </div>
+              {/* 
+                Rows of tables to display 
+                - if there is data, display the data
+                - Else show a genertic loader symbol
+              */}
               {!isLabelValuesLoading && labelValues.length > 0 ? (
                 <table className="table table-striped">
                   <thead>
@@ -131,6 +174,7 @@ class LabelValues extends React.Component {
                     </tr>
                   </thead>
                   <tbody>
+                    {/* Each row contains metadata for label values and buttons for editing and deleting */}
                     {labelValues.map((labelValue, index) => {
                       return (
                         <tr key={index}>
@@ -163,6 +207,11 @@ class LabelValues extends React.Component {
                 </table>
               ) : null}
             </div>
+            {
+              /* while data loads, show a loader, 
+                otherwise the data may not exist. 
+                Better let the user know!! */
+            }
             <div className="row my-4 justify-content-center align-items-center">
               {isLabelValuesLoading ? <Loader /> : null}
               {!isLabelValuesLoading && labelValues.length === 0 ? (

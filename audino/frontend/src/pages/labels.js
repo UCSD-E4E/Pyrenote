@@ -9,6 +9,11 @@ import { IconButton } from '../components/button';
 import Loader from '../components/loader';
 import FormModal from '../containers/modal';
 
+/**
+ * Labels react component
+ * Displays a table containing data and editing functions for label categories
+ * Accessible via labels button from admin portal
+ */
 class Labels extends React.Component {
   constructor(props) {
     super(props);
@@ -26,21 +31,27 @@ class Labels extends React.Component {
     };
   }
 
+  /**
+   * Gets data for label categories if those labels already exist
+   */
   componentDidMount() {
     const { getLabelsUrl } = this.state;
     this.setState({ isLabelsLoading: true });
 
+    //get labels from backend here
     axios({
       method: 'get',
       url: getLabelsUrl
     })
       .then(response => {
+        //once the backend sends data, set it into state
         this.setState({
           labels: response.data.labels,
           isLabelsLoading: false
         });
       })
       .catch(error => {
+        //standard error handling
         console.error(error);
         this.setState({
           isLabelsLoading: false
@@ -48,6 +59,9 @@ class Labels extends React.Component {
       });
   }
 
+  /**
+   * Handle displaying modal changes to create a new label category
+   */
   handleNewLabel() {
     this.setModalShow(true);
     this.setState({
@@ -56,6 +70,9 @@ class Labels extends React.Component {
     });
   }
 
+  /**
+   * Handle displaying modal for editing label category
+   */
   handleEditLabel(e, labelId) {
     this.setModalShow(true);
     this.setState({
@@ -65,6 +82,9 @@ class Labels extends React.Component {
     });
   }
 
+  /**
+   * Handle displaying modal for deleting label category
+   */
   handleDeleteCategory(e, labelId) {
     this.setModalShow(true);
     this.setState({
@@ -74,10 +94,16 @@ class Labels extends React.Component {
     });
   }
 
+  /**
+   * wrapper to display modal
+   */
   setModalShow(modalShow) {
     this.setState({ modalShow });
   }
 
+  /**
+   * Handler to refresh the page with new information
+   */
   refreshPage() {
     const { history } = this.props;
     const { labelsUrl } = this.state;
@@ -87,14 +113,19 @@ class Labels extends React.Component {
     });
   }
 
+  /**
+   * @returns React component containing a table to display and edit labels
+   */
   render() {
     const { labels, projectId, labelId, formType, title, modalShow, isLabelsLoading } = this.state;
     return (
       <div>
+        {/* title of page */}
         <Helmet>
           <title>Manage Labels</title>
         </Helmet>
         <div className="container h-100">
+          {/* render the modal here */}
           <FormModal
             onExited={() => this.refreshPage()}
             formType={formType}
@@ -106,6 +137,7 @@ class Labels extends React.Component {
           />
           <div className="h-100 mt-5">
             <div className="row border-bottom my-3">
+              {/* Header for title of table and button to add new rows */}
               <div className="col float-left">
                 <h1>Labels</h1>
               </div>
@@ -120,8 +152,11 @@ class Labels extends React.Component {
                   />
                 </h1>
               </div>
+
+              {/* If there is data to display, display it */}
               {!isLabelsLoading && labels.length > 0 ? (
                 <table className="table table-striped">
+                  {/* Columns heads */}
                   <thead>
                     <tr>
                       <th scope="col">#</th>
@@ -132,17 +167,22 @@ class Labels extends React.Component {
                       <th scope="col">Options</th>
                     </tr>
                   </thead>
+                  {/* data rows */}
                   <tbody>
                     {labels.map((label, index) => {
                       return (
                         <tr key={index}>
+                          {/* index with 1-indexing */}
                           <th scope="row" className="align-middle">
                             {index + 1}
                           </th>
+                          {/* metadata for label */}
                           <td className="align-middle">{label.label_id}</td>
                           <td className="align-middle">{label.name}</td>
                           <td className="align-middle">{label.type}</td>
                           <td className="align-middle">{label.created_on}</td>
+                          
+                          {/* editing tools for label */}
                           <td className="align-middle">
                             <IconButton
                               icon={faEdit}
@@ -165,7 +205,9 @@ class Labels extends React.Component {
               ) : null}
             </div>
             <div className="row my-4 justify-content-center align-items-center">
+              {/* if there is data loading, display laoder */}
               {isLabelsLoading ? <Loader /> : null}
+              {/* Otherwise, let the user know they need to add some data! */}
               {!isLabelsLoading && labels.length === 0 ? (
                 <div className="font-weight-bold">No labels exist!</div>
               ) : null}

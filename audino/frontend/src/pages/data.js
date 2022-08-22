@@ -7,6 +7,11 @@ import Loader from '../components/loader';
 
 const datas = [];
 
+/**
+ * Data React Component
+ * Given a spefific project, list the audio data in said project
+ * Display audio data in a table so user can access the files
+ */
 class Data extends React.Component {
   constructor(props) {
     super(props);
