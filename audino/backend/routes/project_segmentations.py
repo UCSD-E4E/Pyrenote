@@ -6,7 +6,7 @@ from backend.models import Project, User, Data, Segmentation
 from . import api
 from .data import generate_segmentation
 from .helper_functions import general_error, missing_data
-from .piha import (update_confidence)
+from .data_sci_processing import (update_confidence)
 
 @api.route(
     "/projects/<int:project_id>/data/<int:data_id>/segmentations/<int:seg_id>",
@@ -38,6 +38,7 @@ def delete_segmentations(project_id, data_id, seg_id):
         update_confidence(project_id, data_id, username)
         
     except Exception as e:
+        app.logger.info(e)
         msg = f"Could not delete segmentation"
         return general_error(msg, e, type="SEGMENTATION_DELETION_FAILED")
 
@@ -147,6 +148,7 @@ def add_segmentations_batch(project_id, data_id):
         if (segmentation_data != None):
             update_confidence(project_id, data_id, username)
     except Exception as e:
+        app.logger.info(e)
         message = f"Could not create CONFIDENCE"
 
     return (
@@ -247,6 +249,8 @@ def add_segmentations(project_id, data_id, seg_id=None):
     try:
         update_confidence(project_id, data_id, username)
     except Exception as e:
+        app.logger.info("HEY CONFIDENCE IS BROKE")
+        app.logger.info(e)
         msg = f"Could not create CONFIDENCE"
 
     if request.method == "POST":
