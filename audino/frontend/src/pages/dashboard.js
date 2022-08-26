@@ -8,6 +8,12 @@ import { errorLogger } from '../logger';
 import Modal from 'react-bootstrap/Modal';
 import { FormAlerts } from '../components/alert';
 
+/**
+ * The dashboard is a table containing all the links to each of the projects
+ * That a user is assigned to
+ * 
+ * If the project is set as example, it will always be shown on the Dashboard
+ */
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
@@ -22,6 +28,10 @@ class Dashboard extends React.Component {
     };
   }
 
+  /**
+   * When the page loads, get all the project metadata that a user is assigned to
+
+   */
   componentDidMount() {
     this.setState({ isProjectLoading: true });
 
@@ -30,12 +40,14 @@ class Dashboard extends React.Component {
       url: '/api/current_user/projects'
     })
       .then(response => {
+        //set metadata into the state
         this.setState({
           projects: response.data.projects,
           isProjectLoading: false
         });
       })
       .catch(e => {
+        //standard error
         this.setState({
           isProjectLoading: false
         });
@@ -43,15 +55,25 @@ class Dashboard extends React.Component {
       });
   }
 
+  /**
+   * If the user click the "Quick Start" button on a project
+   * Send that user to a "pending" audio file randomly selected from the backend+
+   * @param {*} projectId 
+   */
   getRecommendedData(projectId) {
     axios({
       method: 'get',
       url: `api/next_clip/next_rec/project/${projectId}/data/1`
     })
       .then(response => {
+        //If everything works, get the file's id that the backend has choosen
+        //and send the user to that file's annotation page
         if (response.status == 200) {
+          //get path preprocessing
           const index = window.location.href.indexOf('/dashboard');
           const path = window.location.href.substring(0, index);
+
+          //Set up for annotation work
           localStorage.setItem('active', 'recommended');
           localStorage.setItem('previous_links', JSON.stringify([]));
           localStorage.setItem('count', JSON.stringify(0));
@@ -59,6 +81,7 @@ class Dashboard extends React.Component {
         } 
       })
       .catch(() => {
+        //TODO: ADD ERROR MESSAGE HERE
         this.setState({
           isProjectLoading: false
         });
