@@ -50,62 +50,101 @@ class Annotate extends React.Component {
 
     //Set up the state of annotate here
     this.initialState = {
-      colorChange: 0,
-      next_data_url: '',
-      next_data_id: -1,
-      isPlaying: false,
-      projectId,
+      //save data found in params
       dataId,
-      labels: {},
-      labelsUrl: `/api/projects/${projectId}/labels`,
-      dataUrl: `/api/projects/${projectId}/data/${dataId}`,
-      segmentationUrl: `/api/projects/${projectId}/data/${dataId}/segmentations_batch`,
-      isDataLoading: false,
+      projectId,
+    
+      //save objects containing functions to change
+      //spectrogram and regions
       wavesurfer: null,
-      zoom: 100,
-      playbackRate: 100,
-      isMarkedForReview: false,
-      isMarkedForReviewLoading: false,
+      //the currently selected region
       selectedSegment: null,
-      isSegmentDeleting: false,
+
+      //status messages
       errorMessage: null,
       errorUnsavedMessage: null,
       successMessage: null,
-      isRendering: true,
-      data: [],
-      previous_pages: [],
+
+      //magic nums
+      colorChange: 0,
+      next_data_id: -1,
       num_of_prev: 0,
       numpage: 5,
+      playbackRate: 100,
+      zoom: 100,
+      
+      //flags
+      initWavesurfer: false,
+      isDataLoading: false,
+      isMarkedForReview: false,
+      isMarkedForReviewLoading: false,
+      isPlaying: false,
+      isRendering: true,
+      isSegmentDeleting: false,
+      
+      //array storages
+      labels: {},
+      data: [],
+      previous_pages: [],
+
+      // URL data
+      dataUrl: `/api/projects/${projectId}/data/${dataId}`,
+      labelsUrl: `/api/projects/${projectId}/labels`,
+      next_data_url: '',
       path: window.location.href.substring(0, index),
-      direction: null,
+      segmentationUrl: `/api/projects/${projectId}/data/${dataId}/segmentations_batch`,
+      
+      //Extra feature flags/data
       referenceWindowOn: false,
       storedAnnotations: null,
       boundingBox: true,
-      initWavesurfer: false,   
       disappear: 'sideMenu',
       showActiveForm: localStorage.getItem('active') == null,
-      addRegionMode: true
+      addRegionMode: true,
+      
+      
+      //TODO FIGURE OUT FUNCTION OF:
+      direction: null,
     };
+    
+    //Save state
     this.state = this.initialState;
+    
+    //Save time to add to time_spent later
     this.lastTime = 0;
+
+    //Refrence of labels compoennt
     this.labelRef = {};
+
+    //Object containing method for unsaving
     this.UnsavedButton = null;
   }
 
+  /**
+   * Loads in the audio data, labels, and features toggle settings into
+   * annotation page
+   */
   componentDidMount() {
+    //start tracking time
     this.lastTime = Date.now();
+
+    //record current audio file as previously visted so we can access it
+    //via previous button
     this.savePrevious();
 
+    //load URL to get data from
     const { projectId, labelsUrl, dataUrl } = this.state;
-
     let boundingBox = null;
+
+    //GET TOGGLE STATES OF EXTRA ANNOATE FEATURES
     axios({
       method: 'get',
       url: `/api/projects/${projectId}/toggled`
     })
       .then(response => {
         // take all the current values of featuresList, include the new ones defined at the line 27
-
+        
+        //Get toggle state of each feature
         boundingBox = response.data.features_list['2D Labels'];
         const referenceWindowOn = response.data.features_list['reference window'];
         const applyPreviousAnnotations= response.data.features_list['auto annotate'];
@@ -113,6 +152,8 @@ class Annotate extends React.Component {
         const playbackOn= response.data.features_list.playbackOn;
         const spectrogramDemoOn= response.data.features_list['spectrogram demo'];
         console.log(response.data.features_list);
+        
+        //save toggle states in annoatate's states to enable/disable them later
         this.setState({
           navButtonsEnabled: response.data.features_list['next button'] == null || response.data.features_list['next button'],
           referenceWindowOn: response.data.features_list['reference window'],
@@ -122,6 +163,10 @@ class Annotate extends React.Component {
           sideMenuEnabled: response.data.features_list['side menu']||referenceWindowOn||spectrogramDemoOn||applyPreviousAnnotations||toUnsavedClipOn||playbackOn
         });
 
+
+        //Now that features are enabled, we can render in wavesurfer
+        //Create the wavesurfer object via WavesurferMethods so we can prepare
+        //rendering audio data
         const wavesurferMethods = new WavesurferMethods({
           annotate: this,
           state: this.state,
@@ -129,6 +174,8 @@ class Annotate extends React.Component {
         });
         const { wavesurfer, unsavedButton } = wavesurferMethods.loadWavesurfer();
         this.UnsavedButton = unsavedButton;
+
+        //LOAD AUDIO FILE INTO WAVESURFER FOR RENDERING
         axios
           .all([axios.get(labelsUrl), axios.get(dataUrl)])
           .then(response => {
@@ -153,6 +200,10 @@ class Annotate extends React.Component {
     handleAllSegmentSave(this)
   }*/
 
+  /**
+   * Dismiss status alert
+   * @param {*} e 
+   */
   handleAlertDismiss(e) {
     e.preventDefault(e);
     this.setState({
@@ -162,6 +213,10 @@ class Annotate extends React.Component {
     });
   }
 
+  /**
+   * Given a list of regions, load them into wavesurfer to render
+   * @param {*} regions 
+   */
   loadRegions(regions) {
     const { wavesurfer } = this.state;
     regions.forEach(region => {
@@ -170,6 +225,10 @@ class Annotate extends React.Component {
     });
   }
 
+  /**
+   * Save the current dataID so we can pull that audio file's information
+   * after clicking previous
+   */
   savePrevious() {
     let linksArray = [];
     let count = 0;
@@ -185,15 +244,28 @@ class Annotate extends React.Component {
     this.setState({ previous_pages: linksArray, num_of_prev: count });
   }
 
+  /**
+   * Load in the audio file's metadata into wavesurfer for rendering
+   * in the spectrogram and regions
+   * 
+   * Last step of spectrogram rendering
+   * @param {*} response 
+   * @param {*} boundingBox 
+   * @param {*} wavesurfer 
+   * @param {*} wavesurferMethods 
+   */
   loadFileMetadata(response, boundingBox, wavesurfer, wavesurferMethods) {
     this.setState({
       isDataLoading: false,
       labels: response[0].data
     });
 
+    //Get data from backend
     const { is_marked_for_review, segmentations, filename, original_filename } = response[1].data;
 
+    //render each region saved in the backend
     const regions = segmentations.map(segmentation => {
+      //bounding box allows for 8 points of movement
       if (boundingBox) {
         return {
           start: segmentation.start_time,
@@ -208,6 +280,7 @@ class Annotate extends React.Component {
           }
         };
       }
+      //Otherwise just render a normal saved region
       return {
         start: segmentation.start_time,
         end: segmentation.end_time,
@@ -221,44 +294,79 @@ class Annotate extends React.Component {
       };
     });
 
+    //Update state
     this.setState({
       isDataLoading: false,
       isMarkedForReview: is_marked_for_review,
       original_filename
     });
 
+    //Actually load the audio file into wavesurfer for rendering
     wavesurfer.load(`/audios/${filename}`);
+
+    //Adjust zoom of spectrogram
     const { zoom } = this.state;
     wavesurfer.zoom(zoom);
 
+    //Save now completed waveurfer and wavesurferMethods for possible
+    //rerendering
     this.setState({ wavesurfer, wavesurferMethods });
+
+    //Now that spectrogram is ready, load the regions on top of it
     this.loadRegions(regions);
   }
 
+  /**
+   * Load in the next audio file
+   * @param {*} nextDataId of new file
+   */
   nextPage(nextDataId) {
+    //We want to refresh the page, without refreshing
+    //this implies setting a fresh state of the wavesurfer
     const { wavesurfer, projectId } = this.state;
     const newState = this.initialState;
+
+    //Update key aspects of the state that rely on a new DataId
     newState.labelsUrl = `/api/projects/${projectId}/labels`;
     newState.dataUrl = `/api/projects/${projectId}/data/${nextDataId}`;
     newState.segmentationUrl = `/api/projects/${projectId}/data/${nextDataId}/segmentations_batch`;
     newState.dataId = nextDataId;
+    
+    //We want to rerender the wavesurfer to get a new spectrogram
     newState.wavesurfer = null;
-
     wavesurfer.destroy();
+
+    //Set the new state and redo start up sequence
     this.setState(newState, () => {
       this.componentDidMount();
     });
   }
 
+  /**
+   * Handle saving slider value for spectrogram color change feature
+   * 
+   * See audino\frontend\src\components\annotate\spectroChanger.js
+   * @param {*} e 
+   */
   ChangeColorChange(e) {
     this.setState({ colorChange: e.target.value });
   }
 
+  /**
+   * Handle logic for collapsing the side bar
+   * 
+   * See audino\frontend\src\components\sideMenu.js
+   * see audino\frontend\src\components\resizerElement.js
+   */
   collapseSideBar() {
     const { disappear } = this.state;
+
+    //If the side bar is collapse, animate it so it comes back
     if (disappear === 'sideMenuDisappear') {
       this.setState({ disappear: 'sideMenu' });
       animateWidth(document.body.offsetWidth * 0.3, 0.6, 'sideMenuDisappear');
+
+    //If the side bar is open, animate it's close
     } else {
       animateWidth(0, 0.6, 'sideMenu', () => {
         this.setState({ disappear: 'sideMenuDisappear' });
@@ -266,11 +374,23 @@ class Annotate extends React.Component {
     }
   }
 
+  /**
+   * Extra function to set if regions should be created or not
+   * @param {} addRegionMode 
+   */
   setAddRegionMode = (addRegionMode) => {
     this.setState({addRegionMode: addRegionMode})
   }
 
+  /**
+   * Renders the full annotate page
+   * 
+   * For Devs: Large portions of the annotate rendering is abstracted
+   * See file comment for more details
+   */
   render() {
+
+    //Determine the max hight of the spectrogram
     let maxHeight;
     try {
       const leftWindow = document.getElementById("leftWindow")
@@ -281,10 +401,11 @@ class Annotate extends React.Component {
       maxHeight = ""
     }
     
-    //console.log(maxHeight)
+    //Load needed state values
     const { wavesurferMethods, disappear, showActiveForm, sideMenuEnabled, sideMenuOn } =
       this.state;
 
+    //If the wavesurferMethods exist, update it with the latest state value of annotate
     if (wavesurferMethods) {
       wavesurferMethods.updateState(this.state);
     }
@@ -295,6 +416,8 @@ class Annotate extends React.Component {
         <Helmet>
           <title>Annotate</title>
         </Helmet>
+        
+        {/**Create modal for changing active extra feature */}
         <FormModal
           formType="SET_ACTIVE"
           title="select active"
@@ -302,8 +425,13 @@ class Annotate extends React.Component {
           annotate={this}
           onHide={() => this.setState({ showActiveForm: false })}
         />
+
+        {/** Render the sidemenu + annotate portal or annotate portal */}
         {sideMenuEnabled? (
           <div className="containerAnnotate">
+            {/** Render the sidemenu + annotate portal*/}
+            
+            {/** Render sidemenu and animation objects here*/}
             <span
               className={disappear}
               id="rightWindow"
@@ -312,6 +440,7 @@ class Annotate extends React.Component {
               <SideMenu annotate={this} />
             </span>
 
+            {/** Render resizer which can change width of side menu and collpase it*/}
             <Resizer
               annotate={this}
               isOpen={disappear !== 'sideMenuDisappear'}
@@ -319,6 +448,8 @@ class Annotate extends React.Component {
               leftID="leftWindow"
               propertySwapCallabck={() => this.collapseSideBar()}
             />
+            
+            {/** Render annotation portal with width of total width - sidebar*/}
             <span
               className="AnnotationRegion"
               id="leftWindow"
@@ -329,6 +460,7 @@ class Annotate extends React.Component {
           </div>
         ) : (
           <div className="container h-100">
+            {/** Render annotation portal with full with and no side menu*/}
             <AnnotationWindow annotate={this} setAddRegionMode={this.setAddRegionMode} />
           </div>
         )}

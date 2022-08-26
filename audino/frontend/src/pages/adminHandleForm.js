@@ -10,6 +10,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from '../components/button';
 
+/**
+ * Admin portal requires a lot of data entry for forms
+ * This generic method allows for simplifed rendering of diffrent kinds
+ * of forms found on the admin portal
+ */
 class AdminHandleFormProjects extends React.Component {
   constructor(props) {
     super(props);
@@ -21,11 +26,21 @@ class AdminHandleFormProjects extends React.Component {
     };
   }
 
+  /**
+   * Redirects users to label page to create labels categories and values
+   * @param {*} e 
+   * @param {*} projectId 
+   */
   handleAddLabelsToProject(e, projectId) {
     const { history } = this.adminProps;
     history.push(`/projects/${projectId}/labels`);
   }
 
+  /**
+   * Open Modal to Edit main project information handlers
+   * @param {*} e 
+   * @param {*} projectId 
+   */
   handleEditProject(e, projectId) {
     this.showModal({
       formType: 'Edit_PROJECT',
@@ -34,6 +49,11 @@ class AdminHandleFormProjects extends React.Component {
     });
   }
 
+  /**
+   * Open Modal to Add users to project
+   * @param {*} e 
+   * @param {*} projectId 
+   */
   handleAddUsersToProject(e, projectId, projectName) {
     this.showModal({
       formType: 'MANAGE_PROJECT_USERS',
@@ -42,6 +62,11 @@ class AdminHandleFormProjects extends React.Component {
     });
   }
 
+  /**
+   * Open Modal to data to a project from admin portal
+   * @param {*} e 
+   * @param {*} projectId 
+   */
   handleUploadDataToProject(e, projectName, projectId, api_key) {
     this.showModal({
       formType: 'UPLOAD_DATA',
@@ -52,6 +77,11 @@ class AdminHandleFormProjects extends React.Component {
     });
   }
 
+  /**
+   * Open Modal to download annotations for a given project
+   * @param {*} e 
+   * @param {*} projectId 
+   */
   handleDownloadDataToProject(e, projectName, projectId, api_key) {
     this.showModal({
       formType: 'DOWNLOAD_DATA',
@@ -62,6 +92,11 @@ class AdminHandleFormProjects extends React.Component {
     });
   }
 
+  /**
+   * Open Modal to change toggleable features
+   * @param {*} e 
+   * @param {*} projectId 
+   */
   handleFeatureToggle(e, projectName, projectId, api_key) {
     this.showModal({
       formType: 'FEATURE_FORM',
@@ -72,6 +107,11 @@ class AdminHandleFormProjects extends React.Component {
     });
   }
 
+  /**
+   * Render admin portal buttons for opening modal forms for editing
+   * project state
+   * @returns html for a row of icon buttons for a single project
+   */
   render() {
     let adminHandleFormIcons;
 
@@ -159,6 +199,7 @@ class AdminHandleFormProjects extends React.Component {
   }
 }
 
+//TODO: ADD COMMENTS
 class AdminHandleFormUsers extends React.Component {
   constructor(props) {
     super(props);
