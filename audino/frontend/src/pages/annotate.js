@@ -1,3 +1,32 @@
+/**
+ * This file contains the component needed to render the Annotation web page
+ * This web page requires a large number of features and is kinda complex
+ * So it was broken up in 2021 into smaller pages that store simple functions/componets
+ * 
+ * If you are developing on anntoate page and cannot see the method you need to edit here
+ * It may be that the functions you are interested are not on this page
+ * 
+ * Here is a list of all primary annotate functions that are stored out of this webpage
+ *  - ./annotateHelpers/annotatefunctions.js
+ *    - Saving segmentations
+ *    - Deleting currently selected segment
+ *  - ./annotateHelpers/wavesurferMethods.js
+ *    - loading wavesurfer components
+ *    - Setting up spectrogram, regions, and thier events handlers
+ *    - Configure wavesurfer spefific events
+ *    - Handle playing/Pausing/Forward/Backward buttons
+ *    - Handle the zoom feature
+ *    - Style colors for regions
+ *    - Renders the play/pause/forward/backwards buttons
+ *  - src/componets/anntotate/navbuttons.js
+ *    - Renders the next and previous buttons
+ * 
+ * For spefifc componets being rendered in annotate, check the
+ * src/componets/anntotate folder for all the extra features/side menu work
+ * 
+ * Contact system admins for more help understanding how annotate is organzied.
+ */
+
 /* eslint "no-nested-ternary": "off" */
 import React from 'react';
 import { withRouter } from 'react-router-dom';
@@ -9,7 +38,7 @@ import { animateWidth } from '../components/annotate/animation';
 import Resizer from '../components/resizerElement';
 import AnnotationWindow from '../components/annotate/annotationWindow.js';
 import FormModal from '../containers/modal';
-import { handleAllSegmentSave, handleSegmentDelete } from './annotatefunctions';
+import { handleAllSegmentSave, handleSegmentDelete } from './annotateHelpers/annotatefunctions';
 
 class Annotate extends React.Component {
   constructor(props) {
@@ -19,6 +48,7 @@ class Annotate extends React.Component {
     const dataId = Number(match.params.dataid);
     const index = window.location.href.indexOf('/projects');
 
+    //Set up the state of annotate here
     this.initialState = {
       colorChange: 0,
       next_data_url: '',
@@ -50,7 +80,6 @@ class Annotate extends React.Component {
       direction: null,
       referenceWindowOn: false,
       storedAnnotations: null,
-      // applyPreviousAnnotations: false,
       boundingBox: true,
       initWavesurfer: false,   
       disappear: 'sideMenu',

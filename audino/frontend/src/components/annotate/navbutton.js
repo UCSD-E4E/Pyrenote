@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { Button } from '../button';
-import { handleAllSegmentSave } from '../../pages/annotatefunctions';
+import { handleAllSegmentSave } from '../../pages/annotateHelpers/annotatefunctions';
 
 const NavButton = props => {
   const { annotate } = props;

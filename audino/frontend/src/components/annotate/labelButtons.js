@@ -1,6 +1,6 @@
 import React , {useState, useEffect} from 'react';
 import { Button } from '../button';
-import { handleAllSegmentSave, handleSegmentDelete } from '../../pages/annotatefunctions';
+import { handleAllSegmentSave, handleSegmentDelete } from '../../pages/annotateHelpers/annotatefunctions';
 
 const LabelButton = props => {
   const { annotate } = props;

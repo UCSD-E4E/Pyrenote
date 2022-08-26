@@ -75,6 +75,8 @@ class Dashboard extends React.Component {
 
           //Set up for annotation work
           localStorage.setItem('active', 'recommended');
+
+          //reset the previous links
           localStorage.setItem('previous_links', JSON.stringify([]));
           localStorage.setItem('count', JSON.stringify(0));
           window.location.href = `${path}/projects/${projectId}/data/${response.data.data_id}/annotate`;
@@ -88,34 +90,23 @@ class Dashboard extends React.Component {
       });
   }
 
-
-  getReccomendedData(projectId) {
-    axios({
-      method: 'get',
-      url: `api/next_clip/next_rec/project/${projectId}/data/1`
-    })
-      .then(response => {
-        if (response.status == 200) {
-          const index = window.location.href.indexOf('/dashboard');
-          const path = window.location.href.substring(0, index);
-          localStorage.setItem('active', 'recommended');
-          localStorage.setItem('previous_links', JSON.stringify([]));
-          localStorage.setItem('count', JSON.stringify(0));
-          window.location.href = `${path}/projects/${projectId}/data/${response.data.data_id}/annotate`;
-        } 
-      })
-      .catch(() => {
-        this.setState({
-          isProjectLoading: false
-        });
-      });
-  }
-
+  /**
+   * If the user is trying to join a project via apicode
+   * Save thier apicode
+   * @param {} e 
+   */
   onChange(e) {
     this.setState({ apicode: e.target.value });
   }
 
+  /**
+   * The User-Adds-Themsleves-to-Project feature
+   * 
+   * When given an apicode from an ADMIN, users can add themselves to a project
+   * Upload this apicode to the sever so that the user can get access to said project
+   */
   handleUploadToAddProject() {
+    //prepare api request
     const {apicode} = this.state
     console.log(apicode)
     axios({
@@ -126,10 +117,14 @@ class Dashboard extends React.Component {
       }
     })
       .then(response => {
+        //If the request is successful, the user is now
+        //added to that project
+        //refreshing the page will cause the project to show in the dashboard
         if (response.status == 200) {
           window.location.reload();
         } 
 
+        //The user did not enter the correct apicode
         if (response.status == 205) {
           this.setState({
             errorMessage: "Incorrect Api Code, contact system admin for the correct code"
@@ -137,6 +132,8 @@ class Dashboard extends React.Component {
         } 
       })
       .catch(response => {
+        // There is an unknown sever error
+        // this is a new feature
         console.log(response.status)
         this.setState({
           errorMessage: "BAD SEVER ERROR CONTACT SYSTEM ADMIN"
@@ -145,8 +142,10 @@ class Dashboard extends React.Component {
       });
   }
 
-  handleAlertDismiss(e) {
-    //e.preventDefault();
+  /**
+   * Dismiss the alert notification from success/error messages
+   */
+  handleAlertDismiss() {
     this.setState({
       successMessage: '',
       errorMessage: ''
@@ -161,6 +160,7 @@ class Dashboard extends React.Component {
           <title>Dashboard</title>
         </Helmet>
         <div className="container h-100">
+        {/** Add a project modal */}
         <Modal
           show={this.state.show}
           onExited={() => {
@@ -219,14 +219,14 @@ class Dashboard extends React.Component {
           </Modal.Body>
         </Modal>
 
-
-
-
-          <div className="h-100 mt-5">
-            <div className="row border-bottom my-3">
-              <div className="float-left">
-                <h1>Projects</h1>
+        {/** main table here */}
+        <div className="h-100 mt-5">
+          <div className="row border-bottom my-3">
+            <div className="float-left">
+              <h1>Projects</h1>
               </div>
+
+              {/** button to add a project */}
               <IconButton 
                 icon={faPlusCircle}
                 type="primary"
@@ -242,6 +242,7 @@ class Dashboard extends React.Component {
               {!isProjectLoading && projects.length > 0 ? (
                 <table className="table table-striped">
                   <thead>
+                    {/** Headers */}
                     <tr>
                       <th scope="col">#</th>
                       <th scope="col">Name</th>
@@ -250,6 +251,7 @@ class Dashboard extends React.Component {
                     </tr>
                   </thead>
                   <tbody>
+                    {/** Rows */}
                     {projects.map((project, index) => {
                       return (
                         <tr key={index}>
@@ -274,6 +276,7 @@ class Dashboard extends React.Component {
                 </table>
               ) : null}
             </div>
+            {/** If users haven't been added to a project, let them know */}
             <div className="row my-4 justify-content-center align-items-center">
               {isProjectLoading ? <Loader /> : null}
               {!isProjectLoading && projects.length === 0 ? (
