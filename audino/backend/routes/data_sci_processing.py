@@ -61,8 +61,7 @@ def update_confidence(project_id, data_id, username):
     
     confidence = scores.mean()
     data_pt.set_confidence(float(confidence))
-    app.logger.info(confidence)
-    app.logger.info(scores)
+
     flag_modified(data_pt, "users_reviewed") 
     flag_modified(data_pt, "confidence") 
     db.session.add(data_pt)  
@@ -145,14 +144,6 @@ def run_clustering(model_builder, data_oi, users, distance=1/2, agreement=1, dur
     silhoutte = metrics.silhouette_score(data_oi[["OFFSET", "END TIMES"]], clusters)
     silhoutte = (silhoutte + 1 )/2
     silhoutte_users = (silhoutte + adv_num_unique_users/len(users))/2
-
-    if (verbose):  
-      print("Variance Ratio Criterion", vr) 
-      print("Note that VRC is less for DBSCAN in general")
-      print("========================================") 
-      print("Silhoutte Score              : ",silhoutte )
-      print("Silhoutte Score scaled 0 - 1 : ",(silhoutte + 1 )/2)
-      print("scaled avg Silhoutte users   : ",((silhoutte + 1 )/2+adv_num_unique_users/len(users))/2)
       
   except:
     if (verbose):  
@@ -201,8 +192,5 @@ def DBSCAN_auto_dis_builder_min_dis2(data = None, distance = 1, users = None, ag
 
 def distance_cal2(s1,e1,s2,e2):
   return math.sqrt((s2 - s1) * (s2 - s1) + (e2 - e1) * (e2 - e1) )
-
-def distance_cal3(s1,e1,s2,e2, d1, d2):
-  return math.sqrt((s2 - s1) * (s2 - s1) + (e2 - e1) * (e2 - e1) + (d2 - d1) * (d2 - d1)) 
 
 
