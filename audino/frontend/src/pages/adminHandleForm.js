@@ -199,7 +199,9 @@ class AdminHandleFormProjects extends React.Component {
   }
 }
 
-//TODO: ADD COMMENTS
+/**
+ * Render the icons for a row in the user table of the admin portal
+ */
 class AdminHandleFormUsers extends React.Component {
   constructor(props) {
     super(props);
@@ -209,15 +211,30 @@ class AdminHandleFormUsers extends React.Component {
     };
   }
 
+  /**
+   * Display modal for editing user data
+   * @param {*} e 
+   * @param {*} userId 
+   */
   handleEditUser(e, userId) {
     this.showModal({ formType: 'EDIT_USER', title: 'Edit User', userId });
   }
 
+  /**
+   * Display modal for deleting user data
+   * @param {*} e 
+   * @param {*} userId 
+   */
   handleDeleteUser(e, userId) {
     // TODO: CREATE MODAL TO CONFIRM BUT FOR NOW MAKE DEV BUTTON
     this.showModal({ formType: 'DELETE_USER', title: 'Delete User', userId });
   }
 
+  /**
+   * Render the icon buttons for editing user data
+   * @param {*} e 
+   * @param {*} userId 
+   */
   render() {
     return (
       <td className="align-middle">

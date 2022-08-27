@@ -1,3 +1,7 @@
+/**
+ * Handles rendering the admin portal of the website
+ */
+
 import axios from 'axios';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
@@ -9,6 +13,7 @@ import FormModal from '../containers/modal';
 import { AdminHandleFormProjects, AdminHandleFormUsers } from './adminHandleForm';
 
 const Admin = props => {
+  //InitModal state for all project metadata needed to pass into modals
   const initModal = {
     formType: null,
     modalShow: false,
@@ -24,33 +29,48 @@ const Admin = props => {
   };
   const [modalState, setModalState] = React.useState(initModal);
 
+
+  //InitModal state for all project metadata needed to pass into modals
   const initUser = {
     users: [],
     isUserLoading: false
   };
   const [userState, setUserState] = React.useState(initUser);
 
+
+  //init list of projects/
   const initProject = {
     projects: [],
     isProjectLoading: false
   };
   const [projectState, setProjectState] = React.useState(initProject);
 
+  //init list of selected projects
   const initAllProjectSelected = false;
   const [allProjectSelected, setAllProjectSelected] = React.useState(initAllProjectSelected);
 
+  //init list of deleted projects that are selected
   const initAllDeletedProjectSelected = false;
   const [allDeletedProjectSelected, setAllDeletedProjectSelected] = React.useState(initAllDeletedProjectSelected);
 
+  //init list of projects selected for deletion
   const initProjectsToDelete = [];
   const [projectsToDelete, setProjectsToDelete] = React.useState(initProjectsToDelete);
 
+  //init list of deleted projects selected for recovery
   const initProjectsToRecover = [];
   const [projectsToRecover, setProjectsToRecover] = React.useState(initProjectsToRecover);
 
+  //handler to show deleted projects or not
   const initShowDeletedProjects = false;
   const [showDeletedProjects, setShowDeletedProjects] = React.useState(initShowDeletedProjects);
 
+  /**
+   * Get all the metadata for all projects
+   * that are not deleted
+   * 
+   * Save that metadata to project states
+   */
   const fetchProjects = () => {
     axios({
       method: 'get',
@@ -71,6 +91,12 @@ const Admin = props => {
       });
   };
 
+  /**
+   * Get all the metadata for all projects
+   * that ARE deleted
+   * 
+   * Save that metadata to project states
+   */
   const fetchDeletedProjects = () => {
     axios({
       method: 'get',
@@ -91,6 +117,9 @@ const Admin = props => {
       });
   };
 
+  /**
+   * Get all the metadata for all users
+   */
   const fetchUsers = () => {
     axios({
       method: 'get',
@@ -111,40 +140,70 @@ const Admin = props => {
       });
   };
 
+  /**
+   * When loading the webpage for the frist time, fetch all metadata
+   */
   React.useEffect(() => {
     fetchProjects();
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Handler to show modal
+   * @param {*} newState 
+   */
   const showModal = newState => {
     setModalState({ ...modalState, ...newState, modalShow: true });
   };
 
+  /**
+   * Handler to show new user creation modal
+   */
   const handleNewUser = () => {
     showModal({ formType: 'NEW_USER', title: 'Create New User' });
   };
 
+  /**
+   * Handler to show new project creation modal
+   */
   const handleNewProject = () => {
     showModal({ formType: 'NEW_PROJECT', title: 'Create New Project' });
   };
 
+  /**
+   * Handler to show delete project modal
+   */
   const deleteProject = () => {
     showModal({formType: 'DELETE_PROJECT', title: 'Delete Project', projectsToDelete: projectsToDelete});
   }
 
+  /**
+   * Handler to show recover project modal
+   */
   const recoverProject = () => {
     showModal({formType: 'RECOVER_PROJECT', title: 'Recover Project', projectsToRecover: projectsToRecover});
   }
 
+  /**
+   * Update page
+   * This updated deleted and recovered project lists
+   * and deleted and created users
+   */
   const updatePage = () => {
+    //To update, reset all states to init
+    //TODO: Consider just appending new states to og states rather than a full refresh on the admin
+    //portal
     console.log("update page");
     setModalState({ ...modalState, modalShow: false });
     setModalState(initModal);
     setProjectState(initProject);
     setUserState(initUser);
+    
+    //Fetch user metadata
     fetchUsers();
 
+    //depending on if we are looking at the trash or main list, fetch project data
     if (showDeletedProjects) {
       fetchDeletedProjects();
     } else {
@@ -152,22 +211,32 @@ const Admin = props => {
     }
   };
 
+  /**
+   * Wipes all selected projects to delete
+   */
   const clearProjectsToDelete = () => {
     setProjectsToDelete([]);
     setAllProjectSelected(false);
   }
 
+  /**
+   * Wipes all selected projects to Recover
+   */
   const clearProjectsToRecover = () => {
     setProjectsToRecover([]);
     setAllDeletedProjectSelected(false);
   }
 
+  /**
+   * Render the admin portal
+   */
   return (
     <div>
       <Helmet>
         <title>Admin Panel</title>
       </Helmet>
       <div className="container h-100">
+        {/** This modal handles all possible pop ups for editing project and user info */}
         <FormModal
           onExited={() => updatePage()}
           formType={modalState.formType}
@@ -183,6 +252,8 @@ const Admin = props => {
           api_key={modalState.api_key}
           onHide={() => setModalState({ ...modalState, modalShow: false })}
         />
+
+         {/** RENDER PROJECT LIST */}
         <div className="h-100 mt-5">
           <div className="row border-bottom my-3">
             <div className="col float-left">
@@ -198,6 +269,7 @@ const Admin = props => {
             </div>
             <hr />
             <div className="col float-right">
+              {/** RENDER GENERAL PROJECT EDITING BUTTONS*/}
               {!showDeletedProjects
                 ? <h1 className="text-right">
                     <IconButton
@@ -255,7 +327,7 @@ const Admin = props => {
                   </h1>
               }
             </div>
-            
+            {/** RENDER PROJECT SPEFIFIC ROWS */}
             {!projectState.isProjectLoading && projectState.projects.length > 0 ? (
               <table className="table table-striped">
                 <thead>
@@ -367,6 +439,8 @@ const Admin = props => {
               <div className="font-weight-bold">No projects exists!</div>
             ) : null}
           </div>
+
+          {/** RENDER USER TABLE */}
           <div className="row mt-2">
             <div className="col float-left">
               <h1>Users</h1>
