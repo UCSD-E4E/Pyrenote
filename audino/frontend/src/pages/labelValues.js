@@ -7,7 +7,7 @@ import { faPlusSquare, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons
 
 import { IconButton } from '../components/button';
 import Loader from '../components/loader';
-import FormModal from '../containers/labelValueModal';
+import FormModal from '../containers/modal.js';
 
 
 /**

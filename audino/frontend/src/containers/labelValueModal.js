@@ -7,27 +7,9 @@ import DeleteLabelValueForm from './forms/deleteLabelValueForm';
 const FormModal = props => {
   const { show, onExited, onHide, title, formType, labelId, labelValueId } = props;
   return (
-    <Modal
-      show={show}
-      onExited={onExited}
-      onHide={onHide}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
-    >
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">{title}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        {formType === 'NEW_LABEL_VALUE' ? <CreateLabelValueForm labelId={labelId} /> : null}
-        {formType === 'EDIT_LABEL_VALUE' ? (
-          <EditLabelValueForm labelId={labelId} labelValueId={labelValueId} />
-        ) : null}
-        {formType === 'DELETE_LABEL_VALUE' ? (
-          <DeleteLabelValueForm labelId={labelId} labelValueId={labelValueId} onDelete={onHide} />
-        ) : null}
-      </Modal.Body>
-    </Modal>
+    <div>
+      testing removal
+    </div>
   );
 };
 

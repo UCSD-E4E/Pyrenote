@@ -310,6 +310,7 @@ class WavesurferMethods {
   renderButtons(isPlaying) {
     return (
       <div className="row justify-content-center my-4">
+        {/** backwards button */}
         <div className="col-md-1 col-2">
           <IconButton
             icon={faBackward}
@@ -320,6 +321,8 @@ class WavesurferMethods {
             }}
           />
         </div>
+
+        {/** Pause/play button: swaps based on play state */}
         <div className="col-md-1 col-2">
           {!isPlaying ? (
             <IconButton
@@ -342,6 +345,8 @@ class WavesurferMethods {
             />
           ) : null}
         </div>
+
+        {/** forward button */}
         <div className="col-md-1 col-2">
           <IconButton
             icon={faForward}

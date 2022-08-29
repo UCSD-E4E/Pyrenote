@@ -19,6 +19,21 @@ import DownloadDataForm from './forms/downloadDataFrom';
 import FeatureForm from './forms/featureForm';
 import SetActiveForm from './forms/setActiveForm';
 
+/**
+ * Generic Form Modal Class
+ * Basically this provides a clean way to render in modals by making it modular
+ * Based on the formType prop, decide wheither or not to render each form in the modal
+ * 
+ * Key Props
+ *  - Show: boolean, is the modal appearing or not
+ *  - onExited, onHide: event handlers for modals
+ *  - title: title to display at top of the modal
+ *  - formType: keyword to select form to render
+ *  - props...: props to pass to your selected form
+ * 
+ * @param {*} props 
+ * @returns 
+ */
 const FormModal = props => {
   const {
     show,
@@ -48,9 +63,16 @@ const FormModal = props => {
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
+      {/** render title */}
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">{title}</Modal.Title>
       </Modal.Header>
+
+      {/** render body 
+       * Basically, if creating a new modal, create a UNIQUE formType for your
+       * component you want to render within the Modal.Body
+       * Pass props as shown below
+       */}
       <Modal.Body>
         {formType === 'NEW_USER' ? <CreateUserForm authNeeded="true" /> : null}
         {formType === 'NEW_PROJECT' ? <CreateProjectForm /> : null}
@@ -87,6 +109,13 @@ const FormModal = props => {
         ) : null}
         {formType === 'SET_ACTIVE' ? (
           <SetActiveForm annotate={annotate} onDelete={() => onExited} />
+        ) : null}
+        {formType === 'NEW_LABEL_VALUE' ? <CreateLabelValueForm labelId={labelId} /> : null}
+        {formType === 'EDIT_LABEL_VALUE' ? (
+          <EditLabelValueForm labelId={labelId} labelValueId={labelValueId} />
+        ) : null}
+        {formType === 'DELETE_LABEL_VALUE' ? (
+          <DeleteLabelValueForm labelId={labelId} labelValueId={labelValueId} onDelete={onHide} />
         ) : null}
       </Modal.Body>
     </Modal>
