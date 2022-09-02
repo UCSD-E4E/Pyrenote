@@ -4,7 +4,16 @@ import { withStore } from '@spyna/react-store';
 import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 
+/**
+ * Form for Annotation page
+ * Extra feature: active swap form
+ * Allows users to change thier current active mode while annotating
+ */
 class SetActiveForm extends React.Component {
+  /**
+   * Set up
+   * @param {*} props 
+   */
   constructor(props) {
     super(props);
     this.onDelete = () => props.onDelete();
@@ -16,10 +25,18 @@ class SetActiveForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
+  /**
+   * Get curerntly selected activate when user changes it
+   * @param {*} e 
+   */
   handleChange(e) {
     this.setState({ value: e.target.value });
   }
 
+  /**
+   * Update the active the uesr is currently on
+   * @param {*} e 
+   */
   handleSubmit() {
     const { value, annotate } = this.state;
     localStorage.setItem('active', value);
@@ -31,6 +48,10 @@ class SetActiveForm extends React.Component {
     this.onDelete();
   }
 
+  /**
+   * Dismiss alerts
+   * @param {*} e 
+   */
   handleAlertDismiss(e) {
     e.preventDefault();
     this.setState({
@@ -39,6 +60,10 @@ class SetActiveForm extends React.Component {
     });
   }
 
+  /**
+   * Render the form
+   * @returns 
+   */
   render() {
     const { errorMessage, successMessage } = this.state;
     return (

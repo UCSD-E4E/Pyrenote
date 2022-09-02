@@ -7,6 +7,9 @@ import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
+/**
+ * Modal to cofrim if the projects should be recovered or not
+ */
 class RecoverProjectForm extends React.Component {
   constructor(props) {
     super(props);
@@ -25,10 +28,16 @@ class RecoverProjectForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
+  /**
+   * If the user wants to recover the projects
+   * update the backend to put these projects back on main
+   * 
+   */
   handleProjectRecover() {
     this.setState({ isSubmitting: true });
     const { url, projectsToRecover } = this.state;
 
+    //API request to set these projects to not be deleted
     axios({
       method: 'post',
       url,
@@ -38,17 +47,22 @@ class RecoverProjectForm extends React.Component {
     })
       .then(response => {
         if (response.status === 200) {
+          //let users know api request was successful
           this.setState({
             isLoading: false,
             isSubmitting: false,
             successMessage: 'Projects have been recovered',
             errorMessage: null
           });
+
+          //admin portal handlers to get rid of newly recovered projects from
+          //list of deleted projects
           this.clearProjectsToRecover();
           this.onRecover();
         }
       })
       .catch(error => {
+        //handle any werid errors
         errorLogger.sendLog(error.response.data.message);
         this.setState({
           errorMessage: error,
@@ -58,6 +72,10 @@ class RecoverProjectForm extends React.Component {
       });
   }
 
+  /**
+   * Dismiss Alerts
+   * @param {*} e 
+   */
   handleAlertDismiss(e) {
     e.preventDefault();
     this.setState({
@@ -66,6 +84,10 @@ class RecoverProjectForm extends React.Component {
     });
   }
 
+  /**
+   * Display render of modal
+   * @returns 
+   */
   render() {
     const { isSubmitting, errorMessage, successMessage, isLoading, projectsToRecover } = this.state;
     return (

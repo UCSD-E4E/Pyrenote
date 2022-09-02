@@ -8,6 +8,10 @@ import { Button } from '../../components/button';
 
 import setAuthorizationToken from '../../utils';
 
+/**
+ * Login Form
+ * Its a login form
+ */
 class LoginForm extends React.Component {
   constructor(props) {
     super(props);
@@ -23,14 +27,26 @@ class LoginForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
+  /**
+   * save the username
+   * @param {*} e 
+   */
   handleUsernameChange(e) {
     this.setState({ usernameForm: e.target.value });
   }
 
+  /**
+   * Save the password
+   * @param {*} e 
+   */
   handlePasswordChange(e) {
     this.setState({ password: e.target.value });
   }
 
+  /**
+   * Upload password and username to backend for login
+   * @param {*} e 
+   */
   handleLoggingIn(e) {
     e.preventDefault();
     this.setState({ isSigningIn: true });
@@ -38,6 +54,7 @@ class LoginForm extends React.Component {
     const { usernameForm, password } = this.state;
     const { history, store } = this.props;
 
+    //send data to backend
     axios({
       method: 'post',
       url: '/auth/login',
@@ -47,22 +64,28 @@ class LoginForm extends React.Component {
       }
     })
       .then(response => {
+        //If successful, log in the uyser
         this.resetState();
         this.setState({
           successMessage: 'Logging you in...'
         });
 
+        //set JWT access token for user auth in future api calls
         const { access_token, username, is_admin } = response.data;
         localStorage.setItem('access_token', access_token);
-
         setAuthorizationToken(access_token);
-
+        
+        //save user data as well
         store.set('username', username);
         store.set('isAdmin', is_admin);
         store.set('isUserLoggedIn', true);
+
+        //send user to the dashboard
         history.push('/dashboard');
       })
       .catch(error => {
+        //otherwise display error
+        //if user doesn't log in right, it is handled here
         this.setState({
           isSigningIn: false,
           successMessage: '',
@@ -71,6 +94,10 @@ class LoginForm extends React.Component {
       });
   }
 
+  /**
+   * Dismiss alerts
+   * @param {*} e 
+   */
   handleAlertDismiss(e) {
     e.preventDefault();
     this.setState({
@@ -79,6 +106,9 @@ class LoginForm extends React.Component {
     });
   }
 
+  /**
+   * reset the state of the form
+   */
   resetState() {
     this.setState(this.initialState);
   }

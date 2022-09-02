@@ -7,6 +7,11 @@ import { FormAlerts } from '../../components/alert';
 import { Button } from '../../components/button';
 import Loader from '../../components/loader';
 
+/**
+ * Form to add or remove users from accessing a project
+ * ONLY IF THE PROJECT IS NOT AN EXAMPLE
+ * OTHERWISE ALL USERS HAVE ACCESS REGRAUDLESS OF WHAT IS ON THIS PAGE
+ */
 class ManageUsersProjectForm extends React.Component {
   constructor(props) {
     super(props);
@@ -32,13 +37,21 @@ class ManageUsersProjectForm extends React.Component {
     this.state = { ...this.initialState };
   }
 
+  /**
+   * Get list of users currently on that project
+   * Get a list of all users too
+   * This way we know what users are on a project and which are not
+   */
   componentDidMount() {
     const { projectUrl, getUsersUrl } = this.state;
 
     this.setState({ isLoading: true });
 
+    //make two requests to get list of current project users, and a list of all users
     axios.all([axios.get(projectUrl), axios.get(getUsersUrl)]).then(response => {
+      //save all users that are currently selected
       const selectedUsers = response[0].data.users.map(user => Number(user.user_id));
+      //and a list of all users
       this.setState({
         selectedUsers,
         users: response[1].data.users,
@@ -47,28 +60,51 @@ class ManageUsersProjectForm extends React.Component {
     });
   }
 
+  /**
+   * When a user selects a new user to add or remove
+   * Update the local array of stored seleced users for that project. 
+   * @param {*} e 
+   * @returns 
+   */
   handleUsersChange(e) {
+    //get currently selected users
     const { selectedUsers } = this.state;
+
+    //Create an array with one element in it containing the user that was just selected
+    //(DOUBLE CHECK THIS IS TRUE)
     const users = Array.from(e.target.selectedOptions, option => Number(option.value));
+
+    //Determine if the user that was just selected was already assigned to that project
     for (let i = 0; i < selectedUsers.length; i++) {
+
+      //if so, that user must be removed by the admin
       if (selectedUsers[i] === users[0]) {
+        //update list to remove that one element
         selectedUsers.splice(i, 1);
         this.setState({ selectedUsers });
         return;
       }
     }
-    const array = selectedUsers.concat(users);
 
+    //Otherwise, that user was not previously selected
+    //Therefore we should combine the two arrays together
+    //to add that new user to selectedUsers
+    const array = selectedUsers.concat(users);
     this.setState({ selectedUsers: array });
   }
 
+  /**
+   * Update the backend with a new list of users approved to access
+   * that project
+   * @param {*} e 
+   * @returns 
+   */
   handleManageUsersProject(e) {
     e.preventDefault();
-
     this.setState({ isSubmitting: true });
-
     const { selectedUsers, updateUsersProject } = this.state;
 
+    //Handle edge case where there is no users selected
     if (!selectedUsers || !Array.isArray(selectedUsers)) {
       this.setState({
         isSubmitting: false,
@@ -78,6 +114,7 @@ class ManageUsersProjectForm extends React.Component {
       return;
     }
 
+    //Send the backend the new list of selectedUsers who can access that project
     axios({
       method: 'patch',
       url: updateUsersProject,
@@ -102,6 +139,10 @@ class ManageUsersProjectForm extends React.Component {
       });
   }
 
+  /**
+   * Standard alert dismiss
+   * @param {*} e 
+   */
   handleAlertDismiss(e) {
     e.preventDefault();
     this.setState({
@@ -110,10 +151,15 @@ class ManageUsersProjectForm extends React.Component {
     });
   }
 
+  //TODO: checked if this needs to be removed
   resetState() {
     this.setState(this.initialState);
   }
 
+  /**
+   * Render the modal for updating users
+   * @returns 
+   */
   render() {
     const { isSubmitting, errorMessage, successMessage, users, selectedUsers, isLoading } =
       this.state;
@@ -127,12 +173,15 @@ class ManageUsersProjectForm extends React.Component {
               this.form = el;
             }}
           >
+            {/** FORM ALERTS */}
             {isLoading ? <Loader /> : null}
             <FormAlerts
               errorMessage={errorMessage}
               successMessage={successMessage}
               callback={e => this.handleAlertDismiss(e)}
             />
+
+            {/** Here is the form for users */}
             {!isLoading ? (
               <div>
                 <div className="form-group text-left font-weight-bold">
@@ -146,6 +195,7 @@ class ManageUsersProjectForm extends React.Component {
                     value={selectedUsers}
                     onChange={e => this.handleUsersChange(e)}
                   >
+                    {/** list of users selcted here */}
                     {users.map((user, index) => {
                       return (
                         <option value={user.user_id} key={index}>
@@ -155,6 +205,8 @@ class ManageUsersProjectForm extends React.Component {
                     })}
                   </select>
                 </div>
+
+                {/** Submission button */}
                 <div className="form-row">
                   <div className="form-group col">
                     <Button
