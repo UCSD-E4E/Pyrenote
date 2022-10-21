@@ -26,13 +26,13 @@ const AnnotationWindow = props => {
 
   useEffect(() => {
     if (showAnnotatingRegions) {
-      // set display:none to each annotating region
+      // set display:block to each annotating region
       let elems = document.getElementsByClassName("wavesurfer-region")
       for (let e of elems) {
         e.style.display = "block"
       }
     } else {
-      // set display:block to each annotating region
+      // set display:none to each annotating region
       let elems = document.getElementsByClassName("wavesurfer-region")
       for (let e of elems) {
         e.style.display = "none"
