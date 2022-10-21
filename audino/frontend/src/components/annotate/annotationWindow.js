@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AlertSection } from '../alert';
 import NavButton from './navbutton';
 import Spectrogram from './spectrogram';
@@ -23,6 +23,22 @@ const AnnotationWindow = props => {
   } = state;
 
   const [showAnnotatingRegions, setShowAnnotatingRegions] = useState(true)
+
+  useEffect(() => {
+    if (showAnnotatingRegions) {
+      // set display:none to each annotating region
+      let elems = document.getElementsByClassName("wavesurfer-region")
+      for (let e of elems) {
+        e.style.display = "block"
+      }
+    } else {
+      // set display:block to each annotating region
+      let elems = document.getElementsByClassName("wavesurfer-region")
+      for (let e of elems) {
+        e.style.display = "none"
+      }
+    }
+  }, [showAnnotatingRegions])
 
   return (
     <div>
