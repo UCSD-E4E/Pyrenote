@@ -129,8 +129,6 @@ class FeatureForm extends React.Component {
         <div style={{ display: 'table', justifyContent: 'space-evenly', width: '100%' }}>
           {this.renderFeatureCols(0, numPerCol, feature_list)}
           {this.renderFeatureCols(numPerCol * 1, numPerCol * 2, feature_list)}
-          {this.renderFeatureCols(numPerCol * 2, numPerCol * 3, feature_list)}
-          {this.renderFeatureCols(numPerCol * 3, feature_list.length, feature_list)}
         </div>
         <input
           style={{ position: 'relative', left: "50%", transform: "translateX(-50%)"}}
