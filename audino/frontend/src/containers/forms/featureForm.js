@@ -96,7 +96,7 @@ class FeatureForm extends React.Component {
         <form
           style={{
             float: 'left',
-            width: '25%'
+            width: '50%'
           }}
         >
           {feature_list.slice(start, end).map(([key, value]) => {
@@ -118,7 +118,7 @@ class FeatureForm extends React.Component {
   render() {
     const { featuresEnabled, errorMessage, successMessage } = this.state;
     const feature_list = Object.entries(featuresEnabled);
-    const numPerCol = feature_list.length / 4;
+    const numPerCol = feature_list.length / 2;
     return (
       <div>
         <FormAlerts
@@ -133,7 +133,7 @@ class FeatureForm extends React.Component {
           {this.renderFeatureCols(numPerCol * 3, feature_list.length, feature_list)}
         </div>
         <input
-          style={{ position: 'relative', width: '10%', left: '45%' }}
+          style={{ position: 'relative', left: "50%", transform: "translateX(-50%)"}}
           type="submit"
           value="Submit"
           onClick={e => this.handleSubmitFeatures(e)}
