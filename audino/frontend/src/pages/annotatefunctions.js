@@ -171,7 +171,7 @@ const removeSegment = (wavesurfer, selectedSegment, annotate) => {
   annotate.UnsavedButton.removeSaved(selectedSegment);
   annotate.setState({
     selectedSegment: null,
-    isSegmentDeleting: false
+   
   });
 };
 
@@ -198,4 +198,17 @@ const handleSegmentDelete = annotate => {
   }
 };
 
-export { handleAllSegmentSave, handleSegmentDelete };
+const handleAllSegmentApply = annotate => {
+  const {wavesurfer, selectedSegment} = annotate.state;
+  Object.values(wavesurfer.regions.list).forEach(segment => {
+    if (segment.data.annotations === "" || segment.data.annotations == null) {
+      try {
+          segment.data.annotations = selectedSegment.data.annotations;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  });
+};
+
+export { handleAllSegmentSave, handleSegmentDelete, handleAllSegmentApply};
