@@ -41,7 +41,7 @@ body,
 
 .overlay {
   position: fixed;
-  z-index: 1;
+  z-index: 99;
 }
 
 .center-top {
