@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState, useEffect } from 'react'
 import { AlertSection } from '../alert';
 import NavButton from './navbutton';
 import Spectrogram from './spectrogram';
@@ -21,6 +22,24 @@ const AnnotationWindow = props => {
     navButtonsEnabled,
   } = state;
 
+  const [showAnnotatingRegions, setShowAnnotatingRegions] = useState(true)
+
+  useEffect(() => {
+    if (showAnnotatingRegions) {
+      // set display:block to each annotating region
+      let elems = document.getElementsByClassName("wavesurfer-region")
+      for (let e of elems) {
+        e.style.display = "block"
+      }
+    } else {
+      // set display:none to each annotating region
+      let elems = document.getElementsByClassName("wavesurfer-region")
+      for (let e of elems) {
+        e.style.display = "none"
+      }
+    }
+  }, [showAnnotatingRegions])
+
   return (
     <div>
       <div className="h-100 mt-5 text-center">
@@ -42,6 +61,11 @@ const AnnotationWindow = props => {
                 state.addRegionMode 
                 ? <Button id="add-edit-toggle-button" className="addRegion" variant="primary" onClick={() => {setAddRegionMode(!state.addRegionMode)}}>Add Regions: On</Button>
                 : <Button id="add-edit-toggle-button" className="editRegion" variant="secondary" onClick={() => {setAddRegionMode(!state.addRegionMode)}}>Add Regions: Off</Button>
+              }
+              {
+                showAnnotatingRegions
+                ? <Button id="show-annotating-toggle-button" className="addRegion" variant="primary" onClick={() => {setShowAnnotatingRegions(!showAnnotatingRegions)}}>Show Annotations: On</Button>
+                : <Button id="show-annotating-toggle-button" className="editRegion" variant="secondary" onClick={() => {setShowAnnotatingRegions(!showAnnotatingRegions)}}>Show Annotations: Off</Button>
               }
             </div>
           </div>
