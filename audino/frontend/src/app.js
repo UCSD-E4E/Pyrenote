@@ -17,6 +17,7 @@ import {
   Data,
   CreateUser
 } from './pages';
+import BackError from './pages/backError'
 import NavBar from './containers/navbar';
 
 const history = createBrowserHistory();
@@ -149,6 +150,7 @@ class App extends React.Component {
               />
               <PublicRoute exact path="/newUser" component={CreateUser} />
               <Route path="/empty" component={null} key="empty" />
+              <PrivateRoute exact path="/projects/NULL/data" component={BackError} />
               <PrivateRoute exact path="/admin" component={Admin} />
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
               <PrivateRoute exact path="/projects/:id/labels" component={Labels} />
@@ -163,7 +165,7 @@ class App extends React.Component {
                 <Error message="Page not found!" />
               </Route>
             </Switch>
-          </Suspense>
+          </Suspense> 
         </div>
       </Router>
     );

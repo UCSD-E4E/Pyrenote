@@ -5,7 +5,7 @@ import { withRouter } from 'react-router-dom';
 
 import Loader from '../components/loader';
 
-const datas = [];
+const datas = []; 
 
 class Data extends React.Component {
   constructor(props) {
@@ -43,6 +43,7 @@ class Data extends React.Component {
   componentDidMount() {
     this.setState({ isDataLoading: true });
     this.getData();
+    localStorage.setItem('projectId', this.state.projectId); // Store projectId in local storage
     document.body.addEventListener('scroll', this.trackScrolling);
     document.body.addEventListener('scroll', () => {});
   }
