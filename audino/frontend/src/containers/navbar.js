@@ -33,7 +33,9 @@ class NavBar extends React.Component {
     const { store } = this.props;
     const isUserLoggedIn = store.get('isUserLoggedIn');
     const isAdmin = store.get('isAdmin');
+    const projectId = localStorage.getItem('projectId'); // Retrieve projectId from local storage
 
+    
     return (
       <nav className="navbar navbar-expand-md bg-dark navbar-dark">
         <Link to="/" className="navbar-brand">
@@ -48,13 +50,18 @@ class NavBar extends React.Component {
         >
           <span className="navbar-toggler-icon" />
         </button>
-
+  
         {isUserLoggedIn && (
           <div className="collapse navbar-collapse" id="collapsibleNavbar">
             <ul className="navbar-nav">
               <li className="nav-item">
                 <Link className="nav-link" to="/dashboard">
                   Dashboard
+                </Link>
+              </li>
+              <li className="nav-item"> 
+                <Link className="nav-link" to={`/projects/${projectId}/data`}> 
+                  Previous Project
                 </Link>
               </li>
               {isAdmin && (

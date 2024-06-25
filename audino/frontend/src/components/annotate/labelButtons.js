@@ -20,7 +20,7 @@ const LabelButton = props => {
     setIsNoAudioBtnClicked(true);
     const waveSurfer = state.wavesurfer;
     const result = await waveSurfer.addRegion({id:"no audio", start:0, end:waveSurfer.getDuration()});
-    console.log("region added");
+    console.log("region added"); 
     console.log(annotate);
 
     const noAudioLabelKey = Object.keys(annotate.state.labels)[0];
@@ -32,6 +32,8 @@ const LabelButton = props => {
     console.log("no audio clicked");
     handleAllSegmentSave(annotate);
     
+    //window.location.replace('/dashboard');
+    //<Redirect to="/dashboard" /> // TODO - enter a location
     //document.getElementsByClassName("next")[0].getElementsByTagName('button')[0].click();
 
   }

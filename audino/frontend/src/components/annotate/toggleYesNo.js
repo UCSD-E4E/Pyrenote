@@ -18,18 +18,18 @@ class ToggleYesNo extends React.Component {
 
   componentDidMount() {}
 
-  handleClick(type) {
-    let newState = null;
-    if (type === 'yes') newState = { yes: true };
-    else newState = { yes: false };
-    this.setState(newState);
+  handleClick() {
+    
+    const newState = !this.state.yes;  
+    this.setState({ yes: newState });  
+    
     this.annotate.setState({ isMarkedForReviewLoading: true });
 
     axios({
       method: 'patch',
       url: this.dataUrl,
       data: {
-        is_marked_for_review: !newState.yes
+        is_marked_for_review: newState
       }
     })
       .then(response => {
@@ -53,16 +53,16 @@ class ToggleYesNo extends React.Component {
   render() {
     const { yes } = this.state;
     let msg = ': ';
-    if (yes) msg = ': Yes';
-    else msg = ': No';
+    if (yes) msg = 'Click Here When Confident.';
+    else msg = 'Nevermind! I\'m Unsure.';
     return (
       <div className="row justify-content-center my-4">
         <div className="col-4">
           <Button
-            text={`Feeling Confident In \n your labels?${msg}`}
+            text={`${msg}`}
             size="lg"
             type={yes ? 'primary' : 'danger'}
-            onClick={() => this.handleClick(yes ? 'No' : 'Yes')}
+            onClick={() => this.handleClick()}
           />
         </div>
       </div>
